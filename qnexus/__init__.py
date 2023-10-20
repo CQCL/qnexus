@@ -1,11 +1,10 @@
 """Quantinuum Nexus API client."""
 
 import os
-from typing import Dict, Optional, Any, List, Annotated
+from typing import Dict, Optional, Any, Annotated
 from pathlib import Path
 from functools import reduce
 
-from pydantic_core import ErrorDetails
 from pydantic import BaseModel, ConfigDict, ValidationError, BeforeValidator
 from colorama import Fore
 
@@ -55,22 +54,28 @@ def get_config_file_paths():
 def config():
     """Display the current QNX environment."""
     config_file_paths = get_config_file_paths()
+    if len(config_file_paths) == 0:
+        print(
+            Fore.LIGHTYELLOW_EX
+            + "No .qnx project found (or in any of the parent directories). Please create a .qnx file to initialize a project. "
+        )
+        return
     configs = [parse_config(config) for config in config_file_paths]
     configs.reverse()  # Nearest directory takes precendence
     resolved_config = reduce(lambda a, b: dict(a, **b), configs)
+
     try:
         validated_config = Config(**resolved_config)
         print(validated_config)
-
-        print(Fore.YELLOW + "Unused environment variables:")
-        extra = validated_config.__pydantic_extra__
-        if extra is not None:
-            # pylint: disable=no-member
-            for field_name, field in extra.items():
+        # pylint:disable=no-member
+        extra = validated_config.__pydantic_extra__.items()
+        if len(extra) > 0:
+            print(Fore.YELLOW + "Unused environment variables:")
+            for field_name, field in extra:
                 print(field_name, "=", field)
 
     except ValidationError as e:
-        print(Fore.RED + f"Required value in missing {CONFIG_FILE_NAME} file:")
+        print(Fore.RED + f"Required value missing in {CONFIG_FILE_NAME} file:")
         for err in e.errors():
             field_name = str(err.get("loc")[0])
             message = err.get("msg")
