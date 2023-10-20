@@ -1,12 +1,12 @@
 """Quantinuum Nexus API client."""
 
 import os
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, Any, List, Annotated
 from pathlib import Path
 from functools import reduce
 
 from pydantic_core import ErrorDetails
-from pydantic import BaseModel, ConfigDict, ValidationError
+from pydantic import BaseModel, ConfigDict, ValidationError, BeforeValidator
 from colorama import Fore
 
 CONFIG_FILE_NAME = ".qnx"
@@ -16,7 +16,7 @@ class Config(BaseModel):
     """QNexus Configuration schema."""
 
     model_config = ConfigDict(coerce_numbers_to_str=True, extra="allow")
-    project_name: str
+    project_name: Annotated[str, BeforeValidator(lambda v: None if v == "" else v)]
     optimization_level: Optional[int] = 1
 
     def __str__(self) -> str:
@@ -70,7 +70,7 @@ def config():
                 print(field_name, "=", field)
 
     except ValidationError as e:
-        print(Fore.RED + f"Missing value in {CONFIG_FILE_NAME} file:")
+        print(Fore.RED + f"Required value in missing {CONFIG_FILE_NAME} file:")
         for err in e.errors():
             field_name = str(err.get("loc")[0])
             message = err.get("msg")
