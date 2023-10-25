@@ -10,7 +10,10 @@ python = "^3.10"
 pydantic = "^2.4.2"
 uuid = "^1.30"
 colorama = "^0.4.6"
+click = "^8.1.7"
 
+[tool.poetry.scripts]
+qnx = "qnexus.cli:entrypoint"
 
 [build-system]
 requires = ["poetry-core"]

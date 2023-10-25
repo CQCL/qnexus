@@ -55,6 +55,7 @@ def get_config_file_paths():
 def config():
     """Display the current QNX environment."""
     config_file_paths = get_config_file_paths()
+    print("YO")
     if len(config_file_paths) == 0:
         print(
             Fore.LIGHTYELLOW_EX
