@@ -2,7 +2,7 @@ import click
 import os
 from colorama import Fore
 from ..consts import CONFIG_FILE_NAME
-from .. import get_config
+from ..config import get_config
 
 current_path = os.getcwd()
 current_dir = current_path.split(os.sep)[-1]
@@ -12,7 +12,7 @@ current_dir = current_path.split(os.sep)[-1]
 @click.command()
 def status():
     """Utils"""
-    print("CURRENT PROJECT:")
+    click.echo("Current project")
 
 
 @click.command()
