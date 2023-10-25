@@ -6,9 +6,8 @@ from pathlib import Path
 from functools import reduce
 
 from pydantic import BaseModel, ConfigDict, ValidationError, BeforeValidator
-from colorama import Fore, Back
-
-CONFIG_FILE_NAME = "qnx.conf"
+from colorama import Fore
+from .consts import CONFIG_FILE_NAME
 
 
 class Config(BaseModel):
@@ -52,20 +51,24 @@ def get_config_file_paths():
     return config_files
 
 
-def config():
-    """Display the current QNX environment."""
+def get_config() -> Any:
+    """Get config"""
     config_file_paths = get_config_file_paths()
-    print("YO")
     if len(config_file_paths) == 0:
-        print(
-            Fore.LIGHTYELLOW_EX
-            + f"No {CONFIG_FILE_NAME} file found in this directory or any of the parent directories. Please create a {CONFIG_FILE_NAME} file to initialize a project. "
-        )
-        return
+        return None
+        # print(
+        #     Fore.LIGHTYELLOW_EX
+        #     + f"No {CONFIG_FILE_NAME} file found in this directory or any of the parent directories. Please create a {CONFIG_FILE_NAME} file to initialize a project. "
+        # )
+        # return
     configs = [parse_config(config) for config in config_file_paths]
     configs.reverse()  # Nearest directory takes precendence
-    resolved_config = reduce(lambda a, b: dict(a, **b), configs)
+    return reduce(lambda a, b: dict(a, **b), configs)
 
+
+def config():
+    """Display the current QNX environment."""
+    resolved_config = get_config()
     try:
         validated_config = Config(**resolved_config)
         print(validated_config)
