@@ -11,6 +11,7 @@ pydantic = "^2.4.2"
 uuid = "^1.30"
 colorama = "^0.4.6"
 click = "^8.1.7"
+httpx = "^0.25.0"
 
 [tool.poetry.scripts]
 qnx = "qnexus.cli:entrypoint"

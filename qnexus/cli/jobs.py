@@ -4,20 +4,21 @@ import click
 # Job commands
 @click.command()
 def list():
-    """List jobs/"""
+    """List all jobs"""
     click.echo("Listing jobs...")
+    return 5
 
 
 @click.command()
 def create():
-    """Submit a job"""
-    click.echo("Created job...")
+    """Submit a job to Nexus."""
+    click.echo("Creating job...")
 
 
 # Create jobs interface
 @click.group()
 def jobs():
-    """Jobs interface"""
+    """List, create & cancel jobs."""
 
 
 jobs.add_command(list)

@@ -1,7 +1,7 @@
 """Quantinuum Nexus API client."""
 
 import os
-from typing import Dict, Optional, Any, Annotated
+from typing import Dict, Any, Annotated
 from pathlib import Path
 from functools import reduce
 from click import ClickException
@@ -15,7 +15,8 @@ class Config(BaseModel):
 
     model_config = ConfigDict(coerce_numbers_to_str=True, extra="allow")
     project_name: Annotated[str, BeforeValidator(lambda v: None if v == "" else v)]
-    optimization_level: Optional[int] = 1
+    optimization_level: int = 1
+    url: str = "https://nexus.quantinuum.com"
 
     def __str__(self) -> str:
         out: str = ""
@@ -51,7 +52,7 @@ def parse_config_file(path: str) -> Dict[str, Any]:
     return env_vars
 
 
-def get_config() -> Dict[str, Any]:
+def get_config() -> Config:
     """Get config"""
     config_file_paths = get_config_file_paths()
     if len(config_file_paths) > 0:
@@ -61,6 +62,6 @@ def get_config() -> Dict[str, Any]:
         ]
         configs.reverse()  # Nearest directory takes precendence
         resolved_config = reduce(lambda a, b: dict(a, **b), configs)
-        if resolved_config:
-            return resolved_config
+        return Config(**resolved_config)
+
     raise ClickException(Fore.RED + f"No project found. {CONFIG_FILE_NAME} not found.")
