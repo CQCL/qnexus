@@ -1,1 +1,1 @@
-CONFIG_FILE_NAME = "qnx.conf"
+CONFIG_FILE_NAME = "qnx.toml"
