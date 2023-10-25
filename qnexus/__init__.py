@@ -6,9 +6,9 @@ from pathlib import Path
 from functools import reduce
 
 from pydantic import BaseModel, ConfigDict, ValidationError, BeforeValidator
-from colorama import Fore
+from colorama import Fore, Back
 
-CONFIG_FILE_NAME = ".qnx"
+CONFIG_FILE_NAME = "qnx.conf"
 
 
 class Config(BaseModel):
@@ -40,6 +40,7 @@ def parse_config(path: str) -> Dict[str, Any]:
 
 def get_config_file_paths():
     """Get paths of all configuration files in the current tree."""
+
     cwd = os.path.dirname(__file__)
     config_files = []
     tree = Path(cwd).parents
@@ -57,7 +58,7 @@ def config():
     if len(config_file_paths) == 0:
         print(
             Fore.LIGHTYELLOW_EX
-            + "No .qnx project found (or in any of the parent directories). Please create a .qnx file to initialize a project. "
+            + f"No {CONFIG_FILE_NAME} file found in this directory or any of the parent directories. Please create a {CONFIG_FILE_NAME} file to initialize a project. "
         )
         return
     configs = [parse_config(config) for config in config_file_paths]
