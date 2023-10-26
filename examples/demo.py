@@ -1,3 +1,4 @@
 import qnexus as qnx
 
-qnx.
+res = qnx.projects.list()
+print(res)
