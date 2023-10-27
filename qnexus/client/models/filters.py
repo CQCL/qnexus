@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
-from typing import Optional, Union, Literal
+from pydantic import Field, BaseModel
+from typing import Optional, Union, Literal, TypedDict, List
 
 
 class PropertiesFilter(BaseModel):
@@ -10,11 +10,21 @@ class PropertiesFilter(BaseModel):
     )
 
 
+class TimeFilterDict(TypedDict):
+    """Resource time filters model."""
+
+    created_before: Optional[str]
+    created_after: Optional[str]
+    modified_before: Optional[str]
+    modified_after: Optional[str]
+
+
 class TimeFilter(BaseModel):
     """Resource time filters model."""
 
     created_before: Optional[str] = Field(
-        default=None, serialization_alias="filter[timestamps][created][before]"
+        default=None,
+        serialization_alias="filter[timestamps][created][before]",
     )
     created_after: Optional[str] = Field(
         default=None, serialization_alias="filter[timestamps][created][after]"
@@ -51,11 +61,15 @@ class NameFilter(BaseModel):
 class SortFilter(BaseModel):
     """Resource sorting model."""
 
-    sort: Union[
-        Literal["timestamps.created"],
-        Literal["-timestamps.created"],
-        Literal["timestamps.modified"],
-        Literal["-timestamps.modified"],
-        Literal["name"],
-        Literal["-name"],
-    ] = "-timestamps.created"
+    sort: Optional[
+        list[
+            Union[
+                Literal["timestamps.created"],
+                Literal["-timestamps.created"],
+                Literal["timestamps.modified"],
+                Literal["-timestamps.modified"],
+                Literal["name"],
+                Literal["-name"],
+            ]
+        ]
+    ] = ["-timestamps.created"]

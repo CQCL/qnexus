@@ -1,32 +1,78 @@
 from .client import nexus_client
-from typing import Optional
-from pydantic import Field, TypeAdapter
-from colorama import Fore
 
+from pydantic import Field, BaseModel
+from colorama import Fore
 import pandas as pd
+from typing import TypedDict, Union, List, Optional
+from typing_extensions import Unpack, TypedDict, Literal, NotRequired
+
 from .models.filters import (
     SortFilter,
     PaginationFilter,
     NameFilter,
     CreatorFilter,
     PropertiesFilter,
+    TimeFilter,
+    TimeFilterDict,
 )
 
 
-class Query(SortFilter, PaginationFilter, NameFilter, CreatorFilter, PropertiesFilter):
-    """Query params for fetching projects"""
+class Params(
+    SortFilter,
+    PaginationFilter,
+    NameFilter,
+    CreatorFilter,
+    PropertiesFilter,
+    TimeFilter,
+):
+    """Params for fetching projects"""
 
     is_archived: Optional[bool] = Field(
         default=None, serialization_alias="filter[archived]"
     )
 
 
-def list(query: Optional[Query] = None):
-    """List projects"""
+class Body(
+    SortFilter,
+    PaginationFilter,
+    NameFilter,
+    CreatorFilter,
+    PropertiesFilter,
+    TimeFilter,
+):
+    """Params for fetching projects"""
+
+    is_archived: Optional[bool] = Field(
+        default=None, serialization_alias="filter[archived]"
+    )
+
+
+class FParams(TimeFilterDict):
+    check: str
+
+
+# **kwargs: Unpack[FParams]
+def list():
+    """
+    List projects you have access to.
+
+    Examples
+    --------
+    Listed projects can be filtered:
+
+    >>> projects = qnx.projects.list(
+        is_archived=False,
+        sort=["-name"]
+    )
+    ...
+    """
+    params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True)
     print("Fetching projects...")
     res = nexus_client.get(
-        "/api/projects/v1beta", params=query.model_dump_json() if query else None
-    ).json()
+        "/api/projects/v1beta",
+        params=params,
+    )
+
     formatted_projects = [
         {
             "Name": Fore.YELLOW + project["attributes"]["name"],
@@ -38,6 +84,7 @@ def list(query: Optional[Query] = None):
             "Archived": "🗃️" if project["attributes"]["archived"] else None,
             "Properties": project["attributes"]["properties"],
         }
-        for project in res["data"]
+        for project in res.json()["data"]
     ]
+
     return pd.DataFrame.from_records(formatted_projects)

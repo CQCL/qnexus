@@ -36,6 +36,6 @@ config = get_config()
 nexus_client = httpx.Client(
     base_url=config.url,
     auth=AuthHandler(
-        refresh_token="m-4q9E7Qhn4lIJyscGTsmRr8JKCO3R8AQ4oCRag--PWt5jOXKiqPv6u31VfVBCWQ0VWPAMnpiyrQ4Qq_HmS4_Q"
+        refresh_token="sfv0iycvv7n6zAzZsDYF-MX7dPeIgUr5W0wWxwkKuyQm81eSpGnPt48p0FL8V3njdBKjAupH394mmvV1U1JaXg"
     ),
 )
