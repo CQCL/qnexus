@@ -1,5 +1,12 @@
 from pydantic import Field, BaseModel
 from typing import Optional, Union, Literal, TypedDict, List
+from typing_extensions import NotRequired
+
+
+class PropertiesFilterDict(TypedDict):
+    """Resource time filters model."""
+
+    properties: NotRequired[list[str]]
 
 
 class PropertiesFilter(BaseModel):
@@ -13,10 +20,10 @@ class PropertiesFilter(BaseModel):
 class TimeFilterDict(TypedDict):
     """Resource time filters model."""
 
-    created_before: Optional[str]
-    created_after: Optional[str]
-    modified_before: Optional[str]
-    modified_after: Optional[str]
+    created_before: NotRequired[str]
+    created_after: NotRequired[str]
+    modified_before: NotRequired[str]
+    modified_after: NotRequired[str]
 
 
 class TimeFilter(BaseModel):
@@ -37,11 +44,24 @@ class TimeFilter(BaseModel):
     )
 
 
+class PaginationFilterDict(TypedDict):
+    """Pagination model."""
+
+    page_number: NotRequired[int]
+    page_size: NotRequired[int]
+
+
 class PaginationFilter(BaseModel):
     """Pagination model."""
 
     page_number: Optional[int] = Field(default=None, serialization_alias="page[number]")
     page_size: Optional[int] = Field(default=None, serialization_alias="page[size]")
+
+
+class CreatorFilterDict(TypedDict):
+    """Creator email model."""
+
+    creator_email: NotRequired[list[str]]
 
 
 class CreatorFilter(BaseModel):
@@ -52,10 +72,33 @@ class CreatorFilter(BaseModel):
     )
 
 
+class NameFilterDict(TypedDict):
+    """Name model."""
+
+    name: NotRequired[str]
+
+
 class NameFilter(BaseModel):
     """Name model."""
 
     name: Optional[str] = Field(default=None, serialization_alias="filter[name]")
+
+
+class SortFilterDict(TypedDict):
+    """Resource sorting model."""
+
+    sort: NotRequired[
+        list[
+            Union[
+                Literal["timestamps.created"],
+                Literal["-timestamps.created"],
+                Literal["timestamps.modified"],
+                Literal["-timestamps.modified"],
+                Literal["name"],
+                Literal["-name"],
+            ]
+        ]
+    ]
 
 
 class SortFilter(BaseModel):

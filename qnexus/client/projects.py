@@ -8,10 +8,15 @@ from typing_extensions import Unpack, TypedDict, Literal, NotRequired
 
 from .models.filters import (
     SortFilter,
+    SortFilterDict,
     PaginationFilter,
+    PaginationFilterDict,
     NameFilter,
+    NameFilterDict,
     CreatorFilter,
+    CreatorFilterDict,
     PropertiesFilter,
+    PropertiesFilterDict,
     TimeFilter,
     TimeFilterDict,
 )
@@ -32,27 +37,19 @@ class Params(
     )
 
 
-class Body(
-    SortFilter,
-    PaginationFilter,
-    NameFilter,
-    CreatorFilter,
-    PropertiesFilter,
-    TimeFilter,
+class ParamsDict(
+    SortFilterDict,
+    PaginationFilterDict,
+    NameFilterDict,
+    CreatorFilterDict,
+    PropertiesFilterDict,
+    TimeFilterDict,
 ):
-    """Params for fetching projects"""
-
-    is_archived: Optional[bool] = Field(
-        default=None, serialization_alias="filter[archived]"
-    )
+    pass
 
 
-class FParams(TimeFilterDict):
-    check: str
-
-
-# **kwargs: Unpack[FParams]
-def list():
+#
+def list(**kwargs: Unpack[ParamsDict]):
     """
     List projects you have access to.
 
