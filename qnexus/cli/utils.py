@@ -13,7 +13,7 @@ current_dir = current_path.split(os.sep)[-1]
 @click.command()
 def status():
     """Print a short summary of the current project."""
-    click.echo(client.status())
+    # click.echo(client.status())
     click.echo("A brief summary of the current project.")
 
 

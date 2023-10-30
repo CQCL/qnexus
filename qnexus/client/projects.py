@@ -1,7 +1,6 @@
 from .client import nexus_client
-
 from pydantic import Field, BaseModel
-from colorama import Fore
+from colorama import Fore, Style
 import pandas as pd
 from typing import TypedDict, Union, List, Optional
 from typing_extensions import Unpack, TypedDict, Literal, NotRequired
@@ -32,20 +31,23 @@ class Params(
 ):
     """Params for fetching projects"""
 
-    is_archived: Optional[bool] = Field(
-        default=None, serialization_alias="filter[archived]"
+    archived: bool = Field(
+        default=None,
+        serialization_alias="filter[archived]",
+        description="Include or omit archived projects",
     )
 
 
 class ParamsDict(
-    SortFilterDict,
     PaginationFilterDict,
     NameFilterDict,
     CreatorFilterDict,
     PropertiesFilterDict,
     TimeFilterDict,
+    SortFilterDict,
 ):
     pass
+    archived: NotRequired[bool]
 
 
 #
@@ -63,6 +65,7 @@ def list(**kwargs: Unpack[ParamsDict]):
     )
     ...
     """
+
     params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True)
     print("Fetching projects...")
     res = nexus_client.get(
@@ -72,13 +75,10 @@ def list(**kwargs: Unpack[ParamsDict]):
 
     formatted_projects = [
         {
-            "Name": Fore.YELLOW + project["attributes"]["name"],
-            "Description": Fore.BLUE + (project["attributes"]["description"] or "-"),
-            # "Created by": filter(
-            #     lambda p: p["attributes"]["id"] == project["data"]["attributes"]["id"],
-            #     res["included"],
-            # )[0]["attributes"]["id"],
-            "Archived": "🗃️" if project["attributes"]["archived"] else None,
+            "Name": project["attributes"]["name"],
+            "Created by": "Somebody",
+            "Description": (project["attributes"]["description"] or "-"),
+            "Archived": True if project["attributes"]["archived"] else False,
             "Properties": project["attributes"]["properties"],
         }
         for project in res.json()["data"]

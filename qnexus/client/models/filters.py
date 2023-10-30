@@ -1,6 +1,7 @@
 from pydantic import Field, BaseModel
 from typing import Optional, Union, Literal, TypedDict, List
 from typing_extensions import NotRequired
+from datetime import datetime
 
 
 class PropertiesFilterDict(TypedDict):
@@ -13,7 +14,9 @@ class PropertiesFilter(BaseModel):
     """Resource time filters model."""
 
     properties: list[str] = Field(
-        default=None, serialization_alias="filter[properties]"
+        default=[],
+        serialization_alias="filter[properties]",
+        description="Filter by resource label value.",
     )
 
 
@@ -29,18 +32,25 @@ class TimeFilterDict(TypedDict):
 class TimeFilter(BaseModel):
     """Resource time filters model."""
 
-    created_before: Optional[str] = Field(
+    created_before: datetime = Field(
         default=None,
         serialization_alias="filter[timestamps][created][before]",
+        description="Show items created before this date.",
     )
-    created_after: Optional[str] = Field(
-        default=None, serialization_alias="filter[timestamps][created][after]"
+    created_after: datetime = Field(
+        default=None,
+        serialization_alias="filter[timestamps][created][after]",
+        description="Show items created after this date.",
     )
-    modified_before: Optional[str] = Field(
-        default=None, serialization_alias="filter[timestamps][modified][before]"
+    modified_before: datetime = Field(
+        default=None,
+        serialization_alias="filter[timestamps][modified][before]",
+        description="Show items modified before this date.",
     )
-    modified_after: Optional[str] = Field(
-        default=None, serialization_alias="filter[timestamps][modified][after]"
+    modified_after: datetime = Field(
+        default=None,
+        serialization_alias="filter[timestamps][modified][after]",
+        description="Show items modified after this date.",
     )
 
 
@@ -54,8 +64,16 @@ class PaginationFilterDict(TypedDict):
 class PaginationFilter(BaseModel):
     """Pagination model."""
 
-    page_number: Optional[int] = Field(default=None, serialization_alias="page[number]")
-    page_size: Optional[int] = Field(default=None, serialization_alias="page[size]")
+    page_number: int = Field(
+        default=0,
+        serialization_alias="page[number]",
+        description="Specific page to return.",
+    )
+    page_size: int = Field(
+        default=250,
+        serialization_alias="page[size]",
+        description="Size of page that is returned.",
+    )
 
 
 class CreatorFilterDict(TypedDict):
@@ -68,7 +86,10 @@ class CreatorFilter(BaseModel):
     """Creator email model."""
 
     creator_email: list[str] = Field(
-        default=[], serialization_alias="filter[creator][email]"
+        default=[],
+        serialization_alias="filter[creator][email]",
+        examples=["user@domain.com"],
+        description="Filter by creator email.",
     )
 
 
@@ -81,7 +102,11 @@ class NameFilterDict(TypedDict):
 class NameFilter(BaseModel):
     """Name model."""
 
-    name: Optional[str] = Field(default=None, serialization_alias="filter[name]")
+    name: str = Field(
+        default="",
+        serialization_alias="filter[name]",
+        description="Filter by name, fuzzy search.",
+    )
 
 
 class SortFilterDict(TypedDict):
@@ -104,15 +129,17 @@ class SortFilterDict(TypedDict):
 class SortFilter(BaseModel):
     """Resource sorting model."""
 
-    sort: Optional[
-        list[
-            Union[
-                Literal["timestamps.created"],
-                Literal["-timestamps.created"],
-                Literal["timestamps.modified"],
-                Literal["-timestamps.modified"],
-                Literal["name"],
-                Literal["-name"],
-            ]
+    sort: list[
+        Union[
+            Literal["timestamps.created"],
+            Literal["-timestamps.created"],
+            Literal["timestamps.modified"],
+            Literal["-timestamps.modified"],
+            Literal["name"],
+            Literal["-name"],
         ]
-    ] = ["-timestamps.created"]
+    ] = Field(
+        default=["-timestamps.created"],
+        serialization_alias="sort",
+        description="Sort items.",
+    )
