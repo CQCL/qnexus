@@ -74,7 +74,7 @@ class PaginationFilter(BaseModel):
         description="Specific page to return.",
     )
     page_size: int = Field(
-        default=250,
+        default=15,
         serialization_alias="page[size]",
         description="Size of page that is returned.",
     )
@@ -147,3 +147,19 @@ class SortFilter(BaseModel):
         serialization_alias="sort",
         description="Sort items.",
     )
+
+
+class ExperimentIDFilter(BaseModel):
+    """Project Id filter"""
+
+    project_id: Annotated[str, AllowNone] = Field(
+        default=None,
+        serialization_alias="filter[experiment_id]",
+        description="Filter by project id",
+    )
+
+
+class ExperimentIDFilterDict(TypedDict):
+    """Project ID filter (TypedDict)"""
+
+    project_id: NotRequired[str]

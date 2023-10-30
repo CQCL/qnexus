@@ -38,6 +38,7 @@ def init():
 
 
 def add_options_to_command(command: Command, model: Any):
+    """Add click options using fields of a pydantic model."""
     # Annotate command with options from dict
     for field, value in model.model_fields.items():
         command.params.append(
@@ -46,6 +47,6 @@ def add_options_to_command(command: Command, model: Any):
                 help=value.description,
                 show_default=True,
                 default=value.default,
-                type=value.annotation,
+                multiple=isinstance(value.default, list),
             )
         )

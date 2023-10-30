@@ -5,12 +5,12 @@ from typing_extensions import Unpack
 
 
 @click.command()
-def list(**kwargs: Unpack[_projects.ParamsDict]):
+def list_projects(**kwargs: Unpack[_projects.ParamsDict]):
     """List all projects"""
-    click.echo(_projects.list(**kwargs))
+    click.echo(_projects.list_projects(**kwargs))
 
 
-add_options_to_command(list, _projects.Params)
+add_options_to_command(list_projects, _projects.Params)
 
 
 @click.group()
@@ -19,4 +19,4 @@ def projects():
     pass
 
 
-projects.add_command(list)
+projects.add_command(list_projects, name="list")

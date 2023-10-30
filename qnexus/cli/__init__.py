@@ -1,6 +1,7 @@
 import click
 
 from .projects import projects
+from .jobs import jobs
 from .utils import status, init
 from ..config import get_config
 
@@ -14,3 +15,4 @@ def entrypoint():
 entrypoint.add_command(init)
 entrypoint.add_command(status)
 entrypoint.add_command(projects)
+entrypoint.add_command(jobs)

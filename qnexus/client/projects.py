@@ -1,10 +1,8 @@
 from .client import nexus_client
-from pydantic import Field, BaseModel
-from colorama import Fore, Style
+from pydantic import Field
 import pandas as pd
-from typing import TypedDict, Union, List, Optional, Annotated
-from typing_extensions import Unpack, TypedDict, Literal, NotRequired
-
+from typing_extensions import Unpack, NotRequired
+from .utils import normalize_included
 
 from .models.filters import (
     SortFilter,
@@ -47,12 +45,14 @@ class ParamsDict(
     TimeFilterDict,
     SortFilterDict,
 ):
+    """Params for fetching projects (TypedDict)"""
+
     pass
     archived: NotRequired[bool]
 
 
 #
-def list(**kwargs: Unpack[ParamsDict]):
+def list_projects(**kwargs: Unpack[ParamsDict]):
     """
     List projects you have access to.
 
@@ -74,10 +74,17 @@ def list(**kwargs: Unpack[ParamsDict]):
         params=params,
     )
 
+    included_map = normalize_included(res.json()["included"])
+    # print(res.json()["data"][0])
     formatted_projects = [
         {
             "Name": project["attributes"]["name"],
-            "Created by": "Somebody",
+            "Created by": included_map[
+                project["relationships"]["creator"]["data"]["type"]
+            ][project["relationships"]["creator"]["data"]["id"]]["attributes"][
+                "display_name"
+            ],
+            "Created": project["attributes"]["timestamps"]["created"],
             "Description": (project["attributes"]["description"] or "-"),
             "Archived": True if project["attributes"]["archived"] else False,
             "Properties": project["attributes"]["properties"],
