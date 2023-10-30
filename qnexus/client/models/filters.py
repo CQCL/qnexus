@@ -1,7 +1,11 @@
-from pydantic import Field, BaseModel
-from typing import Optional, Union, Literal, TypedDict, List
+from pydantic import (
+    Field,
+    BaseModel,
+)
+from typing import Union, Literal, TypedDict, Annotated
 from typing_extensions import NotRequired
 from datetime import datetime
+from .utils import AllowNone
 
 
 class PropertiesFilterDict(TypedDict):
@@ -23,31 +27,31 @@ class PropertiesFilter(BaseModel):
 class TimeFilterDict(TypedDict):
     """Resource time filters model."""
 
-    created_before: NotRequired[str]
-    created_after: NotRequired[str]
-    modified_before: NotRequired[str]
-    modified_after: NotRequired[str]
+    created_before: NotRequired[datetime]
+    created_after: NotRequired[datetime]
+    modified_before: NotRequired[datetime]
+    modified_after: NotRequired[datetime]
 
 
 class TimeFilter(BaseModel):
     """Resource time filters model."""
 
-    created_before: datetime = Field(
+    created_before: Annotated[datetime, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][created][before]",
         description="Show items created before this date.",
     )
-    created_after: datetime = Field(
+    created_after: Annotated[datetime, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][created][after]",
         description="Show items created after this date.",
     )
-    modified_before: datetime = Field(
+    modified_before: Annotated[datetime, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][modified][before]",
         description="Show items modified before this date.",
     )
-    modified_after: datetime = Field(
+    modified_after: Annotated[datetime, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][modified][after]",
         description="Show items modified after this date.",

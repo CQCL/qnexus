@@ -1,5 +1,5 @@
 import click
-from click import Option
+from .utils import add_options_to_command
 from ..client import projects as _projects
 from typing_extensions import Unpack
 
@@ -10,17 +10,7 @@ def list(**kwargs: Unpack[_projects.ParamsDict]):
     click.echo(_projects.list(**kwargs))
 
 
-# Annotate command with options from dict
-for field, value in _projects.Params.model_fields.items():
-    list.params.append(
-        Option(
-            [f"--{field}"],
-            help=value.description,
-            show_default=True,
-            default=value.default,
-            type=value.annotation,
-        )
-    )
+add_options_to_command(list, _projects.Params)
 
 
 @click.group()

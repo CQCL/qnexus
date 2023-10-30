@@ -4,6 +4,8 @@ from colorama import Fore
 from ..consts import CONFIG_FILE_NAME
 from ..config import get_config
 from .. import client
+from click import Option, Command
+from typing import Any
 
 current_path = os.getcwd()
 current_dir = current_path.split(os.sep)[-1]
@@ -33,3 +35,17 @@ def init():
             default=current_dir,
         )
         click.echo(Fore.GREEN + f"Intialized qnexus project: {name}")
+
+
+def add_options_to_command(command: Command, model: Any):
+    # Annotate command with options from dict
+    for field, value in model.model_fields.items():
+        command.params.append(
+            Option(
+                [f"--{field}"],
+                help=value.description,
+                show_default=True,
+                default=value.default,
+                type=value.annotation,
+            )
+        )

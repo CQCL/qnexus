@@ -2,8 +2,9 @@ from .client import nexus_client
 from pydantic import Field, BaseModel
 from colorama import Fore, Style
 import pandas as pd
-from typing import TypedDict, Union, List, Optional
+from typing import TypedDict, Union, List, Optional, Annotated
 from typing_extensions import Unpack, TypedDict, Literal, NotRequired
+from .models.utils import AllowNone
 
 from .models.filters import (
     SortFilter,
@@ -31,7 +32,7 @@ class Params(
 ):
     """Params for fetching projects"""
 
-    archived: bool = Field(
+    archived: Annotated[bool, AllowNone] = Field(
         default=None,
         serialization_alias="filter[archived]",
         description="Include or omit archived projects",
