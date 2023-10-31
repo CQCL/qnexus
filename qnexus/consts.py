@@ -1,2 +1,3 @@
 CONFIG_FILE_NAME = "qnx.toml"
-CREDS_FILE_PATH = ".qnx/auth"
+ACCESS_TOKEN_FILE_PATH = ".qnx/auth/access_token"
+REFRESH_TOKEN_FILE_PATH = ".qnx/auth/refresh_token"

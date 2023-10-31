@@ -1,31 +1,28 @@
 import httpx
 from ..config import get_config
-from ..consts import CREDS_FILE_PATH
+from ..consts import ACCESS_TOKEN_FILE_PATH, REFRESH_TOKEN_FILE_PATH
+from ..errors import NotAuthenticatedException
 from typing import Dict, Any
 import os
-from urllib.request import Request
+from pathlib import Path
 
 config = get_config()
 
 
-def read_config_file(path: str) -> Dict[str, Any]:
-    """Read a config of key value pairs as a dict"""
-    env_vars = {}
-    homedir = os.path.expanduser("~")
-    with open(f"{homedir}/{path}", encoding="UTF-8") as myfile:
-        for line in myfile:
-            name, var = line.partition("=")[::2]
-            env_vars[name.strip()] = var.strip()
-    return env_vars
+def read_token_file(path: str) -> str:
+    """Read a token from a file."""
+    full_path = f"{Path.home()}/{path}"
+    if os.path.isfile(full_path):
+        with open(full_path, encoding="UTF-8") as myfile:
+            return myfile.readline().strip()
+    return ""
 
 
-def write_config_file(path: str, obj: Dict[str, Any]) -> None:
-    """Replace content in a config with key value pairs."""
-    homedir = os.path.expanduser("~")
-    f = open(f"{homedir}/{path}", encoding="UTF-8", mode="w")
-    for key, val in obj.items():
-        f.write(f"{key}={val}")
-        f.write("\n")
+def write_token_file(path: str, token: str) -> None:
+    """Write a token to a file."""
+    full_path = f"{Path.home()}/{path}"
+    f = open(full_path, encoding="UTF-8", mode="w")
+    f.write(token)
     return None
 
 
@@ -36,12 +33,9 @@ def refresh_cookies(cookies: httpx.Cookies) -> None:
         cookies=cookies,
     )
     cookies.extract_cookies(response=refresh_response)
-    write_config_file(
-        CREDS_FILE_PATH,
-        {
-            "myqos_id": cookies.get("myqos_id", domain="nexus.quantinuum.com") or "",
-            "myqos_oat": cookies.get("myqos_oat") or "",
-        },
+    write_token_file(
+        ACCESS_TOKEN_FILE_PATH,
+        cookies.get("myqos_id", domain="nexus.quantinuum.com") or "",
     )
 
 
@@ -51,24 +45,21 @@ class AuthHandler(httpx.Auth):
     requires_response_body = True
 
     def auth_flow(self, request):
-        creds = read_config_file(CREDS_FILE_PATH)
-        access_token = creds.get("myqos_id")
-        refresh_token = creds.get("myqos_oat")
+        access_token = read_token_file(ACCESS_TOKEN_FILE_PATH)
+        refresh_token = read_token_file(REFRESH_TOKEN_FILE_PATH)
         if access_token:
-            httpx.Cookies({"myqos_id": creds.get("myqos_id")}).set_cookie_header(
-                request
-            )
+            httpx.Cookies({"myqos_id": access_token}).set_cookie_header(request)
             response: httpx.Response = yield request
             if response.status_code != 401:
                 return response
         if refresh_token:
-            cookies = httpx.Cookies({"myqos_oat": creds.get("myqos_oat")})
+            cookies = httpx.Cookies({"myqos_oat": refresh_token})
             refresh_cookies(cookies)
             cookies.set_cookie_header(request)
             response: httpx.Response = yield request
             if response.status_code != 401:
                 return response
-        raise Exception("Unauthenticated")
+        raise NotAuthenticatedException()
 
 
 config = get_config()
