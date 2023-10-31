@@ -62,7 +62,6 @@ class AuthHandler(httpx.Auth):
             if response.status_code != 401:
                 return response
         if refresh_token:
-            print("Refreshing...")
             cookies = httpx.Cookies({"myqos_oat": creds.get("myqos_oat")})
             refresh_cookies(cookies)
             cookies.set_cookie_header(request)
