@@ -51,7 +51,6 @@ class ParamsDict(
     archived: NotRequired[bool]
 
 
-#
 def list_projects(**kwargs: Unpack[ParamsDict]):
     """
     List projects you have access to.

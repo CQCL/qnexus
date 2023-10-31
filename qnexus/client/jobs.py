@@ -115,15 +115,19 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
     """
     params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True, mode="")
 
-    spinner = Halo(
-        text="Fetching jobs...", color="blue", spinner="dots", animation="bounce"
-    )
+    spinner = Halo(color="blue", spinner="dots", animation="bounce")
     spinner.start()
-
     res = nexus_client.get(
         "/api/v6/jobs",
         params=params,
     )
+    spinner.stop()
+
+    if res.status_code == 401:
+        print("🔓 You are not authenticated. Run qnx.login() to login.")
+        return
+    if res.status_code == 500:
+        print(f"An internal server error occured.")
 
     meta = res.json()["meta"]
     print("\n")
@@ -150,4 +154,3 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
     ]
 
     print(pd.DataFrame.from_records(formatted_jobs))
-    spinner.stop()

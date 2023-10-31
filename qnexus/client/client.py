@@ -2,7 +2,6 @@ import httpx
 from ..config import get_config
 from ..consts import ACCESS_TOKEN_FILE_PATH, REFRESH_TOKEN_FILE_PATH
 from ..errors import NotAuthenticatedException
-from typing import Dict, Any
 import os
 from pathlib import Path
 
@@ -13,16 +12,16 @@ def read_token_file(path: str) -> str:
     """Read a token from a file."""
     full_path = f"{Path.home()}/{path}"
     if os.path.isfile(full_path):
-        with open(full_path, encoding="UTF-8") as myfile:
-            return myfile.readline().strip()
+        with open(full_path, encoding="UTF-8") as file:
+            return file.read().strip()
     return ""
 
 
 def write_token_file(path: str, token: str) -> None:
     """Write a token to a file."""
     full_path = f"{Path.home()}/{path}"
-    f = open(full_path, encoding="UTF-8", mode="w")
-    f.write(token)
+    with open(full_path, encoding="UTF-8", mode="w") as file:
+        file.write(token)
     return None
 
 
@@ -52,14 +51,12 @@ class AuthHandler(httpx.Auth):
             response: httpx.Response = yield request
             if response.status_code != 401:
                 return response
-        if refresh_token:
-            cookies = httpx.Cookies({"myqos_oat": refresh_token})
-            refresh_cookies(cookies)
-            cookies.set_cookie_header(request)
-            response: httpx.Response = yield request
-            if response.status_code != 401:
-                return response
-        raise NotAuthenticatedException()
+
+        cookies = httpx.Cookies({"myqos_oat": refresh_token})
+        refresh_cookies(cookies)
+        cookies.set_cookie_header(request)
+        response: httpx.Response = yield request
+        return response
 
 
 config = get_config()
