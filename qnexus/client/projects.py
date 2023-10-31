@@ -3,7 +3,7 @@ from pydantic import Field
 import pandas as pd
 from typing_extensions import Unpack, NotRequired
 from .utils import normalize_included
-
+from halo import Halo
 from .models.filters import (
     SortFilter,
     SortFilterDict,
@@ -67,8 +67,15 @@ def list_projects(**kwargs: Unpack[ParamsDict]):
     ...
     """
 
-    params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True)
-    print("Fetching projects...")
+    params = Params(**kwargs).model_dump(
+        by_alias=True,
+        exclude_none=True,
+    )
+
+    spinner = Halo(text="Fetching projects...", color="blue", spinner="dots")
+    print("\n")
+    spinner.start()
+
     res = nexus_client.get(
         "/api/projects/v1beta",
         params=params,
@@ -92,4 +99,5 @@ def list_projects(**kwargs: Unpack[ParamsDict]):
         for project in res.json()["data"]
     ]
 
-    return pd.DataFrame.from_records(formatted_projects)
+    print(pd.DataFrame.from_records(formatted_projects))
+    spinner.stop()

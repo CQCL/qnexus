@@ -30,6 +30,7 @@ def write_config_file(path: str, obj: Dict[str, Any]) -> None:
 
 
 def refresh_cookies(cookies: httpx.Cookies) -> None:
+    """Mutate cookie object with fresh access token and save updated cookies to disk."""
     refresh_response = httpx.Client(base_url=f"{config.url}/auth").post(
         "/tokens/refresh",
         cookies=cookies,
@@ -38,8 +39,8 @@ def refresh_cookies(cookies: httpx.Cookies) -> None:
     write_config_file(
         CREDS_FILE_PATH,
         {
-            "myqos_id": cookies.get("myqos_id"),
-            "myqos_oat": cookies.get("myqos_oat"),
+            "myqos_id": cookies.get("myqos_id", domain="nexus.quantinuum.com") or "",
+            "myqos_oat": cookies.get("myqos_oat") or "",
         },
     )
 
@@ -51,19 +52,18 @@ class AuthHandler(httpx.Auth):
 
     def auth_flow(self, request):
         creds = read_config_file(CREDS_FILE_PATH)
-        cookies = httpx.Cookies(
-            {
-                "myqos_oat": creds.get("myqos_oat") or "",
-                "myqos_id": creds.get("myqos_id") or "",
-            }
-        )
-        cookies.set_cookie_header(request)
-        if cookies.get("myqos_id"):
+        access_token = creds.get("myqos_id")
+        refresh_token = creds.get("myqos_oat")
+        if access_token:
+            httpx.Cookies({"myqos_id": creds.get("myqos_id")}).set_cookie_header(
+                request
+            )
             response: httpx.Response = yield request
             if response.status_code != 401:
                 return response
-        if cookies.get("myqos_oat"):
+        if refresh_token:
             print("Refreshing...")
+            cookies = httpx.Cookies({"myqos_oat": creds.get("myqos_oat")})
             refresh_cookies(cookies)
             cookies.set_cookie_header(request)
             response: httpx.Response = yield request

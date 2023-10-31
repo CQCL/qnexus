@@ -17,6 +17,7 @@ from .models.filters import (
     ExperimentIDFilter,
     ExperimentIDFilterDict,
 )
+from halo import Halo
 
 
 class JobStatusFilter(BaseModel):
@@ -112,8 +113,12 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
     """
     List jobs.
     """
-    params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True)
-    print("Fetching jobs...")
+    params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True, mode="")
+
+    spinner = Halo(
+        text="Fetching jobs...", color="blue", spinner="dots", animation="bounce"
+    )
+    spinner.start()
 
     res = nexus_client.get(
         "/api/v6/jobs",
@@ -121,8 +126,7 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
     )
 
     meta = res.json()["meta"]
-    # total_count =
-
+    print("\n")
     print(
         f"Total jobs: {meta['total_count']}"
         + " / "
@@ -146,3 +150,4 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
     ]
 
     print(pd.DataFrame.from_records(formatted_jobs))
+    spinner.stop()

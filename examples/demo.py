@@ -1,4 +1,4 @@
 import qnexus as qnx
 
-res = qnx.status()
+res = qnx.jobs.list_jobs()
 print(res)
