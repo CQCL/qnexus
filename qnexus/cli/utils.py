@@ -3,7 +3,7 @@ import os
 from colorama import Fore
 from ..consts import CONFIG_FILE_NAME
 from ..config import get_config
-from .. import client
+from ..client import health as _health
 from click import Option, Command
 from typing import Any
 
@@ -16,7 +16,7 @@ current_dir = current_path.split(os.sep)[-1]
 def status():
     """Print a short summary of the current project."""
     # click.echo(client.status())
-    click.echo("A brief summary of the current project.")
+    click.echo(_health.status())
 
 
 @click.command()
