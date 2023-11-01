@@ -1,28 +1,12 @@
 import httpx
 from ..config import get_config
 from ..consts import ACCESS_TOKEN_FILE_PATH, REFRESH_TOKEN_FILE_PATH
+from .utils import read_token_file, write_token_file
 from ..errors import NotAuthenticatedException
 import os
-from pathlib import Path
+
 
 config = get_config()
-
-
-def read_token_file(path: str) -> str:
-    """Read a token from a file."""
-    full_path = f"{Path.home()}/{path}"
-    if os.path.isfile(full_path):
-        with open(full_path, encoding="UTF-8") as file:
-            return file.read().strip()
-    return ""
-
-
-def write_token_file(path: str, token: str) -> None:
-    """Write a token to a file."""
-    full_path = f"{Path.home()}/{path}"
-    with open(full_path, encoding="UTF-8", mode="w") as file:
-        file.write(token)
-    return None
 
 
 def refresh_cookies(cookies: httpx.Cookies) -> None:

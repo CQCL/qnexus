@@ -18,6 +18,7 @@ from .models.filters import (
     ExperimentIDFilterDict,
 )
 from halo import Halo
+import rich
 
 
 class JobStatusFilter(BaseModel):
@@ -153,4 +154,4 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
         for job in res.json()["data"]
     ]
 
-    print(pd.DataFrame.from_records(formatted_jobs))
+    rich.print(pd.DataFrame.from_records(formatted_jobs))
