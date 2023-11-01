@@ -1,6 +1,5 @@
 import httpx
 from ..config import get_config
-from ..consts import ACCESS_TOKEN_FILE_PATH, REFRESH_TOKEN_FILE_PATH
 from .utils import write_token_file, consolidate_error
 import webbrowser
 from http import HTTPStatus
@@ -87,9 +86,9 @@ Confirm that the browser shows the following code:
                 continue
             if resp.status_code == HTTPStatus.OK:
                 resp_json = resp.json()
-                write_token_file(REFRESH_TOKEN_FILE_PATH, resp_json["refresh_token"])
+                write_token_file("refresh_token", resp_json["refresh_token"])
                 write_token_file(
-                    ACCESS_TOKEN_FILE_PATH,
+                    "access_token",
                     resp_json["access_token"],
                 )
                 print(
@@ -104,6 +103,6 @@ Confirm that the browser shows the following code:
 
 def logout() -> None:
     """Clear tokens from file system"""
-    write_token_file(REFRESH_TOKEN_FILE_PATH, "")
-    write_token_file(ACCESS_TOKEN_FILE_PATH, "")
+    write_token_file("refresh_token", "")
+    write_token_file("access_token", "")
     print("Successfully logged out.")

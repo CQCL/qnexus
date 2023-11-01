@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 import time
 from typing import Callable
 from pathlib import Path
@@ -6,6 +6,7 @@ from httpx import Response
 import http
 import os
 
+from ..consts import TOKEN_FILE_PATH
 
 def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
@@ -25,19 +26,20 @@ def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
     return included_map
 
 
-def read_token_file(path: str) -> str:
+def read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str:
     """Read a token from a file."""
-    full_path = f"{Path.home()}/{path}"
-    if os.path.isfile(full_path):
-        with open(full_path, encoding="UTF-8") as file:
-            return file.read().strip()
-    return ""
+
+    token_file_path = Path.home() / TOKEN_FILE_PATH
+    with (token_file_path / token_type).open(encoding="UTF-8") as file:
+        return file.read().strip()
 
 
-def write_token_file(path: str, token: str) -> None:
+def write_token_file(token_type: Literal["access_token", "refresh_token"], token: str) -> None:
     """Write a token to a file."""
-    full_path = f"{Path.home()}/{path}"
-    with open(full_path, encoding="UTF-8", mode="w") as file:
+
+    token_file_path = Path.home() / TOKEN_FILE_PATH
+    token_file_path.mkdir(parents=True, exist_ok=True)
+    with (token_file_path / token_type).open(encoding="UTF-8", mode="w") as file:
         file.write(token)
     return None
 
