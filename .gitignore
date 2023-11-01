@@ -8,4 +8,4 @@ __pycache__/
 *.code-workspace
 .vscode
 
-
+.env*.local
