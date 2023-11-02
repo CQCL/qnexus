@@ -51,7 +51,8 @@ class ParamsDict(
     archived: NotRequired[bool]
 
 
-def list_projects(**kwargs: Unpack[ParamsDict]):
+@Halo(text="Listing projects...", spinner="simpleDotsScrolling")
+def projects(**kwargs: Unpack[ParamsDict]):
     """
     List projects you have access to.
 
@@ -71,17 +72,13 @@ def list_projects(**kwargs: Unpack[ParamsDict]):
         exclude_none=True,
     )
 
-    spinner = Halo(text="Fetching projects...", color="blue", spinner="dots")
-    print("\n")
-    spinner.start()
-
     res = nexus_client.get(
         "/api/projects/v1beta",
         params=params,
     )
 
     included_map = normalize_included(res.json()["included"])
-    # print(res.json()["data"][0])
+
     formatted_projects = [
         {
             "Name": project["attributes"]["name"],
@@ -99,4 +96,3 @@ def list_projects(**kwargs: Unpack[ParamsDict]):
     ]
 
     print(pd.DataFrame.from_records(formatted_projects))
-    spinner.stop()

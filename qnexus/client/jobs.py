@@ -7,7 +7,7 @@ from pydantic import (
 )
 from colorama import Fore
 import pandas as pd
-from typing import Union, Annotated, TypedDict, Literal, Any
+from typing import Union, Annotated, TypedDict, Literal
 from typing_extensions import Unpack, NotRequired
 from .models.filters import (
     PaginationFilter,
@@ -109,26 +109,17 @@ class ParamsDict(
     """TypedDict form of jobs list params"""
 
 
-#
-def list_jobs(**kwargs: Unpack[ParamsDict]):
+@Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
+def jobs(**kwargs: Unpack[ParamsDict]):
     """
     List jobs.
     """
     params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True, mode="")
 
-    spinner = Halo(color="blue", spinner="dots", animation="bounce")
-    spinner.start()
     res = nexus_client.get(
         "/api/v6/jobs",
         params=params,
     )
-    spinner.stop()
-
-    if res.status_code == 401:
-        print("🔓 You are not authenticated. Run qnx.login() to login.")
-        return
-    if res.status_code == 500:
-        print(f"An internal server error occured.")
 
     meta = res.json()["meta"]
     print("\n")
@@ -137,7 +128,6 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
         + " / "
         + f"Page {meta['page_number']} of {meta['total_pages']}"
         + " / "
-        + Fore.BLUE
         + f"Page Size: {meta['page_size']}"
     )
     print(Fore.RESET)
@@ -149,7 +139,6 @@ def list_jobs(**kwargs: Unpack[ParamsDict]):
             else "Compile",
             "Status": job["job_status"]["status"].title(),
             "Project Id": job["experiment_id"],
-            "Progress": "Unknown",
         }
         for job in res.json()["data"]
     ]

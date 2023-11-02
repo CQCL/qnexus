@@ -3,9 +3,18 @@ import os
 from colorama import Fore
 from ..consts import CONFIG_FILE_NAME
 from ..config import get_config
-from ..client import health as _health
+from ..client import status as _status
 from click import Option, Command
 from typing import Any
+
+
+def is_documented_by(original):
+    def wrapper(target):
+        target.__doc__ = original.__doc__
+        return target
+
+    return wrapper
+
 
 current_path = os.getcwd()
 current_dir = current_path.split(os.sep)[-1]
@@ -13,10 +22,9 @@ current_dir = current_path.split(os.sep)[-1]
 
 # QNX utils interface
 @click.command()
+@is_documented_by(_status)
 def status():
-    """Print a short summary of the current project."""
-    # click.echo(client.status())
-    click.echo(_health.status())
+    click.echo(_status())
 
 
 @click.command()

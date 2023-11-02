@@ -4,13 +4,12 @@ from .utils import write_token_file, consolidate_error
 import webbrowser
 from http import HTTPStatus
 import time
-from rich.console import Console
-from rich.style import Style
+from halo import Halo
+from colorama import Fore
 from rich.panel import Panel
-from rich.text import Text
+from rich.console import Console
 
 console = Console()
-
 config = get_config()
 
 
@@ -40,65 +39,62 @@ def browser_login() -> None:
         "client_id": "scales",
     }
 
-    #  print(
-    #                 "Browser login initiated and will involve the following steps:\n"
-    #                 f"1. Visit this URL in a browser (using any device): {verification_uri_complete}\n"
-    #                 f"2. Confirm that the browser shows the following code: {user_code}\n"
-    #                 "3. Click 'Allow' and log in (with third-party such as Microsoft if required).\n"
-    #                 "4. Wait for this program to confirm successful login.\n"
-    #             )
-
-    console.print("\n")
+    print(f"🌐 Browser login initiated.")
+    spinner = Halo(
+        text=f"Waiting for user to log in via browser...",
+        spinner="simpleDotsScrolling",
+    )
     console.print(
         Panel(
             f"""
-Confirm that the browser shows the following code:
-{Text(user_code, style=Style(bold=True, color="cyan"))}
-            """,
-            width=100,
-            style=Style(color="white", bold=True),
-        ),
-        justify="center",
+        Confirm that the browser shows the following code and click 'allow device':
+
+                                     {user_code}
+        """,
+            width=90,
+        )
     )
-    console.print("\n")
-    console.print(
-        f"Browser didn't open automatically? Click this link: {verification_uri_complete}"
+
+    print(
+        f"Browser didn't open automatically? Use this link: { Fore.BLUE + verification_uri_complete}"
     )
+
+    spinner.start()
+
     polling_for_seconds = 0
-    with console.status(
-        "[bold cyan]Waiting for user to confirm code via web browser...",
-        spinner_style="cyan",
-    ) as status:
-        while polling_for_seconds < expires_in:
-            time.sleep(poll_interval)
-            polling_for_seconds += poll_interval
-            resp = httpx.Client(base_url=f"{config.url}/auth").post(
-                "/device/token",
-                headers={"Content-Type": "application/x-www-form-urlencoded"},
-                data=token_request_body,
+    while polling_for_seconds < expires_in:
+        time.sleep(poll_interval)
+        polling_for_seconds += poll_interval
+        resp = httpx.Client(base_url=f"{config.url}/auth").post(
+            "/device/token",
+            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            data=token_request_body,
+        )
+        if (
+            resp.status_code == HTTPStatus.BAD_REQUEST
+            and resp.json().get("error") == "AUTHORIZATION_PENDING"
+        ):
+            continue
+        if resp.status_code == HTTPStatus.TOO_MANY_REQUESTS:
+            continue
+        if resp.status_code == HTTPStatus.OK:
+            resp_json = resp.json()
+            write_token_file("refresh_token", resp_json["refresh_token"])
+            write_token_file(
+                "access_token",
+                resp_json["access_token"],
             )
-            if (
-                resp.status_code == HTTPStatus.BAD_REQUEST
-                and resp.json().get("error") == "AUTHORIZATION_PENDING"
-            ):
-                continue
-            if resp.status_code == HTTPStatus.TOO_MANY_REQUESTS:
-                continue
-            if resp.status_code == HTTPStatus.OK:
-                resp_json = resp.json()
-                write_token_file("refresh_token", resp_json["refresh_token"])
-                write_token_file(
-                    "access_token",
-                    resp_json["access_token"],
-                )
-                print(
-                    f"Successfully logged in as {resp_json['email']} using the browser."
-                )
-                return
-            # Fail for all other statuses
-            consolidate_error(res=resp, description="Browser Login")
+            spinner.stop()
+            print(
+                f"✅ Successfully logged in as {resp_json['email']} using the browser."
+            )
             return
-    raise Exception("Browser Login Failed, code has expired.")
+        # Fail for all other statuses
+        consolidate_error(res=resp, description="Browser Login")
+        spinner.stop()
+        return
+    spinner.stop()
+    raise Exception("Browser login Failed, code has expired.")
 
 
 def logout() -> None:
