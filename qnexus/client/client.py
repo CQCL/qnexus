@@ -47,7 +47,7 @@ class AuthHandler(httpx.Auth):
             return response
         except (FileNotFoundError, NotAuthenticatedException):
             raise SystemExit(
-                "Not authenticated. Please run `qnx login` in your terminal."
+                "Not authenticated. Please run `qnx login` in your terminal to log in."
             )
 
 
