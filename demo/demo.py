@@ -1,4 +1,5 @@
+"""Demo using the QNexus client."""
 import qnexus as qnx
 
-
-print(qnx.projects.list_projects())
+# List jobs
+qnx.projects()
