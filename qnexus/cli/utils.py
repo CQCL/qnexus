@@ -30,7 +30,6 @@ def status():
 @click.command()
 def init():
     """Initialize a new qnexus project."""
-    # A project with that name already exists, use that one?
     config = get_config()
     if config:
         raise click.ClickException(
