@@ -19,6 +19,9 @@ halo = "^0.0.31"
 rich = "^13.6.0"
 pytket = "^1.21.0"
 
+[tool.poetry.group.dev.dependencies]
+jupyter = "^1.0.0"
+
 [tool.poetry.scripts]
 qnx = "qnexus.cli:entrypoint"
 
