@@ -1,4 +1,4 @@
-from .health import *
+from .status import *
 from .projects import *
 from .auth import *
 from .jobs import *
