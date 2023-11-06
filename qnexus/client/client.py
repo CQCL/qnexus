@@ -1,7 +1,7 @@
 import httpx
 from ..config import get_config
 from .utils import read_token_file, write_token_file
-from ..errors import NotAuthenticatedException
+from ..exceptions import NotAuthenticatedException
 import os
 
 

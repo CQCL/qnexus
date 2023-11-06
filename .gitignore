@@ -9,3 +9,8 @@ __pycache__/
 .vscode
 
 .env*.local
+
+
+# IPython
+.ipynb_checkpoints
+*.ipynb
