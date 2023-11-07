@@ -124,8 +124,6 @@ def jobs(**kwargs: Unpack[ParamsDict]):
         params=params,
     )
 
-    print(res.request.url)
-
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
