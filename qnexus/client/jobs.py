@@ -9,6 +9,7 @@ from colorama import Fore
 import pandas as pd
 from typing import Union, Annotated, TypedDict, Literal
 from typing_extensions import Unpack, NotRequired
+from ..exceptions import ResourceFetchFailed
 from .models.filters import (
     PaginationFilter,
     PaginationFilterDict,
@@ -114,12 +115,17 @@ def jobs(**kwargs: Unpack[ParamsDict]):
     """
     List jobs.
     """
-    params = Params(**kwargs).model_dump(by_alias=True, exclude_none=True, mode="")
+    params = Params(**kwargs).model_dump(
+        by_alias=True, exclude_unset=True, exclude_none=True, mode=""
+    )
 
     res = nexus_client.get(
         "/api/v6/jobs",
         params=params,
     )
+
+    if res.status_code != 200:
+        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     meta = res.json()["meta"]
     print("\n")
