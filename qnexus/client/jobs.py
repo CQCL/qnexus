@@ -18,7 +18,7 @@ from .models.filters import (
     ExperimentIDFilter,
     ExperimentIDFilterDict,
 )
-#from halo import Halo
+from halo import Halo
 import rich
 
 
@@ -110,12 +110,14 @@ class ParamsDict(
     """TypedDict form of jobs list params"""
 
 
-#@Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
+@Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
 def jobs(**kwargs: Unpack[ParamsDict]):
     """
     List jobs.
     """
-    params = Params(**kwargs).model_dump(by_alias=True, exclude_unset=True, exclude_none=True, mode="")
+    params = Params(**kwargs).model_dump(
+        by_alias=True, exclude_unset=True, exclude_none=True, mode=""
+    )
 
     res = nexus_client.get(
         "/api/v6/jobs",

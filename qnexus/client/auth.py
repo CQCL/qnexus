@@ -4,7 +4,7 @@ from .utils import write_token_file, consolidate_error
 import webbrowser
 from http import HTTPStatus
 import time
-#from halo import Halo
+from halo import Halo
 from colorama import Fore
 from rich.panel import Panel
 from rich.console import Console
@@ -40,10 +40,10 @@ def browser_login() -> None:
     }
 
     print(f"🌐 Browser login initiated.")
-    # spinner = Halo(
-    #     text=f"Waiting for user to log in via browser...",
-    #     spinner="simpleDotsScrolling",
-    # )
+    spinner = Halo(
+        text=f"Waiting for user to log in via browser...",
+        spinner="simpleDotsScrolling",
+    )
     console.print(
         Panel(
             f"""
@@ -59,7 +59,7 @@ def browser_login() -> None:
         f"Browser didn't open automatically? Use this link: { Fore.BLUE + verification_uri_complete}"
     )
 
-    #spinner.start()
+    spinner.start()
 
     polling_for_seconds = 0
     while polling_for_seconds < expires_in:
@@ -84,16 +84,16 @@ def browser_login() -> None:
                 "access_token",
                 resp_json["access_token"],
             )
-            #spinner.stop()
+            spinner.stop()
             print(
                 f"✅ Successfully logged in as {resp_json['email']} using the browser."
             )
             return
         # Fail for all other statuses
         consolidate_error(res=resp, description="Browser Login")
-        #spinner.stop()
+        spinner.stop()
         return
-    #spinner.stop()
+    spinner.stop()
     raise Exception("Browser login Failed, code has expired.")
 
 

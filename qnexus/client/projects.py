@@ -3,7 +3,7 @@ from pydantic import Field
 import pandas as pd
 from typing_extensions import Unpack, NotRequired
 from .utils import normalize_included
-#from halo import Halo
+from halo import Halo
 from ..exceptions import ResourceFetchFailed
 from .models.filters import (
     SortFilter,
@@ -52,7 +52,7 @@ class ParamsDict(
     archived: NotRequired[bool]
 
 
-#@Halo(text="Listing projects...", spinner="simpleDotsScrolling")
+@Halo(text="Listing projects...", spinner="simpleDotsScrolling")
 def projects(**kwargs: Unpack[ParamsDict]):
     """
     List projects you have access to.
