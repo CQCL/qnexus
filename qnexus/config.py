@@ -1,12 +1,14 @@
 """Quantinuum Nexus API client."""
 
 import os
-from typing import Dict, Any, Annotated
-from pathlib import Path
 from functools import reduce
+from pathlib import Path
+from typing import Annotated, Any, Dict
+
 from click import ClickException
-from pydantic import BaseModel, ConfigDict, BeforeValidator
 from colorama import Fore
+from pydantic import BaseModel, BeforeValidator, ConfigDict
+
 from .consts import CONFIG_FILE_NAME
 
 

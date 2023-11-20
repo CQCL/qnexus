@@ -1,9 +1,9 @@
 import click
 
-from .projects import projects
-from .jobs import jobs
-from .utils import status, init
 from .auth import login, logout
+from .jobs import jobs
+from .projects import projects
+from .utils import init, status
 
 
 @click.group()

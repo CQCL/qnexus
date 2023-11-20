@@ -1,9 +1,10 @@
-import httpx
-from ..config import get_config
-from .utils import read_token_file, write_token_file
-from ..exceptions import NotAuthenticatedException
 import os
 
+import httpx
+
+from ..config import get_config
+from ..exceptions import NotAuthenticatedException
+from .utils import read_token_file, write_token_file
 
 config = get_config()
 

@@ -1,24 +1,28 @@
-from .client import nexus_client
-from pydantic import Field
+from uuid import UUID
 import pandas as pd
-from typing_extensions import Unpack, NotRequired
-from .utils import normalize_included
-from halo import Halo
+from pydantic import BaseModel, Field
+from typing_extensions import NotRequired, Unpack
+
+from qnexus.client.models.annotations import Annotations
+
+# from halo import Halo
 from ..exceptions import ResourceFetchFailed
+from .client import nexus_client
 from .models.filters import (
-    SortFilter,
-    SortFilterDict,
-    PaginationFilter,
-    PaginationFilterDict,
-    NameFilter,
-    NameFilterDict,
     CreatorFilter,
     CreatorFilterDict,
+    NameFilter,
+    NameFilterDict,
+    PaginationFilter,
+    PaginationFilterDict,
     PropertiesFilter,
     PropertiesFilterDict,
+    SortFilter,
+    SortFilterDict,
     TimeFilter,
     TimeFilterDict,
 )
+from .utils import normalize_included
 
 
 class Params(
@@ -48,11 +52,15 @@ class ParamsDict(
 ):
     """Params for fetching projects (TypedDict)"""
 
-    pass
     archived: NotRequired[bool]
 
 
-@Halo(text="Listing projects...", spinner="simpleDotsScrolling")
+class ProjectHandle(BaseModel):
+    id: UUID
+    annotations: Annotations
+
+
+# @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
 def projects(**kwargs: Unpack[ParamsDict]):
     """
     List projects you have access to.
@@ -86,6 +94,7 @@ def projects(**kwargs: Unpack[ParamsDict]):
 
     formatted_projects = [
         {
+            "Identifier": project["id"],
             "Name": project["attributes"]["name"],
             "Created by": included_map[
                 project["relationships"]["creator"]["data"]["type"]
@@ -100,4 +109,6 @@ def projects(**kwargs: Unpack[ParamsDict]):
         for project in res.json()["data"]
     ]
 
+    # TODO: not this
+    print("\n")
     print(pd.DataFrame.from_records(formatted_projects))

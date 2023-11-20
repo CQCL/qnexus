@@ -21,6 +21,7 @@ pytket = "^1.21.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
+isort = "^5.12.0"
 
 [tool.poetry.scripts]
 qnx = "qnexus.cli:entrypoint"

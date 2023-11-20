@@ -1,0 +1,113 @@
+from uuid import UUID
+
+from pydantic import BaseModel
+from pytket._tket.circuit import Circuit
+from typing_extensions import Unpack
+
+from qnexus.client.client import nexus_client
+from qnexus.client.models.annotations import Annotations, AnnotationsDict
+from qnexus.client.models.filters import (
+    CreatorFilter,
+    CreatorFilterDict,
+    NameFilter,
+    NameFilterDict,
+    PaginationFilter,
+    PaginationFilterDict,
+    PropertiesFilter,
+    PropertiesFilterDict,
+    SortFilter,
+    SortFilterDict,
+    TimeFilter,
+    TimeFilterDict,
+)
+from qnexus.client.projects import ProjectHandle
+from qnexus.client.utils import normalize_included
+from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
+
+
+class Params(
+    SortFilter,
+    PaginationFilter,
+    NameFilter,
+    CreatorFilter,
+    PropertiesFilter,
+    TimeFilter,
+):
+    pass
+
+
+class ParamsDict(
+    PaginationFilterDict,
+    NameFilterDict,
+    CreatorFilterDict,
+    PropertiesFilterDict,
+    TimeFilterDict,
+    SortFilterDict,
+):
+    """Params for fetching projects (TypedDict)"""
+
+    pass
+
+
+def circuits(**kwargs: Unpack[ParamsDict]):
+    params = Params(**kwargs).model_dump(
+        by_alias=True, exclude_unset=True, exclude_none=True
+    )
+
+    res = nexus_client.get("/api/circuits/v1beta")
+
+    if res.status_code != 200:
+        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+
+    res_dict = res.json()
+
+    included_map = normalize_included(res_dict)
+
+
+class CircuitHandle(BaseModel):
+    id: UUID
+    annotations: Annotations
+    project: ProjectHandle
+
+
+def submit(
+    circuit: Circuit, project: ProjectHandle, **kwargs: Unpack[AnnotationsDict]
+) -> CircuitHandle:
+    circuit_dict = circuit.to_dict()
+
+    kwargs["name"] = kwargs.get("name", circuit.name)
+
+    annotations = Annotations(**kwargs)
+    circuit_dict.update(annotations)
+    relationships = {"project": {"data": {"id": str(project.id), "type": "project"}}}
+
+    req_dict = {
+        "data": {
+            "attributes": circuit_dict,
+            "relationships": relationships,
+            "type": "circuit",
+        }
+    }
+
+    res = nexus_client.post("/api/circuits/v1beta", json=req_dict)
+
+    # https://cqc.atlassian.net/browse/MUS-3054
+    if res.status_code != 200:
+        raise ResourceCreateFailed(message=res.json(), status_code=res.status_code)
+
+    res_data_dict = res.json()["data"]
+
+    return CircuitHandle(
+        id=UUID(res_data_dict["id"]), annotations=annotations, project=project
+    )
+
+
+def describe(handle: CircuitHandle) -> Circuit:
+    res = nexus_client.get(f"/api/circuits/v1beta/{handle.id}")
+    if res.status_code != 200:
+        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+
+    res_data_attributes_dict = res.json()["data"]["attributes"]
+    circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}
+
+    return Circuit.from_dict(circuit_dict)

@@ -1,5 +1,5 @@
-from .client import nexus_client
 from ..config import get_config
+from .client import nexus_client
 
 
 def status():

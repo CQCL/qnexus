@@ -1,25 +1,34 @@
-from .client import nexus_client
-from pydantic import (
-    Field,
-    BaseModel,
-    WrapValidator,
-    ValidatorFunctionWrapHandler,
-)
-from colorama import Fore
+from enum import Enum
+from typing import Annotated, Literal, TypedDict, Union
+from uuid import UUID
+
 import pandas as pd
-from typing import Union, Annotated, TypedDict, Literal
-from typing_extensions import Unpack, NotRequired
+import rich
+from colorama import Fore
+from halo import Halo
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidatorFunctionWrapHandler,
+    WrapValidator,
+)
+from typing_extensions import NotRequired, Unpack
+
+from qnexus.client.models.annotations import Annotations
+from qnexus.client.projects import ProjectHandle
+from pytket.backends.status import StatusEnum, CircuitStatus
+
 from ..exceptions import ResourceFetchFailed
+from .client import nexus_client
 from .models.filters import (
-    PaginationFilter,
-    PaginationFilterDict,
-    NameFilter,
-    NameFilterDict,
     ExperimentIDFilter,
     ExperimentIDFilterDict,
+    NameFilter,
+    NameFilterDict,
+    PaginationFilter,
+    PaginationFilterDict,
 )
-from halo import Halo
-import rich
 
 
 class JobStatusFilter(BaseModel):
@@ -58,32 +67,21 @@ class JobStatusFilterDict(TypedDict):
     ]
 
 
-def parse_job_type(
-    v: list[str], handler: ValidatorFunctionWrapHandler
-) -> list[Union[Literal["PROCESS"], Literal["COMPILE"],]]:
-    """Parse job type"""
-
-    def parse_string(s: str):
-        if s.upper() == "EXECUTE":
-            return "PROCESS"
-        if s.upper() == "COMPILE":
-            return "COMPILE"
-        raise Exception(f"Expected 'execute' or 'compile', received '{s}'.")
-
-    return handler([parse_string(string) for string in v])
-
-
-JobType = Annotated[list[str], WrapValidator(parse_job_type)]
+class JobType(str, Enum):
+    Execute = "PROCESS"
+    Compile = "COMPILE"
 
 
 class JobTypeFilter(BaseModel):
     """Filter by job type."""
 
     type: JobType = Field(
-        default=["EXECUTE", "COMPILE"],
+        default=[JobType.Execute, JobType.Compile],
         serialization_alias="filter[job_type]",
         description="Filter by project_id",
     )
+
+    model_config = ConfigDict(use_enum_values=True)
 
 
 class JobTypeFilterDict(TypedDict):
@@ -110,8 +108,23 @@ class ParamsDict(
     """TypedDict form of jobs list params"""
 
 
-@Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
-def jobs(**kwargs: Unpack[ParamsDict]):
+class JobHandle(BaseModel):
+    id: UUID
+    annotations: Annotations
+    job_type: JobType
+    last_status: StatusEnum
+    last_message: str
+    project: ProjectHandle
+
+
+class JobPage(BaseModel):
+    handles: list[JobHandle]
+    page_number: int
+    page_size: int
+
+
+# @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
+def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
     """
     List jobs.
     """
@@ -127,26 +140,63 @@ def jobs(**kwargs: Unpack[ParamsDict]):
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
-    meta = res.json()["meta"]
-    print("\n")
-    print(
-        f"Total jobs: {meta['total_count']}"
-        + " / "
-        + f"Page {meta['page_number']} of {meta['total_pages']}"
-        + " / "
-        + f"Page Size: {meta['page_size']}"
-    )
-    print(Fore.RESET)
-    formatted_jobs = [
-        {
-            "Name": job["name"],
-            "Job Type": "Execute"
-            if job["job_type"].title() == "Process"
-            else "Compile",
-            "Status": job["job_status"]["status"].title(),
-            "Project Id": job["experiment_id"],
-        }
-        for job in res.json()["data"]
-    ]
+    res_dict = res.json()
+    data = res_dict["data"]
+    meta = res_dict["meta"]
 
-    rich.print(pd.DataFrame.from_records(formatted_jobs))
+    return JobPage(
+        handles=[
+            JobHandle(
+                id=entry["job_id"],
+                annotations=Annotations(name=entry["name"]),
+                job_type=entry["job_type"],
+                last_status=CircuitStatus.from_dict(entry["job_status"]).status,
+                last_message=CircuitStatus.from_dict(entry["job_status"]).message,
+                project=ProjectHandle(
+                    id=entry["experiment_id"],
+                    annotations=Annotations(name="placeholder"),
+                ),
+            )
+            for entry in data
+        ],
+        page_number=meta["page_number"],
+        page_size=meta["page_size"],
+    )
+
+
+def retry_error(job: JobHandle):
+    if job.job_type != JobType.Execute:
+        raise Exception("Invalid job type")
+
+    res = nexus_client.post(
+        "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
+    )
+
+    if res.status_code != 202:
+        res.raise_for_status()
+
+
+#    meta = res.json()["meta"]
+#    print("\n")
+#    print(
+#        f"Total jobs: {meta['total_count']}"
+#        + " / "
+#        + f"Page {meta['page_number']} of {meta['total_pages']}"
+#        + " / "
+#        + f"Page Size: {meta['page_size']}"
+#    )
+#    print(Fore.RESET)
+#    formatted_jobs = [
+#        {
+#            "Name": job["name"],
+#            "Job Type": "Execute"
+#            if job["job_type"].title() == "Process"
+#            else "Compile",
+#            "Status": job["job_status"]["status"].title(),
+#            "Message": job["job_status"]["message"],
+#            "Project Id": job["experiment_id"],
+#        }
+#        for job in res.json()["data"]
+#    ]
+#
+#    rich.print(pd.DataFrame.from_records(formatted_jobs))

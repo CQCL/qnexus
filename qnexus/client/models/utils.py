@@ -1,8 +1,6 @@
-from pydantic import (
-    ValidatorFunctionWrapHandler,
-)
 from typing import Annotated, Any
 
+from pydantic import ValidatorFunctionWrapHandler
 from pydantic.functional_validators import WrapValidator
 
 
