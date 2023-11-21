@@ -13,6 +13,7 @@ from pydantic import (
     ValidatorFunctionWrapHandler,
     WrapValidator,
 )
+from pytket import Circuit
 from typing_extensions import NotRequired, Unpack
 
 from qnexus.client.models.annotations import Annotations
@@ -21,6 +22,7 @@ from pytket.backends.status import StatusEnum, CircuitStatus
 
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
 from .client import nexus_client
+from .circuits import CircuitHandle, describe
 from .models.filters import (
     ExperimentIDFilter,
     ExperimentIDFilterDict,
@@ -110,6 +112,7 @@ class ParamsDict(
 
 class JobHandle(BaseModel):
     id: UUID
+    item_ids: list[int]
     annotations: Annotations
     job_type: JobType
     last_status: StatusEnum
@@ -123,80 +126,90 @@ class JobPage(BaseModel):
     page_size: int
 
 
-# @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
-def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
-    """
-    List jobs.
-    """
-    params = Params(**kwargs).model_dump(
-        by_alias=True, exclude_unset=True, exclude_none=True, mode=""
+def submit(
+    name: str,
+    circuits: Union[CircuitHandle, list[CircuitHandle]],
+    optimisation_level: int,
+    project: ProjectHandle
+) -> JobHandle:
+    """ """
+
+    circuit_ids = [str(circuits.id)] if isinstance(circuits, CircuitHandle) else [str(c.id) for c in circuits]
+
+    compile_job_request = {
+        "backend": {'type': 'AerConfig',
+                    'noise_model': None,
+                    'simulation_method': 'automatic',
+                    'n_qubits': 40,
+                    'seed': None
+                },
+        "experiment_id": str(project.id),
+        "name": name,
+        "description": "",
+        "circuit_ids":circuit_ids,
+        "optimisation_level": optimisation_level,
+        "notes": {}
+    }
+
+    resp = nexus_client.post(
+        "api/v6/jobs/compile/submit",
+        json=compile_job_request,
+    )
+    if resp.status_code != 202:
+        raise ResourceCreateFailed(
+            message=resp.text, status_code=resp.status_code
+        )
+    return JobHandle(
+        id=resp.json()["job_id"],
+        item_ids=resp.json()["item_ids"],
+        annotations=Annotations(
+            name=name,
+            description=None,
+            properties={}
+        ),
+        job_type=JobType.Compile,
+        last_status=StatusEnum.SUBMITTED,
+        last_message="",
+        project=project
     )
 
-    res = nexus_client.get(
-        "/api/v6/jobs",
-        params=params,
+def compilation_results(
+    compile_job: JobHandle,
+) -> list[Circuit]:
+    
+    resp = nexus_client.get(
+        f"api/v6/jobs/compile/{compile_job.id}",
     )
 
-    if res.status_code != 200:
-        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+    if resp.status_code != 200:
+        raise ResourceFetchFailed(
+            message=resp.text, status_code=resp.status_code
+        )
 
-    res_dict = res.json()
-    data = res_dict["data"]
-    meta = res_dict["meta"]
+    compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
 
-    return JobPage(
-        handles=[
-            JobHandle(
-                id=entry["job_id"],
-                annotations=Annotations(name=entry["name"]),
-                job_type=entry["job_type"],
-                last_status=CircuitStatus.from_dict(entry["job_status"]).status,
-                last_message=CircuitStatus.from_dict(entry["job_status"]).message,
-                project=ProjectHandle(
-                    id=entry["experiment_id"],
-                    annotations=Annotations(name="placeholder"),
-                ),
+    compiled_circuits = []
+
+    for compilation_id in compilation_ids:
+    
+        compilation_record_resp = nexus_client.get(
+            f"api/v5/experiments/{compile_job.project.id}/compilations/{compilation_id}",
+        )
+
+        if compilation_record_resp.status_code != 200:
+            raise ResourceFetchFailed(
+                message=resp.text, status_code=resp.status_code
             )
-            for entry in data
-        ],
-        page_number=meta["page_number"],
-        page_size=meta["page_size"],
-    )
 
+        compiled_circuit_id = compilation_record_resp.json()["compiled_circuit_submission_id"]
 
-def retry_error(job: JobHandle):
-    if job.job_type != JobType.Execute:
-        raise Exception("Invalid job type")
+        compiled_circuit = describe(CircuitHandle(
+            id=compiled_circuit_id,
+            annotations=Annotations(name="", description="", properties={}),
+            project=compile_job.project
+            )
+        )
 
-    res = nexus_client.post(
-        "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
-    )
+        compiled_circuits.append(compiled_circuit)
 
-    if res.status_code != 202:
-        res.raise_for_status()
-
-
-#    meta = res.json()["meta"]
-#    print("\n")
-#    print(
-#        f"Total jobs: {meta['total_count']}"
-#        + " / "
-#        + f"Page {meta['page_number']} of {meta['total_pages']}"
-#        + " / "
-#        + f"Page Size: {meta['page_size']}"
-#    )
-#    print(Fore.RESET)
-#    formatted_jobs = [
-#        {
-#            "Name": job["name"],
-#            "Job Type": "Execute"
-#            if job["job_type"].title() == "Process"
-#            else "Compile",
-#            "Status": job["job_status"]["status"].title(),
-#            "Message": job["job_status"]["message"],
-#            "Project Id": job["experiment_id"],
-#        }
-#        for job in res.json()["data"]
-#    ]
-#
-#    rich.print(pd.DataFrame.from_records(formatted_jobs))
+    return compiled_circuits
