@@ -3,10 +3,10 @@ import pandas as pd
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired, Unpack
 
-from qnexus.client.models.annotations import Annotations
+from qnexus.client.models.annotations import Annotations, AnnotationsDict
 
 # from halo import Halo
-from ..exceptions import ResourceFetchFailed
+from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
 from .client import nexus_client
 from .models.filters import (
     CreatorFilter,
@@ -112,3 +112,32 @@ def projects(**kwargs: Unpack[ParamsDict]):
     # TODO: not this
     print("\n")
     print(pd.DataFrame.from_records(formatted_projects))
+
+
+def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectHandle:
+
+    attributes = {}
+    annotations = Annotations(**kwargs)
+    attributes.update(annotations)
+    relationships = {}
+
+    req_dict = {
+        "data": {
+            "attributes": attributes,
+            "relationships": relationships,
+            "type": "project",
+        }
+    }
+
+    res = nexus_client.post("/api/projects/v1beta", json=req_dict)
+
+    if res.status_code != 200:
+        raise ResourceCreateFailed(message=res.json(), status_code=res.status_code)
+
+    res_data_dict = res.json()["data"]
+
+    return ProjectHandle(
+        id=UUID(res_data_dict["id"]), annotations=annotations
+    )
+
+
