@@ -1,13 +1,14 @@
-from typing import Any, Dict, Literal
-import time
-from typing import Callable
-from pathlib import Path
-from httpx import Response
 import http
 import os
+import time
+from pathlib import Path
+from typing import Any, Callable, Dict, Literal
+
 import pytket
+from httpx import Response
 
 from ..consts import TOKEN_FILE_PATH
+
 
 def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
@@ -35,7 +36,9 @@ def read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str
         return file.read().strip()
 
 
-def write_token_file(token_type: Literal["access_token", "refresh_token"], token: str) -> None:
+def write_token_file(
+    token_type: Literal["access_token", "refresh_token"], token: str
+) -> None:
     """Write a token to a file."""
 
     token_file_path = Path.home() / TOKEN_FILE_PATH

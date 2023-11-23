@@ -1,7 +1,9 @@
 import click
-from .utils import add_options_to_command, is_documented_by
-from ..client.jobs import jobs as _jobs, ParamsDict, Params
 from typing_extensions import Unpack
+
+from ..client.jobs import Params, ParamsDict
+from ..client.jobs import jobs as _jobs
+from .utils import add_options_to_command, is_documented_by
 
 
 @click.command()

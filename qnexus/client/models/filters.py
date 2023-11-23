@@ -1,10 +1,9 @@
-from pydantic import (
-    Field,
-    BaseModel,
-)
-from typing import Union, Literal, TypedDict, Annotated
-from typing_extensions import NotRequired
 from datetime import datetime
+from typing import Annotated, Literal, TypedDict, Union
+
+from pydantic import BaseModel, Field
+from typing_extensions import NotRequired
+
 from .utils import AllowNone
 
 

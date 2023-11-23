@@ -1,11 +1,13 @@
-import click
 import os
-from colorama import Fore
-from ..consts import CONFIG_FILE_NAME
-from ..config import get_config
-from ..client import status as _status
-from click import Option, Command
 from typing import Any
+
+import click
+from click import Command, Option
+from colorama import Fore
+
+from ..client import status as _status
+from ..config import get_config
+from ..consts import CONFIG_FILE_NAME
 
 
 def is_documented_by(original):

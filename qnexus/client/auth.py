@@ -1,13 +1,15 @@
-import httpx
-from ..config import get_config
-from .utils import write_token_file, consolidate_error
+import time
 import webbrowser
 from http import HTTPStatus
-import time
-from halo import Halo
+
+import httpx
 from colorama import Fore
-from rich.panel import Panel
+from halo import Halo
 from rich.console import Console
+from rich.panel import Panel
+
+from ..config import get_config
+from .utils import consolidate_error, write_token_file
 
 console = Console()
 config = get_config()

@@ -13,4 +13,4 @@ __pycache__/
 
 # IPython
 .ipynb_checkpoints
-*.ipynb
+/*.ipynb
