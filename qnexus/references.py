@@ -20,9 +20,11 @@ class CircuitRef(BaseRef):
     annotations: Annotations
     project: ProjectRef
 
+
 class JobType(str, Enum):
     Execute = "PROCESS"
     Compile = "COMPILE"
+
 
 class JobRef(BaseRef):
     id: UUID
