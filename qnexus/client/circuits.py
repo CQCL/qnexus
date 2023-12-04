@@ -1,11 +1,10 @@
 from uuid import UUID
 
-from pydantic import BaseModel
 from pytket._tket.circuit import Circuit
 from typing_extensions import Unpack
+from qnexus.annotations import Annotations, AnnotationsDict
 
 from qnexus.client.client import nexus_client
-from qnexus.client.models.annotations import Annotations, AnnotationsDict
 from qnexus.client.models.filters import (
     CreatorFilter,
     CreatorFilterDict,
@@ -20,9 +19,9 @@ from qnexus.client.models.filters import (
     TimeFilter,
     TimeFilterDict,
 )
-from qnexus.client.projects import ProjectHandle
 from qnexus.client.utils import normalize_included
 from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
+from qnexus.references import CircuitRef, ProjectRef
 
 
 class Params(
@@ -64,15 +63,9 @@ def circuits(**kwargs: Unpack[ParamsDict]):
     included_map = normalize_included(res_dict)
 
 
-class CircuitHandle(BaseModel):
-    id: UUID
-    annotations: Annotations
-    project: ProjectHandle
-
-
 def submit(
-    circuit: Circuit, project: ProjectHandle, **kwargs: Unpack[AnnotationsDict]
-) -> CircuitHandle:
+    circuit: Circuit, project: ProjectRef, **kwargs: Unpack[AnnotationsDict]
+) -> CircuitRef:
     circuit_dict = circuit.to_dict()
 
     kwargs["name"] = kwargs.get("name", circuit.name)
@@ -97,12 +90,12 @@ def submit(
 
     res_data_dict = res.json()["data"]
 
-    return CircuitHandle(
+    return CircuitRef(
         id=UUID(res_data_dict["id"]), annotations=annotations, project=project
     )
 
 
-def describe(handle: CircuitHandle) -> Circuit:
+def circuit_get(handle: CircuitRef) -> Circuit:
     res = nexus_client.get(f"/api/circuits/v1beta/{handle.id}")
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)

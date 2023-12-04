@@ -1,23 +1,18 @@
+from datetime import datetime
 from enum import Enum
 from typing import Annotated, Literal, TypedDict, Union
-from uuid import UUID
 
-import pandas as pd
-import rich
-from colorama import Fore
-from halo import Halo
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    ValidatorFunctionWrapHandler,
-    WrapValidator,
 )
 from typing_extensions import NotRequired, Unpack
+from qnexus.annotations import Annotations
 
-from qnexus.client.models.annotations import Annotations
-from qnexus.client.projects import ProjectHandle
-from pytket.backends.status import StatusEnum, CircuitStatus
+from qnexus.client.models.utils import AllowNone
+from qnexus.references import JobRef, ProjectRef
+from pytket.backends.status import CircuitStatus
 
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
 from .client import nexus_client
@@ -80,6 +75,11 @@ class JobTypeFilter(BaseModel):
         serialization_alias="filter[job_type]",
         description="Filter by project_id",
     )
+    submitted_after: Annotated[datetime, AllowNone] = Field(
+        default=None,
+        serialization_alias="filter[submitted_after]",
+        description="Show jobs submitted after this date.",
+    )
 
     model_config = ConfigDict(use_enum_values=True)
 
@@ -88,6 +88,7 @@ class JobTypeFilterDict(TypedDict):
     """Filter by job type (TypedDict)"""
 
     type: NotRequired[JobType]
+    submitted_after: NotRequired[datetime]
 
 
 class Params(
@@ -108,19 +109,13 @@ class ParamsDict(
     """TypedDict form of jobs list params"""
 
 
-class JobHandle(BaseModel):
-    id: UUID
-    annotations: Annotations
-    job_type: JobType
-    last_status: StatusEnum
-    last_message: str
-    project: ProjectHandle
-
-
+# TODO: How should we do lazy loading and pages.
 class JobPage(BaseModel):
-    handles: list[JobHandle]
+    jobs: list[JobRef]
     page_number: int
     page_size: int
+    total_pages: int
+    total_count: int
 
 
 # @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
@@ -145,14 +140,14 @@ def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
     meta = res_dict["meta"]
 
     return JobPage(
-        handles=[
-            JobHandle(
+        jobs=[
+            JobRef(
                 id=entry["job_id"],
                 annotations=Annotations(name=entry["name"]),
                 job_type=entry["job_type"],
                 last_status=CircuitStatus.from_dict(entry["job_status"]).status,
                 last_message=CircuitStatus.from_dict(entry["job_status"]).message,
-                project=ProjectHandle(
+                project=ProjectRef(
                     id=entry["experiment_id"],
                     annotations=Annotations(name="placeholder"),
                 ),
@@ -161,15 +156,30 @@ def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
         ],
         page_number=meta["page_number"],
         page_size=meta["page_size"],
+        total_count=meta["total_count"],
+        total_pages=meta["total_pages"],
     )
 
 
-def retry_error(job: JobHandle):
+def retry_error(job: JobRef):
     if job.job_type != JobType.Execute:
         raise Exception("Invalid job type")
 
     res = nexus_client.post(
         "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
+    )
+
+    if res.status_code != 202:
+        res.raise_for_status()
+
+
+def retry_submission(job: JobRef):
+    if job.job_type != JobType.Execute:
+        raise Exception("Invalid job type")
+
+    res = nexus_client.post(
+        "/api/v6/jobs/process/retry_submit",
+        json={"job_id": str(job.id), "resubmit_to_backend": True},
     )
 
     if res.status_code != 202:

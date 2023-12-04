@@ -1,9 +1,10 @@
-from uuid import UUID
 import pandas as pd
-from pydantic import BaseModel, Field
+from uuid import UUID
+from pydantic import Field
 from typing_extensions import NotRequired, Unpack
 
-from qnexus.client.models.annotations import Annotations, AnnotationsDict
+from qnexus.annotations import Annotations, AnnotationsDict
+from qnexus.references import ProjectRef
 
 # from halo import Halo
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
@@ -55,11 +56,6 @@ class ParamsDict(
     archived: NotRequired[bool]
 
 
-class ProjectHandle(BaseModel):
-    id: UUID
-    annotations: Annotations
-
-
 # @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
 def projects(**kwargs: Unpack[ParamsDict]):
     """
@@ -69,11 +65,11 @@ def projects(**kwargs: Unpack[ParamsDict]):
     --------
     Listed projects can be filtered:
 
-    >>> projects = qnx.projects.list(
-        is_archived=False,
-        sort=["-name"]
-    )
-    ...
+    #>>> ps = projects.list(
+    #...    is_archived=False,
+    #...    sort=["-name"],
+    #... )
+
     """
 
     params = Params(**kwargs).model_dump(
@@ -114,8 +110,7 @@ def projects(**kwargs: Unpack[ParamsDict]):
     print(pd.DataFrame.from_records(formatted_projects))
 
 
-def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectHandle:
-
+def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectRef:
     attributes = {}
     annotations = Annotations(**kwargs)
     attributes.update(annotations)
@@ -136,8 +131,4 @@ def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectHandle:
 
     res_data_dict = res.json()["data"]
 
-    return ProjectHandle(
-        id=UUID(res_data_dict["id"]), annotations=annotations
-    )
-
-
+    return ProjectRef(id=UUID(res_data_dict["id"]), annotations=annotations)
