@@ -9,7 +9,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 from ..config import get_config
-from .utils import consolidate_error, write_token_file
+from .utils import consolidate_error, write_token
 
 console = Console()
 config = get_config()
@@ -81,8 +81,8 @@ def login() -> None:
             continue
         if resp.status_code == HTTPStatus.OK:
             resp_json = resp.json()
-            write_token_file("refresh_token", resp_json["refresh_token"])
-            write_token_file(
+            write_token("refresh_token", resp_json["refresh_token"])
+            write_token(
                 "access_token",
                 resp_json["access_token"],
             )
@@ -101,6 +101,6 @@ def login() -> None:
 
 def logout() -> None:
     """Clear tokens from file system"""
-    write_token_file("refresh_token", "")
-    write_token_file("access_token", "")
+    write_token("refresh_token", "")
+    write_token("access_token", "")
     print("Successfully logged out.")
