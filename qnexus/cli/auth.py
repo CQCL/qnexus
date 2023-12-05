@@ -6,7 +6,7 @@ from ..client import auth as _auth
 @click.command()
 def login():
     """Log in to quantinuum nexus using your web browser."""
-    click.echo(_auth.browser_login())
+    click.echo(_auth.login())
 
 
 @click.command()

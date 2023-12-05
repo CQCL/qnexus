@@ -15,7 +15,7 @@ console = Console()
 config = get_config()
 
 
-def browser_login() -> None:
+def login() -> None:
     """
     Log in to Quantinuum Nexus using the web browser.
     ...
