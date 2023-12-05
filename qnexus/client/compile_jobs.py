@@ -16,13 +16,13 @@ from pydantic import (
 from pytket import Circuit
 from typing_extensions import NotRequired, Unpack
 
-from qnexus.client.models.annotations import Annotations
-from qnexus.client.projects import ProjectHandle
+from qnexus.annotations import Annotations
+from qnexus.references import ProjectRef, CircuitRef
 from pytket.backends.status import StatusEnum, CircuitStatus
 
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
 from .client import nexus_client
-from .circuits import CircuitHandle, describe
+from .circuits import circuit_get
 from .models.filters import (
     ExperimentIDFilter,
     ExperimentIDFilterDict,
@@ -117,7 +117,7 @@ class JobHandle(BaseModel):
     job_type: JobType
     last_status: StatusEnum
     last_message: str
-    project: ProjectHandle
+    project: ProjectRef
 
 
 class JobPage(BaseModel):
@@ -128,27 +128,32 @@ class JobPage(BaseModel):
 
 def submit(
     name: str,
-    circuits: Union[CircuitHandle, list[CircuitHandle]],
+    circuits: Union[CircuitRef, list[CircuitRef]],
     optimisation_level: int,
-    project: ProjectHandle
+    project: ProjectRef,
 ) -> JobHandle:
     """ """
 
-    circuit_ids = [str(circuits.id)] if isinstance(circuits, CircuitHandle) else [str(c.id) for c in circuits]
+    circuit_ids = (
+        [str(circuits.id)]
+        if isinstance(circuits, CircuitRef)
+        else [str(c.id) for c in circuits]
+    )
 
     compile_job_request = {
-        "backend": {'type': 'AerConfig',
-                    'noise_model': None,
-                    'simulation_method': 'automatic',
-                    'n_qubits': 40,
-                    'seed': None
-                },
+        "backend": {
+            "type": "AerConfig",
+            "noise_model": None,
+            "simulation_method": "automatic",
+            "n_qubits": 40,
+            "seed": None,
+        },
         "experiment_id": str(project.id),
         "name": name,
         "description": "",
-        "circuit_ids":circuit_ids,
+        "circuit_ids": circuit_ids,
         "optimisation_level": optimisation_level,
-        "notes": {}
+        "notes": {},
     }
 
     resp = nexus_client.post(
@@ -156,57 +161,49 @@ def submit(
         json=compile_job_request,
     )
     if resp.status_code != 202:
-        raise ResourceCreateFailed(
-            message=resp.text, status_code=resp.status_code
-        )
+        raise ResourceCreateFailed(message=resp.text, status_code=resp.status_code)
     return JobHandle(
         id=resp.json()["job_id"],
         item_ids=resp.json()["item_ids"],
-        annotations=Annotations(
-            name=name,
-            description=None,
-            properties={}
-        ),
+        annotations=Annotations(name=name, description=None, properties={}),
         job_type=JobType.Compile,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
-        project=project
+        project=project,
     )
+
 
 def compilation_results(
     compile_job: JobHandle,
 ) -> list[Circuit]:
-    
     resp = nexus_client.get(
         f"api/v6/jobs/compile/{compile_job.id}",
     )
 
     if resp.status_code != 200:
-        raise ResourceFetchFailed(
-            message=resp.text, status_code=resp.status_code
-        )
+        raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
 
     compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
 
     compiled_circuits = []
 
     for compilation_id in compilation_ids:
-    
         compilation_record_resp = nexus_client.get(
             f"api/v5/experiments/{compile_job.project.id}/compilations/{compilation_id}",
         )
 
         if compilation_record_resp.status_code != 200:
-            raise ResourceFetchFailed(
-                message=resp.text, status_code=resp.status_code
-            )
+            raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
 
-        compiled_circuit_id = compilation_record_resp.json()["compiled_circuit_submission_id"]
+        compiled_circuit_id = compilation_record_resp.json()[
+            "compiled_circuit_submission_id"
+        ]
 
-        compiled_circuit = describe(CircuitHandle(
-            id=compiled_circuit_id,
-            annotations=Annotations(name="", description="", properties={}),
-            project=compile_job.project
+        compiled_circuit = circuit_get(
+            CircuitRef(
+                id=compiled_circuit_id,
+                annotations=Annotations(name="", description="", properties={}),
+                project=compile_job.project,
             )
         )
 
