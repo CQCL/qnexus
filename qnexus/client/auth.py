@@ -4,18 +4,18 @@ from http import HTTPStatus
 
 import httpx
 from colorama import Fore
-from halo import Halo
+#from halo import Halo
 from rich.console import Console
 from rich.panel import Panel
 
 from ..config import get_config
-from .utils import consolidate_error, write_token_file
+from .utils import consolidate_error, write_token
 
 console = Console()
 config = get_config()
 
 
-def browser_login() -> None:
+def login() -> None:
     """
     Log in to Quantinuum Nexus using the web browser.
     ...
@@ -42,10 +42,10 @@ def browser_login() -> None:
     }
 
     print(f"🌐 Browser login initiated.")
-    spinner = Halo(
-        text=f"Waiting for user to log in via browser...",
-        spinner="simpleDotsScrolling",
-    )
+    # spinner = Halo(
+    #     text=f"Waiting for user to log in via browser...",
+    #     spinner="simpleDotsScrolling",
+    # )
     console.print(
         Panel(
             f"""
@@ -61,7 +61,7 @@ def browser_login() -> None:
         f"Browser didn't open automatically? Use this link: { Fore.BLUE + verification_uri_complete}"
     )
 
-    spinner.start()
+    #spinner.start()
 
     polling_for_seconds = 0
     while polling_for_seconds < expires_in:
@@ -81,26 +81,26 @@ def browser_login() -> None:
             continue
         if resp.status_code == HTTPStatus.OK:
             resp_json = resp.json()
-            write_token_file("refresh_token", resp_json["refresh_token"])
-            write_token_file(
+            write_token("refresh_token", resp_json["refresh_token"])
+            write_token(
                 "access_token",
                 resp_json["access_token"],
             )
-            spinner.stop()
+            #spinner.stop()
             print(
                 f"✅ Successfully logged in as {resp_json['email']} using the browser."
             )
             return
         # Fail for all other statuses
         consolidate_error(res=resp, description="Browser Login")
-        spinner.stop()
+        #spinner.stop()
         return
-    spinner.stop()
+    #spinner.stop()
     raise Exception("Browser login Failed, code has expired.")
 
 
 def logout() -> None:
     """Clear tokens from file system"""
-    write_token_file("refresh_token", "")
-    write_token_file("access_token", "")
+    write_token("refresh_token", "")
+    write_token("access_token", "")
     print("Successfully logged out.")

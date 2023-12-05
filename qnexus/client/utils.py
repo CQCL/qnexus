@@ -4,8 +4,10 @@ from typing import Any, Dict, Literal
 
 from httpx import Response
 
-from ..consts import TOKEN_FILE_PATH
+from ..consts import STORE_TOKENS, TOKEN_FILE_PATH
 
+_in_memory_refresh_token: str | None = None
+_in_memory_access_token: str | None = None
 
 def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
@@ -25,7 +27,36 @@ def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
     return included_map
 
 
-def read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str:
+def write_token(
+    token_type: Literal["access_token", "refresh_token"], token: str
+) -> None:
+    """"""
+    if STORE_TOKENS:
+        return _write_token_file(token_type, token)
+    match token_type:
+        case "access_token":
+            _in_memory_access_token = token
+        case "refresh_token":
+            _in_memory_refresh_token = token
+
+    
+def read_token(
+    token_type: Literal["access_token", "refresh_token"]
+) -> str:
+    """"""
+    if STORE_TOKENS:
+        return _read_token_file(token_type)
+    match token_type:
+        case "access_token":
+            if _in_memory_access_token:
+                return _in_memory_access_token
+        case "refresh_token":
+            if _in_memory_refresh_token:
+                return _in_memory_refresh_token
+    raise FileNotFoundError
+
+
+def _read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str:
     """Read a token from a file."""
 
     token_file_path = Path.home() / TOKEN_FILE_PATH
@@ -33,7 +64,7 @@ def read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str
         return file.read().strip()
 
 
-def write_token_file(
+def _write_token_file(
     token_type: Literal["access_token", "refresh_token"], token: str
 ) -> None:
     """Write a token to a file."""
