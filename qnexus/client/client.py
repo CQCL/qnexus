@@ -17,7 +17,7 @@ class AuthHandler(httpx.Auth):
         self.cookies = httpx.Cookies()
         try:
             refresh_token = read_token("refresh_token")
-            self.cookies.set("myqos_oat", refresh_token, domain="nexus.quantinuum.com")
+            self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
         except FileNotFoundError:
             pass  # Okay to ignore this as the user may log in later
 
@@ -34,7 +34,7 @@ class AuthHandler(httpx.Auth):
                 try:
                     refresh_token = read_token("refresh_token")
                     self.cookies.set(
-                        "myqos_oat", refresh_token, domain="nexus.quantinuum.com"
+                        "myqos_oat", refresh_token, domain=config.domain
                     )
                 except FileNotFoundError:
                     raise NotAuthenticatedException(
@@ -52,7 +52,7 @@ class AuthHandler(httpx.Auth):
 
             write_token(
                 "access_token",
-                self.cookies.get("myqos_id", domain="nexus.quantinuum.com") or "",
+                self.cookies.get("myqos_id", domain=config.domain) or "",
             )
             request.headers.pop("cookie")
             self.cookies.set_cookie_header(request)

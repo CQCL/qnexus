@@ -93,14 +93,3 @@ def submit(
     return CircuitRef(
         id=UUID(res_data_dict["id"]), annotations=annotations, project=project
     )
-
-
-def circuit_get(handle: CircuitRef) -> Circuit:
-    res = nexus_client.get(f"/api/circuits/v1beta/{handle.id}")
-    if res.status_code != 200:
-        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
-
-    res_data_attributes_dict = res.json()["data"]["attributes"]
-    circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}
-
-    return Circuit.from_dict(circuit_dict)

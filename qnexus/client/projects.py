@@ -1,9 +1,12 @@
-import pandas as pd
+import random
+from typing import Literal
 from uuid import UUID
+
+import pandas as pd
 from pydantic import Field
 from typing_extensions import NotRequired, Unpack
 
-from qnexus.annotations import Annotations, AnnotationsDict
+from qnexus.annotations import Annotations, AnnotationsDict, PropertiesDict
 from qnexus.references import ProjectRef
 
 # from halo import Halo
@@ -24,6 +27,10 @@ from .models.filters import (
     TimeFilterDict,
 )
 from .utils import normalize_included
+
+
+# Colour-blind friendly colours from https://www.nature.com/articles/nmeth.1618
+_COLOURS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7"]
 
 
 class Params(
@@ -128,7 +135,62 @@ def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectRef:
 
     if res.status_code != 200:
         raise ResourceCreateFailed(message=res.json(), status_code=res.status_code)
-
+    
     res_data_dict = res.json()["data"]
 
     return ProjectRef(id=UUID(res_data_dict["id"]), annotations=annotations)
+
+
+def add_property(
+        project: ProjectRef,
+        name: str,
+        property_type:  Literal["bool", "int", "float", "str"],
+        description: str | None = None,
+        required: bool = True,
+    ) -> None:
+    """ """
+
+    # For now required to add properties in a seperate API step
+    props_req_dict = {
+        "data": {
+            "attributes": {
+                "name": name,
+                "description": description,
+                "property_type": property_type,
+                "required": required,
+                "color":random.choice(_COLOURS) 
+            },
+            "relationships": {
+                "project": {
+                    "data": {
+                        "id": str(project.id),
+                        "type": "project"
+                    }
+                }
+            },
+            "type": "property",
+        }
+    }
+    props_res = nexus_client.post("/api/property_definitions/v1beta", json=props_req_dict)
+
+    if props_res.status_code != 200:
+        raise ResourceCreateFailed(message=props_res.json(), status_code=props_res.status_code)
+    
+
+    # BUG TODO - getting project via API doesn't return updated properties?
+    
+    # project_res = nexus_client.get(f"/api/projects/v1beta/{project.id}")
+
+    # if project_res.status_code != 200:
+    #     raise ResourceFetchFailed(message=project_res.json(), status_code=project_res.status_code)
+    
+    # project_json = project_res.json()["data"]
+
+    # return ProjectRef(
+    #     id=project_json["id"],
+    #     annotations= Annotations(
+    #         name=project_json["attributes"]["name"],
+    #         description=project_json["attributes"]["description"],
+    #         properties=project_json["attributes"]["properties"],
+    #     )
+    # )

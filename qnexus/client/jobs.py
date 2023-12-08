@@ -7,12 +7,22 @@ from pydantic import (
     ConfigDict,
     Field,
 )
+from pytket import Circuit
+from pytket.backends.backendinfo import BackendInfo
+from pytket.backends.backendresult import BackendResult
+from pytket.backends.status import CircuitStatus, StatusEnum
 from typing_extensions import NotRequired, Unpack
 from qnexus.annotations import Annotations
 
 from qnexus.client.models.utils import AllowNone
-from qnexus.references import JobRef, ProjectRef
-from pytket.backends.status import CircuitStatus
+from qnexus.references import (
+    CircuitRef, 
+    JobRef, 
+    ProjectRef, 
+    JobType, 
+    CompilationResultRef, 
+    ExecutionResultRef
+)
 
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
 from .client import nexus_client
@@ -60,11 +70,6 @@ class JobStatusFilterDict(TypedDict):
             ]
         ]
     ]
-
-
-class JobType(str, Enum):
-    Execute = "PROCESS"
-    Compile = "COMPILE"
 
 
 class JobTypeFilter(BaseModel):
@@ -186,27 +191,178 @@ def retry_submission(job: JobRef):
         res.raise_for_status()
 
 
-#    meta = res.json()["meta"]
-#    print("\n")
-#    print(
-#        f"Total jobs: {meta['total_count']}"
-#        + " / "
-#        + f"Page {meta['page_number']} of {meta['total_pages']}"
-#        + " / "
-#        + f"Page Size: {meta['page_size']}"
-#    )
-#    print(Fore.RESET)
-#    formatted_jobs = [
-#        {
-#            "Name": job["name"],
-#            "Job Type": "Execute"
-#            if job["job_type"].title() == "Process"
-#            else "Compile",
-#            "Status": job["job_status"]["status"].title(),
-#            "Message": job["job_status"]["message"],
-#            "Project Id": job["experiment_id"],
-#        }
-#        for job in res.json()["data"]
-#    ]
-#
-#    rich.print(pd.DataFrame.from_records(formatted_jobs))
+def submit_compile_job(
+    name: str,
+    circuits: Union[CircuitRef, list[CircuitRef]],
+    optimisation_level: int,
+    project: ProjectRef,
+    description: str | None = None
+) -> JobRef:
+    """ """
+
+    # TODO what happens if they submit a circuit that belongs to another project?
+
+    circuit_ids = (
+        [str(circuits.id)]
+        if isinstance(circuits, CircuitRef)
+        else [str(c.id) for c in circuits]
+    )
+
+    compile_job_request = {
+        "backend": {
+            "type": "AerConfig",
+            "noise_model": None,
+            "simulation_method": "automatic",
+            "n_qubits": 40,
+            "seed": None,
+        },
+        "experiment_id": str(project.id),
+        "name": name,
+        "description": description,
+        "circuit_ids": circuit_ids,
+        "optimisation_level": optimisation_level,
+    }
+
+    resp = nexus_client.post(
+        "api/v6/jobs/compile/submit",
+        json=compile_job_request,
+    )
+    if resp.status_code != 202:
+        raise ResourceCreateFailed(message=resp.text, status_code=resp.status_code)
+    return JobRef(
+        id=resp.json()["job_id"],
+        annotations=Annotations(name=name, description=description, properties={}),
+        job_type=JobType.Compile,
+        last_status=StatusEnum.SUBMITTED,
+        last_message="",
+        project=project,
+    )    
+
+
+def submit_execute_job(
+    name: str,
+    circuits: Union[CircuitRef, list[CircuitRef]],
+    project: ProjectRef,
+    n_shots: list[int] | list[None],
+    batch_id: str | None = None,
+    valid_check: bool = True,
+    postprocess: bool | None = None,
+    noisy_simulator: bool | None = None,
+    seed: int | None = None,
+    description: str | None = None
+) -> JobRef:
+    """ """
+
+    circuit_ids = (
+        [str(circuits.id)]
+        if isinstance(circuits, CircuitRef)
+        else [str(c.id) for c in circuits]
+    )
+
+    if any(n_shots) and len(n_shots) != len(circuit_ids):
+        raise ValueError("Number of circuits must equal number of n_shots.")
+    else:
+        n_shots = [None] * len(circuit_ids)
+
+    execute_job_request = {
+        "backend": {
+            "type": "AerConfig",
+            "noise_model": None,
+            "simulation_method": "automatic",
+            "n_qubits": 40,
+            "seed": None,
+        },
+        "experiment_id": str(project.id),
+        "name": name,
+        "items": [
+            {"circuit_id": circuit_id, "n_shots" : n_shot}
+            for circuit_id, n_shot in zip(circuit_ids, n_shots)
+        ],
+        "batch_id": batch_id,
+        "valid_check": valid_check,
+        "postprocess": postprocess,
+        "noisy_simulator": noisy_simulator,
+        "seed": seed,
+        "description": description,
+    }
+
+    resp = nexus_client.post(
+        "api/v6/jobs/process/submit",
+        json=execute_job_request,
+    )
+    if resp.status_code != 202:
+        raise ResourceCreateFailed(message=resp.text, status_code=resp.status_code)
+    return JobRef(
+        id=resp.json()["job_id"],
+        annotations=Annotations(name=name, description=description, properties={}),
+        job_type=JobType.Execute,
+        last_status=StatusEnum.SUBMITTED,
+        last_message="",
+        project=project,
+    )    
+
+
+def compilation_results(
+    compile_job: JobRef,
+) -> list[CircuitRef]: # TODO replace with CompilationResultRef
+    """ """
+
+    resp = nexus_client.get(
+        f"api/v6/jobs/compile/{compile_job.id}",
+    )
+
+    if resp.status_code != 200:
+        raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
+
+    compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
+
+    compiled_circuits: list[CircuitRef] = []
+
+    for compilation_id in compilation_ids:
+        compilation_record_resp = nexus_client.get(
+            f"api/v5/experiments/{compile_job.project.id}/compilations/{compilation_id}",
+        )
+
+        if compilation_record_resp.status_code != 200:
+            raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
+
+        compiled_circuit_id = compilation_record_resp.json()[
+            "compiled_circuit_submission_id"
+        ]
+
+        circuit = CircuitRef(
+            id=compiled_circuit_id,
+            annotations=Annotations(name="", description="", properties={}),
+            project=compile_job.project,
+        )
+        circuit.get_circuit()
+        
+
+        compiled_circuits.append(circuit)
+
+    return compiled_circuits
+
+
+def execution_results(
+    execute_job: JobRef,
+) -> list[ExecutionResultRef]:
+    """ """
+
+    resp = nexus_client.get(
+        f"api/v6/jobs/process/{execute_job.id}",
+    )
+
+    if resp.status_code != 200:
+        raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
+
+    results:list[ExecutionResultRef]  = []
+
+    for item in resp.json()["items"]:
+
+        result_ref = ExecutionResultRef(id=item["result_id"], annotations=execute_job.annotations, project=execute_job.project)
+
+        result_ref.get_result()
+
+        results.append(result_ref)
+
+    return results
