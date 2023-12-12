@@ -148,7 +148,7 @@ class SortFilter(BaseModel):
     )
 
 
-class ExperimentIDFilter(BaseModel):
+class ProjectIDFilter(BaseModel):
     """Project Id filter"""
 
     project_id: Annotated[str, AllowNone] = Field(
@@ -158,7 +158,7 @@ class ExperimentIDFilter(BaseModel):
     )
 
 
-class ExperimentIDFilterDict(TypedDict):
+class ProjectIDFilterDict(TypedDict):
     """Project ID filter (TypedDict)"""
 
     project_id: NotRequired[str]

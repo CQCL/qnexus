@@ -12,6 +12,8 @@ from qnexus.client.models.filters import (
     NameFilterDict,
     PaginationFilter,
     PaginationFilterDict,
+    ProjectIDFilter,
+    ProjectIDFilterDict,
     PropertiesFilter,
     PropertiesFilterDict,
     SortFilter,
@@ -29,6 +31,7 @@ class Params(
     PaginationFilter,
     NameFilter,
     CreatorFilter,
+    ProjectIDFilter,
     PropertiesFilter,
     TimeFilter,
 ):
@@ -42,6 +45,8 @@ class ParamsDict(
     PropertiesFilterDict,
     TimeFilterDict,
     SortFilterDict,
+    ProjectIDFilterDict,
+    
 ):
     """Params for fetching projects (TypedDict)"""
 
@@ -61,6 +66,21 @@ def circuits(**kwargs: Unpack[ParamsDict]):
     res_dict = res.json()
 
     included_map = normalize_included(res_dict)
+
+
+    # circuit_refs = []
+    # for circuit_data in res_dict["data"]:
+    #     CircuitRef(
+    #         id=UUID(circuit_data["id"]), 
+    #         annotations=annotations, 
+    #         project=ProjectRef(
+    #             id=circuit_data["relationships"]["project"]["id"],
+    #             annotations=Annotations({})
+    #         )
+    #     )
+    return res_dict
+
+
 
 
 def submit(

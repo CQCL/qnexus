@@ -27,8 +27,8 @@ from qnexus.references import (
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
 from .client import nexus_client
 from .models.filters import (
-    ExperimentIDFilter,
-    ExperimentIDFilterDict,
+    ProjectIDFilter,
+    ProjectIDFilterDict,
     NameFilter,
     NameFilterDict,
     PaginationFilter,
@@ -97,7 +97,7 @@ class JobTypeFilterDict(TypedDict):
 
 
 class Params(
-    PaginationFilter, NameFilter, JobStatusFilter, ExperimentIDFilter, JobTypeFilter
+    PaginationFilter, NameFilter, JobStatusFilter, ProjectIDFilter, JobTypeFilter
 ):
     """Params for fetching jobs"""
 
@@ -107,7 +107,7 @@ class Params(
 class ParamsDict(
     PaginationFilterDict,
     NameFilterDict,
-    ExperimentIDFilterDict,
+    ProjectIDFilterDict,
     JobStatusFilterDict,
     JobTypeFilterDict,
 ):
