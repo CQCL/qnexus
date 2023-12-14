@@ -12,7 +12,7 @@ uuid = "^1.30"
 colorama = "^0.4.6"
 click = "^8.1.7"
 httpx = "^0.25.0"
-pandas = "^2.1.1"
+pandas = "^2"
 pendulum = "^2.1.2"
 jinja2 = "^3.1.2"
 halo = "^0.0.31"
@@ -26,6 +26,17 @@ pytest = "^7.4.3"
 pytest-randomly = "^3.15.0"
 respx = "^0.20.2"
 black = "^23.11.0"
+
+# Demo group can possibly be removed before release
+[tool.poetry.group.demo]
+optional = true
+
+[tool.poetry.group.demo.dependencies]
+numpy = "^1"
+scipy = "^1"
+openfermion = "^1.6.0"
+pytket-qiskit = "*"
+
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"
