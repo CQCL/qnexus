@@ -19,6 +19,7 @@ class Config(BaseModel):
     project_name: Annotated[str, BeforeValidator(lambda v: None if v == "" else v)]
     optimization_level: int = 1
     protocol: str = "https"
+    websockets_protocol: str = "wss"
     domain: str = "staging.myqos.com"
 
     def __str__(self) -> str:
@@ -33,6 +34,10 @@ class Config(BaseModel):
     @property
     def url(self) -> str:
         return f"{self.protocol}://{self.domain}"
+    
+    @property
+    def websockets_url(self) -> str:
+        return f"{self.websockets_protocol}://{self.domain}"
 
 
 def get_config_file_paths():

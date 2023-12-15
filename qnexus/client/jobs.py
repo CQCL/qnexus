@@ -1,5 +1,8 @@
+import asyncio
 from datetime import datetime
 from enum import Enum
+import json
+import ssl
 from typing import Annotated, Literal, TypedDict, Union
 
 from pydantic import (
@@ -10,11 +13,15 @@ from pydantic import (
 from pytket import Circuit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
-from pytket.backends.status import CircuitStatus, StatusEnum
+from pytket.backends.status import StatusEnum, WAITING_STATUS
 from typing_extensions import NotRequired, Unpack
-from qnexus.annotations import Annotations
+from websockets.client import connect
+from websockets.exceptions import ConnectionClosedError
 
+from qnexus.annotations import Annotations
 from qnexus.client.models.utils import AllowNone
+from qnexus.client.models.job_status import JobStatus
+from qnexus.config import get_config
 from qnexus.references import (
     CircuitRef, 
     JobRef, 
@@ -35,6 +42,7 @@ from .models.filters import (
     PaginationFilterDict,
 )
 
+config = get_config()
 
 class JobStatusFilter(BaseModel):
     """Job status filter"""
@@ -150,8 +158,8 @@ def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
                 id=entry["job_id"],
                 annotations=Annotations(name=entry["name"]),
                 job_type=entry["job_type"],
-                last_status=CircuitStatus.from_dict(entry["job_status"]).status,
-                last_message=CircuitStatus.from_dict(entry["job_status"]).message,
+                last_status=JobStatus.from_dict(entry["job_status"]).status,
+                last_message=JobStatus.from_dict(entry["job_status"]).message,
                 project=ProjectRef(
                     id=entry["experiment_id"],
                     annotations=Annotations(name="placeholder"),
@@ -366,3 +374,86 @@ def execution_results(
         results.append(result_ref)
 
     return results
+
+
+def wait_for(
+    job: JobRef,
+    wait_for_status: StatusEnum = StatusEnum.COMPLETED,
+    timeout: float | None = 300.0,
+) -> JobStatus:
+    """Check job status until the job is complete (or a specified status).
+    """
+    return asyncio.run(
+        asyncio.wait_for(
+            listen_job_status(
+                job=job, wait_for_status=wait_for_status
+            ),
+            timeout=timeout,
+        )
+    )
+
+
+def status(job: JobRef) -> JobStatus:
+    """ """
+    resp = nexus_client.get(f"api/v6/jobs/{job.id}/status")
+    if resp.status_code != 200:
+        raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
+    job_status = JobStatus.from_dict(resp.json())
+    # job.last_status = job_status.status
+    return job_status
+
+
+async def listen_job_status(
+    job: JobRef, wait_for_status: StatusEnum = StatusEnum.COMPLETED
+) -> JobStatus:
+    """Check the Status of a Job via a websocket connection.
+    Will use SSO tokens."""
+    job_status = status(job)
+    #logger.debug("Current job status: %s", job_status.status)
+    if (
+        job_status.status not in WAITING_STATUS
+        or job_status.status == wait_for_status
+    ):
+        return job_status
+
+    # If we pass True into the websocket connection, it sets a default SSLContext.
+    # See: https://websockets.readthedocs.io/en/stable/reference/client.html
+    ssl_reconfigured: Union[bool, ssl.SSLContext] = True
+    # if not nexus_config.verify_session:
+    #     ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    #     ssl_reconfigured.check_hostname = False
+    #     ssl_reconfigured.verify_mode = ssl.CERT_NONE
+
+    extra_headers = {
+        # TODO, this cookie will expire frequently
+        "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}" #type: ignore
+    }
+    async for websocket in connect(
+        f"{config.websockets_url}/api/v6/jobs/{job.id}/status/ws",
+        ssl=ssl_reconfigured,
+        extra_headers=extra_headers,
+        # logger=logger,
+    ):
+        try:
+            async for status_json in websocket:
+                # logger.debug("New status: %s", status_json)
+                job_status = JobStatus.from_dict(json.loads(status_json))
+
+                if (
+                    job_status.status not in WAITING_STATUS
+                    or job_status.status == wait_for_status
+                ):
+                    break
+            break
+        except ConnectionClosedError:
+            # logger.debug(
+            #     "Websocket connection closed... attempting to reconnect..."
+            # )
+            continue
+        finally:
+            try:
+                await websocket.close()
+            except GeneratorExit:
+                pass
+
+    return job_status
