@@ -64,7 +64,7 @@ class ParamsDict(
 
 
 # @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
-def projects(**kwargs: Unpack[ParamsDict]):
+def projects(**kwargs: Unpack[ParamsDict]) -> list[ProjectRef]:
     """
     List projects you have access to.
 
@@ -93,28 +93,36 @@ def projects(**kwargs: Unpack[ParamsDict]):
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
-    included_map = normalize_included(res.json()["included"])
+    # included_map = normalize_included(res.json()["included"])
 
-    formatted_projects = [
-        {
-            "Identifier": project["id"],
-            "Name": project["attributes"]["name"],
-            "Created by": included_map[
-                project["relationships"]["creator"]["data"]["type"]
-            ][project["relationships"]["creator"]["data"]["id"]]["attributes"][
-                "display_name"
-            ],
-            "Created": project["attributes"]["timestamps"]["created"],
-            "Description": (project["attributes"]["description"] or "-"),
-            "Archived": True if project["attributes"]["archived"] else False,
-            "Properties": project["attributes"]["properties"],
-        }
-        for project in res.json()["data"]
+    # formatted_projects = [
+    #     {
+    #         "Identifier": project["id"],
+    #         "Name": project["attributes"]["name"],
+    #         "Created by": included_map[
+    #             project["relationships"]["creator"]["data"]["type"]
+    #         ][project["relationships"]["creator"]["data"]["id"]]["attributes"][
+    #             "display_name"
+    #         ],
+    #         "Created": project["attributes"]["timestamps"]["created"],
+    #         "Description": (project["attributes"]["description"] or "-"),
+    #         "Archived": True if project["attributes"]["archived"] else False,
+    #         "Properties": project["attributes"]["properties"],
+    #     }
+    #     for project in res.json()["data"]
+    # ]
+    
+    return [ProjectRef(
+            id=project["id"],
+            annotations=Annotations(
+                name=project["attributes"]["name"],
+                description=project["attributes"].get("description", None),
+                properties=project["attributes"]["properties"]
+            )
+        ) for project in res.json()["data"]
     ]
-
-    # TODO: not this
-    print("\n")
-    print(pd.DataFrame.from_records(formatted_projects))
+    
+    
 
 
 def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectRef:
@@ -175,22 +183,3 @@ def add_property(
 
     if props_res.status_code != 200:
         raise ResourceCreateFailed(message=props_res.json(), status_code=props_res.status_code)
-    
-
-    # BUG TODO - getting project via API doesn't return updated properties?
-    
-    # project_res = nexus_client.get(f"/api/projects/v1beta/{project.id}")
-
-    # if project_res.status_code != 200:
-    #     raise ResourceFetchFailed(message=project_res.json(), status_code=project_res.status_code)
-    
-    # project_json = project_res.json()["data"]
-
-    # return ProjectRef(
-    #     id=project_json["id"],
-    #     annotations= Annotations(
-    #         name=project_json["attributes"]["name"],
-    #         description=project_json["attributes"]["description"],
-    #         properties=project_json["attributes"]["properties"],
-    #     )
-    # )

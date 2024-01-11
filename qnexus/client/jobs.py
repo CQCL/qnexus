@@ -19,6 +19,7 @@ from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
 from qnexus.annotations import Annotations
+from qnexus.client import circuits
 from qnexus.client.models.utils import AllowNone
 from qnexus.client.models.job_status import JobStatus
 from qnexus.config import get_config
@@ -338,13 +339,7 @@ def compilation_results(
             "compiled_circuit_submission_id"
         ]
 
-        circuit = CircuitRef(
-            id=compiled_circuit_id,
-            annotations=Annotations(name="", description="", properties={}),
-            project=compile_job.project,
-        )
-        circuit.get_circuit()
-        
+        circuit = circuits._fetch(compiled_circuit_id)
 
         compiled_circuits.append(circuit)
 

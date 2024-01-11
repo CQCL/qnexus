@@ -22,7 +22,7 @@ from qnexus.client.models.filters import (
     TimeFilterDict,
 )
 from qnexus.client.utils import normalize_included
-from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
+from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed, ResourceUpdateFailed
 from qnexus.references import CircuitRef, ProjectRef
 
 
@@ -53,34 +53,51 @@ class ParamsDict(
     pass
 
 
-def circuits(**kwargs: Unpack[ParamsDict]):
+def circuits(**kwargs: Unpack[ParamsDict]) -> list[CircuitRef]:
     params = Params(**kwargs).model_dump(
         by_alias=True, exclude_unset=True, exclude_none=True
     )
 
-    res = nexus_client.get("/api/circuits/v1beta")
+    res = nexus_client.get(
+        "/api/circuits/v1beta",
+        params=params,
+    )
 
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     res_dict = res.json()
 
-    included_map = normalize_included(res_dict)
+    #included_map = normalize_included(res_dict)
 
+    circuit_refs = []
 
-    # circuit_refs = []
-    # for circuit_data in res_dict["data"]:
-    #     CircuitRef(
-    #         id=UUID(circuit_data["id"]), 
-    #         annotations=annotations, 
-    #         project=ProjectRef(
-    #             id=circuit_data["relationships"]["project"]["id"],
-    #             annotations=Annotations({})
-    #         )
-    #     )
-    return res_dict
+    for circuit_data in res_dict["data"]:
 
+        project_id = circuit_data["relationships"]["project"]["data"]["id"]
+        project_details = next(proj for proj in res_dict["included"] if proj["id"]==project_id)
+        project_ref = ProjectRef(
+                id=project_id,
+                annotations=Annotations(
+                    name=project_details["attributes"]["name"],
+                    description=project_details["attributes"].get("description", None),
+                    properties=project_details["attributes"]["properties"]
+                )
+        )
 
+        circuit_refs.append(
+            CircuitRef(
+                id=UUID(circuit_data["id"]), 
+                annotations=Annotations(
+                    name=circuit_data["attributes"]["name"],
+                    description=circuit_data["attributes"].get("description", None),
+                    properties=circuit_data["attributes"]["properties"]
+                ), 
+                project=project_ref
+            )
+        ) 
+
+    return circuit_refs
 
 
 def submit(
@@ -113,3 +130,61 @@ def submit(
     return CircuitRef(
         id=UUID(res_data_dict["id"]), annotations=annotations, project=project
     )
+
+
+def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
+    """ """
+    ref_annotations = ref.annotations.model_dump()
+    annotations = Annotations(**kwargs)
+    ref_annotations.update(annotations)
+
+    req_dict = {
+        "data": {
+            "attributes": ref_annotations,
+            "relationships": {}, # TODO maybe this needs to be fixed
+            "type": "circuit",
+        }
+    }
+    
+    res = nexus_client.patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
+
+    if res.status_code != 200:
+        raise ResourceUpdateFailed(message=res.json(), status_code=res.status_code)
+
+    #res_data_dict = res.json()["data"]
+
+    # TODO return updated ref
+
+
+
+def _fetch(circuit_id: UUID | str) -> CircuitRef:
+    """ """
+
+    res = nexus_client.get(f"/api/circuits/v1beta/{circuit_id}")
+
+    if res.status_code != 200:
+        raise ResourceUpdateFailed(message=res.json(), status_code=res.status_code)
+
+    res_dict = res.json()
+
+    project_id = res_dict["data"]["relationships"]["project"]["data"]["id"]
+    project_details = next(proj for proj in res_dict["included"] if proj["id"]==project_id)
+    project_ref = ProjectRef(
+            id=project_id,
+            annotations=Annotations(
+                name=project_details["attributes"]["name"],
+                description=project_details["attributes"].get("description", None),
+                properties=project_details["attributes"]["properties"]
+            )
+    )
+
+    return CircuitRef(
+            id=UUID(res_dict["data"]["id"]), 
+            annotations=Annotations(
+                name=res_dict["data"]["attributes"]["name"],
+                description=res_dict["data"]["attributes"].get("description", None),
+                properties=res_dict["data"]["attributes"]["properties"]
+            ), 
+            project=project_ref
+        )
+

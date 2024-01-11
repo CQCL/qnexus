@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated, Literal, TypedDict, Union
+from uuid import UUID
 
 from pydantic import BaseModel, Field
 from typing_extensions import NotRequired
@@ -151,9 +152,9 @@ class SortFilter(BaseModel):
 class ProjectIDFilter(BaseModel):
     """Project Id filter"""
 
-    project_id: Annotated[str, AllowNone] = Field(
+    project_id: Annotated[str | UUID, AllowNone] = Field(
         default=None,
-        serialization_alias="filter[experiment_id]",
+        serialization_alias="filter[project][id]",
         description="Filter by project id",
     )
 
@@ -161,4 +162,4 @@ class ProjectIDFilter(BaseModel):
 class ProjectIDFilterDict(TypedDict):
     """Project ID filter (TypedDict)"""
 
-    project_id: NotRequired[str]
+    project_id: NotRequired[str | UUID]

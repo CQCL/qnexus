@@ -28,6 +28,7 @@ class CircuitRef(BaseRef):
     _circuit: Circuit | None = None
 
     def get_circuit(self):
+        # TODO use a local cache
         if not self._circuit:
             self._circuit = _fetch_circuit(self)
         return self._circuit

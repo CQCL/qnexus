@@ -71,4 +71,5 @@ config = get_config()
 nexus_client = httpx.Client(
     base_url=config.url,
     auth=AuthHandler(),
+    timeout=None,
 )
