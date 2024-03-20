@@ -18,7 +18,9 @@ class Config(BaseModel):
     model_config = ConfigDict(coerce_numbers_to_str=True, extra="allow")
     project_name: Annotated[str, BeforeValidator(lambda v: None if v == "" else v)]
     optimization_level: int = 1
-    url: str = "https://nexus.quantinuum.com"
+    protocol: str = "https"
+    websockets_protocol: str = "wss"
+    domain: str = "staging.myqos.com"
 
     def __str__(self) -> str:
         out: str = ""
@@ -28,6 +30,14 @@ class Config(BaseModel):
             value = getattr(self, key).__str__()
             out += f"{Fore.CYAN + key} = {Fore.GREEN + value} {Fore.LIGHTBLUE_EX + required}\n"
         return out
+    
+    @property
+    def url(self) -> str:
+        return f"{self.protocol}://{self.domain}"
+    
+    @property
+    def websockets_url(self) -> str:
+        return f"{self.websockets_protocol}://{self.domain}"
 
 
 def get_config_file_paths():

@@ -26,15 +26,29 @@ class ResourceFetchFailed(Exception):
 
 class ResourceCreateFailed(Exception):
     """ResourceCreateFailed is an exception that occurs when a resource
-    cannot be fetched from the platform to be read, or when expected data wasn't
-    found on an object.
+    couldn't be created on the platform.
     """
 
     def __init__(self, message: str, status_code: Optional[int] = None) -> None:
         self.message = message
         self.status_code = status_code
         self.err = (
-            "Failed to fetch resource with status code: "
+            "Failed to create resource with status code: "
+            f"{self.status_code}, message: {self.message}"
+        )
+        super().__init__(self.err)
+
+
+class ResourceUpdateFailed(Exception):
+    """ResourceUpdateFailed is an exception that occurs when a resource
+    cannot be updated on the platform.
+    """
+
+    def __init__(self, message: str, status_code: Optional[int] = None) -> None:
+        self.message = message
+        self.status_code = status_code
+        self.err = (
+            "Failed to update resource with status code: "
             f"{self.status_code}, message: {self.message}"
         )
         super().__init__(self.err)

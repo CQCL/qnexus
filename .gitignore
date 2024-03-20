@@ -14,3 +14,7 @@ __pycache__/
 # IPython
 .ipynb_checkpoints
 /*.ipynb
+
+
+# Dev stuff
+dev_notebooks/
