@@ -23,6 +23,16 @@ class ResourceFetchFailed(Exception):
         )
         super().__init__(self.err)
 
+class ZeroMatches(Exception):
+    """Zero Matches on a get call made to the Nexus database."""
+
+class NoUniqueMatch(Exception):
+    """No Unique Match on a get call made to the Nexus database."""
+
+
+class JobError(Exception):
+    """A Nexus Job has errored."""
+
 
 class ResourceCreateFailed(Exception):
     """ResourceCreateFailed is an exception that occurs when a resource

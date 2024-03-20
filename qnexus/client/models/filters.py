@@ -1,11 +1,11 @@
-from datetime import datetime
-from typing import Annotated, Literal, TypedDict, Union
+from datetime import datetime,timezone
+from typing import Annotated, Literal, NotRequired, TypedDict, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field
-from typing_extensions import NotRequired
+from pydantic import BaseModel, Field, field_serializer
 
-from .utils import AllowNone
+from qnexus.references import ProjectRef
+from qnexus.client.models.utils import AllowNone
 
 
 class PropertiesFilterDict(TypedDict):
@@ -74,7 +74,7 @@ class PaginationFilter(BaseModel):
         description="Specific page to return.",
     )
     page_size: int = Field(
-        default=15,
+        default=50,
         serialization_alias="page[size]",
         description="Size of page that is returned.",
     )
@@ -160,6 +160,26 @@ class ProjectIDFilter(BaseModel):
 
 
 class ProjectIDFilterDict(TypedDict):
-    """Project ID filter (TypedDict)"""
+    """ProjectRef filter (TypedDict)"""
 
     project_id: NotRequired[str | UUID]
+
+
+
+class ProjectRefFilter(BaseModel):
+    """Project Id filter"""
+
+    project_ref: Annotated[ProjectRef, AllowNone] = Field(
+        default=None,
+        serialization_alias="filter[project][id]",
+        description="Filter by project ref",
+    )
+    @field_serializer('project_ref')
+    def serialize_project_ref(self, project_ref: ProjectRef):
+        return project_ref.id
+
+
+class ProjectRefFilterDict(TypedDict):
+    """ProjectRef filter (TypedDict)"""
+
+    project_ref: NotRequired[ProjectRef]
