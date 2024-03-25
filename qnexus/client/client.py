@@ -2,15 +2,16 @@ import typing
 
 import httpx
 
-from ..config import get_config
+from ..config import Config
 from ..exceptions import NotAuthenticatedException
 from .utils import read_token, write_token
 
-config = get_config()
+config = Config()
 
 
 class AuthHandler(httpx.Auth):
     """Custom nexus auth handler"""
+
     cookies: httpx.Cookies
 
     def __init__(self) -> None:
@@ -23,7 +24,6 @@ class AuthHandler(httpx.Auth):
 
         super().__init__()
 
-
     def auth_flow(
         self, request: httpx.Request
     ) -> typing.Generator[httpx.Request, httpx.Response, None]:
@@ -33,9 +33,7 @@ class AuthHandler(httpx.Auth):
             if self.cookies.get("myqos_oat") is None:
                 try:
                     refresh_token = read_token("refresh_token")
-                    self.cookies.set(
-                        "myqos_oat", refresh_token, domain=config.domain
-                    )
+                    self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
                 except FileNotFoundError:
                     raise NotAuthenticatedException(
                         "Not authenticated. Please run `qnx login` in your terminal."
@@ -67,7 +65,7 @@ class AuthHandler(httpx.Auth):
         )
 
 
-config = get_config()
+config = Config()
 nexus_client = httpx.Client(
     base_url=config.url,
     auth=AuthHandler(),
