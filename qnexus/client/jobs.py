@@ -22,14 +22,14 @@ from qnexus.annotations import Annotations
 from qnexus.client import circuits
 from qnexus.client.models.utils import AllowNone
 from qnexus.client.models.job_status import JobStatus
-from qnexus.config import get_config
+from qnexus.config import Config
 from qnexus.references import (
-    CircuitRef, 
-    JobRef, 
-    ProjectRef, 
-    JobType, 
-    CompilationResultRef, 
-    ExecutionResultRef
+    CircuitRef,
+    JobRef,
+    ProjectRef,
+    JobType,
+    CompilationResultRef,
+    ExecutionResultRef,
 )
 
 from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
@@ -43,7 +43,8 @@ from .models.filters import (
     PaginationFilterDict,
 )
 
-config = get_config()
+config = Config()
+
 
 class JobStatusFilter(BaseModel):
     """Job status filter"""
@@ -205,7 +206,7 @@ def submit_compile_job(
     circuits: Union[CircuitRef, list[CircuitRef]],
     optimisation_level: int,
     project: ProjectRef,
-    description: str | None = None
+    description: str | None = None,
 ) -> JobRef:
     """ """
 
@@ -245,7 +246,7 @@ def submit_compile_job(
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
-    )    
+    )
 
 
 def submit_execute_job(
@@ -258,7 +259,7 @@ def submit_execute_job(
     postprocess: bool | None = None,
     noisy_simulator: bool | None = None,
     seed: int | None = None,
-    description: str | None = None
+    description: str | None = None,
 ) -> JobRef:
     """ """
 
@@ -284,7 +285,7 @@ def submit_execute_job(
         "experiment_id": str(project.id),
         "name": name,
         "items": [
-            {"circuit_id": circuit_id, "n_shots" : n_shot}
+            {"circuit_id": circuit_id, "n_shots": n_shot}
             for circuit_id, n_shot in zip(circuit_ids, n_shots)
         ],
         "batch_id": batch_id,
@@ -308,12 +309,12 @@ def submit_execute_job(
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
-    )    
+    )
 
 
 def compilation_results(
     compile_job: JobRef,
-) -> list[CircuitRef]: # TODO replace with CompilationResultRef
+) -> list[CircuitRef]:  # TODO replace with CompilationResultRef
     """ """
 
     resp = nexus_client.get(
@@ -358,11 +359,15 @@ def execution_results(
     if resp.status_code != 200:
         raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
 
-    results:list[ExecutionResultRef]  = []
+    results: list[ExecutionResultRef] = []
 
     for item in resp.json()["items"]:
 
-        result_ref = ExecutionResultRef(id=item["result_id"], annotations=execute_job.annotations, project=execute_job.project)
+        result_ref = ExecutionResultRef(
+            id=item["result_id"],
+            annotations=execute_job.annotations,
+            project=execute_job.project,
+        )
 
         result_ref.get_result()
 
@@ -376,13 +381,10 @@ def wait_for(
     wait_for_status: StatusEnum = StatusEnum.COMPLETED,
     timeout: float | None = 300.0,
 ) -> JobStatus:
-    """Check job status until the job is complete (or a specified status).
-    """
+    """Check job status until the job is complete (or a specified status)."""
     return asyncio.run(
         asyncio.wait_for(
-            listen_job_status(
-                job=job, wait_for_status=wait_for_status
-            ),
+            listen_job_status(job=job, wait_for_status=wait_for_status),
             timeout=timeout,
         )
     )
@@ -404,11 +406,8 @@ async def listen_job_status(
     """Check the Status of a Job via a websocket connection.
     Will use SSO tokens."""
     job_status = status(job)
-    #logger.debug("Current job status: %s", job_status.status)
-    if (
-        job_status.status not in WAITING_STATUS
-        or job_status.status == wait_for_status
-    ):
+    # logger.debug("Current job status: %s", job_status.status)
+    if job_status.status not in WAITING_STATUS or job_status.status == wait_for_status:
         return job_status
 
     # If we pass True into the websocket connection, it sets a default SSLContext.
@@ -421,7 +420,7 @@ async def listen_job_status(
 
     extra_headers = {
         # TODO, this cookie will expire frequently
-        "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}" #type: ignore
+        "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
         f"{config.websockets_url}/api/v6/jobs/{job.id}/status/ws",

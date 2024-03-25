@@ -6,8 +6,11 @@ from click import Command, Option
 from colorama import Fore
 
 from ..client import status as _status
-from ..config import get_config
+from ..config import Config
 from ..consts import CONFIG_FILE_NAME
+
+
+config = Config()
 
 
 def is_documented_by(original):
@@ -32,11 +35,9 @@ def status():
 @click.command()
 def init():
     """Initialize a new qnexus project."""
-    config = get_config()
     if config:
         raise click.ClickException(
-            Fore.GREEN
-            + f"Project already initialized: {Fore.YELLOW + config.project_name}"
+            Fore.GREEN + f"Project already initialized: {Fore.YELLOW}"
         )
     if config is None:
         name: str = click.prompt(
