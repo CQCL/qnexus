@@ -22,7 +22,11 @@ from qnexus.client.models.filters import (
     TimeFilterDict,
 )
 from qnexus.client.utils import normalize_included
-from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed, ResourceUpdateFailed
+from qnexus.exceptions import (
+    ResourceCreateFailed,
+    ResourceFetchFailed,
+    ResourceUpdateFailed,
+)
 from qnexus.references import CircuitRef, ProjectRef
 
 
@@ -46,7 +50,6 @@ class ParamsDict(
     TimeFilterDict,
     SortFilterDict,
     ProjectIDFilterDict,
-    
 ):
     """Params for fetching projects (TypedDict)"""
 
@@ -63,39 +66,41 @@ def circuits(**kwargs: Unpack[ParamsDict]) -> list[CircuitRef]:
         params=params,
     )
 
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     res_dict = res.json()
 
-    #included_map = normalize_included(res_dict)
+    # included_map = normalize_included(res_dict)
 
     circuit_refs = []
 
     for circuit_data in res_dict["data"]:
 
         project_id = circuit_data["relationships"]["project"]["data"]["id"]
-        project_details = next(proj for proj in res_dict["included"] if proj["id"]==project_id)
+        project_details = next(
+            proj for proj in res_dict["included"] if proj["id"] == project_id
+        )
         project_ref = ProjectRef(
-                id=project_id,
-                annotations=Annotations(
-                    name=project_details["attributes"]["name"],
-                    description=project_details["attributes"].get("description", None),
-                    properties=project_details["attributes"]["properties"]
-                )
+            id=project_id,
+            annotations=Annotations(
+                name=project_details["attributes"]["name"],
+                description=project_details["attributes"].get("description", None),
+                properties=project_details["attributes"]["properties"],
+            ),
         )
 
         circuit_refs.append(
             CircuitRef(
-                id=UUID(circuit_data["id"]), 
+                id=UUID(circuit_data["id"]),
                 annotations=Annotations(
                     name=circuit_data["attributes"]["name"],
                     description=circuit_data["attributes"].get("description", None),
-                    properties=circuit_data["attributes"]["properties"]
-                ), 
-                project=project_ref
+                    properties=circuit_data["attributes"]["properties"],
+                ),
+                project=project_ref,
             )
-        ) 
+        )
 
     return circuit_refs
 
@@ -122,7 +127,7 @@ def submit(
     res = nexus_client.post("/api/circuits/v1beta", json=req_dict)
 
     # https://cqc.atlassian.net/browse/MUS-3054
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceCreateFailed(message=res.json(), status_code=res.status_code)
 
     res_data_dict = res.json()["data"]
@@ -141,20 +146,19 @@ def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
     req_dict = {
         "data": {
             "attributes": ref_annotations,
-            "relationships": {}, # TODO maybe this needs to be fixed
+            "relationships": {},  # TODO maybe this needs to be fixed
             "type": "circuit",
         }
     }
-    
+
     res = nexus_client.patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
 
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceUpdateFailed(message=res.json(), status_code=res.status_code)
 
-    #res_data_dict = res.json()["data"]
+    # res_data_dict = res.json()["data"]
 
     # TODO return updated ref
-
 
 
 def _fetch(circuit_id: UUID | str) -> CircuitRef:
@@ -162,29 +166,30 @@ def _fetch(circuit_id: UUID | str) -> CircuitRef:
 
     res = nexus_client.get(f"/api/circuits/v1beta/{circuit_id}")
 
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceUpdateFailed(message=res.json(), status_code=res.status_code)
 
     res_dict = res.json()
 
     project_id = res_dict["data"]["relationships"]["project"]["data"]["id"]
-    project_details = next(proj for proj in res_dict["included"] if proj["id"]==project_id)
+    project_details = next(
+        proj for proj in res_dict["included"] if proj["id"] == project_id
+    )
     project_ref = ProjectRef(
-            id=project_id,
-            annotations=Annotations(
-                name=project_details["attributes"]["name"],
-                description=project_details["attributes"].get("description", None),
-                properties=project_details["attributes"]["properties"]
-            )
+        id=project_id,
+        annotations=Annotations(
+            name=project_details["attributes"]["name"],
+            description=project_details["attributes"].get("description", None),
+            properties=project_details["attributes"]["properties"],
+        ),
     )
 
     return CircuitRef(
-            id=UUID(res_dict["data"]["id"]), 
-            annotations=Annotations(
-                name=res_dict["data"]["attributes"]["name"],
-                description=res_dict["data"]["attributes"].get("description", None),
-                properties=res_dict["data"]["attributes"]["properties"]
-            ), 
-            project=project_ref
-        )
-
+        id=UUID(res_dict["data"]["id"]),
+        annotations=Annotations(
+            name=res_dict["data"]["attributes"]["name"],
+            description=res_dict["data"]["attributes"].get("description", None),
+            properties=res_dict["data"]["attributes"]["properties"],
+        ),
+        project=project_ref,
+    )

@@ -90,7 +90,7 @@ def projects(**kwargs: Unpack[ParamsDict]) -> list[ProjectRef]:
         params=params,
     )
 
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     # included_map = normalize_included(res.json()["included"])
@@ -111,18 +111,18 @@ def projects(**kwargs: Unpack[ParamsDict]) -> list[ProjectRef]:
     #     }
     #     for project in res.json()["data"]
     # ]
-    
-    return [ProjectRef(
+
+    return [
+        ProjectRef(
             id=project["id"],
             annotations=Annotations(
                 name=project["attributes"]["name"],
                 description=project["attributes"].get("description", None),
-                properties=project["attributes"]["properties"]
-            )
-        ) for project in res.json()["data"]
+                properties=project["attributes"]["properties"],
+            ),
+        )
+        for project in res.json()["data"]
     ]
-    
-    
 
 
 def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectRef:
@@ -141,21 +141,21 @@ def submit(**kwargs: Unpack[AnnotationsDict]) -> ProjectRef:
 
     res = nexus_client.post("/api/projects/v1beta", json=req_dict)
 
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceCreateFailed(message=res.json(), status_code=res.status_code)
-    
+
     res_data_dict = res.json()["data"]
 
     return ProjectRef(id=UUID(res_data_dict["id"]), annotations=annotations)
 
 
 def add_property(
-        project: ProjectRef,
-        name: str,
-        property_type:  Literal["bool", "int", "float", "str"],
-        description: str | None = None,
-        required: bool = True,
-    ) -> None:
+    project: ProjectRef,
+    name: str,
+    property_type: Literal["bool", "int", "float", "str"],
+    description: str | None = None,
+    required: bool = True,
+) -> None:
     """ """
 
     # For now required to add properties in a seperate API step
@@ -166,20 +166,19 @@ def add_property(
                 "description": description,
                 "property_type": property_type,
                 "required": required,
-                "color":random.choice(_COLOURS) 
+                "color": random.choice(_COLOURS),
             },
             "relationships": {
-                "project": {
-                    "data": {
-                        "id": str(project.id),
-                        "type": "project"
-                    }
-                }
+                "project": {"data": {"id": str(project.id), "type": "project"}}
             },
             "type": "property",
         }
     }
-    props_res = nexus_client.post("/api/property_definitions/v1beta", json=props_req_dict)
+    props_res = nexus_client.post(
+        "/api/property_definitions/v1beta", json=props_req_dict
+    )
 
-    if props_res.status_code != 200:
-        raise ResourceCreateFailed(message=props_res.json(), status_code=props_res.status_code)
+    if props_res.status_code >= 400:
+        raise ResourceCreateFailed(
+            message=props_res.json(), status_code=props_res.status_code
+        )

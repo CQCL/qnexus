@@ -147,7 +147,7 @@ def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
         params=params,
     )
 
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     res_dict = res.json()

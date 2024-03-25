@@ -11,6 +11,7 @@ from qnexus.annotations import Annotations
 from qnexus.client.client import nexus_client
 from qnexus.exceptions import ResourceFetchFailed
 
+
 class BaseRef(BaseModel):
     model_config = ConfigDict(frozen=True)
 
@@ -61,9 +62,8 @@ class CompilationResultRef(BaseRef):
 
     def get_compiled_circuit(self):
         if not self._compiled_circuit:
-            pass # TODO
+            pass  # TODO
         return self._compiled_circuit
-
 
 
 class ExecutionResultRef(BaseRef):
@@ -73,7 +73,7 @@ class ExecutionResultRef(BaseRef):
 
     _result: BackendResult | None = None
     _backend_info: BackendInfo | None = None
-    
+
     def get_result(self):
         if not self._result:
             self._result, self._backend_info = _fetch_execution_result(self)
@@ -87,7 +87,7 @@ class ExecutionResultRef(BaseRef):
 
 def _fetch_circuit(handle: CircuitRef) -> Circuit:
     res = nexus_client.get(f"/api/circuits/v1beta/{handle.id}")
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     res_data_attributes_dict = res.json()["data"]["attributes"]
@@ -96,26 +96,25 @@ def _fetch_circuit(handle: CircuitRef) -> Circuit:
     return Circuit.from_dict(circuit_dict)
 
 
-def _fetch_execution_result(handle: ExecutionResultRef) -> tuple[BackendResult, BackendInfo]:
+def _fetch_execution_result(
+    handle: ExecutionResultRef,
+) -> tuple[BackendResult, BackendInfo]:
     res = nexus_client.get(f"/api/results/v1beta/{handle.id}")
-    if res.status_code != 200:
+    if res.status_code >= 400:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     results_data = res.json()["data"]["attributes"]
     results_dict = {k: v for k, v in results_data.items() if v != [] and v is not None}
 
-
     backend_result = BackendResult.from_dict(results_dict)
 
     # TODO
     backend_info = BackendInfo(
-        name="", 
+        name="",
         device_name="",
         version="",
         architecture=Architecture(),
         gate_set=set(),
     )
-    
+
     return (backend_result, backend_info)
-
-
