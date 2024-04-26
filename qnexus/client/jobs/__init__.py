@@ -1,25 +1,21 @@
 import asyncio
 from datetime import datetime
-from enum import Enum
+
 import json
 import ssl
-from typing import Annotated, Literal, TypedDict, Union
+from typing import Annotated, Any, Literal, Optional, TypedDict, Union
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
 )
-from pytket import Circuit
-from pytket.backends.backendinfo import BackendInfo
-from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum, WAITING_STATUS
 from typing_extensions import NotRequired, Unpack
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
 from qnexus.annotations import Annotations
-from qnexus.client import circuits
 from qnexus.client.models.utils import AllowNone
 from qnexus.client.models.job_status import JobStatus
 from qnexus.config import Config
@@ -28,20 +24,26 @@ from qnexus.references import (
     JobRef,
     ProjectRef,
     JobType,
-    CompilationResultRef,
+    RefList,
     ExecutionResultRef,
 )
 
-from ..exceptions import ResourceCreateFailed, ResourceFetchFailed
-from .client import nexus_client
-from .models.filters import (
+import qnexus.exceptions as qnx_exc
+from qnexus.client import nexus_client
+from qnexus.client.models.filters import (
     ProjectIDFilter,
     ProjectIDFilterDict,
+    ProjectRefFilter,
+    ProjectRefFilterDict,
     NameFilter,
     NameFilterDict,
     PaginationFilter,
     PaginationFilterDict,
 )
+from qnexus.client.jobs import execute, compile
+
+from qnexus.client.pagination_iterator import NexusDatabaseIterator
+from qnexus.context import merge_project_from_context
 
 config = Config()
 
@@ -107,7 +109,13 @@ class JobTypeFilterDict(TypedDict):
 
 
 class Params(
-    PaginationFilter, NameFilter, JobStatusFilter, ProjectIDFilter, JobTypeFilter
+    # TODO add job id filter
+    PaginationFilter, 
+    NameFilter, 
+    JobStatusFilter, 
+    ProjectIDFilter, 
+    ProjectRefFilter, 
+    JobTypeFilter
 ):
     """Params for fetching jobs"""
 
@@ -118,44 +126,39 @@ class ParamsDict(
     PaginationFilterDict,
     NameFilterDict,
     ProjectIDFilterDict,
+    ProjectRefFilterDict,
     JobStatusFilterDict,
     JobTypeFilterDict,
 ):
     """TypedDict form of jobs list params"""
 
 
-# TODO: How should we do lazy loading and pages.
-class JobPage(BaseModel):
-    jobs: list[JobRef]
-    page_number: int
-    page_size: int
-    total_pages: int
-    total_count: int
-
 
 # @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
-def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
+@merge_project_from_context
+def filter(**kwargs: Unpack[ParamsDict]) -> NexusDatabaseIterator:
     """
     List jobs.
     """
+
     params = Params(**kwargs).model_dump(
         by_alias=True, exclude_unset=True, exclude_none=True, mode=""
     )
-
-    res = nexus_client.get(
-        "/api/v6/jobs",
+    if project_id_filter := params.pop("filter[project][id]", None):
+        # TODO not needed after v1beta jobs api
+        params["filter[experiment_id]"] = project_id_filter
+    
+    return NexusDatabaseIterator(
+        resource_type="Job",
+        nexus_url="/api/v6/jobs",
         params=params,
+        wrapper_method=_to_JobRef
     )
 
-    if res.status_code != 200:
-        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
-    res_dict = res.json()
-    data = res_dict["data"]
-    meta = res_dict["meta"]
-
-    return JobPage(
-        jobs=[
+def _to_JobRef(data: dict[str,Any]) -> RefList[JobRef]:
+    """ """
+    return RefList([
             JobRef(
                 id=entry["job_id"],
                 annotations=Annotations(name=entry["name"]),
@@ -167,15 +170,21 @@ def jobs(**kwargs: Unpack[ParamsDict]) -> JobPage:
                     annotations=Annotations(name="placeholder"),
                 ),
             )
-            for entry in data
-        ],
-        page_number=meta["page_number"],
-        page_size=meta["page_size"],
-        total_count=meta["total_count"],
-        total_pages=meta["total_pages"],
-    )
+            for entry in data["data"]
+        ])
+
+# id: Optional[str] = None,
+def get(**kwargs: Unpack[ParamsDict]) -> JobRef:
+    """ """
+    filter_call = filter(**kwargs)
+    if filter_call.count() > 1:
+        raise qnx_exc.NoUniqueMatch
+    if filter_call.count() == 0:
+        raise qnx_exc.ZeroMatches
+    return filter_call.all()[0]
 
 
+<<<<<<< HEAD
 def retry_error(job: JobRef):
     if job.job_type != JobType.Execute:
         raise Exception("Invalid job type")
@@ -376,25 +385,37 @@ def execution_results(
     return results
 
 
+=======
+>>>>>>> 948a9e0 (WIP bits)
 def wait_for(
     job: JobRef,
     wait_for_status: StatusEnum = StatusEnum.COMPLETED,
     timeout: float | None = 300.0,
 ) -> JobStatus:
+<<<<<<< HEAD
     """Check job status until the job is complete (or a specified status)."""
     return asyncio.run(
+=======
+    """Check job status until the job is complete (or a specified status).
+    """
+    job_status = asyncio.run(
+>>>>>>> 5858ec5 (Some updated code)
         asyncio.wait_for(
             listen_job_status(job=job, wait_for_status=wait_for_status),
             timeout=timeout,
         )
     )
 
+    if job_status.status == StatusEnum.ERROR:
+        raise qnx_exc.JobError(f"Job errored with detail: {job_status.error_detail}")
+    return job_status
+
 
 def status(job: JobRef) -> JobStatus:
     """ """
     resp = nexus_client.get(f"api/v6/jobs/{job.id}/status")
     if resp.status_code != 200:
-        raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
+        raise qnx_exc.ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
     job_status = JobStatus.from_dict(resp.json())
     # job.last_status = job_status.status
     return job_status

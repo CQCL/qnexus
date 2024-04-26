@@ -4,7 +4,7 @@ from typing import Any, Dict, Literal
 
 from httpx import Response
 
-from ..consts import STORE_TOKENS, TOKEN_FILE_PATH
+from qnexus.consts import STORE_TOKENS, TOKEN_FILE_PATH
 
 _in_memory_refresh_token: str | None = None
 _in_memory_access_token: str | None = None

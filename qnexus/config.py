@@ -9,7 +9,7 @@ from click import ClickException
 from colorama import Fore
 from pydantic import BaseModel, BeforeValidator, ConfigDict
 
-from .consts import CONFIG_FILE_NAME
+from qnexus.consts import CONFIG_FILE_NAME
 
 
 class Config(BaseModel):

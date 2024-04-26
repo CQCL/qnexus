@@ -1,5 +1,7 @@
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
+from typing import Callable
+
 import logging
 from qnexus.annotations import PropertiesDict
 
@@ -25,7 +27,7 @@ def deactivate_properties(token: Token[PropertiesDict | None]) -> ProjectRef | N
     return _QNEXUS_PROPERTIES.reset(token)
 
 
-def get_active_project() -> ProjectRef | None:
+def get_active_project(project_required: bool = False) -> ProjectRef | None:
     """Get a reference to the active project if set.
 
     >>> get_active_project()
@@ -38,7 +40,10 @@ def get_active_project() -> ProjectRef | None:
     >>> deactivate_project(token)
 
     """
-    return _QNEXUS_PROJECT.get(None)
+    active_project = _QNEXUS_PROJECT.get(None)
+    if active_project is None and project_required:
+        raise Exception("No Project in context")
+    return active_project
 
 
 def get_active_properties() -> PropertiesDict:
@@ -109,3 +114,23 @@ def using_properties(**properties: int | float | str | bool):
         yield
     finally:
         _QNEXUS_PROPERTIES.reset(token)
+
+
+def merge_project_from_context(func: Callable):
+    """Decorator to merge a project from the context.
+    ProjectRef in kwargs takes precedence (will be selected)."""
+    def get_project_from_context(*args, **kwargs):
+        kwargs["project_ref"] = kwargs.get("project_ref", None)
+        if kwargs["project_ref"] is None:
+            kwargs["project_ref"] = get_active_project()
+        return func(*args, **kwargs)
+    return get_project_from_context
+
+
+def merge_properties_from_context(func: Callable):
+    """Decorator to take the union of properties from the context with 
+    any provided in kwargs. Properties in kwargs take precendence."""
+    def _merge_properties_from_context(*args, **kwargs):
+        kwargs["properties"] = get_active_properties() | kwargs.get("properties",{})
+        return func(*args, **kwargs)
+    return _merge_properties_from_context
