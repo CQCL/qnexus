@@ -1,16 +1,18 @@
+"""Client API for Nexus."""
 import typing
 
 import httpx
 
-from qnexus.config import get_config
-from qnexus.exceptions import NotAuthenticatedException
 from qnexus.client.utils import read_token, write_token
+from qnexus.config import get_config
+from qnexus.exceptions import AuthenticationError
 
 config = get_config()
 
 
 class AuthHandler(httpx.Auth):
     """Custom nexus auth handler"""
+
     cookies: httpx.Cookies
 
     def __init__(self) -> None:
@@ -23,7 +25,6 @@ class AuthHandler(httpx.Auth):
 
         super().__init__()
 
-
     def auth_flow(
         self, request: httpx.Request
     ) -> typing.Generator[httpx.Request, httpx.Response, None]:
@@ -33,17 +34,15 @@ class AuthHandler(httpx.Auth):
             if self.cookies.get("myqos_oat") is None:
                 try:
                     refresh_token = read_token("refresh_token")
-                    self.cookies.set(
-                        "myqos_oat", refresh_token, domain=config.domain
-                    )
-                except FileNotFoundError:
-                    raise NotAuthenticatedException(
+                    self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
+                except FileNotFoundError as exc:
+                    raise AuthenticationError(
                         "Not authenticated. Please run `qnx login` in your terminal."
-                    )
+                    ) from exc
 
             auth_response = yield self.build_refresh_request()
             if auth_response.status_code == 401:
-                raise NotAuthenticatedException(
+                raise AuthenticationError(
                     "Not authenticated. Please run `qnx login` in your terminal."
                 )
 
@@ -59,6 +58,7 @@ class AuthHandler(httpx.Auth):
             yield request
 
     def build_refresh_request(self) -> httpx.Request:
+        """Build the request for refreshing the id token."""
         self.cookies.delete("myqos_id")  # We need to delete the existing token first
         return httpx.Request(
             method="POST",

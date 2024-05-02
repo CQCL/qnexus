@@ -4,11 +4,11 @@ import httpx
 import pytest
 import respx
 
-from qnexus.client.client import nexus_client
-from qnexus.client import projects
 import qnexus.consts
-from qnexus.client.utils import write_token, read_token
-from qnexus.exceptions import NotAuthenticatedException
+from qnexus.client import projects
+from qnexus.client.client import nexus_client
+from qnexus.client.utils import read_token, write_token
+from qnexus.exceptions import AuthenticationError
 
 
 @respx.mock
@@ -70,7 +70,7 @@ def test_token_refresh_expired() -> None:
         f"{nexus_client.base_url}/auth/tokens/refresh"
     ).mock(return_value=httpx.Response(401))
 
-    with pytest.raises(NotAuthenticatedException):
+    with pytest.raises(AuthenticationError):
         projects.projects()
 
     assert list_project_route.called

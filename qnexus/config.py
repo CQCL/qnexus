@@ -1,15 +1,7 @@
 """Quantinuum Nexus API client."""
 
-import os
-from functools import reduce
-from pathlib import Path
-from typing import Annotated, Any, Dict
-
-from click import ClickException
 from colorama import Fore
-from pydantic import BaseModel, BeforeValidator, ConfigDict
-
-from qnexus.consts import CONFIG_FILE_NAME
+from pydantic import BaseModel, ConfigDict
 
 
 class Config(BaseModel):
@@ -22,6 +14,7 @@ class Config(BaseModel):
     domain: str = "staging.myqos.com"
 
     def __str__(self) -> str:
+        """String representation of current config."""
         out: str = ""
         out += Fore.MAGENTA + "Current QNexus Environment: \n"
         for key, field in self.model_fields.items():
@@ -32,10 +25,12 @@ class Config(BaseModel):
 
     @property
     def url(self) -> str:
+        """Current http API URL"""
         return f"{self.protocol}://{self.domain}"
 
     @property
     def websockets_url(self) -> str:
+        """Current websockets API URL"""
         return f"{self.websockets_protocol}://{self.domain}"
 
 
@@ -63,16 +58,17 @@ class Config(BaseModel):
 #     return env_vars
 
 
-# def get_config() -> Config:
-#     """Get config"""
-#     config_file_paths = get_config_file_paths()
-#     if len(config_file_paths) > 0:
-#         configs = [
-#             parse_config_file(config_file_path)
-#             for config_file_path in config_file_paths
-#         ]
-#         configs.reverse()  # Nearest directory takes precendence
-#         resolved_config = reduce(lambda a, b: dict(a, **b), configs)
-#         return Config(**resolved_config)
+def get_config() -> Config:
+    """Get config"""
+    # config_file_paths = get_config_file_paths()
+    # if len(config_file_paths) > 0:
+    #     configs = [
+    #         parse_config_file(config_file_path)
+    #         for config_file_path in config_file_paths
+    #     ]
+    #     configs.reverse()  # Nearest directory takes precendence
+    #     resolved_config = reduce(lambda a, b: dict(a, **b), configs)
+    return Config()
+
 
 #     raise ClickException(Fore.RED + f"No project found. {CONFIG_FILE_NAME} not found.")

@@ -1,102 +1,131 @@
+"""Definitions of reference proxy objects to data in Nexus."""
+
+# pylint: disable=import-outside-toplevel, too-few-public-methods, cyclic-import
+from __future__ import annotations
+
 from abc import abstractmethod
+from copy import copy
 from enum import Enum
-from functools import cached_property
+from typing import Optional, Protocol, TypeVar
 from uuid import UUID
-from typing import Literal, Optional, Protocol, TypeVar
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict
-from pytket.circuit import Circuit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
+from pytket.circuit import Circuit
 
-from qnexus.annotations import Annotations
-
-T = TypeVar('T')
-
-
-class RefList(list[T]):
-    """ """
-    def __init__(self, iterable):
-        super().__init__(item for item in iterable)
-
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        # TODO handle mixed types (e.g. None and float) - found in quotas
-        # TODO summarize utils/docs for extending default dataframes?
-        return pd.concat([item.summarize() for item in self], ignore_index=True)
+from qnexus.client.models.annotations import Annotations
 
 
-class Summarizable(Protocol):
-    """Protocol for structural subtyping of classes that 
+class Dataframable(Protocol):
+    """Protocol for structural subtyping of classes that
     have a default representation as a pandas.DataFrame."""
 
     @abstractmethod
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
         raise NotImplementedError
 
 
+T = TypeVar("T", bound=Dataframable)
+
+
+class DataframableList(list[T]):
+    """A Python list that implements the Dataframable protocol."""
+
+    def __init__(self, iterable):
+        super().__init__(item for item in iterable)
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        # TODO handle mixed types (e.g. None and float) - found in quotas
+        return pd.concat([item.df() for item in self], ignore_index=True)
+
+
 class BaseRef(BaseModel):
+    """Base pydantic model."""
+
     model_config = ConfigDict(frozen=True)
 
+
 class TeamsRef(BaseRef):
+    """Proxy object to a Team in Nexus."""
 
     name: str
     description: Optional[str]
     id: UUID
 
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return pd.DataFrame({
-            "name": self.name,
-            "description": self.description,
-            "id": self.id,
-        }, index=[0])
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return pd.DataFrame(
+            {
+                "name": self.name,
+                "description": self.description,
+                "id": self.id,
+            },
+            index=[0],
+        )
 
 
 class ProjectRef(BaseRef):
+    """Proxy object to a Project in Nexus."""
 
     annotations: Annotations
     id: UUID
 
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return self.annotations.summarize().join(
-            pd.DataFrame({
-                "id": self.id,
-            }, index=[0])
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "id": self.id,
+                },
+                index=[0],
+            )
         )
 
 
-
 class CircuitRef(BaseRef):
+    """Proxy object to a Circuit in Nexus."""
 
     annotations: Annotations
     project: ProjectRef
     id: UUID
+    _circuit: Circuit | None = None
 
-    @cached_property
-    def circuit(self) -> Circuit:
-        from qnexus.client.circuits import _fetch_circuit
-        return _fetch_circuit(self)
+    def get_circuit(self) -> Circuit:  # TODO
+        """Get a copy of the pytket circuit."""
+        if self._circuit:
+            return self._circuit.copy()
+        from qnexus.client.circuit import _fetch_circuit
 
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return self.annotations.summarize().join(
-            pd.DataFrame({
-                "project": self.project.annotations.name,
-                "id": self.id,
-            }, index=[0])
+        self._circuit = _fetch_circuit(self)
+        return self._circuit.copy()
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
         )
 
+
 class JobType(str, Enum):
-    Execute = "PROCESS"
-    Compile = "COMPILE"
+    """Enum for a job's type."""
+
+    EXECUTE = "PROCESS"
+    COMPILE = "COMPILE"
 
 
 class JobRef(BaseRef):
+    """Proxy object to a Circuit in Nexus."""
 
     model_config = ConfigDict(frozen=False)
 
@@ -107,60 +136,71 @@ class JobRef(BaseRef):
     project: ProjectRef
     id: UUID
 
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return self.annotations.summarize().join(
-            pd.DataFrame({
-            "job_type": self.job_type,
-            "last_status": self.last_status,
-            "project": self.project.annotations.name,
-            "id": self.id,
-        }, index=[0]))
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "job_type": self.job_type,
+                    "last_status": self.last_status,
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
+        )
 
 
 class CompilationResultRef(BaseRef):
+    """Proxy object to the results of a compilation in Nexus."""
 
     annotations: Annotations
     project: ProjectRef
     _compiled_circuit: CircuitRef | None = None
-    _compilation_passes: RefList | None = None # RefList[tuple[str, CircuitRef]]
-    id: UUID # compilation id
+    _compilation_passes: DataframableList | None = (
+        None  # RefList[tuple[str, CircuitRef]]
+    )
+    id: UUID  # compilation id
 
-    @property
-    def compiled_circuit(self) -> CircuitRef:
+    def get_compiled_circuit(self) -> CircuitRef:
+        """Get a copy of the compiled pytket circuit."""
+        # TODO check naming of this - its a ref so its confusing
         if self._compiled_circuit:
             return self._compiled_circuit
 
-        from qnexus.client.jobs.compile import _fetch_compilation_passes
-        self._compilation_passes = _fetch_compilation_passes(self) 
-        self._compiled_circuit = self._compilation_passes[-1][1]
+        from qnexus.client.job.compile import _fetch_compilation_passes
+
+        self._compilation_passes = _fetch_compilation_passes(self)
+        self._compiled_circuit = self._compilation_passes[-1].circuit
         return self._compiled_circuit
 
-
-    @property
-    def compilation_passes(self) -> RefList: # TODO typing
-        """list of tuples of pass name and circuit."""
+    def get_compilation_passes(self) -> DataframableList[CompilationPassRef]:
+        """Get information on the compilation passes and the output circuits."""
+        # TODO is this copy actually helpful?
         if self._compilation_passes:
-            return self._compilation_passes
-        
-        from qnexus.client.jobs.compile import _fetch_compilation_passes
-        self._compilation_passes = _fetch_compilation_passes(self) 
-        self._compiled_circuit = self._compilation_passes[-1][1]
-        return self._compilation_passes
+            return copy(self._compilation_passes)
 
-    
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return self.annotations.summarize().join(
-            pd.DataFrame({
-                "project": self.project.annotations.name,
-                "id": self.id,
-            }, index=[0])
+        from qnexus.client.job.compile import _fetch_compilation_passes
+
+        self._compilation_passes = _fetch_compilation_passes(self)
+        self._compiled_circuit = self._compilation_passes[-1].circuit
+        return copy(self._compilation_passes)
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
         )
 
 
-
 class ExecutionResultRef(BaseRef):
+    """Proxy object to the results of a circuit execution through Nexus."""
 
     annotations: Annotations
     project: ProjectRef
@@ -168,71 +208,48 @@ class ExecutionResultRef(BaseRef):
     _backend_info: BackendInfo | None = None
     id: UUID
 
-    
-    @property
-    def backend_result(self) -> BackendResult:
+    def get_backend_result(self) -> BackendResult:
+        """Get a copy of the pytket BackendResult."""
         if self._backend_result:
-            return self._backend_result
-        from qnexus.client.jobs.execute import _fetch_execution_result
+            return copy(self._backend_result)
+        from qnexus.client.job.execute import _fetch_execution_result
+
         self._backend_result, self._backend_info = _fetch_execution_result(self)
-        return self._backend_result
-    
-    @property
-    def backend_info(self) -> BackendInfo:
+        return copy(self._backend_result)
+
+    def get_backend_info(self) -> BackendInfo:
+        """Get a copy of the pytket BackendInfo."""
         if self._backend_info:
-            return self._backend_info
-        from qnexus.client.jobs.execute import _fetch_execution_result
+            return copy(self._backend_info)
+        from qnexus.client.job.execute import _fetch_execution_result
+
         self._backend_result, self._backend_info = _fetch_execution_result(self)
-        return self._backend_info
-    
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return self.annotations.summarize().join(
-            pd.DataFrame({
-                "project": self.project.annotations.name,
-                "id": self.id,
-            }, index=[0])
+        return copy(self._backend_info)
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
         )
 
 
-class NexusRole(BaseModel):
-    """ """
+class CompilationPassRef(BaseModel):
+    """Proxy object to a compilation pass that was applied on a circuit in Nexus."""
+
+    pass_name: str
+    circuit: CircuitRef
     id: UUID
-    name: str
-    description: str
-    permissions: str #list[Permissions] - messes with pandas dataframe...
-    type: Literal["role"] = "role"
 
-    def summarize(self) -> pd.DataFrame:
-        """Convert to a pandas DataFrame."""
-        return pd.DataFrame({
-            "name": self.name,
-            "description": self.description,
-            "permissions": self.permissions,
-            "id": self.id,
-        }, index=[0])
-    
-
-class NexusQuota(BaseModel):
-    # TODO move to Models?
-    """ """
-    name: str
-    description: str
-    usage: float
-    quota: Optional[float]
-
-    def summarize(self) -> pd.DataFrame:
-        """Convert to a pandas DataFrame."""
-        return pd.DataFrame(self.model_dump(), index=[0])
-    
-
-class DeviceRef(BaseModel):
-     # TODO move to Models?
-    """ """
-    backend_name: str
-    device_name: Optional[str]
-    nexus_hosted: bool
-
-    def summarize(self) -> pd.DataFrame:
-        """Summarize in a pandas DataFrame."""
-        return pd.DataFrame(self.model_dump(), index=[0])
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return (
+            pd.DataFrame({"pass name": self.pass_name}, index=[0])
+            .join(self.circuit.df())
+            .join(other=pd.DataFrame({"id": self.id}, index=[0]))
+        )

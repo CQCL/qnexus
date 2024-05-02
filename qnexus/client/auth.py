@@ -1,3 +1,4 @@
+"""Client API for authentication in Nexus."""
 import time
 import webbrowser
 from http import HTTPStatus
@@ -8,8 +9,10 @@ from colorama import Fore
 # from halo import Halo
 from rich.console import Console
 from rich.panel import Panel
-from ..config import Config
-from .utils import consolidate_error, write_token
+
+import qnexus.exceptions as qnx_exc
+from qnexus.client.utils import consolidate_error, write_token
+from qnexus.config import Config
 
 console = Console()
 config = Config()
@@ -41,7 +44,7 @@ def login() -> None:
         "client_id": "scales",
     }
 
-    print(f"🌐 Browser login initiated.")
+    print("🌐 Browser login initiated.")
     # spinner = Halo(
     #     text=f"Waiting for user to log in via browser...",
     #     spinner="simpleDotsScrolling",
@@ -58,7 +61,8 @@ def login() -> None:
     )
 
     print(
-        f"Browser didn't open automatically? Use this link: { Fore.BLUE + verification_uri_complete}"
+        "Browser didn't open automatically? Use this link: "
+        f"{Fore.BLUE + verification_uri_complete}"
     )
 
     # spinner.start()
@@ -96,7 +100,7 @@ def login() -> None:
         # spinner.stop()
         return
     # spinner.stop()
-    raise Exception("Browser login Failed, code has expired.")
+    raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
 
 def logout() -> None:

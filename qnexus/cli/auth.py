@@ -1,3 +1,4 @@
+"""CLI for qnexus."""
 import click
 
 from ..client import auth as _auth

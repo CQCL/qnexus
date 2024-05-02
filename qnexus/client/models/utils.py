@@ -1,10 +1,13 @@
-from typing import Annotated, Any
+"""Utility models for use by the client."""
+
+from typing import Any
 
 from pydantic import ValidatorFunctionWrapHandler
 from pydantic.functional_validators import WrapValidator
 
 
 def allow_none(v: Any, handler: ValidatorFunctionWrapHandler) -> int:
+    """Custom validator to allow None values."""
     if v is None:
         return v
     return handler(v)

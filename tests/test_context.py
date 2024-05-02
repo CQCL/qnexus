@@ -1,11 +1,12 @@
 from uuid import uuid4
-from qnexus.annotations import Annotations
+
+from qnexus.client.models.annotations import Annotations
 from qnexus.context import (
     deactivate_project,
-    set_active_project,
-    update_active_properties,
     get_active_project,
     get_active_properties,
+    set_active_project,
+    update_active_properties,
     using_project,
     using_properties,
 )
