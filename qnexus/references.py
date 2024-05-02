@@ -49,6 +49,8 @@ class BaseRef(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
+    id: UUID
+
 
 class TeamsRef(BaseRef):
     """Proxy object to a Team in Nexus."""
@@ -239,7 +241,7 @@ class ExecutionResultRef(BaseRef):
         )
 
 
-class CompilationPassRef(BaseModel):
+class CompilationPassRef(BaseRef):
     """Proxy object to a compilation pass that was applied on a circuit in Nexus."""
 
     pass_name: str

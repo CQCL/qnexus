@@ -11,14 +11,8 @@ from qnexus.client import nexus_client
 from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.context import get_active_project
 from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
-from qnexus.references import (
-    CircuitRef,
-    DataframableList,
-    ExecutionResultRef,
-    JobRef,
-    JobType,
-    ProjectRef,
-)
+from qnexus.references import (CircuitRef, DataframableList,
+                               ExecutionResultRef, JobRef, JobType, ProjectRef)
 
 
 def _execute(  # pylint: disable=too-many-arguments
@@ -95,7 +89,7 @@ def results(
     if resp.status_code != 200:
         raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
 
-    execute_results = DataframableList([])
+    execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
     for item in resp.json()["items"]:
         result_ref = ExecutionResultRef(

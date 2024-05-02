@@ -13,7 +13,7 @@ PropertiesDict = OrderedDict[str, bool | int | float | str]
 class AnnotationsDict(TypedDict):
     """TypedDict for annotations"""
 
-    name: NotRequired[str | None]
+    name: NotRequired[str | None]  # type: ignore
     description: NotRequired[str | None]
     properties: NotRequired[PropertiesDict]
 
@@ -52,10 +52,10 @@ class Annotations(BaseModel):
 class CreateAnnotationsDict(AnnotationsDict):
     """TypedDict for annotations when the name is required."""
 
-    name: str
+    name: str  # type: ignore
 
 
 class CreateAnnotations(Annotations):
     """Pydantic model for annotations when the name is required."""
 
-    name: str
+    name: str  # type: ignore

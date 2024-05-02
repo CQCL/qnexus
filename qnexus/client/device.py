@@ -17,7 +17,7 @@ def get() -> DataframableList:
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
-    device_list = DataframableList([])
+    device_list: DataframableList[Device] = DataframableList([])
 
     for backendinfolist in res.json():
         for backend_info in backendinfolist["backend_info_list"]:

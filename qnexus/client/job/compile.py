@@ -9,15 +9,9 @@ from qnexus.client import circuit as circuit_api
 from qnexus.client import nexus_client
 from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.context import get_active_project
-from qnexus.references import (
-    CircuitRef,
-    CompilationPassRef,
-    CompilationResultRef,
-    DataframableList,
-    JobRef,
-    JobType,
-    ProjectRef,
-)
+from qnexus.references import (CircuitRef, CompilationPassRef,
+                               CompilationResultRef, DataframableList, JobRef,
+                               JobType, ProjectRef)
 
 
 def _compile(  # pylint: disable=too-many-arguments
@@ -85,7 +79,7 @@ def results(
 
     compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
 
-    compilation_refs = DataframableList([])
+    compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])
 
     for compilation_id in compilation_ids:
         compilation_record_resp = nexus_client.get(
@@ -134,7 +128,7 @@ def _fetch_compilation_passes(
         )
 
     pass_json = resp.json()
-    pass_list = DataframableList([])
+    pass_list: DataframableList[CompilationPassRef] = DataframableList([])
 
     for pass_info in pass_json["data"]:
         pass_name = pass_info["attributes"]["pass_name"]

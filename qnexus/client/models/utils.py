@@ -6,7 +6,7 @@ from pydantic import ValidatorFunctionWrapHandler
 from pydantic.functional_validators import WrapValidator
 
 
-def allow_none(v: Any, handler: ValidatorFunctionWrapHandler) -> int:
+def allow_none(v: Any, handler: ValidatorFunctionWrapHandler) -> None:
     """Custom validator to allow None values."""
     if v is None:
         return v

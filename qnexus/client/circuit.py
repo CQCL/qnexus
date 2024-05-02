@@ -9,36 +9,23 @@ from typing_extensions import Unpack
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.models.annotations import (
-    Annotations,
-    AnnotationsDict,
-    CreateAnnotations,
-    CreateAnnotationsDict,
-)
-from qnexus.client.models.filters import (
-    CreatorFilter,
-    CreatorFilterDict,
-    NameFilter,
-    NameFilterDict,
-    PaginationFilter,
-    PaginationFilterDict,
-    ProjectIDFilter,
-    ProjectIDFilterDict,
-    ProjectRefFilter,
-    ProjectRefFilterDict,
-    PropertiesFilter,
-    PropertiesFilterDict,
-    SortFilter,
-    SortFilterDict,
-    TimeFilter,
-    TimeFilterDict,
-)
+from qnexus.client.models.annotations import (Annotations, AnnotationsDict,
+                                              CreateAnnotations,
+                                              CreateAnnotationsDict)
+from qnexus.client.models.filters import (CreatorFilter, CreatorFilterDict,
+                                          NameFilter, NameFilterDict,
+                                          PaginationFilter,
+                                          PaginationFilterDict,
+                                          ProjectIDFilter, ProjectIDFilterDict,
+                                          ProjectRefFilter,
+                                          ProjectRefFilterDict,
+                                          PropertiesFilter,
+                                          PropertiesFilterDict, SortFilter,
+                                          SortFilterDict, TimeFilter,
+                                          TimeFilterDict)
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.context import (
-    get_active_project,
-    merge_project_from_context,
-    merge_properties_from_context,
-)
+from qnexus.context import (get_active_project, merge_project_from_context,
+                            merge_properties_from_context)
 from qnexus.references import CircuitRef, DataframableList, ProjectRef
 
 
@@ -132,7 +119,8 @@ def upload(
     project = cast(ProjectRef, project)
 
     circuit_dict = circuit.to_dict()
-    kwargs["name"] = kwargs.get("name", circuit.name)
+    if circ_name := kwargs.get("name", circuit.name):
+        kwargs["name"] = circ_name
 
     annotations = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
     circuit_dict.update(annotations)
@@ -157,12 +145,14 @@ def upload(
     res_data_dict = res.json()["data"]
 
     return CircuitRef(
-        id=UUID(res_data_dict["id"]), annotations=annotations, project=project
+        id=UUID(res_data_dict["id"]),
+        annotations=Annotations.from_dict(res_data_dict["attributes"]),
+        project=project,
     )
 
 
 @merge_properties_from_context
-def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
+def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> CircuitRef:
     """Update the annotations on a CircuitRef."""
     ref_annotations = ref.annotations.model_dump()
     annotations = Annotations(**kwargs).model_dump(exclude_none=True)
@@ -171,7 +161,7 @@ def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
     req_dict = {
         "data": {
             "attributes": ref_annotations,
-            "relationships": {},  # TODO maybe this needs to be fixed
+            "relationships": {},
             "type": "circuit",
         }
     }
@@ -183,9 +173,13 @@ def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
             message=res.json(), status_code=res.status_code
         )
 
-    # res_data_dict = res.json()["data"]
+    res_dict = res.json()["data"]
 
-    # TODO return updated ref
+    return CircuitRef(
+        id=UUID(res_dict["data"]["id"]),
+        annotations=Annotations.from_dict(res_dict["data"]["attributes"]),
+        project=ref.project,
+    )
 
 
 def _fetch(circuit_id: UUID | str) -> CircuitRef:

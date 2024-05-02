@@ -61,17 +61,8 @@ class DatabaseIterator(Generic[T], Iterator[T]):
                 return next(self._current_page_subiterator)
             raise StopIteration from exc
 
-    def list(self, refresh: bool = False) -> DataframableList[T]:
-        """Collapse into RefList. Pass refresh to refresh the data."""
-        if refresh:
-            self.__init__(  # pylint: disable=unnecessary-dunder-call
-                resource_type=self.resource_type,
-                nexus_url=self.nexus_url,
-                params=self.params,
-                wrapper_method=self.wrapper,
-                nexus_client=self.nexus_client,
-            )
-
+    def list(self) -> DataframableList[T]:
+        """Collapse into RefList."""
         if not self._cached_list:
             self._cached_list = DataframableList([])
             for item in self:

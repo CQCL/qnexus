@@ -18,14 +18,14 @@ _QNEXUS_PROPERTIES: ContextVar[PropertiesDict | None] = ContextVar(
 )
 
 
-def deactivate_project(token: Token[ProjectRef | None]) -> ProjectRef | None:
-    """Deactivate a project from the current context and return the reference."""
-    return _QNEXUS_PROJECT.reset(token)
+def deactivate_project(token: Token[ProjectRef | None]) -> None:
+    """Deactivate a project from the current context."""
+    _QNEXUS_PROJECT.reset(token)
 
 
-def deactivate_properties(token: Token[PropertiesDict | None]) -> ProjectRef | None:
-    """Deactivate the current properties and return their keys and values."""
-    return _QNEXUS_PROPERTIES.reset(token)
+def deactivate_properties(token: Token[PropertiesDict | None]) -> None:
+    """Deactivate the current properties."""
+    _QNEXUS_PROPERTIES.reset(token)
 
 
 def get_active_project(project_required: bool = False) -> ProjectRef | None:
@@ -82,7 +82,7 @@ def update_active_properties(
     """Globally update and merge properties with the existing ones."""
     current_properties = _QNEXUS_PROPERTIES.get()
     if current_properties is None:
-        current_properties = {}
+        current_properties = PropertiesDict({})
     else:
         current_properties = current_properties.copy()
 

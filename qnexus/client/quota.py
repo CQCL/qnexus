@@ -26,7 +26,7 @@ def get() -> DataframableList:
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
-    quota_list = DataframableList([])
+    quota_list: DataframableList[Quota] = DataframableList([])
 
     for quota in res.json():
         quota_key = _quota_map[quota["quota"]["name"]]

@@ -23,7 +23,7 @@ def get() -> DataframableList:
             message=res.json(), status_code=res.status_code
         )
 
-    roles = DataframableList([])
+    roles: DataframableList[Role] = DataframableList([])
     for role in res.json()["data"]:
         roles.append(
             Role(

@@ -2,7 +2,7 @@
 
 import http
 from pathlib import Path
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 
 from httpx import Response
 
@@ -13,7 +13,7 @@ _in_memory_refresh_token: str | None = None
 _in_memory_access_token: str | None = None
 
 
-def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
+def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
     {
         "user": {
@@ -24,7 +24,7 @@ def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
         }
     }
     """
-    included_map = {}
+    included_map: dict[str, dict[str, Any]] = {}
     for item in included:
         included_map.setdefault(item["type"], {item["id"]: {}})
         included_map[item["type"]][item["id"]] = item
