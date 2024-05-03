@@ -1,18 +1,23 @@
 """Client API for execution in Nexus."""
 from typing import Union, cast
 
-from nexus_dataclasses.backend_config import BackendConfig
-from nexus_dataclasses.backend_info import StoredBackendInfo
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
 from qnexus.client import nexus_client
 from qnexus.client.models.annotations import Annotations, PropertiesDict
+from qnexus.client.models.nexus_dataclasses import BackendConfig, StoredBackendInfo
 from qnexus.context import get_active_project
 from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
-from qnexus.references import (CircuitRef, DataframableList,
-                               ExecutionResultRef, JobRef, JobType, ProjectRef)
+from qnexus.references import (
+    CircuitRef,
+    DataframableList,
+    ExecutionResultRef,
+    JobRef,
+    JobType,
+    ProjectRef,
+)
 
 
 def _execute(  # pylint: disable=too-many-arguments
@@ -31,8 +36,6 @@ def _execute(  # pylint: disable=too-many-arguments
     """Submit a execute job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
-
-    # TODO what happens if they submit a circuit that belongs to another project?
 
     circuit_ids = (
         [str(circuits.id)]

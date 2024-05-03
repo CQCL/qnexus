@@ -1,17 +1,23 @@
 """Client API for compilation in Nexus."""
 from typing import Union, cast
 
-from nexus_dataclasses.backend_config import BackendConfig
 from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuit as circuit_api
 from qnexus.client import nexus_client
 from qnexus.client.models.annotations import Annotations, PropertiesDict
+from qnexus.client.models.nexus_dataclasses import BackendConfig
 from qnexus.context import get_active_project
-from qnexus.references import (CircuitRef, CompilationPassRef,
-                               CompilationResultRef, DataframableList, JobRef,
-                               JobType, ProjectRef)
+from qnexus.references import (
+    CircuitRef,
+    CompilationPassRef,
+    CompilationResultRef,
+    DataframableList,
+    JobRef,
+    JobType,
+    ProjectRef,
+)
 
 
 def _compile(  # pylint: disable=too-many-arguments
@@ -25,8 +31,6 @@ def _compile(  # pylint: disable=too-many-arguments
     """Submit a compile job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
-
-    # TODO what happens if they submit a circuit that belongs to another project?
 
     circuit_ids = (
         [str(circuits.id)]

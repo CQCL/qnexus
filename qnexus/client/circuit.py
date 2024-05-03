@@ -9,23 +9,36 @@ from typing_extensions import Unpack
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.models.annotations import (Annotations, AnnotationsDict,
-                                              CreateAnnotations,
-                                              CreateAnnotationsDict)
-from qnexus.client.models.filters import (CreatorFilter, CreatorFilterDict,
-                                          NameFilter, NameFilterDict,
-                                          PaginationFilter,
-                                          PaginationFilterDict,
-                                          ProjectIDFilter, ProjectIDFilterDict,
-                                          ProjectRefFilter,
-                                          ProjectRefFilterDict,
-                                          PropertiesFilter,
-                                          PropertiesFilterDict, SortFilter,
-                                          SortFilterDict, TimeFilter,
-                                          TimeFilterDict)
+from qnexus.client.models.annotations import (
+    Annotations,
+    AnnotationsDict,
+    CreateAnnotations,
+    CreateAnnotationsDict,
+)
+from qnexus.client.models.filters import (
+    CreatorFilter,
+    CreatorFilterDict,
+    NameFilter,
+    NameFilterDict,
+    PaginationFilter,
+    PaginationFilterDict,
+    ProjectIDFilter,
+    ProjectIDFilterDict,
+    ProjectRefFilter,
+    ProjectRefFilterDict,
+    PropertiesFilter,
+    PropertiesFilterDict,
+    SortFilter,
+    SortFilterDict,
+    TimeFilter,
+    TimeFilterDict,
+)
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.context import (get_active_project, merge_project_from_context,
-                            merge_properties_from_context)
+from qnexus.context import (
+    get_active_project,
+    merge_project_from_context,
+    merge_properties_from_context,
+)
 from qnexus.references import CircuitRef, DataframableList, ProjectRef
 
 

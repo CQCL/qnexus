@@ -5,6 +5,7 @@ from http import HTTPStatus
 
 import httpx
 from colorama import Fore
+
 # from halo import Halo
 from rich.console import Console
 from rich.panel import Panel

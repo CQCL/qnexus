@@ -28,7 +28,8 @@ class Annotations(BaseModel):
     model_config = ConfigDict(frozen=True)
 
     @field_validator("properties")
-    def sort_properties(self, v: dict):
+    @classmethod
+    def sort_properties(cls, v: dict):
         """Sort the values of"""
         return OrderedDict(sorted(v.items()))
 

@@ -6,7 +6,6 @@ from qnexus.client.models import Quota
 from qnexus.exceptions import ResourceFetchFailed
 from qnexus.references import DataframableList
 
-# TODO possibly an enum
 QuotaName = Literal["compilation", "simulation", "jupyterhub", "database_usage"]
 
 _quota_map = {
@@ -27,7 +26,6 @@ def get() -> DataframableList:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
 
     quota_list: DataframableList[Quota] = DataframableList([])
-
     for quota in res.json():
         quota_key = _quota_map[quota["quota"]["name"]]
         quota_list.append(

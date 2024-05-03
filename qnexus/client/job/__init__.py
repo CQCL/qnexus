@@ -15,12 +15,16 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
 from qnexus.client.models.annotations import Annotations
-from qnexus.client.models.filters import (NameFilter, NameFilterDict,
-                                          PaginationFilter,
-                                          PaginationFilterDict,
-                                          ProjectIDFilter, ProjectIDFilterDict,
-                                          ProjectRefFilter,
-                                          ProjectRefFilterDict)
+from qnexus.client.models.filters import (
+    NameFilter,
+    NameFilterDict,
+    PaginationFilter,
+    PaginationFilterDict,
+    ProjectIDFilter,
+    ProjectIDFilterDict,
+    ProjectRefFilter,
+    ProjectRefFilterDict,
+)
 from qnexus.client.models.job_status import JobStatus
 from qnexus.client.models.utils import AllowNone
 from qnexus.config import Config

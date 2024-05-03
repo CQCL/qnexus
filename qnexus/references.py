@@ -40,7 +40,6 @@ class DataframableList(list[T]):
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
-        # TODO handle mixed types (e.g. None and float) - found in quotas
         return pd.concat([item.df() for item in self], ignore_index=True)
 
 
@@ -97,7 +96,7 @@ class CircuitRef(BaseRef):
     id: UUID
     _circuit: Circuit | None = None
 
-    def get_circuit(self) -> Circuit:  # TODO
+    def get_circuit(self) -> Circuit:
         """Get a copy of the pytket circuit."""
         if self._circuit:
             return self._circuit.copy()
@@ -164,9 +163,8 @@ class CompilationResultRef(BaseRef):
     )
     id: UUID  # compilation id
 
-    def get_compiled_circuit(self) -> CircuitRef:
+    def get_compiled_circuit_ref(self) -> CircuitRef:
         """Get a copy of the compiled pytket circuit."""
-        # TODO check naming of this - its a ref so its confusing
         if self._compiled_circuit:
             return self._compiled_circuit
 
@@ -176,9 +174,8 @@ class CompilationResultRef(BaseRef):
         self._compiled_circuit = self._compilation_passes[-1].circuit
         return self._compiled_circuit
 
-    def get_compilation_passes(self) -> DataframableList[CompilationPassRef]:
+    def get_compilation_pass_refs(self) -> DataframableList[CompilationPassRef]:
         """Get information on the compilation passes and the output circuits."""
-        # TODO is this copy actually helpful?
         if self._compilation_passes:
             return copy(self._compilation_passes)
 
@@ -245,7 +242,7 @@ class CompilationPassRef(BaseRef):
     """Proxy object to a compilation pass that was applied on a circuit in Nexus."""
 
     pass_name: str
-    circuit: CircuitRef
+    circuit: CircuitRef  # TODO renaming
     id: UUID
 
     def df(self) -> pd.DataFrame:
