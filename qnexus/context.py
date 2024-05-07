@@ -1,10 +1,9 @@
+import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Callable
 
-import logging
 from qnexus.annotations import PropertiesDict
-
 from qnexus.references import ProjectRef
 
 logger = logging.getLogger(__name__)
@@ -35,7 +34,7 @@ def get_active_project(project_required: bool = False) -> ProjectRef | None:
     >>> from qnexus.annotations import Annotations
     >>> token = set_active_project(ProjectRef(id="dca33f7f-9619-4cf7-a3fb-56256b117d6e", annotations=Annotations(name="example")))
     >>> get_active_project()
-    ProjectRef(id=UUID('dca33f7f-9619-4cf7-a3fb-56256b117d6e'), annotations=Annotations(name='example', description=None, properties={}))
+    ProjectRef(annotations=Annotations(name='example', description=None, properties=OrderedDict()), id=UUID('dca33f7f-9619-4cf7-a3fb-56256b117d6e'))
 
     >>> deactivate_project(token)
 
@@ -50,7 +49,7 @@ def get_active_properties() -> PropertiesDict:
     """Get the keys and values of the currently active properties.
 
     >>> get_active_properties()
-    {}
+    OrderedDict()
 
     >>> token = update_active_properties(foo=3, bar=True)
     >>> get_active_properties()
@@ -96,7 +95,7 @@ def using_project(project: ProjectRef):
     >>> project = ProjectRef(id="cd325b9c-d4a2-4b6e-ae58-8fad89749fac", annotations=Annotations(name="example"))
     >>> with using_project(project):
     ...     get_active_project()
-    ProjectRef(id=UUID('cd325b9c-d4a2-4b6e-ae58-8fad89749fac'), annotations=Annotations(name='example', description=None, properties={}))
+    ProjectRef(annotations=Annotations(name='example', description=None, properties=OrderedDict()), id=UUID('cd325b9c-d4a2-4b6e-ae58-8fad89749fac'))
 
     >>> get_active_project()
     """
@@ -119,18 +118,22 @@ def using_properties(**properties: int | float | str | bool):
 def merge_project_from_context(func: Callable):
     """Decorator to merge a project from the context.
     ProjectRef in kwargs takes precedence (will be selected)."""
+
     def get_project_from_context(*args, **kwargs):
         kwargs["project_ref"] = kwargs.get("project_ref", None)
         if kwargs["project_ref"] is None:
             kwargs["project_ref"] = get_active_project()
         return func(*args, **kwargs)
+
     return get_project_from_context
 
 
 def merge_properties_from_context(func: Callable):
-    """Decorator to take the union of properties from the context with 
+    """Decorator to take the union of properties from the context with
     any provided in kwargs. Properties in kwargs take precendence."""
+
     def _merge_properties_from_context(*args, **kwargs):
-        kwargs["properties"] = get_active_properties() | kwargs.get("properties",{})
+        kwargs["properties"] = get_active_properties() | kwargs.get("properties", {})
         return func(*args, **kwargs)
+
     return _merge_properties_from_context

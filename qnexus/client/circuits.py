@@ -1,10 +1,16 @@
+from typing import Any, Union, cast
 from uuid import UUID
 
 from pytket._tket.circuit import Circuit
-from typing import Any, cast, Union
 from typing_extensions import Unpack
-from qnexus.annotations import Annotations, AnnotationsDict, CreateAnnotationsDict, CreateAnnotations
 
+import qnexus.exceptions as qnx_exc
+from qnexus.annotations import (
+    Annotations,
+    AnnotationsDict,
+    CreateAnnotations,
+    CreateAnnotationsDict,
+)
 from qnexus.client import nexus_client
 from qnexus.client.models.filters import (
     CreatorFilter,
@@ -24,13 +30,15 @@ from qnexus.client.models.filters import (
     TimeFilter,
     TimeFilterDict,
 )
-from qnexus.client.utils import normalize_included
-import qnexus.exceptions as qnx_exc
-from qnexus.references import CircuitRef, ProjectRef, RefList
-
 from qnexus.client.pagination_iterator import NexusDatabaseIterator
-
-from qnexus.context import merge_project_from_context, get_active_project, get_active_properties, merge_properties_from_context
+from qnexus.client.utils import normalize_included
+from qnexus.context import (
+    get_active_project,
+    get_active_properties,
+    merge_project_from_context,
+    merge_properties_from_context,
+)
+from qnexus.references import CircuitRef, ProjectRef, RefList
 
 
 class Params(
@@ -60,6 +68,7 @@ class ParamsDict(
 
     pass
 
+
 @merge_project_from_context
 def filter(**kwargs: Unpack[ParamsDict]) -> NexusDatabaseIterator:
     """ """
@@ -72,39 +81,40 @@ def filter(**kwargs: Unpack[ParamsDict]) -> NexusDatabaseIterator:
         resource_type="Circuit",
         nexus_url="/api/circuits/v1beta",
         params=params,
-        wrapper_method=_to_CircuitRef
+        wrapper_method=_to_CircuitRef,
     )
 
 
-def _to_CircuitRef(page_json: dict[str,Any]) -> RefList[CircuitRef]:
+def _to_CircuitRef(page_json: dict[str, Any]) -> RefList[CircuitRef]:
     """ """
 
     circuit_refs: RefList[CircuitRef] = RefList([])
-    
-    for circuit_data in page_json["data"]:
 
+    for circuit_data in page_json["data"]:
         project_id = circuit_data["relationships"]["project"]["data"]["id"]
-        project_details = next(proj for proj in page_json["included"] if proj["id"]==project_id)
+        project_details = next(
+            proj for proj in page_json["included"] if proj["id"] == project_id
+        )
         project_ref = ProjectRef(
-                id=project_id,
-                annotations=Annotations(
-                    name=project_details["attributes"]["name"],
-                    description=project_details["attributes"].get("description", None),
-                    properties=project_details["attributes"]["properties"]
-                )
+            id=project_id,
+            annotations=Annotations(
+                name=project_details["attributes"]["name"],
+                description=project_details["attributes"].get("description", None),
+                properties=project_details["attributes"]["properties"],
+            ),
         )
 
         circuit_refs.append(
             CircuitRef(
-                id=UUID(circuit_data["id"]), 
+                id=UUID(circuit_data["id"]),
                 annotations=Annotations(
                     name=circuit_data["attributes"]["name"],
                     description=circuit_data["attributes"].get("description", None),
-                    properties=circuit_data["attributes"]["properties"]
-                ), 
-                project=project_ref
+                    properties=circuit_data["attributes"]["properties"],
+                ),
+                project=project_ref,
             )
-        ) 
+        )
     return circuit_refs
 
 
@@ -124,7 +134,9 @@ def get(id: Union[UUID, str, None] = None, **kwargs: Unpack[ParamsDict]) -> Circ
 
 @merge_properties_from_context
 def create(
-    circuit: Circuit, project: ProjectRef | None = None, **kwargs: Unpack[CreateAnnotationsDict]
+    circuit: Circuit,
+    project: ProjectRef | None = None,
+    **kwargs: Unpack[CreateAnnotationsDict],
 ) -> CircuitRef:
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
@@ -148,13 +160,16 @@ def create(
 
     # https://cqc.atlassian.net/browse/MUS-3054
     if res.status_code != 201:
-        raise qnx_exc.ResourceCreateFailed(message=res.json(), status_code=res.status_code)
+        raise qnx_exc.ResourceCreateFailed(
+            message=res.json(), status_code=res.status_code
+        )
 
     res_data_dict = res.json()["data"]
 
     return CircuitRef(
         id=UUID(res_data_dict["id"]), annotations=annotations, project=project
     )
+
 
 @merge_properties_from_context
 def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
@@ -166,20 +181,21 @@ def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> None:
     req_dict = {
         "data": {
             "attributes": ref_annotations,
-            "relationships": {}, # TODO maybe this needs to be fixed
+            "relationships": {},  # TODO maybe this needs to be fixed
             "type": "circuit",
         }
     }
-    
+
     res = nexus_client.patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceUpdateFailed(message=res.json(), status_code=res.status_code)
+        raise qnx_exc.ResourceUpdateFailed(
+            message=res.json(), status_code=res.status_code
+        )
 
-    #res_data_dict = res.json()["data"]
+    # res_data_dict = res.json()["data"]
 
     # TODO return updated ref
-
 
 
 def _fetch(circuit_id: UUID | str) -> CircuitRef:
@@ -191,37 +207,42 @@ def _fetch(circuit_id: UUID | str) -> CircuitRef:
         raise qnx_exc.ZeroMatches()
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+        raise qnx_exc.ResourceFetchFailed(
+            message=res.json(), status_code=res.status_code
+        )
 
     res_dict = res.json()
 
     project_id = res_dict["data"]["relationships"]["project"]["data"]["id"]
-    project_details = next(proj for proj in res_dict["included"] if proj["id"]==project_id)
+    project_details = next(
+        proj for proj in res_dict["included"] if proj["id"] == project_id
+    )
     project_ref = ProjectRef(
-            id=project_id,
-            annotations=Annotations(
-                name=project_details["attributes"]["name"],
-                description=project_details["attributes"].get("description", None),
-                properties=project_details["attributes"]["properties"]
-            )
+        id=project_id,
+        annotations=Annotations(
+            name=project_details["attributes"]["name"],
+            description=project_details["attributes"].get("description", None),
+            properties=project_details["attributes"]["properties"],
+        ),
     )
 
     return CircuitRef(
-            id=UUID(res_dict["data"]["id"]), 
-            annotations=Annotations(
-                name=res_dict["data"]["attributes"]["name"],
-                description=res_dict["data"]["attributes"].get("description", None),
-                properties=res_dict["data"]["attributes"]["properties"]
-            ), 
-            project=project_ref
-        )
-
+        id=UUID(res_dict["data"]["id"]),
+        annotations=Annotations(
+            name=res_dict["data"]["attributes"]["name"],
+            description=res_dict["data"]["attributes"].get("description", None),
+            properties=res_dict["data"]["attributes"]["properties"],
+        ),
+        project=project_ref,
+    )
 
 
 def _fetch_circuit(handle: CircuitRef) -> Circuit:
     res = nexus_client.get(f"/api/circuits/v1beta/{handle.id}")
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+        raise qnx_exc.ResourceFetchFailed(
+            message=res.json(), status_code=res.status_code
+        )
 
     res_data_attributes_dict = res.json()["data"]["attributes"]
     circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}

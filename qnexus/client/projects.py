@@ -5,11 +5,9 @@ from uuid import UUID
 from pydantic import Field
 from typing_extensions import NotRequired, Unpack
 
-from qnexus.annotations import CreateAnnotations, CreateAnnotationsDict, Annotations
-from qnexus.references import ProjectRef
-
 # from halo import Halo
 import qnexus.exceptions as qnx_exc
+from qnexus.annotations import Annotations, CreateAnnotations, CreateAnnotationsDict
 from qnexus.client import nexus_client
 from qnexus.client.models.filters import (
     CreatorFilter,
@@ -25,11 +23,10 @@ from qnexus.client.models.filters import (
     TimeFilter,
     TimeFilterDict,
 )
-from qnexus.client.utils import normalize_included
-
 from qnexus.client.pagination_iterator import NexusDatabaseIterator
+from qnexus.client.utils import normalize_included
 from qnexus.context import get_active_project
-
+from qnexus.references import ProjectRef
 
 # Colour-blind friendly colours from https://www.nature.com/articles/nmeth.1618
 _COLOURS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7"]
@@ -94,18 +91,20 @@ def filter(**kwargs: Unpack[ParamsDict]) -> NexusDatabaseIterator:
         wrapper_method=_to_ProjectRef,
     )
 
-    
 
-def _to_ProjectRef(data: dict[str,Any]) -> list[ProjectRef]:
-    return [ProjectRef(
+def _to_ProjectRef(data: dict[str, Any]) -> list[ProjectRef]:
+    return [
+        ProjectRef(
             id=project["id"],
             annotations=Annotations(
                 name=project["attributes"]["name"],
                 description=project["attributes"].get("description", None),
-                properties=project["attributes"]["properties"]
-            )
-        ) for project in data["data"]
+                properties=project["attributes"]["properties"],
+            ),
+        )
+        for project in data["data"]
     ]
+
 
 def get(id: Union[str, UUID, None] = None, **kwargs: Unpack[ParamsDict]) -> ProjectRef:
     """ """
@@ -128,18 +127,20 @@ def _fetch(project_id: UUID | str) -> ProjectRef:
         raise qnx_exc.ZeroMatches()
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+        raise qnx_exc.ResourceFetchFailed(
+            message=res.json(), status_code=res.status_code
+        )
 
     res_dict = res.json()
 
     return ProjectRef(
-            id=res_dict["data"]["id"],
-            annotations=Annotations(
-                name=res_dict["data"]["attributes"]["name"],
-                description=res_dict["data"]["attributes"].get("description", None),
-                properties=res_dict["data"]["attributes"]["properties"]
-            )
-        )
+        id=res_dict["data"]["id"],
+        annotations=Annotations(
+            name=res_dict["data"]["attributes"]["name"],
+            description=res_dict["data"]["attributes"].get("description", None),
+            properties=res_dict["data"]["attributes"]["properties"],
+        ),
+    )
 
 
 def create(**kwargs: Unpack[CreateAnnotationsDict]) -> ProjectRef:
@@ -159,19 +160,22 @@ def create(**kwargs: Unpack[CreateAnnotationsDict]) -> ProjectRef:
     res = nexus_client.post("/api/projects/v1beta", json=req_dict)
 
     if res.status_code != 201:
-        raise qnx_exc.ResourceCreateFailed(message=res.json(), status_code=res.status_code)
-    
+        raise qnx_exc.ResourceCreateFailed(
+            message=res.json(), status_code=res.status_code
+        )
+
     res_data_dict = res.json()["data"]
 
     return ProjectRef(id=UUID(res_data_dict["id"]), annotations=annotations)
 
+
 def add_property(
-        name: str,
-        property_type:  Literal["bool", "int", "float", "str"],
-        project: ProjectRef | None = None,
-        description: str | None = None,
-        required: bool = False,
-    ) -> None:
+    name: str,
+    property_type: Literal["bool", "int", "float", "str"],
+    project: ProjectRef | None = None,
+    description: str | None = None,
+    required: bool = False,
+) -> None:
     """ """
     project = project or get_active_project(project_required=True)
 
@@ -183,20 +187,19 @@ def add_property(
                 "description": description,
                 "property_type": property_type,
                 "required": required,
-                "color":random.choice(_COLOURS) 
+                "color": random.choice(_COLOURS),
             },
             "relationships": {
-                "project": {
-                    "data": {
-                        "id": str(project.id),
-                        "type": "project"
-                    }
-                }
+                "project": {"data": {"id": str(project.id), "type": "project"}}
             },
             "type": "property",
         }
     }
-    props_res = nexus_client.post("/api/property_definitions/v1beta", json=props_req_dict)
+    props_res = nexus_client.post(
+        "/api/property_definitions/v1beta", json=props_req_dict
+    )
 
     if props_res.status_code != 200:
-        raise qnx_exc.ResourceCreateFailed(message=props_res.json(), status_code=props_res.status_code)
+        raise qnx_exc.ResourceCreateFailed(
+            message=props_res.json(), status_code=props_res.status_code
+        )

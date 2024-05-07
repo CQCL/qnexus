@@ -4,7 +4,6 @@ from typing import NotRequired, TypedDict
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-
 PropertiesDict = OrderedDict[str, bool | int | float | str]
 
 
@@ -21,16 +20,16 @@ class Annotations(BaseModel):
 
     model_config = ConfigDict(frozen=True)
 
-    @field_validator('properties')
+    @field_validator("properties")
     def sort_properties(cls, v: dict):
-        """Sort the values of """
+        """Sort the values of"""
         return OrderedDict(sorted(v.items()))
 
     def summarize(self) -> pd.DataFrame:
         """Convert to a pandas DataFrame."""
         return pd.DataFrame(
-            {"name": self.name, "description": self.description} | self.properties, 
-            index=[0]
+            {"name": self.name, "description": self.description} | self.properties,
+            index=[0],
         )
 
 

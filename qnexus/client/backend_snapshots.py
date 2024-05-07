@@ -4,7 +4,6 @@
 # https://staging.myqos.com/api-docs#/backend_snapshots
 
 
-
 def filter():
     pass
 

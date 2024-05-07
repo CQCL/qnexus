@@ -2,7 +2,7 @@
 from datetime import datetime
 from typing import Any, Callable, Dict, NamedTuple, Optional
 
-from pytket.backends.status import StatusEnum, WAITING_STATUS
+from pytket.backends.status import WAITING_STATUS, StatusEnum
 
 
 class JobStatus(NamedTuple):

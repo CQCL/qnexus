@@ -9,6 +9,7 @@ from qnexus.consts import STORE_TOKENS, TOKEN_FILE_PATH
 _in_memory_refresh_token: str | None = None
 _in_memory_access_token: str | None = None
 
+
 def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
     {
@@ -39,10 +40,8 @@ def write_token(
         case "refresh_token":
             _in_memory_refresh_token = token
 
-    
-def read_token(
-    token_type: Literal["access_token", "refresh_token"]
-) -> str:
+
+def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
     """"""
     if STORE_TOKENS:
         return _read_token_file(token_type)

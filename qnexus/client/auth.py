@@ -8,6 +8,7 @@ from colorama import Fore
 # from halo import Halo
 from rich.console import Console
 from rich.panel import Panel
+
 from ..config import Config
 from .utils import consolidate_error, write_token
 

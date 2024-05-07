@@ -1,29 +1,25 @@
-
-from typing import cast, Union
+from typing import Union, cast
 
 from nexus_dataclasses.backend_config import BackendConfig
-from pytket.backends.status import StatusEnum
+from nexus_dataclasses.backend_info import StoredBackendInfo
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
-from nexus_dataclasses.backend_info import StoredBackendInfo
-
+from pytket.backends.status import StatusEnum
 
 from qnexus.annotations import Annotations
+from qnexus.client import nexus_client
 from qnexus.client.models.utils import AllowNone
 from qnexus.config import get_config
-from qnexus.references import (
-    CircuitRef, 
-    JobRef,
-    RefList,
-    ProjectRef, 
-    JobType, 
-    ExecutionResultRef
-)
-
-from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
-from qnexus.client import nexus_client
-
 from qnexus.context import get_active_project
+from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
+from qnexus.references import (
+    CircuitRef,
+    ExecutionResultRef,
+    JobRef,
+    JobType,
+    ProjectRef,
+    RefList,
+)
 
 config = get_config()
 
@@ -39,7 +35,7 @@ def run(
     postprocess: bool | None = None,
     noisy_simulator: bool | None = None,
     seed: int | None = None,
-    description: str | None = None
+    description: str | None = None,
 ) -> JobRef:
     """ """
     project = project or get_active_project(project_required=True)
@@ -59,7 +55,7 @@ def run(
         "experiment_id": str(project.id),
         "name": name,
         "items": [
-            {"circuit_id": circuit_id, "n_shots" : n_shot}
+            {"circuit_id": circuit_id, "n_shots": n_shot}
             for circuit_id, n_shot in zip(circuit_ids, n_shots)
         ],
         "batch_id": batch_id,
@@ -83,7 +79,7 @@ def run(
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
-    )    
+    )
 
 
 def results(
@@ -101,15 +97,17 @@ def results(
     results = RefList([])
 
     for item in resp.json()["items"]:
-
-        result_ref = ExecutionResultRef(id=item["result_id"], annotations=execute_job.annotations, project=execute_job.project)
+        result_ref = ExecutionResultRef(
+            id=item["result_id"],
+            annotations=execute_job.annotations,
+            project=execute_job.project,
+        )
 
         result_ref.backend_result
 
         results.append(result_ref)
 
     return results
-
 
 
 def retry_error(job: JobRef):
@@ -139,22 +137,25 @@ def retry_submission(job: JobRef):
         res.raise_for_status()
 
 
-
-def _fetch_execution_result(handle: ExecutionResultRef) -> tuple[BackendResult, BackendInfo]:
+def _fetch_execution_result(
+    handle: ExecutionResultRef,
+) -> tuple[BackendResult, BackendInfo]:
     res = nexus_client.get(f"/api/results/v1beta/{handle.id}")
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
-    
+
     res_dict = res.json()
 
     results_data = res_dict["data"]["attributes"]
     results_dict = {k: v for k, v in results_data.items() if v != [] and v is not None}
 
-
     backend_result = BackendResult.from_dict(results_dict)
 
+    backend_info_data = next(
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
+    )
+    backend_info = StoredBackendInfo(
+        **backend_info_data["attributes"]
+    ).to_pytket_backend_info()
 
-    backend_info_data = next(data for data in res_dict["included"]  if data["type"]=='backend_snapshot')
-    backend_info = StoredBackendInfo(**backend_info_data["attributes"]).to_pytket_backend_info()
-    
     return (backend_result, backend_info)

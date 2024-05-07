@@ -9,7 +9,6 @@ from ..client import status as _status
 from ..config import Config
 from ..consts import CONFIG_FILE_NAME
 
-
 config = Config()
 
 

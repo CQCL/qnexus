@@ -1,17 +1,16 @@
 import nest_asyncio
 
+from qnexus import context
 from qnexus.client import (
     assignments as assignments,
-    projects as projects,
     auth as auth,
-    jobs as jobs,
     circuits as circuits,
+    devices as devices,
+    jobs as jobs,
+    projects as projects,
     quotas as quotas,
     teams as teams,
-    devices as devices,
 )
-from qnexus import context
-
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
 try:
