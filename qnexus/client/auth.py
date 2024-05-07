@@ -1,10 +1,14 @@
 """Client API for authentication in Nexus."""
+
+import getpass
 import time
 import webbrowser
 from http import HTTPStatus
+import json
 
 import httpx
 from colorama import Fore
+from pydantic import EmailStr
 
 # from halo import Halo
 from rich.console import Console
@@ -103,8 +107,84 @@ def login() -> None:
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
 
+def credential_login() -> None:
+    """Login to Nexus using a username and password."""
+    user_name = input("Enter your Nexus email: ")
+    pwd = getpass.getpass(prompt="Enter your Nexus password: ")
+
+    _request_tokens(user=user_name, pwd=pwd)
+
+    print(
+        f"✅ Successfully logged in as {user_name}."
+    )
+
+
 def logout() -> None:
     """Clear tokens from file system"""
     write_token("refresh_token", "")
     write_token("access_token", "")
     print("Successfully logged out.")
+
+
+def _request_tokens(user: EmailStr, pwd: str) -> None:
+    """Method to send login request to Nexus auth api and save tokens."""
+    body = {"email": user, "password": pwd}
+    try:
+        resp = httpx.Client(base_url=f"{config.url}/auth").post(
+            "/login",
+            json=body,
+        )
+
+        mfa_redirect_uri = resp.json().get("redirect_uri", "")
+        if mfa_redirect_uri.startswith("/auth/mfa_challenge/"):
+            mfa_code = input("Enter your MFA verification code: ")
+            body["code"] = mfa_code
+            body.pop("password")
+            resp = httpx.Client(base_url=f"{config.url}/auth").post(
+                "/mfa_challenge",
+                json=body,
+            )
+
+        terms_redirect_uri = resp.json().get("redirect_uri", "")
+        if terms_redirect_uri.startswith("/auth/terms_challenge"):
+            message = "Terms and conditions not accepted. To continue, "
+            message += "please accept our new terms and conditions by signing in "
+            message += (
+                "to the Nexus website https://nexus.quantinuum.com/auth/login."
+            )
+
+            #logger.error(message)
+            raise qnx_exc.AuthenticationError(message)
+
+        _response_check(resp, "Login")
+
+        myqos_oat = resp.cookies.get("myqos_oat", None)
+        myqos_id = resp.cookies.get("myqos_id", None)
+
+        if not myqos_oat or not myqos_id:
+            raise qnx_exc.AuthenticationError("Authorization cookies missing from response.")
+
+        write_token("refresh_token", myqos_oat)
+        write_token("access_token", myqos_id)
+
+    finally:
+        del user
+        del pwd
+        del body
+
+
+def _response_check(res: httpx.Response, description: str) -> None:
+    """Consolidate as much error-checking of response"""
+    # check if token has expired or is generally unauthorized
+    resp_json = res.json()
+    if res.status_code == HTTPStatus.UNAUTHORIZED:
+        raise qnx_exc.AuthenticationError(
+            (
+                f"Authorization failure attempting: {description}."
+                f"\n\nServer Response: {resp_json}"
+            )
+        )
+    if res.status_code != HTTPStatus.OK:
+        raise qnx_exc.AuthenticationError(
+            f"HTTP error attempting: {description}.\n\nServer Response: {resp_json}"
+        )

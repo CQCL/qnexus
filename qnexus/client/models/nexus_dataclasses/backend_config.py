@@ -108,8 +108,6 @@ class AerConfig(BaseBackendConfig):
     simulation_method: str = "automatic"
     crosstalk_params: Optional[CrosstalkParams] = None
     n_qubits: PositiveInt = 40
-    # Parameters below are kwargs used in AerBackend.process_circuits().
-    seed: Optional[int] = None
 
     @field_validator("noise_model", mode="before")
     @classmethod
@@ -350,10 +348,8 @@ class QuantinuumConfig(BaseBackendConfig):
     allow_implicit_swaps: bool = True
     target_2qb_gate: Optional[str] = None
     # Parameters below are kwargs used in QuantinuumBackend.process_circuits().
-    postprocess: bool = False
     noisy_simulation: bool = True
     user_group: Optional[str] = None
-    max_batch_cost: int = 2000
     compiler_options: Optional[QuantinuumCompilerOptions] = None
     no_opt: bool = False
     allow_2q_gate_rebase: bool = False
@@ -424,7 +420,6 @@ class IBMQConfig(BaseBackendConfig):
     project: str
     monitor: bool = False
     # Parameters below are kwargs used in IBMQBackend.process_circuits().
-    postprocess: bool = False
     simplify_initial: bool = False
 
     @staticmethod
@@ -462,9 +457,6 @@ class IBMQEmulatorConfig(BaseBackendConfig):
     hub: str
     group: str
     project: str
-    # Parameters below are kwargs used in IBMQBackend.process_circuits().
-    seed: Optional[int] = None
-    postprocess: bool = False
 
     @staticmethod
     def description() -> str:
@@ -524,8 +516,6 @@ class QulacsConfig(BaseBackendConfig):
 
     type: Literal["QulacsConfig"] = "QulacsConfig"
     result_type: str = "state_vector"
-    # Parameters below are kwargs used in AerBackend.process_circuits().
-    seed: Optional[int] = None
 
     @staticmethod
     def description() -> str:
