@@ -1,11 +1,13 @@
+"""Test the context management system."""
+
 from uuid import uuid4
-from qnexus.annotations import Annotations
+
+from qnexus.client.models.annotations import Annotations
 from qnexus.context import (
     deactivate_project,
-    set_active_project,
-    update_active_properties,
     get_active_project,
     get_active_properties,
+    set_active_project,
     using_project,
     using_properties,
 )
@@ -13,7 +15,7 @@ from qnexus.references import ProjectRef
 
 
 def test_attach_project() -> None:
-    """"""
+    """Test that we can set a Project in the global context."""
     project_id = uuid4()
     project_ref = ProjectRef(id=project_id, annotations=Annotations(name=""))
 
@@ -27,7 +29,7 @@ def test_attach_project() -> None:
 
 
 def test_attach_project_context_manager() -> None:
-    """"""
+    """Test that we can set a Project via a context manager."""
 
     project_id = uuid4()
     project_ref = ProjectRef(id=project_id, annotations=Annotations(name=""))
@@ -42,6 +44,7 @@ def test_attach_project_context_manager() -> None:
 
 
 def test_attach_properties() -> None:
+    """Test that we can set properties in the global context."""
     base_properties = {"foo": 3}
     with using_properties(**base_properties):
         more_properties = {"bar": 5}
@@ -60,7 +63,3 @@ def test_attach_properties() -> None:
     ctx_properties = get_active_properties()
 
     assert ctx_properties == {}
-
-
-def test_threading() -> None:
-    pass

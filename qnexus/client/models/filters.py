@@ -1,11 +1,12 @@
-from datetime import datetime,timezone
+"""Filter models for use by the client."""
+from datetime import datetime
 from typing import Annotated, Literal, NotRequired, TypedDict, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
 
-from qnexus.references import ProjectRef
 from qnexus.client.models.utils import AllowNone
+from qnexus.references import ProjectRef
 
 
 class PropertiesFilterDict(TypedDict):
@@ -165,7 +166,6 @@ class ProjectIDFilterDict(TypedDict):
     project_id: NotRequired[str | UUID]
 
 
-
 class ProjectRefFilter(BaseModel):
     """Project Id filter"""
 
@@ -174,8 +174,10 @@ class ProjectRefFilter(BaseModel):
         serialization_alias="filter[project][id]",
         description="Filter by project ref",
     )
-    @field_serializer('project_ref')
+
+    @field_serializer("project_ref")
     def serialize_project_ref(self, project_ref: ProjectRef):
+        """Serialize the id for a ProjectRef."""
         return project_ref.id
 
 
@@ -183,3 +185,19 @@ class ProjectRefFilterDict(TypedDict):
     """ProjectRef filter (TypedDict)"""
 
     project_ref: NotRequired[ProjectRef]
+
+
+class ArchivedFilter(BaseModel):
+    """Include or omit archived projects"""
+
+    is_archived: Annotated[bool, AllowNone] = Field(
+        default=False,
+        serialization_alias="filter[archived]",
+        description="Include or omit archived projects",
+    )
+
+
+class ArchivedFilterDict(TypedDict):
+    """Include or omit archived projects (TypedDict)"""
+
+    is_archived: NotRequired[bool]

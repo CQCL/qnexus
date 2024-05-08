@@ -1,3 +1,4 @@
+"""Response models for use by the client."""
 from typing import Optional
 
 from pydantic import BaseModel
@@ -16,6 +17,8 @@ class Attributes(BaseModel):
     """Attributes model"""
 
     class Timestamps(BaseModel):
+        """Timestamps model"""
+
         created: str
         modified: str
 

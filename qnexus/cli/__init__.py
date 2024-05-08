@@ -1,19 +1,21 @@
-import click
+"""CLI for qnexus."""
 
-from .auth import login, logout
-from .jobs import jobs
-from .projects import projects
-from .utils import init, status
+# import click
 
-
-@click.group()
-def entrypoint():
-    """Quantinuum Nexus API client."""
+# from .auth import login, logout
+# from .jobs import jobs
+# from .projects import projects
+# from .utils import init, status
 
 
-entrypoint.add_command(init)
-entrypoint.add_command(status)
-entrypoint.add_command(projects)
-entrypoint.add_command(jobs)
-entrypoint.add_command(login)
-entrypoint.add_command(logout)
+# @click.group()
+# def entrypoint():
+#     """Quantinuum Nexus API client."""
+
+
+# entrypoint.add_command(init)
+# entrypoint.add_command(status)
+# entrypoint.add_command(projects)
+# entrypoint.add_command(jobs)
+# entrypoint.add_command(login)
+# entrypoint.add_command(logout)

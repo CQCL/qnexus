@@ -3,9 +3,8 @@
 from typing import Optional
 
 
-class NotAuthenticatedException(Exception):
-    "Raised when the user's tokens have expired."
-    pass
+class AuthenticationError(Exception):
+    "Raised when there is an issue authenticating with the Nexus API."
 
 
 class ResourceFetchFailed(Exception):
@@ -23,8 +22,10 @@ class ResourceFetchFailed(Exception):
         )
         super().__init__(self.err)
 
+
 class ZeroMatches(Exception):
     """Zero Matches on a get call made to the Nexus database."""
+
 
 class NoUniqueMatch(Exception):
     """No Unique Match on a get call made to the Nexus database."""
@@ -62,3 +63,15 @@ class ResourceUpdateFailed(Exception):
             f"{self.status_code}, message: {self.message}"
         )
         super().__init__(self.err)
+
+
+class OptionalDependencyError(Exception):
+    """Exception for import error"""
+
+    def __init__(  # type: ignore
+        self,
+        *args,
+        msg="An optional dependency is required for this action",
+        **kwargs,
+    ) -> None:
+        super().__init__(*args, msg, **kwargs)

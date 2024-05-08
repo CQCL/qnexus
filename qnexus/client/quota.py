@@ -1,12 +1,11 @@
+"""Client API for quotas in Nexus."""
 from typing import Literal
 
 from qnexus.client import nexus_client
+from qnexus.client.models import Quota
 from qnexus.exceptions import ResourceFetchFailed
-from qnexus.client.pagination_iterator import RefList
-from qnexus.references import NexusQuota
+from qnexus.references import DataframableList
 
-
-# TODO possibly an enum
 QuotaName = Literal["compilation", "simulation", "jupyterhub", "database_usage"]
 
 _quota_map = {
@@ -17,63 +16,56 @@ _quota_map = {
 }
 
 
-def filter() -> RefList:
+def get() -> DataframableList:
     """Get all quotas, including usage."""
     res = nexus_client.get(
-        "/api/quotas/v1beta",
-        params={"entity_type": "user", "include_usage": True}
+        "/api/quotas/v1beta", params={"entity_type": "user", "include_usage": True}
     )
 
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
-    
-    quota_list = RefList([])
 
+    quota_list: DataframableList[Quota] = DataframableList([])
     for quota in res.json():
-        
         quota_key = _quota_map[quota["quota"]["name"]]
         quota_list.append(
-            NexusQuota(
+            Quota(
                 name=quota["quota"]["name"],
                 description=quota["quota"]["details"]["description"],
                 usage=quota["quota"]["usage"].get(quota_key, 0),
                 quota=quota["quota"]["details"].get(quota_key, None),
             )
         )
-    
+
     return quota_list
 
 
-def get(quota_name: QuotaName):
+def get_only(quota_name: QuotaName):
     """Get specific quota details by name."""
     res = nexus_client.get(
         "/api/quotas/v1beta",
-        params={"entity_type": "user", "name": quota_name, "include_usage": True}
+        params={"entity_type": "user", "name": quota_name, "include_usage": True},
     )
 
     if res.status_code != 200:
         raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
-    
+
     quota = res.json()[0]
-        
+
     quota_key = _quota_map[quota["quota"]["name"]]
 
-    return NexusQuota(
-            name=quota["quota"]["name"],
-            description=quota["quota"]["details"]["description"],
-            usage=quota["quota"]["usage"].get(quota_key, None),
-            quota=quota["quota"]["details"][quota_key]
-        )
+    return Quota(
+        name=quota["quota"]["name"],
+        description=quota["quota"]["details"]["description"],
+        usage=quota["quota"]["usage"].get(quota_key, None),
+        quota=quota["quota"]["details"][quota_key],
+    )
 
 
 def check_quota(quota_name: QuotaName) -> bool:
     """Check that the current user has available quota."""
-    res = nexus_client.get(
-        "/api/quotas/v1beta/guard",
-        params={"name": quota_name}
-    )
+    res = nexus_client.get("/api/quotas/v1beta/guard", params={"name": quota_name})
 
     if res.status_code != 200:
         return False
     return True
-    

@@ -4,11 +4,11 @@ import httpx
 import pytest
 import respx
 
-from qnexus.client.client import nexus_client
-from qnexus.client import projects
+import qnexus as qnx
 import qnexus.consts
-from qnexus.client.utils import write_token, read_token
-from qnexus.exceptions import NotAuthenticatedException
+from qnexus.client import nexus_client
+from qnexus.client.utils import read_token, write_token
+from qnexus.exceptions import AuthenticationError
 
 
 @respx.mock
@@ -36,19 +36,20 @@ def test_token_refresh() -> None:
         return_value=httpx.Response(
             200,
             headers={
-                "set-cookie": f"myqos_id={refreshed_access_token}; HttpOnly; Path=/; SameSite=Lax; Secure"
+                "set-cookie": f"myqos_id={refreshed_access_token}; "
+                "HttpOnly; Path=/; SameSite=Lax; Secure"
             },
         )
     )
 
-    projects.projects()
+    qnx.project.get()
 
     assert list_project_route.called
     assert refresh_token_route.called
 
     # Confirm that the access token was updated
     assert read_token("access_token") == refreshed_access_token
-    nexus_client.auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
+    assert nexus_client.auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
 
 
 @respx.mock
@@ -70,8 +71,8 @@ def test_token_refresh_expired() -> None:
         f"{nexus_client.base_url}/auth/tokens/refresh"
     ).mock(return_value=httpx.Response(401))
 
-    with pytest.raises(NotAuthenticatedException):
-        projects.projects()
+    with pytest.raises(AuthenticationError):
+        qnx.project.get()
 
     assert list_project_route.called
     assert refresh_token_route.called

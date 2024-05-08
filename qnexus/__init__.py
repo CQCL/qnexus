@@ -1,17 +1,12 @@
-import nest_asyncio
+"""The qnexus package."""
+# pylint: disable=useless-import-alias, redefined-builtin
 
-from qnexus.client import (
-    assignments as assignments,
-    projects as projects,
-    auth as auth,
-    jobs as jobs,
-    circuits as circuits,
-    quotas as quotas,
-    teams as teams,
-    devices as devices,
-)
+import nest_asyncio  # type: ignore
+
 from qnexus import context
-
+from qnexus.client import assignment, auth, circuit, device, job, project, quota, team
+from qnexus.client.job.compile import _compile as compile
+from qnexus.client.job.execute import _execute as execute
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
 try:

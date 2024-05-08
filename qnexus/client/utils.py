@@ -1,15 +1,19 @@
+"""Utlity functions for the client."""
+
 import http
 from pathlib import Path
-from typing import Any, Dict, Literal
+from typing import Any, Literal
 
 from httpx import Response
 
+import qnexus.exceptions as qnx_exc
 from qnexus.consts import STORE_TOKENS, TOKEN_FILE_PATH
 
 _in_memory_refresh_token: str | None = None
 _in_memory_access_token: str | None = None
 
-def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
+
+def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
     {
         "user": {
@@ -20,7 +24,7 @@ def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
         }
     }
     """
-    included_map = {}
+    included_map: dict[str, dict[str, Any]] = {}
     for item in included:
         included_map.setdefault(item["type"], {item["id"]: {}})
         included_map[item["type"]][item["id"]] = item
@@ -30,20 +34,18 @@ def normalize_included(included: list[Any]) -> Dict[str, Dict[str, Any]]:
 def write_token(
     token_type: Literal["access_token", "refresh_token"], token: str
 ) -> None:
-    """"""
+    """Write a token to a file."""
     if STORE_TOKENS:
-        return _write_token_file(token_type, token)
+        _write_token_file(token_type, token)
     match token_type:
         case "access_token":
             _in_memory_access_token = token
         case "refresh_token":
             _in_memory_refresh_token = token
 
-    
-def read_token(
-    token_type: Literal["access_token", "refresh_token"]
-) -> str:
-    """"""
+
+def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
+    """Read a token from a file."""
     if STORE_TOKENS:
         return _read_token_file(token_type)
     match token_type:
@@ -73,7 +75,6 @@ def _write_token_file(
     token_file_path.mkdir(parents=True, exist_ok=True)
     with (token_file_path / token_type).open(encoding="UTF-8", mode="w") as file:
         file.write(token)
-    return None
 
 
 def consolidate_error(res: Response, description: str) -> None:
@@ -81,13 +82,25 @@ def consolidate_error(res: Response, description: str) -> None:
     # check if token has expired or is generally unauthorized
     resp_json = res.json()
     if res.status_code == http.HTTPStatus.UNAUTHORIZED:
-        raise Exception(
+        raise qnx_exc.AuthenticationError(
             (
                 f"Authorization failure attempting: {description}."
                 f"\n\nServer Response: {resp_json}"
             )
         )
     if res.status_code != http.HTTPStatus.OK:
-        raise Exception(
+        raise qnx_exc.AuthenticationError(
             f"HTTP error attempting: {description}.\n\nServer Response: {resp_json}"
+        )
+
+
+def handle_fetch_errors(res: Response) -> None:
+    """Handle errors related to a fetch request."""
+
+    if res.status_code == 404:
+        raise qnx_exc.ZeroMatches()
+
+    if res.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(
+            message=res.json(), status_code=res.status_code
         )
