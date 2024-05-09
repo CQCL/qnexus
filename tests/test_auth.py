@@ -42,7 +42,7 @@ def test_token_refresh() -> None:
         )
     )
 
-    qnx.project.get()
+    qnx.project.get().list()
 
     assert list_project_route.called
     assert refresh_token_route.called
@@ -72,7 +72,7 @@ def test_token_refresh_expired() -> None:
     ).mock(return_value=httpx.Response(401))
 
     with pytest.raises(AuthenticationError):
-        qnx.project.get()
+        qnx.project.get().list()
 
     assert list_project_route.called
     assert refresh_token_route.called
