@@ -33,15 +33,12 @@ def get_active_project(project_required: bool = False) -> ProjectRef | None:
 
     >>> get_active_project()
 
-    >>> from qnexus.annotations import Annotations
+    >>> from qnexus.client.models.annotations import Annotations
     >>> token = set_active_project(
-        ProjectRef(id="dca33f7f-9619-4cf7-a3fb-56256b117d6e",
-        annotations=Annotations(name="example")))
+    ... ProjectRef(id="dca33f7f-9619-4cf7-a3fb-56256b117d6e",
+    ... annotations=Annotations(name="example")))
     >>> get_active_project()
-    ProjectRef(
-        id=UUID('dca33f7f-9619-4cf7-a3fb-56256b117d6e'),
-        annotations=Annotations(name='example',
-        description=None, properties={}))
+    ProjectRef(id=UUID('dca33f7f-9619-4cf7-a3fb-56256b117d6e'), annotations=Annotations(name='example', description=None, properties=OrderedDict()))
 
     >>> deactivate_project(token)
 
@@ -56,11 +53,11 @@ def get_active_properties() -> PropertiesDict:
     """Get the keys and values of the currently active properties.
 
     >>> get_active_properties()
-    {}
+    OrderedDict()
 
     >>> token = update_active_properties(foo=3, bar=True)
     >>> get_active_properties()
-    {'foo': 3, 'bar': True}
+    OrderedDict([('foo', 3), ('bar', True)])
 
     >>> deactivate_properties(token)
 
@@ -97,16 +94,13 @@ def using_project(project: ProjectRef):
 
     All operations in the context will make use of the project.
 
-    >>> from qnexus.annotations import Annotations
+    >>> from qnexus.client.models.annotations import Annotations
     >>> project = ProjectRef(
-        id="cd325b9c-d4a2-4b6e-ae58-8fad89749fac",
-        annotations=Annotations(name="example"))
+    ... id="cd325b9c-d4a2-4b6e-ae58-8fad89749fac",
+    ... annotations=Annotations(name="example"))
     >>> with using_project(project):
     ...     get_active_project()
-    ProjectRef(
-        id=UUID('cd325b9c-d4a2-4b6e-ae58-8fad89749fac'),
-        annotations=Annotations(name='example',
-        description=None, properties={}))
+    ProjectRef(id=UUID('cd325b9c-d4a2-4b6e-ae58-8fad89749fac'), annotations=Annotations(name='example', description=None, properties=OrderedDict()))
 
     >>> get_active_project()
     """
