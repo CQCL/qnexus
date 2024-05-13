@@ -114,9 +114,7 @@ def credential_login() -> None:
 
     _request_tokens(user=user_name, pwd=pwd)
 
-    print(
-        f"✅ Successfully logged in as {user_name}."
-    )
+    print(f"✅ Successfully logged in as {user_name}.")
 
 
 def logout() -> None:
@@ -149,11 +147,9 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
         if terms_redirect_uri.startswith("/auth/terms_challenge"):
             message = "Terms and conditions not accepted. To continue, "
             message += "please accept our new terms and conditions by signing in "
-            message += (
-                "to the Nexus website https://nexus.quantinuum.com/auth/login."
-            )
+            message += "to the Nexus website https://nexus.quantinuum.com/auth/login."
 
-            #logger.error(message)
+            # logger.error(message)
             raise qnx_exc.AuthenticationError(message)
 
         _response_check(resp, "Login")
@@ -162,7 +158,9 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
         myqos_id = resp.cookies.get("myqos_id", None)
 
         if not myqos_oat or not myqos_id:
-            raise qnx_exc.AuthenticationError("Authorization cookies missing from response.")
+            raise qnx_exc.AuthenticationError(
+                "Authorization cookies missing from response."
+            )
 
         write_token("refresh_token", myqos_oat)
         write_token("access_token", myqos_id)

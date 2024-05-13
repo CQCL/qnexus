@@ -14,7 +14,7 @@ from websockets.exceptions import ConnectionClosedError
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.job import compile, execute # pylint: disable=unused-import
+from qnexus.client.job import compile, execute  # pylint: disable=unused-import
 from qnexus.client.models.annotations import Annotations
 from qnexus.client.models.filters import (
     NameFilter,

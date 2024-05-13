@@ -148,7 +148,7 @@ def create(**kwargs: Unpack[CreateAnnotationsDict]) -> ProjectRef:
 
 def add_property(
     name: str,
-    property_type: Literal["bool", "int", "float", "str"],
+    property_type: Literal["bool", "int", "float", "string"],
     project: ProjectRef | None = None,
     description: str | None = None,
     required: bool = False,
