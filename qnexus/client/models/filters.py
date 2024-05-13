@@ -10,13 +10,13 @@ from qnexus.references import ProjectRef
 
 
 class PropertiesFilterDict(TypedDict):
-    """Resource time filters model."""
+    """Properties filters model."""
 
     properties: NotRequired[list[str]]
 
 
 class PropertiesFilter(BaseModel):
-    """Resource time filters model."""
+    """Properties filters model."""
 
     properties: list[str] = Field(
         default=[],

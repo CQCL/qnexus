@@ -1,14 +1,19 @@
 """Client API for compilation in Nexus."""
-from typing import Union, cast
+from typing import Union, Unpack, cast
 
 from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuit as circuit_api
 from qnexus.client import nexus_client
-from qnexus.client.models.annotations import Annotations, PropertiesDict
+from qnexus.client.models.annotations import (
+    Annotations,
+    CreateAnnotations,
+    CreateAnnotationsDict,
+    PropertiesDict,
+)
 from qnexus.client.models.nexus_dataclasses import BackendConfig
-from qnexus.context import get_active_project
+from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.references import (
     CircuitRef,
     CompilationPassRef,
@@ -20,13 +25,13 @@ from qnexus.references import (
 )
 
 
+@merge_properties_from_context
 def _compile(  # pylint: disable=too-many-arguments
-    name: str,
     circuits: Union[CircuitRef, list[CircuitRef]],
-    optimisation_level: int,
     target: BackendConfig,
+    optimisation_level: int = 2,
     project: ProjectRef | None = None,
-    description: str | None = None,
+    **kwargs: Unpack[CreateAnnotationsDict],
 ) -> JobRef:
     """Submit a compile job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
@@ -38,11 +43,14 @@ def _compile(  # pylint: disable=too-many-arguments
         else [str(c.id) for c in circuits]
     )
 
+    annotations = CreateAnnotations(**kwargs)
+
     compile_job_request = {
         "backend": target.model_dump(),
         "experiment_id": str(project.id),
-        "name": name,
-        "description": description,
+        "name": annotations.name,
+        "description": annotations.description,
+        "properties": annotations.properties,
         "circuit_ids": circuit_ids,
         "optimisation_level": optimisation_level,
     }
@@ -57,9 +65,7 @@ def _compile(  # pylint: disable=too-many-arguments
         )
     return JobRef(
         id=resp.json()["job_id"],
-        annotations=Annotations(
-            name=name, description=description, properties=PropertiesDict({})
-        ),
+        annotations=annotations,
         job_type=JobType.COMPILE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",

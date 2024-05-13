@@ -1,14 +1,19 @@
 """Client API for execution in Nexus."""
-from typing import Union, cast
+from typing import Union, Unpack, cast
 
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
 from qnexus.client import nexus_client
-from qnexus.client.models.annotations import Annotations, PropertiesDict
+from qnexus.client.models.annotations import (
+    Annotations,
+    CreateAnnotations,
+    CreateAnnotationsDict,
+    PropertiesDict,
+)
 from qnexus.client.models.nexus_dataclasses import BackendConfig, StoredBackendInfo
-from qnexus.context import get_active_project
+from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
 from qnexus.references import (
     CircuitRef,
@@ -20,8 +25,8 @@ from qnexus.references import (
 )
 
 
+@merge_properties_from_context
 def _execute(  # pylint: disable=too-many-arguments
-    name: str,
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     target: BackendConfig,
@@ -31,7 +36,7 @@ def _execute(  # pylint: disable=too-many-arguments
     postprocess: bool | None = None,
     noisy_simulator: bool | None = None,
     seed: int | None = None,
-    description: str | None = None,
+    **kwargs: Unpack[CreateAnnotationsDict],
 ) -> JobRef:
     """Submit a execute job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
@@ -46,10 +51,12 @@ def _execute(  # pylint: disable=too-many-arguments
     if len(n_shots) != len(circuit_ids):
         raise ValueError("Number of circuits must equal number of n_shots.")
 
+    annotations = CreateAnnotations(**kwargs)
+
     execute_job_request = {
         "backend": target.model_dump(),
         "experiment_id": str(project.id),
-        "name": name,
+        "name": annotations.name,
         "items": [
             {"circuit_id": circuit_id, "n_shots": n_shot}
             for circuit_id, n_shot in zip(circuit_ids, n_shots)
@@ -59,7 +66,8 @@ def _execute(  # pylint: disable=too-many-arguments
         "postprocess": postprocess,
         "noisy_simulator": noisy_simulator,
         "seed": seed,
-        "description": description,
+        "description": annotations.description,
+        "properties": annotations.properties,
     }
 
     resp = nexus_client.post(
@@ -70,9 +78,7 @@ def _execute(  # pylint: disable=too-many-arguments
         raise ResourceCreateFailed(message=resp.text, status_code=resp.status_code)
     return JobRef(
         id=resp.json()["job_id"],
-        annotations=Annotations(
-            name=name, description=description, properties=PropertiesDict({})
-        ),
+        annotations=annotations,
         job_type=JobType.EXECUTE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
