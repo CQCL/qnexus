@@ -1,10 +1,11 @@
 """Filter models for use by the client."""
 from datetime import datetime
-from typing import Annotated, Literal, NotRequired, TypedDict, Union
+from typing import Annotated, Literal, NotRequired, OrderedDict, Self, TypedDict, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
 
+from qnexus.client.models.annotations import PropertiesDict
 from qnexus.client.models.utils import AllowNone
 from qnexus.references import ProjectRef
 
@@ -12,17 +13,28 @@ from qnexus.references import ProjectRef
 class PropertiesFilterDict(TypedDict):
     """Properties filters model."""
 
-    properties: NotRequired[list[str]]
+    properties: NotRequired[PropertiesDict]
+
+
+def _format_property(key: str, value: bool | int | float | str) -> str:
+    if isinstance(value, str):
+        return f"({key},'{value}')"
+    return f"({key},{value})"
 
 
 class PropertiesFilter(BaseModel):
     """Properties filters model."""
 
-    properties: list[str] = Field(
-        default=[],
+    properties: PropertiesDict = Field(
+        default=OrderedDict(),
         serialization_alias="filter[properties]",
         description="Filter by resource label value.",
     )
+
+    @field_serializer("properties")
+    def serialize_properties(self, properties: PropertiesDict):
+        """Serialize the id for a ProjectRef."""
+        return [_format_property(key, value) for key, value in properties.items()]
 
 
 class TimeFilterDict(TypedDict):
