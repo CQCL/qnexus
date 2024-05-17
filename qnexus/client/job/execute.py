@@ -6,6 +6,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
 from qnexus.client import nexus_client
+from qnexus.client import circuit as circuit_api
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
@@ -19,7 +20,7 @@ from qnexus.references import (
     CircuitRef,
     DataframableList,
     ExecutionResultRef,
-    JobRef,
+    ExecuteJobRef,
     JobType,
     ProjectRef,
 )
@@ -37,7 +38,7 @@ def _execute(  # pylint: disable=too-many-arguments
     noisy_simulator: bool | None = None,
     seed: int | None = None,
     **kwargs: Unpack[CreateAnnotationsDict],
-) -> JobRef:
+) -> ExecuteJobRef:
     """Submit a execute job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
@@ -76,7 +77,7 @@ def _execute(  # pylint: disable=too-many-arguments
     )
     if resp.status_code != 202:
         raise ResourceCreateFailed(message=resp.text, status_code=resp.status_code)
-    return JobRef(
+    return ExecuteJobRef(
         id=resp.json()["job_id"],
         annotations=annotations,
         job_type=JobType.EXECUTE,
@@ -86,14 +87,16 @@ def _execute(  # pylint: disable=too-many-arguments
     )
 
 
-def results(
-    execute_job: JobRef,
+def _results(
+    execute_job: ExecuteJobRef,
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
     resp = nexus_client.get(
         f"api/v6/jobs/process/{execute_job.id}",
     )
+
+    # TODO make sure job is complete
 
     if resp.status_code != 200:
         raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
@@ -112,36 +115,9 @@ def results(
     return execute_results
 
 
-def retry_error(job: JobRef):
-    """Retry an errored execute job."""
-    if job.job_type != JobType.EXECUTE:
-        raise ValueError("Invalid job type")
-
-    res = nexus_client.post(
-        "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
-    )
-
-    if res.status_code != 202:
-        res.raise_for_status()
-
-
-def retry_submission(job: JobRef):
-    """Retry the submission of an execute job from Nexus to the target."""
-    if job.job_type != JobType.EXECUTE:
-        raise ValueError("Invalid job type")
-
-    res = nexus_client.post(
-        "/api/v6/jobs/process/retry_submit",
-        json={"job_id": str(job.id), "resubmit_to_backend": True},
-    )
-
-    if res.status_code != 202:
-        res.raise_for_status()
-
-
 def _fetch_execution_result(
     handle: ExecutionResultRef,
-) -> tuple[BackendResult, BackendInfo]:
+) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
     res = nexus_client.get(f"/api/results/v1beta/{handle.id}")
     if res.status_code != 200:
@@ -149,7 +125,14 @@ def _fetch_execution_result(
 
     res_dict = res.json()
 
+    input_circuit_id = res_dict["data"]["relationships"]["circuit"]["data"]["id"]
+
+    input_circuit = circuit_api._fetch(  # pylint: disable=protected-access
+        input_circuit_id
+    )
+
     results_data = res_dict["data"]["attributes"]
+
     results_dict = {k: v for k, v in results_data.items() if v != [] and v is not None}
 
     backend_result = BackendResult.from_dict(results_dict)
@@ -161,4 +144,4 @@ def _fetch_execution_result(
         **backend_info_data["attributes"]
     ).to_pytket_backend_info()
 
-    return (backend_result, backend_info)
+    return (backend_result, backend_info, input_circuit)

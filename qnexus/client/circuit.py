@@ -18,8 +18,8 @@ from qnexus.client.models.annotations import (
 from qnexus.client.models.filters import (
     CreatorFilter,
     CreatorFilterDict,
-    NameFilter,
-    NameFilterDict,
+    FuzzyNameFilter,
+    FuzzyNameFilterDict,
     PaginationFilter,
     PaginationFilterDict,
     ProjectIDFilter,
@@ -45,7 +45,7 @@ from qnexus.references import CircuitRef, DataframableList, ProjectRef
 class Params(
     SortFilter,
     PaginationFilter,
-    NameFilter,
+    FuzzyNameFilter,
     CreatorFilter,
     ProjectIDFilter,
     ProjectRefFilter,
@@ -57,7 +57,7 @@ class Params(
 
 class ParamsDict(
     PaginationFilterDict,
-    NameFilterDict,
+    FuzzyNameFilterDict,
     CreatorFilterDict,
     PropertiesFilterDict,
     TimeFilterDict,
@@ -98,6 +98,7 @@ def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
         project_ref = ProjectRef(
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
+            contents_modified=project_details["attributes"]["contents_modified"],
         )
 
         circuit_refs.append(
@@ -211,6 +212,7 @@ def _fetch(circuit_id: UUID | str) -> CircuitRef:
     project_ref = ProjectRef(
         id=project_id,
         annotations=Annotations.from_dict(project_details["attributes"]),
+        contents_modified=project_details["attributes"]["contents_modified"],
     )
 
     return CircuitRef(

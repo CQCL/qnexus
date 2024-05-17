@@ -6,6 +6,8 @@ from uuid import UUID
 import pandas as pd
 from pydantic import BaseModel
 
+from qnexus.client.models.annotations import Annotations
+
 
 class Device(BaseModel):
     """A device in Nexus, work-in-progress"""
@@ -51,4 +53,27 @@ class Role(BaseModel):
                 "id": self.id,
             },
             index=[0],
+        )
+
+
+class Property(BaseModel):
+    """A property definition."""
+
+    annotations: Annotations
+    property_type: str
+    required: bool
+    color: str
+    id: UUID
+
+    def df(self) -> pd.DataFrame:
+        """Convert to a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "property_type": self.property_type,
+                    "required": self.required,
+                    "color": self.color,
+                },
+                index=[0],
+            )
         )
