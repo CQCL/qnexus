@@ -3,7 +3,7 @@ import asyncio
 import json
 import ssl
 from datetime import datetime, timezone
-from typing import Annotated, Any, Literal, overload, TypedDict, Type, Union
+from typing import Annotated, Any, Literal, Type, TypedDict, Union, overload
 
 from pydantic import BaseModel, ConfigDict, Field
 from pytket.backends.status import WAITING_STATUS, StatusEnum
@@ -14,10 +14,8 @@ from websockets.exceptions import ConnectionClosedError
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.job import (
-    compile as _compile,
-    execute as _execute,
-)  # pylint: disable=unused-import
+from qnexus.client.job import compile as _compile  # pylint: disable=unused-import
+from qnexus.client.job import execute as _execute
 from qnexus.client.models.annotations import Annotations
 from qnexus.client.models.filters import (
     FuzzyNameFilter,
@@ -34,14 +32,14 @@ from qnexus.client.models.utils import AllowNone, assert_never
 from qnexus.config import Config
 from qnexus.context import merge_project_from_context
 from qnexus.references import (
+    CompilationResultRef,
+    CompileJobRef,
     DataframableList,
+    ExecuteJobRef,
+    ExecutionResultRef,
     JobRef,
     JobType,
     ProjectRef,
-    CompilationResultRef,
-    ExecutionResultRef,
-    ExecuteJobRef,
-    CompileJobRef,
 )
 
 config = Config()

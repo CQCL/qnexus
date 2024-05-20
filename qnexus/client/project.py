@@ -10,6 +10,7 @@ from typing_extensions import Unpack
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
+from qnexus.client.models import Property
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
@@ -33,7 +34,6 @@ from qnexus.client.models.filters import (
 )
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.context import get_active_project
-from qnexus.client.models import Property
 from qnexus.references import DataframableList, ProjectRef
 
 # Colour-blind friendly colours from https://www.nature.com/articles/nmeth.1618
@@ -97,7 +97,7 @@ def _to_projectref(data: dict[str, Any]) -> DataframableList[ProjectRef]:
 
 
 def get_only(
-    id: Union[str, UUID, None] = None, **kwargs: Unpack[ParamsDict]
+    *, id: Union[str, UUID, None] = None, **kwargs: Unpack[ParamsDict]
 ) -> ProjectRef:
     """Attempt to get an exact match on a project by using filters
     that uniquely identify one."""

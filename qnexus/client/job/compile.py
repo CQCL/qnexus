@@ -10,7 +10,6 @@ from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
     CreateAnnotationsDict,
-    PropertiesDict,
 )
 from qnexus.client.models.nexus_dataclasses import BackendConfig
 from qnexus.context import get_active_project, merge_properties_from_context
@@ -18,8 +17,8 @@ from qnexus.references import (
     CircuitRef,
     CompilationPassRef,
     CompilationResultRef,
-    DataframableList,
     CompileJobRef,
+    DataframableList,
     JobType,
     ProjectRef,
 )
@@ -65,7 +64,11 @@ def _compile(  # pylint: disable=too-many-arguments
         )
     return CompileJobRef(
         id=resp.json()["job_id"],
-        annotations=annotations,
+        annotations=Annotations(
+            # TODO add once v1beta jobs api is ready
+            name=annotations.name,
+            description=annotations.description,
+        ),
         job_type=JobType.COMPILE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
@@ -87,7 +90,10 @@ def _results(
             message=resp.text, status_code=resp.status_code
         )
 
-    # TODO make sure job is complete
+    job_status = resp.json()["job"]["job_status"]["status"]
+
+    if job_status != "COMPLETED":
+        raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
 

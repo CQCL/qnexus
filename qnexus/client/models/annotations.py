@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import Any, NotRequired, TypedDict
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
 
 PropertiesDict = OrderedDict[str, bool | int | float | str]
 
@@ -17,8 +17,8 @@ class AnnotationsDict(TypedDict):
     name: NotRequired[str | None]  # type: ignore
     description: NotRequired[str | None]
     properties: NotRequired[PropertiesDict]
-    created: datetime
-    modified: datetime
+    created: NotRequired[datetime | None]
+    modified: NotRequired[datetime | None]
 
 
 class Annotations(BaseModel):
@@ -37,6 +37,20 @@ class Annotations(BaseModel):
     def sort_properties(cls, v: dict):
         """Sort the values of"""
         return OrderedDict(sorted(v.items()))
+
+    @field_serializer("created")
+    def serialize_created(self, created: datetime | None, _info) -> str | None:
+        """Custom serializer for datetimes."""
+        if created:
+            return str(created)
+        return None
+
+    @field_serializer("modified")
+    def serialize_modified(self, modified: datetime | None, _info) -> str | None:
+        """Custom serializer for datetimes."""
+        if modified:
+            return str(modified)
+        return None
 
     def df(self) -> pd.DataFrame:
         """Convert to a pandas DataFrame."""

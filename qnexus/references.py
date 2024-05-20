@@ -11,7 +11,7 @@ from typing import Optional, Protocol, TypeVar
 from uuid import UUID
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
@@ -77,6 +77,13 @@ class ProjectRef(BaseRef):
     annotations: Annotations
     contents_modified: datetime
     id: UUID
+
+    @field_serializer("contents_modified")
+    def serialize_modified(self, contents_modified: datetime | None, _info) -> str | None:
+        """Custom serializer for datetimes."""
+        if contents_modified:
+            return str(contents_modified)
+        return None
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""

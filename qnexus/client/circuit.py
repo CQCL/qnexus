@@ -112,7 +112,7 @@ def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
 
 
 def get_only(
-    id: Union[UUID, str, None] = None, **kwargs: Unpack[ParamsDict]
+    *, id: Union[UUID, str, None] = None, **kwargs: Unpack[ParamsDict]
 ) -> CircuitRef:
     """Attempt to get an exact match on a circuit by using filters
     that uniquely identify one."""
@@ -174,7 +174,7 @@ def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> CircuitRef:
 
     req_dict = {
         "data": {
-            "attributes": ref_annotations,
+            "attributes": annotations,
             "relationships": {},
             "type": "circuit",
         }
@@ -190,8 +190,8 @@ def update(ref: CircuitRef, **kwargs: Unpack[AnnotationsDict]) -> CircuitRef:
     res_dict = res.json()["data"]
 
     return CircuitRef(
-        id=UUID(res_dict["data"]["id"]),
-        annotations=Annotations.from_dict(res_dict["data"]["attributes"]),
+        id=UUID(res_dict["id"]),
+        annotations=Annotations.from_dict(res_dict["attributes"]),
         project=ref.project,
     )
 
