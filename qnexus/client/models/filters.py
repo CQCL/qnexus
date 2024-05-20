@@ -1,6 +1,6 @@
 """Filter models for use by the client."""
 from datetime import datetime
-from typing import Annotated, Literal, NotRequired, OrderedDict, Self, TypedDict, Union
+from typing import Annotated, Literal, NotRequired, OrderedDict, TypedDict, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
@@ -110,16 +110,16 @@ class CreatorFilter(BaseModel):
     )
 
 
-class NameFilterDict(TypedDict):
+class FuzzyNameFilterDict(TypedDict):
     """Name model."""
 
-    name: NotRequired[str]
+    name_like: NotRequired[str]
 
 
-class NameFilter(BaseModel):
+class FuzzyNameFilter(BaseModel):
     """Name model."""
 
-    name: str = Field(
+    name_like: str = Field(
         default="",
         serialization_alias="filter[name]",
         description="Filter by name, fuzzy search.",

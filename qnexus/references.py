@@ -5,12 +5,13 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from copy import copy
+from datetime import datetime
 from enum import Enum
 from typing import Optional, Protocol, TypeVar
 from uuid import UUID
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, field_serializer
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
@@ -74,13 +75,22 @@ class ProjectRef(BaseRef):
     """Proxy object to a Project in Nexus."""
 
     annotations: Annotations
+    contents_modified: datetime
     id: UUID
+
+    @field_serializer("contents_modified")
+    def serialize_modified(self, contents_modified: datetime | None, _info) -> str | None:
+        """Custom serializer for datetimes."""
+        if contents_modified:
+            return str(contents_modified)
+        return None
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
         return self.annotations.df().join(
             pd.DataFrame(
                 {
+                    "contents_modified": self.contents_modified,
                     "id": self.id,
                 },
                 index=[0],
@@ -96,7 +106,7 @@ class CircuitRef(BaseRef):
     id: UUID
     _circuit: Circuit | None = None
 
-    def get_circuit(self) -> Circuit:
+    def download_circuit(self) -> Circuit:
         """Get a copy of the pytket circuit."""
         if self._circuit:
             return self._circuit.copy()
@@ -126,7 +136,7 @@ class JobType(str, Enum):
 
 
 class JobRef(BaseRef):
-    """Proxy object to a Circuit in Nexus."""
+    """Proxy object to a Job in Nexus."""
 
     model_config = ConfigDict(frozen=False)
 
@@ -152,38 +162,72 @@ class JobRef(BaseRef):
         )
 
 
+class CompileJobRef(JobRef):
+    """Proxy object to a CompileJob in Nexus."""
+
+    job_type: JobType = JobType.COMPILE
+
+
+class ExecuteJobRef(JobRef):
+    """Proxy object to an ExecuteJob in Nexus."""
+
+    job_type: JobType = JobType.EXECUTE
+
+
 class CompilationResultRef(BaseRef):
-    """Proxy object to the results of a compilation in Nexus."""
+    """Proxy object to the results of a circuit compilation in Nexus."""
 
     annotations: Annotations
     project: ProjectRef
-    _compiled_circuit: CircuitRef | None = None
-    _compilation_passes: DataframableList | None = (
-        None  # RefList[tuple[str, CircuitRef]]
-    )
+    _input_circuit: CircuitRef | None = None
+    _output_circuit: CircuitRef | None = None
+    _compilation_passes: DataframableList[CompilationPassRef] | None = None
     id: UUID  # compilation id
 
-    def get_compiled_circuit_ref(self) -> CircuitRef:
-        """Get a copy of the compiled pytket circuit."""
-        if self._compiled_circuit:
-            return self._compiled_circuit
+    def get_input(self) -> CircuitRef:
+        """Get the CircuitRef of the original circuit."""
+        if self._input_circuit:
+            return self._input_circuit
 
-        from qnexus.client.job.compile import _fetch_compilation_passes
+        (
+            self._compilation_passes,
+            self._input_circuit,
+            self._output_circuit,
+        ) = self._get_compile_results()
+        return self._input_circuit
 
-        self._compilation_passes = _fetch_compilation_passes(self)
-        self._compiled_circuit = self._compilation_passes[-1].circuit
-        return self._compiled_circuit
+    def get_output(self) -> CircuitRef:
+        """Get the CircuitRef of the compiled circuit."""
+        if self._output_circuit:
+            return self._output_circuit
 
-    def get_compilation_pass_refs(self) -> DataframableList[CompilationPassRef]:
+        (
+            self._compilation_passes,
+            self._input_circuit,
+            self._output_circuit,
+        ) = self._get_compile_results()
+        return self._output_circuit
+
+    def get_passes(self) -> DataframableList[CompilationPassRef]:
         """Get information on the compilation passes and the output circuits."""
         if self._compilation_passes:
             return copy(self._compilation_passes)
 
+        (
+            self._compilation_passes,
+            self._input_circuit,
+            self._output_circuit,
+        ) = self._get_compile_results()
+        return copy(self._compilation_passes)
+
+    def _get_compile_results(
+        self,
+    ) -> tuple[DataframableList[CompilationPassRef], CircuitRef, CircuitRef]:
+        """Utility method to retrieve the passes and output circuit."""
         from qnexus.client.job.compile import _fetch_compilation_passes
 
-        self._compilation_passes = _fetch_compilation_passes(self)
-        self._compiled_circuit = self._compilation_passes[-1].circuit
-        return copy(self._compilation_passes)
+        passes = _fetch_compilation_passes(self)
+        return (passes, passes[0].input_circuit, passes[-1].output_circuit)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -203,27 +247,52 @@ class ExecutionResultRef(BaseRef):
 
     annotations: Annotations
     project: ProjectRef
+    _input_circuit: CircuitRef | None = None
     _backend_result: BackendResult | None = None
     _backend_info: BackendInfo | None = None
     id: UUID
 
-    def get_backend_result(self) -> BackendResult:
+    def get_input(self) -> CircuitRef:
+        """Get the CircuitRef of the input circuit."""
+        if self._input_circuit:
+            return self._input_circuit
+
+        (
+            self._backend_result,
+            self._backend_info,
+            self._input_circuit,
+        ) = self._get_execute_results()
+        return copy(self._input_circuit)
+
+    def download_result(self) -> BackendResult:
         """Get a copy of the pytket BackendResult."""
         if self._backend_result:
             return copy(self._backend_result)
-        from qnexus.client.job.execute import _fetch_execution_result
 
-        self._backend_result, self._backend_info = _fetch_execution_result(self)
+        (
+            self._backend_result,
+            self._backend_info,
+            self._input_circuit,
+        ) = self._get_execute_results()
         return copy(self._backend_result)
 
-    def get_backend_info(self) -> BackendInfo:
+    def download_backend_info(self) -> BackendInfo:
         """Get a copy of the pytket BackendInfo."""
         if self._backend_info:
             return copy(self._backend_info)
+
+        (
+            self._backend_result,
+            self._backend_info,
+            self._input_circuit,
+        ) = self._get_execute_results()
+        return copy(self._backend_info)
+
+    def _get_execute_results(self) -> tuple[BackendResult, BackendInfo, CircuitRef]:
+        """Utility method to retrieve the passes and output circuit."""
         from qnexus.client.job.execute import _fetch_execution_result
 
-        self._backend_result, self._backend_info = _fetch_execution_result(self)
-        return copy(self._backend_info)
+        return _fetch_execution_result(self)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -242,13 +311,26 @@ class CompilationPassRef(BaseRef):
     """Proxy object to a compilation pass that was applied on a circuit in Nexus."""
 
     pass_name: str
-    circuit: CircuitRef  # TODO renaming
+    input_circuit: CircuitRef
+    output_circuit: CircuitRef
     id: UUID
+
+    def get_input(self) -> CircuitRef:
+        """Get the CircuitRef of the original circuit."""
+        return self.input_circuit
+
+    def get_output(self) -> CircuitRef:
+        """Get the CircuitRef of the compiled circuit."""
+        return self.output_circuit
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
-        return (
-            pd.DataFrame({"pass name": self.pass_name}, index=[0])
-            .join(self.circuit.df())
-            .join(other=pd.DataFrame({"id": self.id}, index=[0]))
+        return pd.DataFrame(
+            {
+                "pass name": self.pass_name,
+                "input": self.input_circuit.annotations.name,
+                "output": self.output_circuit.annotations.name,
+                "id": self.id,
+            },
+            index=[0],
         )

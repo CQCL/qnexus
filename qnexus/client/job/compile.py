@@ -10,7 +10,6 @@ from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
     CreateAnnotationsDict,
-    PropertiesDict,
 )
 from qnexus.client.models.nexus_dataclasses import BackendConfig
 from qnexus.context import get_active_project, merge_properties_from_context
@@ -18,8 +17,8 @@ from qnexus.references import (
     CircuitRef,
     CompilationPassRef,
     CompilationResultRef,
+    CompileJobRef,
     DataframableList,
-    JobRef,
     JobType,
     ProjectRef,
 )
@@ -32,7 +31,7 @@ def _compile(  # pylint: disable=too-many-arguments
     optimisation_level: int = 2,
     project: ProjectRef | None = None,
     **kwargs: Unpack[CreateAnnotationsDict],
-) -> JobRef:
+) -> CompileJobRef:
     """Submit a compile job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
@@ -63,9 +62,13 @@ def _compile(  # pylint: disable=too-many-arguments
         raise qnx_exc.ResourceCreateFailed(
             message=resp.text, status_code=resp.status_code
         )
-    return JobRef(
+    return CompileJobRef(
         id=resp.json()["job_id"],
-        annotations=annotations,
+        annotations=Annotations(
+            # TODO add once v1beta jobs api is ready
+            name=annotations.name,
+            description=annotations.description,
+        ),
         job_type=JobType.COMPILE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
@@ -73,8 +76,8 @@ def _compile(  # pylint: disable=too-many-arguments
     )
 
 
-def results(
-    compile_job: JobRef,
+def _results(
+    compile_job: CompileJobRef,
 ) -> DataframableList[CompilationResultRef]:
     """Get the results from a compile job."""
 
@@ -87,21 +90,26 @@ def results(
             message=resp.text, status_code=resp.status_code
         )
 
+    job_status = resp.json()["job"]["job_status"]["status"]
+
+    if job_status != "COMPLETED":
+        raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
+
     compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
 
     compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])
 
     for compilation_id in compilation_ids:
-        compilation_record_resp = nexus_client.get(
+        comp_record_resp = nexus_client.get(
             f"/api/compilations/v1beta/{compilation_id}",
         )
 
-        if compilation_record_resp.status_code != 200:
+        if comp_record_resp.status_code != 200:
             raise qnx_exc.ResourceFetchFailed(
-                message=resp.text, status_code=resp.status_code
+                message=comp_record_resp.text, status_code=comp_record_resp.status_code
             )
 
-        comp_json = compilation_record_resp.json()
+        comp_json = comp_record_resp.json()
 
         project_id = comp_json["data"]["relationships"]["project"]["data"]["id"]
         project_details = next(
@@ -110,6 +118,7 @@ def results(
         project_ref = ProjectRef(
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
+            contents_modified=project_details["attributes"]["contents_modified"],
         )
 
         compilation_refs.append(
@@ -143,16 +152,25 @@ def _fetch_compilation_passes(
     for pass_info in pass_json["data"]:
         pass_name = pass_info["attributes"]["pass_name"]
 
-        pass_result_circuit_id = pass_info["relationships"]["compiled_circuit"]["data"][
+        pass_input_circuit_id = pass_info["relationships"]["original_circuit"]["data"][
             "id"
         ]
-
-        pass_result_circuit = circuit_api._fetch(  # pylint: disable=protected-access
-            pass_result_circuit_id
+        pass_input_circuit = circuit_api._fetch(  # pylint: disable=protected-access
+            pass_input_circuit_id
         )
+        pass_output_circuit_id = pass_info["relationships"]["compiled_circuit"]["data"][
+            "id"
+        ]
+        pass_output_circuit = circuit_api._fetch(  # pylint: disable=protected-access
+            pass_output_circuit_id
+        )
+
         pass_list.append(
             CompilationPassRef(
-                pass_name=pass_name, circuit=pass_result_circuit, id=pass_info["id"]
+                pass_name=pass_name,
+                input_circuit=pass_input_circuit,
+                output_circuit=pass_output_circuit,
+                id=pass_info["id"],
             )
         )
 

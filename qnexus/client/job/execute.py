@@ -5,21 +5,21 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
+import qnexus.exceptions as qnx_exc
+from qnexus.client import circuit as circuit_api
 from qnexus.client import nexus_client
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
     CreateAnnotationsDict,
-    PropertiesDict,
 )
 from qnexus.client.models.nexus_dataclasses import BackendConfig, StoredBackendInfo
 from qnexus.context import get_active_project, merge_properties_from_context
-from qnexus.exceptions import ResourceCreateFailed, ResourceFetchFailed
 from qnexus.references import (
     CircuitRef,
     DataframableList,
+    ExecuteJobRef,
     ExecutionResultRef,
-    JobRef,
     JobType,
     ProjectRef,
 )
@@ -37,7 +37,7 @@ def _execute(  # pylint: disable=too-many-arguments
     noisy_simulator: bool | None = None,
     seed: int | None = None,
     **kwargs: Unpack[CreateAnnotationsDict],
-) -> JobRef:
+) -> ExecuteJobRef:
     """Submit a execute job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
@@ -75,10 +75,16 @@ def _execute(  # pylint: disable=too-many-arguments
         json=execute_job_request,
     )
     if resp.status_code != 202:
-        raise ResourceCreateFailed(message=resp.text, status_code=resp.status_code)
-    return JobRef(
+        raise qnx_exc.ResourceCreateFailed(
+            message=resp.text, status_code=resp.status_code
+        )
+    return ExecuteJobRef(
         id=resp.json()["job_id"],
-        annotations=annotations,
+        annotations=Annotations(
+            # TODO add once v1beta jobs api is ready
+            name=annotations.name,
+            description=annotations.description,
+        ),
         job_type=JobType.EXECUTE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
@@ -86,8 +92,8 @@ def _execute(  # pylint: disable=too-many-arguments
     )
 
 
-def results(
-    execute_job: JobRef,
+def _results(
+    execute_job: ExecuteJobRef,
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
@@ -96,7 +102,14 @@ def results(
     )
 
     if resp.status_code != 200:
-        raise ResourceFetchFailed(message=resp.text, status_code=resp.status_code)
+        raise qnx_exc.ResourceFetchFailed(
+            message=resp.text, status_code=resp.status_code
+        )
+
+    job_status = resp.json()["job"]["job_status"]["status"]
+
+    if job_status != "COMPLETED":
+        raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
@@ -112,44 +125,26 @@ def results(
     return execute_results
 
 
-def retry_error(job: JobRef):
-    """Retry an errored execute job."""
-    if job.job_type != JobType.EXECUTE:
-        raise ValueError("Invalid job type")
-
-    res = nexus_client.post(
-        "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
-    )
-
-    if res.status_code != 202:
-        res.raise_for_status()
-
-
-def retry_submission(job: JobRef):
-    """Retry the submission of an execute job from Nexus to the target."""
-    if job.job_type != JobType.EXECUTE:
-        raise ValueError("Invalid job type")
-
-    res = nexus_client.post(
-        "/api/v6/jobs/process/retry_submit",
-        json={"job_id": str(job.id), "resubmit_to_backend": True},
-    )
-
-    if res.status_code != 202:
-        res.raise_for_status()
-
-
 def _fetch_execution_result(
     handle: ExecutionResultRef,
-) -> tuple[BackendResult, BackendInfo]:
+) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
     res = nexus_client.get(f"/api/results/v1beta/{handle.id}")
     if res.status_code != 200:
-        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+        raise qnx_exc.ResourceFetchFailed(
+            message=res.json(), status_code=res.status_code
+        )
 
     res_dict = res.json()
 
+    input_circuit_id = res_dict["data"]["relationships"]["circuit"]["data"]["id"]
+
+    input_circuit = circuit_api._fetch(  # pylint: disable=protected-access
+        input_circuit_id
+    )
+
     results_data = res_dict["data"]["attributes"]
+
     results_dict = {k: v for k, v in results_data.items() if v != [] and v is not None}
 
     backend_result = BackendResult.from_dict(results_dict)
@@ -161,4 +156,4 @@ def _fetch_execution_result(
         **backend_info_data["attributes"]
     ).to_pytket_backend_info()
 
-    return (backend_result, backend_info)
+    return (backend_result, backend_info, input_circuit)

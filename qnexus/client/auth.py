@@ -4,7 +4,6 @@ import getpass
 import time
 import webbrowser
 from http import HTTPStatus
-import json
 
 import httpx
 from colorama import Fore
