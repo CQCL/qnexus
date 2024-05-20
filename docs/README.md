@@ -1,0 +1,1 @@
+Temporary directory for documentation of the package.

@@ -1,0 +1,968 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="prev" title="quotas" href="quotas.html" />
+
+    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>references - Docs</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #eeffcc;
+  --color-code-foreground: black;
+  --color-brand-primary: #2563eb;
+  --color-brand-content: #2563eb;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #60a5fa;
+  --color-brand-content: #60a5fa;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #272822;
+  --color-code-foreground: #f8f8f2;
+  --color-brand-primary: #60a5fa;
+  --color-brand-content: #60a5fa;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">Docs</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">Docs</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <p class="caption" role="heading"><span class="caption-text">qnexus Reference:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="projects.html">projects</a></li>
+<li class="toctree-l1"><a class="reference internal" href="jobs.html">jobs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="circuits.html">circuits</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pagination_iterator.html">NexusDatabaseIterator</a></li>
+<li class="toctree-l1"><a class="reference internal" href="teams.html">teams</a></li>
+<li class="toctree-l1"><a class="reference internal" href="devices.html">devices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quotas.html">quotas</a></li>
+<li class="toctree-l1 current current-page"><a class="current reference internal" href="#">references</a></li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="module-qnexus.references">
+<span id="references"></span><h1>references<a class="headerlink" href="#module-qnexus.references" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.BaseRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">BaseRef</span></span><a class="headerlink" href="#qnexus.references.BaseRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.BaseRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.BaseRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.BaseRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">True}</span></em><a class="headerlink" href="#qnexus.references.BaseRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.BaseRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.BaseRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">CircuitRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.CircuitRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qnexus.references.BaseRef" title="qnexus.references.BaseRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRef</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.annotations">
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotations</span></em><a class="headerlink" href="#qnexus.references.CircuitRef.annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.circuit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">circuit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Circuit</span></em><a class="headerlink" href="#qnexus.references.CircuitRef.circuit" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.CircuitRef.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.CircuitRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">True}</span></em><a class="headerlink" href="#qnexus.references.CircuitRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'annotations':</span> <span class="pre">FieldInfo(annotation=Annotations,</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True),</span> <span class="pre">'project':</span> <span class="pre">FieldInfo(annotation=ProjectRef,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.CircuitRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></em><a class="headerlink" href="#qnexus.references.CircuitRef.project" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.CircuitRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.CircuitRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">CompilationResultRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.CompilationResultRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qnexus.references.BaseRef" title="qnexus.references.BaseRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRef</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.annotations">
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotations</span></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.compilation_passes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compilation_passes</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.RefList" title="qnexus.references.RefList"><span class="pre">RefList</span></a></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.compilation_passes" title="Permalink to this definition">#</a></dt>
+<dd><p>list of tuples of pass name and circuit.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.compiled_circuit">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compiled_circuit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.CircuitRef" title="qnexus.references.CircuitRef"><span class="pre">CircuitRef</span></a></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.compiled_circuit" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">True}</span></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'annotations':</span> <span class="pre">FieldInfo(annotation=Annotations,</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True),</span> <span class="pre">'project':</span> <span class="pre">FieldInfo(annotation=ProjectRef,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#qnexus.references.CompilationResultRef.model_post_init" title="Permalink to this definition">#</a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>self: The BaseModel instance.
+__context: The context.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></em><a class="headerlink" href="#qnexus.references.CompilationResultRef.project" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.CompilationResultRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.CompilationResultRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">DeviceRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backend_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nexus_hosted</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.DeviceRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.backend_name">
+<span class="sig-name descname"><span class="pre">backend_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.DeviceRef.backend_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.device_name">
+<span class="sig-name descname"><span class="pre">device_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#qnexus.references.DeviceRef.device_name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.DeviceRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.DeviceRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'backend_name':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'device_name':</span> <span class="pre">FieldInfo(annotation=Union[str,</span> <span class="pre">NoneType],</span> <span class="pre">required=True),</span> <span class="pre">'nexus_hosted':</span> <span class="pre">FieldInfo(annotation=bool,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.DeviceRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.nexus_hosted">
+<span class="sig-name descname"><span class="pre">nexus_hosted</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#qnexus.references.DeviceRef.nexus_hosted" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.DeviceRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.DeviceRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">ExecutionResultRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.ExecutionResultRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qnexus.references.BaseRef" title="qnexus.references.BaseRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRef</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.annotations">
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotations</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.backend_info">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_info</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BackendInfo</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.backend_info" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.backend_result">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">backend_result</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">BackendResult</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.backend_result" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">True}</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'annotations':</span> <span class="pre">FieldInfo(annotation=Annotations,</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True),</span> <span class="pre">'project':</span> <span class="pre">FieldInfo(annotation=ProjectRef,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.model_post_init">
+<span class="sig-name descname"><span class="pre">model_post_init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">__context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#qnexus.references.ExecutionResultRef.model_post_init" title="Permalink to this definition">#</a></dt>
+<dd><p>This function is meant to behave like a BaseModel method to initialise private attributes.</p>
+<p>It takes context as an argument since that’s what pydantic-core passes when calling it.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>self: The BaseModel instance.
+__context: The context.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></em><a class="headerlink" href="#qnexus.references.ExecutionResultRef.project" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.ExecutionResultRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.ExecutionResultRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.JobRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">JobRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">job_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qnexus.references.JobType" title="qnexus.references.JobType"><span class="pre">JobType</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StatusEnum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">project</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.JobRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qnexus.references.BaseRef" title="qnexus.references.BaseRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRef</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.annotations">
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotations</span></em><a class="headerlink" href="#qnexus.references.JobRef.annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.JobRef.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.job_type">
+<span class="sig-name descname"><span class="pre">job_type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.JobType" title="qnexus.references.JobType"><span class="pre">JobType</span></a></em><a class="headerlink" href="#qnexus.references.JobRef.job_type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.last_message">
+<span class="sig-name descname"><span class="pre">last_message</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.JobRef.last_message" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.last_status">
+<span class="sig-name descname"><span class="pre">last_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">StatusEnum</span></em><a class="headerlink" href="#qnexus.references.JobRef.last_status" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.JobRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">False}</span></em><a class="headerlink" href="#qnexus.references.JobRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'annotations':</span> <span class="pre">FieldInfo(annotation=Annotations,</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True),</span> <span class="pre">'job_type':</span> <span class="pre">FieldInfo(annotation=JobType,</span> <span class="pre">required=True),</span> <span class="pre">'last_message':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'last_status':</span> <span class="pre">FieldInfo(annotation=StatusEnum,</span> <span class="pre">required=True),</span> <span class="pre">'project':</span> <span class="pre">FieldInfo(annotation=ProjectRef,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.JobRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.project">
+<span class="sig-name descname"><span class="pre">project</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#qnexus.references.ProjectRef" title="qnexus.references.ProjectRef"><span class="pre">ProjectRef</span></a></em><a class="headerlink" href="#qnexus.references.JobRef.project" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.JobRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.JobRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.JobType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">JobType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">module</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">qualname</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.JobType" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobType.Compile">
+<span class="sig-name descname"><span class="pre">Compile</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'COMPILE'</span></em><a class="headerlink" href="#qnexus.references.JobType.Compile" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.JobType.Execute">
+<span class="sig-name descname"><span class="pre">Execute</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'PROCESS'</span></em><a class="headerlink" href="#qnexus.references.JobType.Execute" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">NexusQuota</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quota</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.NexusQuota" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.NexusQuota.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.NexusQuota.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.NexusQuota.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'description':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'name':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'quota':</span> <span class="pre">FieldInfo(annotation=Union[float,</span> <span class="pre">NoneType],</span> <span class="pre">required=True),</span> <span class="pre">'usage':</span> <span class="pre">FieldInfo(annotation=float,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.NexusQuota.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.NexusQuota.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.quota">
+<span class="sig-name descname"><span class="pre">quota</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#qnexus.references.NexusQuota.quota" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.NexusQuota.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert to a pandas DataFrame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusQuota.usage">
+<span class="sig-name descname"><span class="pre">usage</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#qnexus.references.NexusQuota.usage" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">NexusRole</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permissions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'role'</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'role'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.NexusRole" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.NexusRole.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.NexusRole.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.NexusRole.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.NexusRole.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'description':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True),</span> <span class="pre">'name':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'permissions':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True),</span> <span class="pre">'type':</span> <span class="pre">FieldInfo(annotation=Literal['role'],</span> <span class="pre">required=False,</span> <span class="pre">default='role')}</span></em><a class="headerlink" href="#qnexus.references.NexusRole.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.NexusRole.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.permissions">
+<span class="sig-name descname"><span class="pre">permissions</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.NexusRole.permissions" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.NexusRole.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Convert to a pandas DataFrame.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.NexusRole.type">
+<span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'role'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#qnexus.references.NexusRole.type" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">ProjectRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">annotations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Annotations</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.ProjectRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qnexus.references.BaseRef" title="qnexus.references.BaseRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRef</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef.annotations">
+<span class="sig-name descname"><span class="pre">annotations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Annotations</span></em><a class="headerlink" href="#qnexus.references.ProjectRef.annotations" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.ProjectRef.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.ProjectRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">True}</span></em><a class="headerlink" href="#qnexus.references.ProjectRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'annotations':</span> <span class="pre">FieldInfo(annotation=Annotations,</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.ProjectRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.ProjectRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.ProjectRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.RefList">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">RefList</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.RefList" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">T</span></code>]</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.RefList.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.RefList.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.Summarizable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">Summarizable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.Summarizable" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Protocol</span></code></p>
+<p>Protocol for structural subtyping of classes that 
+have a default representation as a pandas.DataFrame.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.Summarizable.summarize">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.Summarizable.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">qnexus.references.</span></span><span class="sig-name descname"><span class="pre">TeamsRef</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">UUID</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#qnexus.references.TeamsRef" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#qnexus.references.BaseRef" title="qnexus.references.BaseRef"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseRef</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.description">
+<span class="sig-name descname"><span class="pre">description</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#qnexus.references.TeamsRef.description" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.id">
+<span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">UUID</span></em><a class="headerlink" href="#qnexus.references.TeamsRef.id" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#qnexus.references.TeamsRef.model_computed_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.model_config">
+<span class="sig-name descname"><span class="pre">model_config</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">ConfigDict</span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'frozen':</span> <span class="pre">True}</span></em><a class="headerlink" href="#qnexus.references.TeamsRef.model_config" title="Permalink to this definition">#</a></dt>
+<dd><p>Configuration for the model, should be a dictionary conforming to [<cite>ConfigDict</cite>][pydantic.config.ConfigDict].</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.model_fields">
+<span class="sig-name descname"><span class="pre">model_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">FieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'description':</span> <span class="pre">FieldInfo(annotation=Union[str,</span> <span class="pre">NoneType],</span> <span class="pre">required=True),</span> <span class="pre">'id':</span> <span class="pre">FieldInfo(annotation=UUID,</span> <span class="pre">required=True),</span> <span class="pre">'name':</span> <span class="pre">FieldInfo(annotation=str,</span> <span class="pre">required=True)}</span></em><a class="headerlink" href="#qnexus.references.TeamsRef.model_fields" title="Permalink to this definition">#</a></dt>
+<dd><p>Metadata about the fields defined on the model,
+mapping of field names to [<cite>FieldInfo</cite>][pydantic.fields.FieldInfo].</p>
+<p>This replaces <cite>Model.__fields__</cite> from Pydantic V1.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#qnexus.references.TeamsRef.name" title="Permalink to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="qnexus.references.TeamsRef.summarize">
+<span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="headerlink" href="#qnexus.references.TeamsRef.summarize" title="Permalink to this definition">#</a></dt>
+<dd><p>Summarize in a pandas DataFrame.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          
+          <a class="prev-page" href="quotas.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">quotas</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 1980, Quantinuum Ltd
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">references</a><ul>
+<li><a class="reference internal" href="#qnexus.references.BaseRef"><code class="docutils literal notranslate"><span class="pre">BaseRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.BaseRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">BaseRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.BaseRef.model_config"><code class="docutils literal notranslate"><span class="pre">BaseRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.BaseRef.model_fields"><code class="docutils literal notranslate"><span class="pre">BaseRef.model_fields</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef"><code class="docutils literal notranslate"><span class="pre">CircuitRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.annotations"><code class="docutils literal notranslate"><span class="pre">CircuitRef.annotations</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.circuit"><code class="docutils literal notranslate"><span class="pre">CircuitRef.circuit</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.id"><code class="docutils literal notranslate"><span class="pre">CircuitRef.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">CircuitRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.model_config"><code class="docutils literal notranslate"><span class="pre">CircuitRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.model_fields"><code class="docutils literal notranslate"><span class="pre">CircuitRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.project"><code class="docutils literal notranslate"><span class="pre">CircuitRef.project</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CircuitRef.summarize"><code class="docutils literal notranslate"><span class="pre">CircuitRef.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.annotations"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.annotations</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.compilation_passes"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.compilation_passes</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.compiled_circuit"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.compiled_circuit</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.id"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.model_config"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.model_fields"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.model_post_init"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.model_post_init()</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.project"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.project</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.CompilationResultRef.summarize"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef"><code class="docutils literal notranslate"><span class="pre">DeviceRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.backend_name"><code class="docutils literal notranslate"><span class="pre">DeviceRef.backend_name</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.device_name"><code class="docutils literal notranslate"><span class="pre">DeviceRef.device_name</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">DeviceRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.model_config"><code class="docutils literal notranslate"><span class="pre">DeviceRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.model_fields"><code class="docutils literal notranslate"><span class="pre">DeviceRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.nexus_hosted"><code class="docutils literal notranslate"><span class="pre">DeviceRef.nexus_hosted</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.DeviceRef.summarize"><code class="docutils literal notranslate"><span class="pre">DeviceRef.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.annotations"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.annotations</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.backend_info"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.backend_info</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.backend_result"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.backend_result</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.id"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.model_config"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.model_fields"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.model_post_init"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.model_post_init()</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.project"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.project</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ExecutionResultRef.summarize"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.JobRef"><code class="docutils literal notranslate"><span class="pre">JobRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.JobRef.annotations"><code class="docutils literal notranslate"><span class="pre">JobRef.annotations</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.id"><code class="docutils literal notranslate"><span class="pre">JobRef.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.job_type"><code class="docutils literal notranslate"><span class="pre">JobRef.job_type</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.last_message"><code class="docutils literal notranslate"><span class="pre">JobRef.last_message</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.last_status"><code class="docutils literal notranslate"><span class="pre">JobRef.last_status</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">JobRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.model_config"><code class="docutils literal notranslate"><span class="pre">JobRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.model_fields"><code class="docutils literal notranslate"><span class="pre">JobRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.project"><code class="docutils literal notranslate"><span class="pre">JobRef.project</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobRef.summarize"><code class="docutils literal notranslate"><span class="pre">JobRef.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.JobType"><code class="docutils literal notranslate"><span class="pre">JobType</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.JobType.Compile"><code class="docutils literal notranslate"><span class="pre">JobType.Compile</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.JobType.Execute"><code class="docutils literal notranslate"><span class="pre">JobType.Execute</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota"><code class="docutils literal notranslate"><span class="pre">NexusQuota</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.description"><code class="docutils literal notranslate"><span class="pre">NexusQuota.description</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">NexusQuota.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.model_config"><code class="docutils literal notranslate"><span class="pre">NexusQuota.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.model_fields"><code class="docutils literal notranslate"><span class="pre">NexusQuota.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.name"><code class="docutils literal notranslate"><span class="pre">NexusQuota.name</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.quota"><code class="docutils literal notranslate"><span class="pre">NexusQuota.quota</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.summarize"><code class="docutils literal notranslate"><span class="pre">NexusQuota.summarize()</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusQuota.usage"><code class="docutils literal notranslate"><span class="pre">NexusQuota.usage</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole"><code class="docutils literal notranslate"><span class="pre">NexusRole</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.description"><code class="docutils literal notranslate"><span class="pre">NexusRole.description</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.id"><code class="docutils literal notranslate"><span class="pre">NexusRole.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">NexusRole.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.model_config"><code class="docutils literal notranslate"><span class="pre">NexusRole.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.model_fields"><code class="docutils literal notranslate"><span class="pre">NexusRole.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.name"><code class="docutils literal notranslate"><span class="pre">NexusRole.name</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.permissions"><code class="docutils literal notranslate"><span class="pre">NexusRole.permissions</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.summarize"><code class="docutils literal notranslate"><span class="pre">NexusRole.summarize()</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.NexusRole.type"><code class="docutils literal notranslate"><span class="pre">NexusRole.type</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef"><code class="docutils literal notranslate"><span class="pre">ProjectRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef.annotations"><code class="docutils literal notranslate"><span class="pre">ProjectRef.annotations</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef.id"><code class="docutils literal notranslate"><span class="pre">ProjectRef.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">ProjectRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef.model_config"><code class="docutils literal notranslate"><span class="pre">ProjectRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef.model_fields"><code class="docutils literal notranslate"><span class="pre">ProjectRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.ProjectRef.summarize"><code class="docutils literal notranslate"><span class="pre">ProjectRef.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.RefList"><code class="docutils literal notranslate"><span class="pre">RefList</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.RefList.summarize"><code class="docutils literal notranslate"><span class="pre">RefList.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.Summarizable"><code class="docutils literal notranslate"><span class="pre">Summarizable</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.Summarizable.summarize"><code class="docutils literal notranslate"><span class="pre">Summarizable.summarize()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef"><code class="docutils literal notranslate"><span class="pre">TeamsRef</span></code></a><ul>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.description"><code class="docutils literal notranslate"><span class="pre">TeamsRef.description</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.id"><code class="docutils literal notranslate"><span class="pre">TeamsRef.id</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.model_computed_fields"><code class="docutils literal notranslate"><span class="pre">TeamsRef.model_computed_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.model_config"><code class="docutils literal notranslate"><span class="pre">TeamsRef.model_config</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.model_fields"><code class="docutils literal notranslate"><span class="pre">TeamsRef.model_fields</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.name"><code class="docutils literal notranslate"><span class="pre">TeamsRef.name</span></code></a></li>
+<li><a class="reference internal" href="#qnexus.references.TeamsRef.summarize"><code class="docutils literal notranslate"><span class="pre">TeamsRef.summarize()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/custom.js"></script>
+    </body>
+</html>
