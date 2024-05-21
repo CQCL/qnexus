@@ -1,9 +1,10 @@
 """Client API for execution in Nexus."""
-from typing import Union, Unpack, cast
+from typing import Union, cast
 
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
+from typing_extensions import Unpack
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuit as circuit_api

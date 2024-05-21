@@ -1,6 +1,6 @@
 """Filter models for use by the client."""
 from datetime import datetime
-from typing import Annotated, Literal, NotRequired, OrderedDict, TypedDict, Union
+from typing import Annotated, Literal, OrderedDict, TypedDict, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_serializer
@@ -10,10 +10,10 @@ from qnexus.client.models.utils import AllowNone
 from qnexus.references import ProjectRef
 
 
-class PropertiesFilterDict(TypedDict):
+class PropertiesFilterDict(TypedDict, total=False):
     """Properties filters model."""
 
-    properties: NotRequired[PropertiesDict]
+    properties: PropertiesDict
 
 
 def _format_property(key: str, value: bool | int | float | str) -> str:
@@ -37,13 +37,13 @@ class PropertiesFilter(BaseModel):
         return [_format_property(key, value) for key, value in properties.items()]
 
 
-class TimeFilterDict(TypedDict):
+class TimeFilterDict(TypedDict, total=False):
     """Resource time filters model."""
 
-    created_before: NotRequired[datetime]
-    created_after: NotRequired[datetime]
-    modified_before: NotRequired[datetime]
-    modified_after: NotRequired[datetime]
+    created_before: datetime
+    created_after: datetime
+    modified_before: datetime
+    modified_after: datetime
 
 
 class TimeFilter(BaseModel):
@@ -71,11 +71,11 @@ class TimeFilter(BaseModel):
     )
 
 
-class PaginationFilterDict(TypedDict):
+class PaginationFilterDict(TypedDict, total=False):
     """Pagination model."""
 
-    page_number: NotRequired[int]
-    page_size: NotRequired[int]
+    page_number: int
+    page_size: int
 
 
 class PaginationFilter(BaseModel):
@@ -93,10 +93,10 @@ class PaginationFilter(BaseModel):
     )
 
 
-class CreatorFilterDict(TypedDict):
+class CreatorFilterDict(TypedDict, total=False):
     """Creator email model."""
 
-    creator_email: NotRequired[list[str]]
+    creator_email: list[str]
 
 
 class CreatorFilter(BaseModel):
@@ -110,10 +110,10 @@ class CreatorFilter(BaseModel):
     )
 
 
-class FuzzyNameFilterDict(TypedDict):
+class FuzzyNameFilterDict(TypedDict, total=False):
     """Name model."""
 
-    name_like: NotRequired[str]
+    name_like: str
 
 
 class FuzzyNameFilter(BaseModel):
@@ -126,19 +126,17 @@ class FuzzyNameFilter(BaseModel):
     )
 
 
-class SortFilterDict(TypedDict):
+class SortFilterDict(TypedDict, total=False):
     """Resource sorting model."""
 
-    sort: NotRequired[
-        list[
-            Union[
-                Literal["timestamps.created"],
-                Literal["-timestamps.created"],
-                Literal["timestamps.modified"],
-                Literal["-timestamps.modified"],
-                Literal["name"],
-                Literal["-name"],
-            ]
+    sort: list[
+        Union[
+            Literal["timestamps.created"],
+            Literal["-timestamps.created"],
+            Literal["timestamps.modified"],
+            Literal["-timestamps.modified"],
+            Literal["name"],
+            Literal["-name"],
         ]
     ]
 
@@ -172,10 +170,10 @@ class ProjectIDFilter(BaseModel):
     )
 
 
-class ProjectIDFilterDict(TypedDict):
+class ProjectIDFilterDict(TypedDict, total=False):
     """ProjectRef filter (TypedDict)"""
 
-    project_id: NotRequired[str | UUID]
+    project_id: str | UUID
 
 
 class ProjectRefFilter(BaseModel):
@@ -193,10 +191,10 @@ class ProjectRefFilter(BaseModel):
         return project_ref.id
 
 
-class ProjectRefFilterDict(TypedDict):
+class ProjectRefFilterDict(TypedDict, total=False):
     """ProjectRef filter (TypedDict)"""
 
-    project_ref: NotRequired[ProjectRef]
+    project_ref: ProjectRef
 
 
 class ArchivedFilter(BaseModel):
@@ -209,7 +207,7 @@ class ArchivedFilter(BaseModel):
     )
 
 
-class ArchivedFilterDict(TypedDict):
+class ArchivedFilterDict(TypedDict, total=False):
     """Include or omit archived projects (TypedDict)"""
 
-    is_archived: NotRequired[bool]
+    is_archived: bool
