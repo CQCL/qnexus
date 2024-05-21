@@ -39,7 +39,7 @@ def get_active_project(project_required: bool = False) -> ProjectRef | None:
     ... annotations=Annotations(name="example")))
     >>> get_active_project()
     ProjectRef(
-        id=UUID('dca33f7f-9619-4cf7-a3fb-56256b117d6e'), 
+        id=UUID('dca33f7f-9619-4cf7-a3fb-56256b117d6e'),
         annotations=Annotations(name='example', description=None, properties=OrderedDict())
     )
 
@@ -104,7 +104,7 @@ def using_project(project: ProjectRef):
     >>> with using_project(project):
     ...     get_active_project()
     ProjectRef(
-        id=UUID('cd325b9c-d4a2-4b6e-ae58-8fad89749fac'), 
+        id=UUID('cd325b9c-d4a2-4b6e-ae58-8fad89749fac'),
         annotations=Annotations(name='example', description=None, properties=OrderedDict())
     )
 

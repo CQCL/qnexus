@@ -7,7 +7,7 @@ from typing import Annotated, Any, Literal, Type, TypedDict, Union, overload
 
 from pydantic import BaseModel, ConfigDict, Field
 from pytket.backends.status import WAITING_STATUS, StatusEnum
-from typing_extensions import NotRequired, Unpack
+from typing_extensions import Unpack
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
@@ -66,19 +66,17 @@ class JobStatusFilter(BaseModel):
     )
 
 
-class JobStatusFilterDict(TypedDict):
+class JobStatusFilterDict(TypedDict, total=False):
     """Job status filter (TypedDict)"""
 
-    status: NotRequired[
-        list[
-            Union[
-                Literal["COMPLETED"],
-                Literal["QUEUED"],
-                Literal["SUBMITTED"],
-                Literal["RUNNING"],
-                Literal["CANCELLED"],
-                Literal["ERROR"],
-            ]
+    status: list[
+        Union[
+            Literal["COMPLETED"],
+            Literal["QUEUED"],
+            Literal["SUBMITTED"],
+            Literal["RUNNING"],
+            Literal["CANCELLED"],
+            Literal["ERROR"],
         ]
     ]
 
@@ -100,11 +98,11 @@ class JobTypeFilter(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
-class JobTypeFilterDict(TypedDict):
+class JobTypeFilterDict(TypedDict, total=False):
     """Filter by job type (TypedDict)"""
 
-    type: NotRequired[JobType]
-    submitted_after: NotRequired[datetime]
+    type: JobType
+    submitted_after: datetime
 
 
 class Params(

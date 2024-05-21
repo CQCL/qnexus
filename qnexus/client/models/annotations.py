@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from collections import OrderedDict
 from datetime import datetime
-from typing import Any, NotRequired, TypedDict
+from typing import Any, TypedDict
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_validator
@@ -11,14 +11,14 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer, field_valid
 PropertiesDict = OrderedDict[str, bool | int | float | str]
 
 
-class AnnotationsDict(TypedDict):
+class AnnotationsDict(TypedDict, total=False):
     """TypedDict for annotations"""
 
-    name: NotRequired[str | None]  # type: ignore
-    description: NotRequired[str | None]
-    properties: NotRequired[PropertiesDict]
-    created: NotRequired[datetime | None]
-    modified: NotRequired[datetime | None]
+    name: str | None  # type: ignore
+    description: str | None
+    properties: PropertiesDict
+    created: datetime | None
+    modified: datetime | None
 
 
 class Annotations(BaseModel):
@@ -77,12 +77,12 @@ class Annotations(BaseModel):
         )
 
 
-class CreateAnnotationsDict(TypedDict):
+class CreateAnnotationsDict(TypedDict, total=False):
     """TypedDict for annotations when the name is required."""
 
     name: str  # type: ignore
-    description: NotRequired[str | None]
-    properties: NotRequired[PropertiesDict]
+    description: str | None
+    properties: PropertiesDict
 
 
 class CreateAnnotations(BaseModel):

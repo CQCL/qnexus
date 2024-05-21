@@ -8,10 +8,11 @@ __pycache__/
 *.code-workspace
 .vscode
 
+# Environment
 .env*.local
-
 .env
 
+dist/
 
 # IPython
 .ipynb_checkpoints
