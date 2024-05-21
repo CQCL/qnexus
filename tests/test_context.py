@@ -1,5 +1,5 @@
 """Test the context management system."""
-
+from datetime import datetime
 from uuid import uuid4
 
 from qnexus.client.models.annotations import Annotations
@@ -17,7 +17,7 @@ from qnexus.references import ProjectRef
 def test_attach_project() -> None:
     """Test that we can set a Project in the global context."""
     project_id = uuid4()
-    project_ref = ProjectRef(id=project_id, annotations=Annotations(name=""))
+    project_ref = ProjectRef(id=project_id, annotations=Annotations(name=""), contents_modified=datetime.now())
 
     token = set_active_project(project=project_ref)
 
@@ -32,7 +32,7 @@ def test_attach_project_context_manager() -> None:
     """Test that we can set a Project via a context manager."""
 
     project_id = uuid4()
-    project_ref = ProjectRef(id=project_id, annotations=Annotations(name=""))
+    project_ref = ProjectRef(id=project_id, annotations=Annotations(name=""), contents_modified=datetime.now())
     with using_project(project=project_ref):
         ctx_project = get_active_project()
 
@@ -63,3 +63,6 @@ def test_attach_properties() -> None:
     ctx_properties = get_active_properties()
 
     assert ctx_properties == {}
+
+
+# TODO test decorators

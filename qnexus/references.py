@@ -52,7 +52,7 @@ class BaseRef(BaseModel):
     id: UUID
 
 
-class TeamsRef(BaseRef):
+class TeamRef(BaseRef):
     """Proxy object to a Team in Nexus."""
 
     name: str

@@ -6,13 +6,13 @@ from pydantic import EmailStr
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.models import Role
-from qnexus.references import BaseRef, DataframableList, TeamsRef
+from qnexus.references import BaseRef, DataframableList, TeamRef
 
 Permission = Literal["ASSIGN", "DELETE", "WRITE", "READ"]
 RoleName = Literal["Administrator", "Contributor", "Reader", "Maintainer"]
 
 
-def get() -> DataframableList:
+def get() -> DataframableList[Role]:
     """Get the definitions of possible role-based access control assignments."""
     res = nexus_client.get(
         "/api/roles/v1beta",
@@ -23,18 +23,15 @@ def get() -> DataframableList:
             message=res.json(), status_code=res.status_code
         )
 
-    roles: DataframableList[Role] = DataframableList([])
-    for role in res.json()["data"]:
-        roles.append(
-            Role(
-                id=role["id"],
-                name=role["attributes"]["name"],
-                description=role["attributes"]["description"],
-                permissions=str(role["attributes"]["permissions"]),
-            )
-        )
+    return DataframableList([
+        Role(
+            id=role["id"],
+            name=role["attributes"]["name"],
+            description=role["attributes"]["description"],
+            permissions=str(role["attributes"]["permissions"]),
+        ) for role in res.json()["data"]]
+    )
 
-    return roles
 
 
 def get_only(name: RoleName) -> Role:
@@ -47,7 +44,7 @@ def get_only(name: RoleName) -> Role:
 
 
 def assign_team_role(
-    resource_ref: BaseRef, team: TeamsRef, role: RoleName | Role
+    resource_ref: BaseRef, team: TeamRef, role: RoleName | Role
 ) -> None:
     """Assign a role-based access control assignment to a team."""
     if isinstance(role, str):
