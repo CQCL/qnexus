@@ -34,12 +34,13 @@ def test_assignment_get(
 @pytest.mark.create
 def test_team_assignment(
     _authenticated_nexus: None,
+    qa_team_name: str,
 ) -> None:
     """Test that we can get all assignment role definitions."""
 
-    new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}")
+    new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}_0")
 
-    team = qnx.team.get_only(name="QA_test_unique_team")
+    team = qnx.team.get_only(name=qa_team_name)
 
     qnx.assignment.assign_team_role(
         resource_ref=new_project_ref, team=team, role="Administrator"
@@ -54,12 +55,12 @@ def test_user_assignment(
 ) -> None:
     """Test that we can get all assignment role definitions."""
 
-    new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}")
+    new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}_1")
 
     qnx.assignment.assign_user_role(
         resource_ref=new_project_ref,
         user_email=NEXUS_QA_USER_EMAIL,
-        role="Administrator",
+        role="Contributor",
     )
 
     # TODO verify assignment, delete project

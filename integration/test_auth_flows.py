@@ -18,8 +18,10 @@ def test_credential_login_full_flow(
     pwd = NEXUS_QA_USER_PASSWORD
 
     qnx.auth.logout()
-    assert read_token(token_type="access_token") == ""
-    assert read_token(token_type="refresh_token") == ""
+    with pytest.raises(FileNotFoundError):
+        read_token(token_type="access_token")
+    with pytest.raises(FileNotFoundError):
+        read_token(token_type="refresh_token")
 
     # fake user input from stdin
     monkeypatch.setattr("sys.stdin", StringIO(username + "\n"))
@@ -31,12 +33,12 @@ def test_credential_login_full_flow(
     assert read_token(token_type="refresh_token") != ""
 
     qnx.auth.logout()
-    assert read_token(token_type="access_token") == ""
-    assert read_token(token_type="refresh_token") == ""
+    with pytest.raises(FileNotFoundError):
+        read_token(token_type="access_token")
+    with pytest.raises(FileNotFoundError):
+        read_token(token_type="refresh_token")
 
 
 @pytest.mark.skip(reason="Not implemented")
 def test_device_code_flow_login_full_flow() -> None:
     """Test the flow for logging in with the browser."""
-
-    # TODO

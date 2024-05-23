@@ -9,12 +9,10 @@ import qnexus as qnx
 from qnexus.references import TeamRef
 
 
-def test_team_getonly(
-    _authenticated_nexus: None,
-) -> None:
+def test_team_getonly(_authenticated_nexus: None, qa_team_name: str) -> None:
     """Test that we can get a specific unique TeamRef."""
 
-    my_team = qnx.team.get_only(name="QA_test_unique_team")
+    my_team = qnx.team.get_only(name=qa_team_name)
     assert isinstance(my_team, TeamRef)
 
 
@@ -34,9 +32,9 @@ def test_team_get(
 def test_team_create(
     _authenticated_nexus: None,
 ) -> None:
-    """Test that we can create a team and add a property value."""
+    """Test that we can create a team."""
 
-    team_name = f"QA_test_team_{datetime.now()}"
+    team_name = f"qa_test_team_{datetime.now()}"
     team_description = "A test team (can be deleted)"
 
     my_new_team = qnx.team.create(name=team_name, description=team_description)

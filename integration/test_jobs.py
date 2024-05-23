@@ -33,13 +33,12 @@ def test_job_get(
 
 def test_compile_job_getonly(
     _authenticated_nexus: None,
+    qa_compile_job_name: str,
 ) -> None:
     """Test that we can get a specific unique CompileJobRef,
     or get an appropriate exception."""
 
-    my_job = qnx.job.get_only(
-        name_like="qa_compile_job_unique"
-    )  # TODO use test id once available
+    my_job = qnx.job.get_only(name_like=qa_compile_job_name)
     assert isinstance(my_job, CompileJobRef)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
@@ -51,13 +50,12 @@ def test_compile_job_getonly(
 
 def test_execute_job_getonly(
     _authenticated_nexus: None,
+    qa_execute_job_name: str,
 ) -> None:
     """Test that we can get a specific unique ExecuteJobRef,
     or get an appropriate exception."""
 
-    my_job = qnx.job.get_only(
-        name_like="qa_execute_job_unique"
-    )  # TODO use test id once available
+    my_job = qnx.job.get_only(name_like=qa_execute_job_name)
     assert isinstance(my_job, ExecuteJobRef)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
@@ -70,15 +68,14 @@ def test_execute_job_getonly(
 @pytest.mark.create
 def test_compile(
     _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_circuit_id: str,
 ) -> None:
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
 
-    my_proj = qnx.project.get_only(name_like="VanyaTest")  # TODO use test name
-
-    my_circ = qnx.circuit.get_only(
-        id="6d25444e-5901-4266-8e11-8d3b1a2765c8"
-    )  # TODO use test id
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_circ = qnx.circuit.get_only(id=qa_circuit_id, project_ref=my_proj)
 
     compile_job_ref = qnx.compile(
         circuits=[my_circ],
@@ -109,15 +106,14 @@ def test_compile(
 @pytest.mark.create
 def test_execute(
     _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_circuit_id: str,
 ) -> None:
     """Test that we can run an execute job in Nexus, wait for the job to complete and
     obtain the results from the execution."""
 
-    my_proj = qnx.project.get_only(name_like="VanyaTest")  # TODO use test name
-
-    my_circ = qnx.circuit.get_only(
-        id="6d25444e-5901-4266-8e11-8d3b1a2765c8"
-    )  # TODO use test id
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_circ = qnx.circuit.get_only(id=qa_circuit_id, project_ref=my_proj)
 
     execute_job_ref = qnx.execute(
         circuits=[my_circ],
@@ -145,14 +141,13 @@ def test_execute(
 @pytest.mark.create
 def test_wait_for_raises_on_job_error(
     _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_circuit_id: str,
 ) -> None:
     """Test that if a job errors, the wait_for function raises an Exception."""
 
-    my_proj = qnx.project.get_only(name_like="VanyaTest")  # TODO use test name
-
-    my_circ = qnx.circuit.get_only(
-        id="6d25444e-5901-4266-8e11-8d3b1a2765c8"
-    )  # TODO use test id
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_circ = qnx.circuit.get_only(id=qa_circuit_id, project_ref=my_proj)
 
     compile_job_ref = qnx.compile(
         circuits=[my_circ],
@@ -171,15 +166,13 @@ def test_wait_for_raises_on_job_error(
 @pytest.mark.create
 def test_results_not_available_error(
     _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_circuit_id: str,
 ) -> None:
     """Test that we can't get the results of a job until it is complete."""
 
-    my_proj = qnx.project.get_only(name_like="VanyaTest")  # TODO use test name
-
-    my_circ = qnx.circuit.get_only(
-        id="6d25444e-5901-4266-8e11-8d3b1a2765c8"
-    )  # TODO use test id
-
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_circ = qnx.circuit.get_only(id=qa_circuit_id, project_ref=my_proj)
     execute_job_ref = qnx.execute(
         circuits=[my_circ],
         name=f"QA_execute_job_{datetime.now()}",

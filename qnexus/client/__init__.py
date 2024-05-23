@@ -53,7 +53,8 @@ class AuthHandler(httpx.Auth):
                 "access_token",
                 self.cookies.get("myqos_id", domain=config.domain) or "",
             )
-            request.headers.pop("cookie")
+            if request.headers.get("cookie"):
+                request.headers.pop("cookie")
             self.cookies.set_cookie_header(request)
             yield request
 

@@ -1,13 +1,14 @@
 """Utlity functions for the client."""
 
 import http
+import os
 from pathlib import Path
 from typing import Any, Literal
 
 from httpx import Response
 
 import qnexus.exceptions as qnx_exc
-from qnexus.consts import STORE_TOKENS, TOKEN_FILE_PATH
+from qnexus import consts
 
 _in_memory_refresh_token: str | None = None
 _in_memory_access_token: str | None = None
@@ -35,7 +36,7 @@ def write_token(
     token_type: Literal["access_token", "refresh_token"], token: str
 ) -> None:
     """Write a token to a file."""
-    if STORE_TOKENS:
+    if consts.STORE_TOKENS:
         _write_token_file(token_type, token)
     match token_type:
         case "access_token":
@@ -46,7 +47,7 @@ def write_token(
 
 def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
     """Read a token from a file."""
-    if STORE_TOKENS:
+    if consts.STORE_TOKENS:
         return _read_token_file(token_type)
     match token_type:
         case "access_token":
@@ -58,10 +59,17 @@ def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
     raise FileNotFoundError
 
 
+def remove_token(token_type: Literal["access_token", "refresh_token"]) -> None:
+    """Delete a token file."""
+    token_file_path = Path.home() / consts.TOKEN_FILE_PATH / token_type
+    if token_file_path.exists():
+        token_file_path.unlink()
+
+
 def _read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str:
     """Read a token from a file."""
 
-    token_file_path = Path.home() / TOKEN_FILE_PATH
+    token_file_path = Path.home() / consts.TOKEN_FILE_PATH
     with (token_file_path / token_type).open(encoding="UTF-8") as file:
         return file.read().strip()
 
@@ -71,7 +79,7 @@ def _write_token_file(
 ) -> None:
     """Write a token to a file."""
 
-    token_file_path = Path.home() / TOKEN_FILE_PATH
+    token_file_path = Path.home() / consts.TOKEN_FILE_PATH
     token_file_path.mkdir(parents=True, exist_ok=True)
     with (token_file_path / token_type).open(encoding="UTF-8", mode="w") as file:
         file.write(token)

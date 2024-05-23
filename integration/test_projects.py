@@ -12,11 +12,12 @@ from qnexus.references import ProjectRef
 
 def test_project_getonly(
     _authenticated_nexus: None,
+    qa_project_name: str,
 ) -> None:
     """Test that we can get a specific unique project,
     or get an appropriate exception."""
 
-    my_proj = qnx.project.get_only(name_like="VanyaTest")  # TODO use test name
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
     assert isinstance(my_proj, ProjectRef)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):

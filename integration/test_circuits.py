@@ -14,13 +14,12 @@ from qnexus.references import CircuitRef
 
 def test_circuit_getonly(
     _authenticated_nexus: None,
+    qa_circuit_id: str,
 ) -> None:
     """Test that we can get a specific unique CircuitRef,
     or get an appropriate exception."""
 
-    my_circ = qnx.circuit.get_only(
-        id="6d25444e-5901-4266-8e11-8d3b1a2765c8"
-    )  # TODO use test id
+    my_circ = qnx.circuit.get_only(id=qa_circuit_id)
     assert isinstance(my_circ, CircuitRef)
 
     assert isinstance(my_circ.download_circuit(), Circuit)
@@ -48,10 +47,11 @@ def test_circuit_get(
 @pytest.mark.create
 def test_circuit_create(
     _authenticated_nexus: None,
+    qa_project_name: str,
 ) -> None:
     """Test that we can create a circuit and add a property value."""
 
-    my_proj = qnx.project.get_only(name_like="VanyaTest")  # TODO use test name
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
 
     circuit_name = f"QA_test_circuit_{datetime.now()}"
 
@@ -63,8 +63,8 @@ def test_circuit_create(
 
     assert isinstance(my_new_circuit, CircuitRef)
 
-    test_property_name = "QA_test_prop"  # TODO make sure this exists on the QA project
-    test_prop_value = 10
+    test_property_name = "QA_test_prop"
+    test_prop_value = "foo"
 
     updated_circuit_ref = qnx.circuit.update(
         ref=my_new_circuit,
