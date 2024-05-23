@@ -60,7 +60,7 @@ def create(name: str, description: str | None = None) -> TeamRef:
     """Create a team in Nexus."""
 
     resp = nexus_client.post(
-        f"api/v5/user/teams/new",
+        "api/v5/user/teams/new",
         json={
             "team_name": name,
             "description": description,
@@ -71,13 +71,10 @@ def create(name: str, description: str | None = None) -> TeamRef:
         raise qnx_exc.ResourceCreateFailed(
             message=resp.text, status_code=resp.status_code
         )
-    
+
     team_dict = resp.json()
     return TeamRef(
         id=team_dict["id"],
         name=team_dict["team_name"],
         description=team_dict["description"],
     )
-    
-
-

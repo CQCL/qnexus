@@ -4,9 +4,9 @@ from contextlib import contextmanager
 from typing import Generator
 
 import pytest
-import qnexus as qnx
-
 from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
+
+import qnexus as qnx
 
 
 @contextmanager
@@ -24,7 +24,7 @@ def make_authenticated_nexus(
         qnx.auth.logout()
 
 
-@pytest.fixture()
+@pytest.fixture(scope="session")
 def _authenticated_nexus() -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
     with make_authenticated_nexus():

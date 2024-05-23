@@ -1,6 +1,7 @@
 """Test basic functionality relating to the quota module."""
 
 import pandas as pd
+
 import qnexus as qnx
 from qnexus.client.models import Quota
 

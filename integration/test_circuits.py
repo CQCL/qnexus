@@ -4,9 +4,10 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
+from pytket import Circuit
+
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from pytket import Circuit
 from qnexus.client.models.annotations import PropertiesDict
 from qnexus.references import CircuitRef
 

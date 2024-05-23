@@ -23,15 +23,17 @@ def get() -> DataframableList[Role]:
             message=res.json(), status_code=res.status_code
         )
 
-    return DataframableList([
-        Role(
-            id=role["id"],
-            name=role["attributes"]["name"],
-            description=role["attributes"]["description"],
-            permissions=str(role["attributes"]["permissions"]),
-        ) for role in res.json()["data"]]
+    return DataframableList(
+        [
+            Role(
+                id=role["id"],
+                name=role["attributes"]["name"],
+                description=role["attributes"]["description"],
+                permissions=str(role["attributes"]["permissions"]),
+            )
+            for role in res.json()["data"]
+        ]
     )
-
 
 
 def get_only(name: RoleName) -> Role:

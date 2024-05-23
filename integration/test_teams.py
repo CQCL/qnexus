@@ -4,6 +4,7 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
+
 import qnexus as qnx
 from qnexus.references import TeamRef
 

@@ -3,10 +3,10 @@ from io import StringIO
 from typing import Any
 
 import pytest
+from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
+
 import qnexus as qnx
 from qnexus.client.utils import read_token
-
-from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
 
 
 def test_credential_login_full_flow(

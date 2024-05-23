@@ -78,16 +78,16 @@ class AerQuantumError(BaseModel):
         # pylint: disable=import-outside-toplevel
         try:
             from qiskit.circuit import QuantumCircuit
-            from qiskit.circuit.library import (  # type: ignore
+            from qiskit.circuit.library import (
                 IGate,
-                Reset,
+                Reset,  # type: ignore
                 XGate,
                 YGate,
                 ZGate,
             )
-            from qiskit.circuit.library.generalized_gates import (  # type: ignore
+            from qiskit.circuit.library.generalized_gates import (
                 PauliGate,
-            )
+            )  # type: ignore
             from qiskit.quantum_info.operators import Kraus  # type: ignore
         except ImportError as err:
             raise qnx_exc.OptionalDependencyError(

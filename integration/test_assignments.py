@@ -4,10 +4,10 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
+from constants import NEXUS_QA_USER_EMAIL
+
 import qnexus as qnx
 from qnexus.client.models import Role
-
-from constants import NEXUS_QA_USER_EMAIL
 
 
 def test_assignment_getonly(
