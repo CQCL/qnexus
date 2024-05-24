@@ -1,7 +1,7 @@
 """Utlity functions for the client."""
-
+# pylint: disable=protected-access
 import http
-import os
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
@@ -10,8 +10,16 @@ from httpx import Response
 import qnexus.exceptions as qnx_exc
 from qnexus import consts
 
-_in_memory_refresh_token: str | None = None
-_in_memory_access_token: str | None = None
+
+@dataclass
+class MemoryTokenStore:
+    """Simple store for in-memory token storage."""
+
+    in_memory_refresh_token: str | None = None
+    in_memory_access_token: str | None = None
+
+
+_memory_token_store = MemoryTokenStore()
 
 
 def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
@@ -40,9 +48,9 @@ def write_token(
         _write_token_file(token_type, token)
     match token_type:
         case "access_token":
-            _in_memory_access_token = token
+            _memory_token_store.in_memory_access_token = token
         case "refresh_token":
-            _in_memory_refresh_token = token
+            _memory_token_store.in_memory_refresh_token = token
 
 
 def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
@@ -51,11 +59,11 @@ def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
         return _read_token_file(token_type)
     match token_type:
         case "access_token":
-            if _in_memory_access_token:
-                return _in_memory_access_token
+            if _memory_token_store.in_memory_access_token:
+                return _memory_token_store.in_memory_access_token
         case "refresh_token":
-            if _in_memory_refresh_token:
-                return _in_memory_refresh_token
+            if _memory_token_store.in_memory_refresh_token:
+                return _memory_token_store.in_memory_refresh_token
     raise FileNotFoundError
 
 
