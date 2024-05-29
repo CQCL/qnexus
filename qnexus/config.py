@@ -3,6 +3,8 @@
 from colorama import Fore
 from pydantic import BaseModel, ConfigDict
 
+from qnexus import consts
+
 
 class Config(BaseModel):
     """QNexus Configuration schema."""
@@ -11,7 +13,7 @@ class Config(BaseModel):
     optimization_level: int = 1
     protocol: str = "https"
     websockets_protocol: str = "wss"
-    domain: str = "staging.myqos.com"
+    domain: str = consts.NEXUS_HOST
 
     def __str__(self) -> str:
         """String representation of current config."""

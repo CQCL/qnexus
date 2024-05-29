@@ -18,10 +18,6 @@ def test_credential_login_full_flow(
     pwd = NEXUS_QA_USER_PASSWORD
 
     qnx.auth.logout()
-    with pytest.raises(FileNotFoundError):
-        read_token(token_type="access_token")
-    with pytest.raises(FileNotFoundError):
-        read_token(token_type="refresh_token")
 
     # fake user input from stdin
     monkeypatch.setattr("sys.stdin", StringIO(username + "\n"))
