@@ -7,8 +7,11 @@ from typing import Any, Literal
 
 from httpx import Response
 
-import qnexus.exceptions as qnx_exc
 from qnexus import consts
+from qnexus.client.models.utils import assert_never
+import qnexus.exceptions as qnx_exc
+
+TokenTypes = Literal["access_token", "refresh_token"]
 
 
 @dataclass
@@ -17,6 +20,16 @@ class MemoryTokenStore:
 
     in_memory_refresh_token: str | None = None
     in_memory_access_token: str | None = None
+
+    def remove_token(self, token_type: TokenTypes):
+        "Remove an in-memory token"
+        match token_type:
+            case "access_token":
+                self.in_memory_access_token = None
+            case "refresh_token":
+                self.in_memory_refresh_token = None
+            case _:
+                assert_never(token_type)
 
 
 _memory_token_store = MemoryTokenStore()
@@ -40,9 +53,7 @@ def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
     return included_map
 
 
-def write_token(
-    token_type: Literal["access_token", "refresh_token"], token: str
-) -> None:
+def write_token(token_type: TokenTypes, token: str) -> None:
     """Write a token to a file."""
     if consts.STORE_TOKENS:
         _write_token_file(token_type, token)
@@ -53,7 +64,7 @@ def write_token(
             _memory_token_store.in_memory_refresh_token = token
 
 
-def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
+def read_token(token_type: TokenTypes) -> str:
     """Read a token from a file."""
     if consts.STORE_TOKENS:
         return _read_token_file(token_type)
@@ -67,14 +78,15 @@ def read_token(token_type: Literal["access_token", "refresh_token"]) -> str:
     raise FileNotFoundError
 
 
-def remove_token(token_type: Literal["access_token", "refresh_token"]) -> None:
+def remove_token(token_type: TokenTypes) -> None:
     """Delete a token file."""
+    _memory_token_store.remove_token(token_type)
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH / token_type
     if token_file_path.exists():
         token_file_path.unlink()
 
 
-def _read_token_file(token_type: Literal["access_token", "refresh_token"]) -> str:
+def _read_token_file(token_type: TokenTypes) -> str:
     """Read a token from a file."""
 
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
@@ -82,9 +94,7 @@ def _read_token_file(token_type: Literal["access_token", "refresh_token"]) -> st
         return file.read().strip()
 
 
-def _write_token_file(
-    token_type: Literal["access_token", "refresh_token"], token: str
-) -> None:
+def _write_token_file(token_type: TokenTypes, token: str) -> None:
     """Write a token to a file."""
 
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
