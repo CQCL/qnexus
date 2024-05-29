@@ -7,7 +7,6 @@ import pytest
 from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
 
 import qnexus as qnx
-from qnexus import consts
 
 
 @contextmanager
@@ -16,7 +15,6 @@ def make_authenticated_nexus(
     user_password: str = NEXUS_QA_USER_PASSWORD,
 ) -> Generator:
     """Authenticate the qnexus client."""
-    consts.STORE_TOKENS = False
     try:
         qnx.auth._request_tokens(  # pylint: disable=protected-access
             user_email, user_password
