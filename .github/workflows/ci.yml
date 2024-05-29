@@ -86,14 +86,14 @@ jobs:
 
       - name: Typecheck with mypy
         run: |
-          poetry run mypy pytket/
+          poetry run mypy qnexus/
           poetry run mypy tests/
           poetry run mypy integration/
         if: ${{ matrix.action == 'type' }}
 
       - name: Lint with pylint
         run: |
-          poetry run pylint pytket/extensions/nexus/
+          poetry run pylint qnexus/
           poetry run pylint tests/
           poetry run pylint integration/
         if: ${{ matrix.action == 'lint' }}
