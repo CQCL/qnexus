@@ -66,7 +66,6 @@ def write_token(token_type: TokenTypes, token: str) -> None:
 
 def read_token(token_type: TokenTypes) -> str:
     """Read a token from a file."""
-    print(consts.STORE_TOKENS)
     if consts.STORE_TOKENS:
         return _read_token_file(token_type)
     match token_type:
