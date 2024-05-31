@@ -33,7 +33,7 @@ class AuthHandler(httpx.Auth):
         if response.status_code == 401:
             if self.cookies.get("myqos_oat") is None:
                 try:
-                    refresh_token = read_token("refresh_token")
+                    refresh_token = read_token("refresh_token", parse_token_file_jupyter if is_jupyterhub_environment() else lambda x: x)
                     self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
