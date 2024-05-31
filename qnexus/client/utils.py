@@ -1,39 +1,18 @@
 """Utlity functions for the client."""
 # pylint: disable=protected-access
 import http
-from dataclasses import dataclass
+import json
+import os
 from pathlib import Path
-from typing import Any, Literal
-
+from typing import Any, Literal, Callable
 from httpx import Response
-
 import qnexus.exceptions as qnx_exc
 from qnexus import consts
-from qnexus.client.models.utils import assert_never
+from pydantic import BaseModel
+
+
 
 TokenTypes = Literal["access_token", "refresh_token"]
-
-
-@dataclass
-class MemoryTokenStore:
-    """Simple store for in-memory token storage."""
-
-    in_memory_refresh_token: str | None = None
-    in_memory_access_token: str | None = None
-
-    def remove_token(self, token_type: TokenTypes):
-        "Remove an in-memory token"
-        match token_type:
-            case "access_token":
-                self.in_memory_access_token = None
-            case "refresh_token":
-                self.in_memory_refresh_token = None
-            case _:
-                assert_never(token_type)
-
-
-_memory_token_store = MemoryTokenStore()
-
 
 def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
@@ -52,49 +31,22 @@ def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
         included_map[item["type"]][item["id"]] = item
     return included_map
 
-
-def write_token(token_type: TokenTypes, token: str) -> None:
-    """Write a token to a file."""
-    if consts.STORE_TOKENS:
-        _write_token_file(token_type, token)
-    match token_type:
-        case "access_token":
-            _memory_token_store.in_memory_access_token = token
-        case "refresh_token":
-            _memory_token_store.in_memory_refresh_token = token
-
-
-def read_token(token_type: TokenTypes) -> str:
-    """Read a token from a file."""
-    if consts.STORE_TOKENS:
-        return _read_token_file(token_type)
-    match token_type:
-        case "access_token":
-            if _memory_token_store.in_memory_access_token:
-                return _memory_token_store.in_memory_access_token
-        case "refresh_token":
-            if _memory_token_store.in_memory_refresh_token:
-                return _memory_token_store.in_memory_refresh_token
-    raise FileNotFoundError
-
-
 def remove_token(token_type: TokenTypes) -> None:
     """Delete a token file."""
-    _memory_token_store.remove_token(token_type)
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH / token_type
     if token_file_path.exists():
         token_file_path.unlink()
 
 
-def _read_token_file(token_type: TokenTypes) -> str:
+def read_token(token_type: TokenTypes, parse_token_file: Callable[[str], str] = lambda x: x) -> str:
     """Read a token from a file."""
 
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
     with (token_file_path / token_type).open(encoding="UTF-8") as file:
-        return file.read().strip()
+        return parse_token_file(file.read()).strip()
 
 
-def _write_token_file(token_type: TokenTypes, token: str) -> None:
+def write_token(token_type: TokenTypes, token: str) -> None:
     """Write a token to a file."""
 
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
@@ -130,3 +82,20 @@ def handle_fetch_errors(res: Response) -> None:
         raise qnx_exc.ResourceFetchFailed(
             message=res.json(), status_code=res.status_code
         )
+    
+
+
+def is_jupyterhub_environment() -> bool:
+    """Check if the module is running in the Nexus JupyterHub"""
+    if os.environ.get("JUPYTERHUB_USER"):
+        return True
+    return False
+
+def parse_token_file_jupyter(contents: str) -> str:
+    """Parse a jupyterhub token file"""
+    class TokenData(BaseModel):
+        """Stored refresh token data."""
+        delete_version_after: str
+        refresh_token: str
+    data = TokenData(**json.loads(contents))
+    return data.refresh_token
