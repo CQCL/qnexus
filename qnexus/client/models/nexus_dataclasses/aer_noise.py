@@ -80,9 +80,15 @@ class AerQuantumError(BaseModel):
             # fmt: off
             from qiskit.circuit import QuantumCircuit
             from qiskit.circuit.library import Reset  # type: ignore
-            from qiskit.circuit.library import IGate, XGate, YGate, ZGate
-            from qiskit.circuit.library.generalized_gates import \
-                PauliGate  # type: ignore
+            from qiskit.circuit.library import (  # type: ignore
+                IGate,
+                XGate,
+                YGate,
+                ZGate,
+            )
+            from qiskit.circuit.library.generalized_gates import (  # type: ignore
+                PauliGate,
+            )
             from qiskit.quantum_info.operators import Kraus  # type: ignore
 
             # fmt: on
