@@ -3,7 +3,6 @@
 import click
 
 from .auth import login, logout
-from .circuits import circuits
 from .jobs import jobs
 from .projects import projects
 
@@ -16,7 +15,6 @@ def entrypoint():
 
 
 # entrypoint.add_command(init)
-entrypoint.add_command(circuits)
 # entrypoint.add_command(status)
 entrypoint.add_command(projects)
 entrypoint.add_command(jobs)
