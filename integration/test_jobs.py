@@ -99,6 +99,7 @@ def test_compile(
     compile_results = qnx.job.results(compile_job_ref)
 
     assert len(compile_results) == 1
+    assert isinstance(compile_results[0], CompilationResultRef)
 
     assert isinstance(compile_results[0].get_input(), CircuitRef)
     assert isinstance(compile_results[0].get_output(), CircuitRef)
@@ -157,7 +158,7 @@ def test_wait_for_raises_on_job_error(
     # Circuit not compiled for H1-1LE, so we expect it to error when executed
     my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project_ref=my_proj)
 
-    compile_job_ref = qnx.execute(
+    failing_job_ref = qnx.execute(
         circuits=[my_circ],
         name=f"QA_execute_failing_job_{datetime.now()}",
         project=my_proj,
@@ -166,12 +167,10 @@ def test_wait_for_raises_on_job_error(
     )
 
     with pytest.raises(qnx_exc.ResourceFetchFailed):
-        qnx.job.results(compile_job_ref)
+        qnx.job.results(failing_job_ref)
 
-    qnx.job.wait_for(compile_job_ref)
-    result_refs = qnx.job.results(compile_job_ref)
-    assert len(result_refs) == 1
-    assert isinstance(result_refs[0], CompilationResultRef)
+    with pytest.raises(qnx_exc.JobError):
+        qnx.job.wait_for(failing_job_ref)
 
 
 def test_results_not_available_error(
