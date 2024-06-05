@@ -7,7 +7,7 @@ import click
 from click import Command, Option
 from colorama import Fore
 
-#from ..client import status as _status
+# from ..client import status as _status
 from ..config import Config
 from ..consts import CONFIG_FILE_NAME
 
