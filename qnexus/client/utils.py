@@ -7,9 +7,9 @@ from typing import Any, Literal
 
 from httpx import Response
 
+import qnexus.exceptions as qnx_exc
 from qnexus import consts
 from qnexus.client.models.utils import assert_never
-import qnexus.exceptions as qnx_exc
 
 TokenTypes = Literal["access_token", "refresh_token"]
 

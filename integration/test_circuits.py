@@ -14,12 +14,12 @@ from qnexus.references import CircuitRef
 
 def test_circuit_getonly(
     _authenticated_nexus: None,
-    qa_circuit_id: str,
+    qa_circuit_name: str,
 ) -> None:
     """Test that we can get a specific unique CircuitRef,
     or get an appropriate exception."""
 
-    my_circ = qnx.circuit.get_only(id=qa_circuit_id)
+    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name)
     assert isinstance(my_circ, CircuitRef)
 
     assert isinstance(my_circ.download_circuit(), Circuit)
@@ -44,7 +44,6 @@ def test_circuit_get(
     assert isinstance(next(my_circ_db_matches), CircuitRef)
 
 
-@pytest.mark.create
 def test_circuit_create(
     _authenticated_nexus: None,
     qa_project_name: str,

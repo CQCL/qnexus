@@ -3,7 +3,6 @@
 from datetime import datetime
 
 import pandas as pd
-import pytest
 
 import qnexus as qnx
 from qnexus.references import TeamRef
@@ -28,7 +27,6 @@ def test_team_get(
     assert isinstance(my_teams[0], TeamRef)
 
 
-@pytest.mark.create
 def test_team_create(
     _authenticated_nexus: None,
 ) -> None:

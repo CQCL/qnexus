@@ -40,13 +40,12 @@ def test_project_get(
     assert isinstance(next(my_proj_db_matches), ProjectRef)
 
 
-@pytest.mark.create
 def test_project_create(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can create a project and add a property definition."""
 
-    project_name = f"QA_test_project_{datetime.now()}"
+    project_name = f"QA_test_project_create_{datetime.now()}"
 
     my_new_project = qnx.project.create(name=project_name)
 

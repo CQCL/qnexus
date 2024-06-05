@@ -7,6 +7,8 @@ import pandas as pd
 from pydantic import BaseModel
 
 from qnexus.client.models.annotations import Annotations
+from qnexus.client.models.utils import assert_never
+from qnexus.references import TeamRef, UserRef
 
 
 class Device(BaseModel):
@@ -35,7 +37,7 @@ class Quota(BaseModel):
 
 
 class Role(BaseModel):
-    """An role for use in RBAC assignments."""
+    """A role for use in RBAC assignments."""
 
     id: UUID
     name: str
@@ -51,6 +53,37 @@ class Role(BaseModel):
                 "description": self.description,
                 "permissions": self.permissions,
                 "id": self.id,
+            },
+            index=[0],
+        )
+
+
+class RoleInfo(BaseModel):
+    """Information on a role assigned on a resource."""
+
+    assignment_type: Literal["user", "team", "public"]
+    assignee: TeamRef | UserRef | None
+    role: Role
+
+    def df(self) -> pd.DataFrame:
+        """Convert to a pandas DataFrame."""
+
+        assignee_name: str | None = None
+        match self.assignee:
+            case TeamRef():
+                assignee_name = self.assignee.name
+            case UserRef():
+                assignee_name = self.assignee.email
+            case None:
+                assignee_name = None
+            case _:
+                assert_never(self.assignee)
+
+        return pd.DataFrame(
+            {
+                "assignment_type": self.assignment_type,
+                "assignee": assignee_name,
+                "role": self.role.name,
             },
             index=[0],
         )

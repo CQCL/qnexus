@@ -3,11 +3,11 @@
 from datetime import datetime
 
 import pandas as pd
-import pytest
 from constants import NEXUS_QA_USER_EMAIL
 
 import qnexus as qnx
 from qnexus.client.models import Role
+from qnexus.references import TeamRef, UserRef
 
 
 def test_assignment_getonly(
@@ -31,7 +31,6 @@ def test_assignment_get(
     assert isinstance(all_roles[0], Role)
 
 
-@pytest.mark.create
 def test_team_assignment(
     _authenticated_nexus: None,
     qa_team_name: str,
@@ -46,10 +45,20 @@ def test_team_assignment(
         resource_ref=new_project_ref, team=team, role="Administrator"
     )
 
-    # TODO verify assignment, delete project
+    assignments = qnx.assignment.check(resource_ref=new_project_ref)
+
+    assert len(assignments) == 2
+
+    team_assignment = next(
+        assign for assign in assignments if assign.assignment_type == "team"
+    )
+    assert team_assignment.assignment_type == "team"
+    assert isinstance(team_assignment.assignee, TeamRef)
+    assert team_assignment.assignee.id == team.id
+
+    # TODO delete project once available
 
 
-@pytest.mark.create
 def test_user_assignment(
     _authenticated_nexus: None,
 ) -> None:
@@ -63,4 +72,22 @@ def test_user_assignment(
         role="Contributor",
     )
 
-    # TODO verify assignment, delete project
+    assignments = qnx.assignment.check(resource_ref=new_project_ref)
+
+    assert len(assignments) == 2
+
+    contrib_assignment = next(
+        assign for assign in assignments if assign.role.name == "Contributor"
+    )
+    assert contrib_assignment.assignment_type == "user"
+    assert isinstance(contrib_assignment.assignee, UserRef)
+    assert contrib_assignment.assignee.email == NEXUS_QA_USER_EMAIL
+
+    admin_assignment = next(
+        assign for assign in assignments if assign.role.name == "Administrator"
+    )
+    assert admin_assignment.assignment_type == "user"
+    assert isinstance(admin_assignment.assignee, UserRef)
+    assert admin_assignment.assignee.email == NEXUS_QA_USER_EMAIL
+
+    # TODO delete project once available
