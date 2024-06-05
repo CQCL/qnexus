@@ -30,6 +30,7 @@ def make_authenticated_nexus(
 def _authenticated_nexus(
     qa_project_name: str,
     qa_circuit_name: str,
+    qa_circuit2_name: str,
     qa_team_name: str,
     qa_compile_job_name: str,
     qa_execute_job_name: str,
@@ -60,7 +61,7 @@ def _authenticated_nexus(
             # which might cause conflicts as the compilation creates
             # additional circuits with the same substring in the name
             circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
-            name=f"qnexus_integration_test_compile_circuit_{datetime.now()}",
+            name=qa_circuit2_name,
             description=test_desc,
             project=my_proj,
         )
@@ -102,6 +103,15 @@ def qa_circuit_name_fixture() -> str:
     """A name for uniquely identifying a circuit owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_circuit_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_circuit2_name")
+def qa_circuit2_name_fixture() -> str:
+    """A name for uniquely identifying an extra circuit owned by the Nexus QA user,
+    in the project specified by qa_project_name.
+    This is used to keep the qa_circuit_name as pointing to a unique circuit in
+    the database."""
+    return f"qnexus_integration_test_compile_circuit_{datetime.now()}"
 
 
 @pytest.fixture(scope="session", name="qa_compile_job_name")

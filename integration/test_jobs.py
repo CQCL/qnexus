@@ -4,7 +4,6 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
-from pytket import Circuit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 
@@ -70,24 +69,17 @@ def test_execute_job_getonly(
 def test_compile(
     _authenticated_nexus: None,
     qa_project_name: str,
+    qa_circuit2_name: str,
 ) -> None:
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
 
     my_proj = qnx.project.get_only(name_like=qa_project_name)
-
-    comp_circ = qnx.circuit.upload(
-        # The API only supports fuzzy name matching
-        # which might cause conflicts as the compilation creates
-        # additional circuits with the same substring in the name
-        circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
-        name=f"qnexus_integration_test_compilejob_circuit_{datetime.now()}",
-        project=my_proj,
-    )
+    my_circ = qnx.circuit.get_only(name_like=qa_circuit2_name, project_ref=my_proj)
 
     compile_job_ref = qnx.compile(
-        circuits=[comp_circ],
-        name=f"QA_compile_job_{datetime.now()}",
+        circuits=[my_circ],
+        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         target=qnx.AerConfig(),
     )
@@ -125,7 +117,7 @@ def test_execute(
 
     execute_job_ref = qnx.execute(
         circuits=[my_circ],
-        name=f"QA_execute_job_{datetime.now()}",
+        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         target=qnx.AerConfig(),
         n_shots=[10],
@@ -160,7 +152,7 @@ def test_wait_for_raises_on_job_error(
 
     failing_job_ref = qnx.execute(
         circuits=[my_circ],
-        name=f"QA_execute_failing_job_{datetime.now()}",
+        name=f"qnexus_integration_test_failing_job_{datetime.now()}",
         project=my_proj,
         n_shots=[10],
         target=qnx.QuantinuumConfig(device_name="H1-1LE"),
@@ -184,7 +176,7 @@ def test_results_not_available_error(
     my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project_ref=my_proj)
     execute_job_ref = qnx.execute(
         circuits=[my_circ],
-        name=f"QA_execute_job_{datetime.now()}",
+        name=f"qnexus_integration_test_waiting_job_{datetime.now()}",
         project=my_proj,
         target=qnx.AerConfig(),
         n_shots=[10],

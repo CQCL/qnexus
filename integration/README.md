@@ -4,7 +4,7 @@ These tests are intended to be runnable against any Nexus environment by any use
 The tests will login the user and create all projects/resources required, deleting them once the test suite has run (TODO).
 
 In general we target the Nexus staging environment at https://staging.myqos.com using the
-QA test user with email: 'qa.tket.remote.ext.tests@cambridgequantum.com'.
+QA test user with email: 'qa_nexus_staging_pytket-nexus@mailsac.com'.
 
 Requires the following environment variables to be set:
 
