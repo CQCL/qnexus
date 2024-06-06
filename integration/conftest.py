@@ -31,6 +31,7 @@ def make_authenticated_nexus(
 def _authenticated_nexus(
     qa_project_name: str,
     qa_circuit_name: str,
+    qa_circuit_name_2: str,
     qa_team_name: str,
     qa_compile_job_name: str,
     qa_execute_job_name: str,
@@ -56,8 +57,16 @@ def _authenticated_nexus(
             project=my_proj,
         )
 
+        my_other_circuit = qnx.circuit.upload(
+            # re-uploading with a unique name to avoid conflicts
+            circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
+            name=qa_circuit_name_2,
+            description=test_desc,
+            project=my_proj,
+        )
+
         qnx.compile(
-            circuits=[my_new_circuit],
+            circuits=[my_other_circuit],
             name=qa_compile_job_name,
             description=test_desc,
             project=my_proj,
@@ -113,6 +122,13 @@ def qa_circuit_name_fixture() -> str:
     """A name for uniquely identifying a circuit owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_circuit_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_circuit_name_2")
+def qa_circuit_name2_fixture() -> str:
+    """A name for uniquely identifying a circuit owned by the Nexus QA user,
+    in the project specified by qa_project_name."""
+    return f"qnexus_integration_test_circuit2_{datetime.now()}"
 
 
 @pytest.fixture(scope="session", name="qa_compile_job_name")
