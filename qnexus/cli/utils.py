@@ -1,21 +1,20 @@
 """CLI for qnexus."""
 
 import os
-from typing import Any
+from typing import Any, Callable
 
-import click
 from click import Command, Option
-from colorama import Fore
 
-#from ..client import status as _status
+# from ..client import status as _status
 from ..config import Config
-from ..consts import CONFIG_FILE_NAME
 
 config = Config()
 
 
-def is_documented_by(original):
-    def wrapper(target):
+def is_documented_by(original: Callable):
+    """Forward the documentation from the underlying client function."""
+
+    def wrapper(target: Callable):
         target.__doc__ = original.__doc__
         return target
 

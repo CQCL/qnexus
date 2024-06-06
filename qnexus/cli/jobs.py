@@ -12,7 +12,6 @@ from .utils import add_options_to_command, is_documented_by
 def jobs(**kwargs: Unpack[ParamsDict]):
     """List jobs."""
     click.echo(get(**kwargs))
-    pass
 
 
 add_options_to_command(jobs, Params)

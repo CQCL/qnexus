@@ -145,7 +145,9 @@ def merge_properties_from_context(func: Callable):
     any provided in kwargs. Properties in kwargs take precendence."""
 
     def _merge_properties_from_context(*args, **kwargs):
-        kwargs["properties"] = get_active_properties() | kwargs.get("properties", {})
+        kwargs["properties"] = get_active_properties() | kwargs.get(
+            "properties", PropertiesDict({})
+        )
         return func(*args, **kwargs)
 
     return _merge_properties_from_context

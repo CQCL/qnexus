@@ -16,7 +16,7 @@ _quota_map = {
 }
 
 
-def get() -> DataframableList:
+def get() -> DataframableList[Quota]:
     """Get all quotas, including usage."""
     res = nexus_client.get(
         "/api/quotas/v1beta", params={"entity_type": "user", "include_usage": True}
@@ -40,11 +40,11 @@ def get() -> DataframableList:
     return quota_list
 
 
-def get_only(quota_name: QuotaName):
+def get_only(name: QuotaName):
     """Get specific quota details by name."""
     res = nexus_client.get(
         "/api/quotas/v1beta",
-        params={"entity_type": "user", "name": quota_name, "include_usage": True},
+        params={"entity_type": "user", "name": name, "include_usage": True},
     )
 
     if res.status_code != 200:
@@ -62,9 +62,9 @@ def get_only(quota_name: QuotaName):
     )
 
 
-def check_quota(quota_name: QuotaName) -> bool:
+def check_quota(name: QuotaName) -> bool:
     """Check that the current user has available quota."""
-    res = nexus_client.get("/api/quotas/v1beta/guard", params={"name": quota_name})
+    res = nexus_client.get("/api/quotas/v1beta/guard", params={"name": name})
 
     if res.status_code != 200:
         return False

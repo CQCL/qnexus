@@ -32,7 +32,6 @@ def _execute(  # pylint: disable=too-many-arguments
     n_shots: list[int] | list[None],
     target: BackendConfig,
     project: ProjectRef | None = None,
-    batch_id: str | None = None,
     valid_check: bool = True,
     postprocess: bool | None = None,
     noisy_simulator: bool | None = None,
@@ -62,7 +61,6 @@ def _execute(  # pylint: disable=too-many-arguments
             {"circuit_id": circuit_id, "n_shots": n_shot}
             for circuit_id, n_shot in zip(circuit_ids, n_shots)
         ],
-        "batch_id": batch_id,
         "valid_check": valid_check,
         "postprocess": postprocess,
         "noisy_simulator": noisy_simulator,

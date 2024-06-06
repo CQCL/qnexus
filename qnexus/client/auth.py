@@ -14,7 +14,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client.utils import consolidate_error, write_token
+from qnexus.client.utils import consolidate_error, remove_token, write_token
 from qnexus.config import Config
 
 console = Console()
@@ -117,9 +117,9 @@ def credential_login() -> None:
 
 
 def logout() -> None:
-    """Clear tokens from file system"""
-    write_token("refresh_token", "")
-    write_token("access_token", "")
+    """Clear tokens from file system."""
+    remove_token("refresh_token")
+    remove_token("access_token")
     print("Successfully logged out.")
 
 

@@ -435,6 +435,7 @@ disable=raw-checker-failed,
         duplicate-code,
         too-many-arguments,
         too-many-instance-attributes,
+        fixme,
         
 
 # Enable the message, report, category or checker with the given id(s). You can

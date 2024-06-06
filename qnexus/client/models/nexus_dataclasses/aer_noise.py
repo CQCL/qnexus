@@ -77,10 +77,11 @@ class AerQuantumError(BaseModel):
         """Return a list of qiskit Circuit and probability tuples for use in QuantumError."""
         # pylint: disable=import-outside-toplevel
         try:
+            # fmt: off
             from qiskit.circuit import QuantumCircuit
+            from qiskit.circuit.library import Reset  # type: ignore
             from qiskit.circuit.library import (  # type: ignore
                 IGate,
-                Reset,
                 XGate,
                 YGate,
                 ZGate,
@@ -89,6 +90,8 @@ class AerQuantumError(BaseModel):
                 PauliGate,
             )
             from qiskit.quantum_info.operators import Kraus  # type: ignore
+
+            # fmt: on
         except ImportError as err:
             raise qnx_exc.OptionalDependencyError(
                 "qiskit-aer is not installed. "

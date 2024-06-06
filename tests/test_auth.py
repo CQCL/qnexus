@@ -5,7 +5,7 @@ import pytest
 import respx
 
 import qnexus as qnx
-import qnexus.consts
+from qnexus import consts
 from qnexus.client import nexus_client
 from qnexus.client.utils import read_token, write_token
 from qnexus.exceptions import AuthenticationError
@@ -15,7 +15,7 @@ from qnexus.exceptions import AuthenticationError
 def test_token_refresh() -> None:
     """Test the auth refresh logic, using in-memory token storage."""
 
-    qnexus.consts.STORE_TOKENS = False
+    consts.STORE_TOKENS = False
 
     write_token("refresh_token", "dummy_oat")
     write_token("access_token", "dummy_id")
@@ -56,7 +56,7 @@ def test_token_refresh() -> None:
 def test_token_refresh_expired() -> None:
     """Test the case of an expired refresh token, using in-memory token storage."""
 
-    qnexus.consts.STORE_TOKENS = False
+    consts.STORE_TOKENS = False
 
     write_token("refresh_token", "dummy_oat")
     write_token("access_token", "dummy_id")

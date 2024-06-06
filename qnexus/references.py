@@ -52,7 +52,7 @@ class BaseRef(BaseModel):
     id: UUID
 
 
-class TeamsRef(BaseRef):
+class TeamRef(BaseRef):
     """Proxy object to a Team in Nexus."""
 
     name: str
@@ -65,6 +65,25 @@ class TeamsRef(BaseRef):
             {
                 "name": self.name,
                 "description": self.description,
+                "id": self.id,
+            },
+            index=[0],
+        )
+
+
+class UserRef(BaseRef):
+    """Proxy object to a User in Nexus."""
+
+    email: str
+    display_name: Optional[str]
+    id: UUID
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return pd.DataFrame(
+            {
+                "email": self.email,
+                "description": self.display_name,
                 "id": self.id,
             },
             index=[0],
