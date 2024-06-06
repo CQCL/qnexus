@@ -67,18 +67,16 @@ def test_execute_job_getonly(
 
 
 def test_compile(
-    _authenticated_nexus: None,
+    _authenticated_nexus_circuit_ref: CircuitRef,
     qa_project_name: str,
-    qa_circuit2_name: str,
 ) -> None:
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
 
     my_proj = qnx.project.get_only(name_like=qa_project_name)
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit2_name, project_ref=my_proj)
 
     compile_job_ref = qnx.compile(
-        circuits=[my_circ],
+        circuits=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         target=qnx.AerConfig(),
