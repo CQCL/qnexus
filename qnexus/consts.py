@@ -1,7 +1,7 @@
 """Constants for use by the package."""
 
 from os import getenv
-
+import os
 
 def str_to_bool(value: str) -> bool:
     """Convert an environment variable str to a bool."""
@@ -9,6 +9,6 @@ def str_to_bool(value: str) -> bool:
 
 
 CONFIG_FILE_NAME = ".env.qnx"
-TOKEN_FILE_PATH = ".qnx/auth"
+TOKEN_FILE_PATH = os.environ.get("NEXUS_TOKEN_PATH") or ".qnx/auth"
 STORE_TOKENS = str_to_bool(getenv("STORE_NEXUS_TOKENS", "true"))
 NEXUS_HOST = getenv("NEXUS_HOST", "nexus.quantinuum.com")
