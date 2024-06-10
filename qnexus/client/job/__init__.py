@@ -2,23 +2,24 @@
 import asyncio
 import json
 import ssl
-from datetime import datetime
-from typing import Annotated, Any, Literal, TypedDict, Union
+from datetime import datetime, timezone
+from typing import Annotated, Any, Literal, Type, TypedDict, Union, overload
 
 from pydantic import BaseModel, ConfigDict, Field
 from pytket.backends.status import WAITING_STATUS, StatusEnum
-from typing_extensions import NotRequired, Unpack
+from typing_extensions import Unpack
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.job import compile, execute  # pylint: disable=unused-import
+from qnexus.client.job import compile as _compile  # pylint: disable=unused-import
+from qnexus.client.job import execute as _execute
 from qnexus.client.models.annotations import Annotations
 from qnexus.client.models.filters import (
-    NameFilter,
-    NameFilterDict,
+    FuzzyNameFilter,
+    FuzzyNameFilterDict,
     PaginationFilter,
     PaginationFilterDict,
     ProjectIDFilter,
@@ -27,12 +28,23 @@ from qnexus.client.models.filters import (
     ProjectRefFilterDict,
 )
 from qnexus.client.models.job_status import JobStatus
-from qnexus.client.models.utils import AllowNone
+from qnexus.client.models.utils import AllowNone, assert_never
 from qnexus.config import Config
 from qnexus.context import merge_project_from_context
-from qnexus.references import DataframableList, JobRef, JobType, ProjectRef
+from qnexus.references import (
+    CompilationResultRef,
+    CompileJobRef,
+    DataframableList,
+    ExecuteJobRef,
+    ExecutionResultRef,
+    JobRef,
+    JobType,
+    ProjectRef,
+)
 
 config = Config()
+
+EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
 
 class JobStatusFilter(BaseModel):
@@ -54,19 +66,17 @@ class JobStatusFilter(BaseModel):
     )
 
 
-class JobStatusFilterDict(TypedDict):
+class JobStatusFilterDict(TypedDict, total=False):
     """Job status filter (TypedDict)"""
 
-    status: NotRequired[
-        list[
-            Union[
-                Literal["COMPLETED"],
-                Literal["QUEUED"],
-                Literal["SUBMITTED"],
-                Literal["RUNNING"],
-                Literal["CANCELLED"],
-                Literal["ERROR"],
-            ]
+    status: list[
+        Union[
+            Literal["COMPLETED"],
+            Literal["QUEUED"],
+            Literal["SUBMITTED"],
+            Literal["RUNNING"],
+            Literal["CANCELLED"],
+            Literal["ERROR"],
         ]
     ]
 
@@ -88,17 +98,17 @@ class JobTypeFilter(BaseModel):
     model_config = ConfigDict(use_enum_values=True)
 
 
-class JobTypeFilterDict(TypedDict):
+class JobTypeFilterDict(TypedDict, total=False):
     """Filter by job type (TypedDict)"""
 
-    type: NotRequired[JobType]
-    submitted_after: NotRequired[datetime]
+    type: JobType
+    submitted_after: datetime
 
 
 class Params(
     # TODO add job id filter when availables
     PaginationFilter,
-    NameFilter,
+    FuzzyNameFilter,
     JobStatusFilter,
     ProjectIDFilter,
     ProjectRefFilter,
@@ -109,7 +119,7 @@ class Params(
 
 class ParamsDict(
     PaginationFilterDict,
-    NameFilterDict,
+    FuzzyNameFilterDict,
     ProjectIDFilterDict,
     ProjectRefFilterDict,
     JobStatusFilterDict,
@@ -120,7 +130,9 @@ class ParamsDict(
 
 # @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
 @merge_project_from_context
-def get(**kwargs: Unpack[ParamsDict]) -> DatabaseIterator:
+def get(
+    **kwargs: Unpack[ParamsDict],
+) -> DatabaseIterator[CompileJobRef | ExecuteJobRef]:
     """Get a DatabaseIterator over jobs with optional filters."""
 
     params = Params(**kwargs).model_dump(
@@ -139,24 +151,41 @@ def get(**kwargs: Unpack[ParamsDict]) -> DatabaseIterator:
     )
 
 
-def _to_jobref(data: dict[str, Any]) -> DataframableList[JobRef]:
+def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | ExecuteJobRef]:
     """Parse a json dictionary into a list of JobRefs."""
-    return DataframableList(
-        [
-            JobRef(
+
+    job_list: list[CompileJobRef | ExecuteJobRef] = []
+
+    for entry in data["data"]:
+        job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
+        match entry["job_type"]:
+            case JobType.COMPILE:
+                job_type = CompileJobRef
+            case JobType.EXECUTE:
+                job_type = ExecuteJobRef
+            case _:
+                assert_never(entry["job_type"])
+
+        job_list.append(
+            # TODO fix this when v1beta jobs api is available
+            job_type(
                 id=entry["job_id"],
-                annotations=Annotations(name=entry["name"]),
+                annotations=Annotations(
+                    name=entry["name"], created=EPOCH_START, modified=EPOCH_START
+                ),
                 job_type=entry["job_type"],
                 last_status=JobStatus.from_dict(entry["job_status"]).status,
                 last_message=JobStatus.from_dict(entry["job_status"]).message,
                 project=ProjectRef(
                     id=entry["experiment_id"],
-                    annotations=Annotations(name="placeholder"),
+                    annotations=Annotations(
+                        name="unimplemented", created=EPOCH_START, modified=EPOCH_START
+                    ),
+                    contents_modified=EPOCH_START,
                 ),
             )
-            for entry in data["data"]
-        ]
-    )
+        )
+    return DataframableList(job_list)
 
 
 # id: Optional[str] = None,
@@ -247,3 +276,53 @@ async def listen_job_status(
                 pass
 
     return job_status
+
+
+@overload
+def results(job: CompileJobRef) -> DataframableList[CompilationResultRef]:
+    ...
+
+
+@overload
+def results(job: ExecuteJobRef) -> DataframableList[ExecutionResultRef]:
+    ...
+
+
+def results(
+    job: CompileJobRef | ExecuteJobRef,
+) -> DataframableList[CompilationResultRef] | DataframableList[ExecutionResultRef]:
+    """Get the ResultRefs from a JobRef, if the job is complete."""
+    match job:
+        case CompileJobRef():
+            return _compile._results(job)  # pylint: disable=protected-access
+        case ExecuteJobRef():
+            return _execute._results(job)  # pylint: disable=protected-access
+        case _:
+            assert_never(job.job_type)
+
+
+def retry_error(job: ExecuteJobRef):
+    """Retry an errored execute job."""
+    if job.job_type != JobType.EXECUTE:
+        raise ValueError("Invalid job type")
+
+    res = nexus_client.post(
+        "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
+    )
+
+    if res.status_code != 202:
+        res.raise_for_status()
+
+
+def retry_submission(job: ExecuteJobRef):
+    """Retry the submission of an execute job from Nexus to the target."""
+    if job.job_type != JobType.EXECUTE:
+        raise ValueError("Invalid job type")
+
+    res = nexus_client.post(
+        "/api/v6/jobs/process/retry_submit",
+        json={"job_id": str(job.id), "resubmit_to_backend": True},
+    )
+
+    if res.status_code != 202:
+        res.raise_for_status()

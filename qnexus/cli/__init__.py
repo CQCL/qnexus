@@ -3,9 +3,9 @@
 import click
 
 from .auth import login, logout
+from .jobs import jobs
+from .projects import projects
 
-# from .jobs import jobs
-# from .projects import projects
 # from .utils import init, status
 
 
@@ -16,7 +16,7 @@ def entrypoint():
 
 # entrypoint.add_command(init)
 # entrypoint.add_command(status)
-# entrypoint.add_command(projects)
-# entrypoint.add_command(jobs)
+entrypoint.add_command(projects)
+entrypoint.add_command(jobs)
 entrypoint.add_command(login)
-# entrypoint.add_command(logout)
+entrypoint.add_command(logout)

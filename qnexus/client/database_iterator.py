@@ -69,6 +69,10 @@ class DatabaseIterator(Generic[T], Iterator[T]):
                 self._cached_list.append(item)
         return self._cached_list
 
+    def df(self) -> pd.DataFrame:
+        """List and present in a pandas DataFrame."""
+        return self.list().df()
+
     def count(self) -> int:
         """Count the items that match the filter."""
         summary_params = self.params.copy()

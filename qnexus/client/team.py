@@ -2,10 +2,10 @@
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.references import DataframableList, TeamsRef
+from qnexus.references import DataframableList, TeamRef
 
 
-def get() -> list[TeamsRef]:
+def get() -> DataframableList[TeamRef]:
     """No fuzzy name matching."""
     res = nexus_client.get(
         "/api/v5/user/teams",
@@ -18,7 +18,7 @@ def get() -> list[TeamsRef]:
 
     return DataframableList(
         [
-            TeamsRef(
+            TeamRef(
                 id=team["id"],
                 name=team["team_name"],
                 description=team["description"],
@@ -28,7 +28,7 @@ def get() -> list[TeamsRef]:
     )
 
 
-def get_only(name: str) -> TeamsRef:
+def get_only(name: str) -> TeamRef:
     """Attempt to get an exact match on a team by using filters
     that uniquely identify one."""
     res = nexus_client.get("/api/v5/user/teams", params={"name": name})
@@ -42,7 +42,7 @@ def get_only(name: str) -> TeamsRef:
         )
 
     teams_list = [
-        TeamsRef(
+        TeamRef(
             id=team["id"],
             name=team["team_name"],
             description=team["description"],
@@ -56,6 +56,25 @@ def get_only(name: str) -> TeamsRef:
     return teams_list[0]
 
 
-def create() -> TeamsRef:
+def create(name: str, description: str | None = None) -> TeamRef:
     """Create a team in Nexus."""
-    raise NotImplementedError
+
+    resp = nexus_client.post(
+        "api/v5/user/teams/new",
+        json={
+            "team_name": name,
+            "description": description,
+        },
+    )
+
+    if resp.status_code != 201:
+        raise qnx_exc.ResourceCreateFailed(
+            message=resp.text, status_code=resp.status_code
+        )
+
+    team_dict = resp.json()
+    return TeamRef(
+        id=team_dict["id"],
+        name=team_dict["team_name"],
+        description=team_dict["description"],
+    )
