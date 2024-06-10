@@ -38,12 +38,17 @@ def remove_token(token_type: TokenTypes) -> None:
         token_file_path.unlink()
 
 
-def read_token(token_type: TokenTypes, parse_token_file: Callable[[str], str] = lambda x: x) -> str:
-    """Read a token from a file."""
+class Token(BaseModel):
+    """Stored token data."""
+    delete_version_after: str
+    refresh_token: str
 
+def read_token(token_type: TokenTypes) -> Token:
+    """Read a token from a file."""
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
     with (token_file_path / token_type).open(encoding="UTF-8") as file:
-        return parse_token_file(file.read()).strip()
+        file_contents = file.read().strip()
+        return Token(**json.loads(file_contents))
 
 
 def write_token(token_type: TokenTypes, token: str) -> None:
@@ -84,18 +89,3 @@ def handle_fetch_errors(res: Response) -> None:
         )
     
 
-
-def is_jupyterhub_environment() -> bool:
-    """Check if the module is running in the Nexus JupyterHub"""
-    if os.environ.get("JUPYTERHUB_USER"):
-        return True
-    return False
-
-def parse_token_file_jupyter(contents: str) -> str:
-    """Parse a jupyterhub token file"""
-    class TokenData(BaseModel):
-        """Stored refresh token data."""
-        delete_version_after: str
-        refresh_token: str
-    data = TokenData(**json.loads(contents))
-    return data.refresh_token
