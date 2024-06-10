@@ -48,10 +48,7 @@ def login() -> None:
     }
 
     print("🌐 Browser login initiated.")
-    # spinner = Halo(
-    #     text=f"Waiting for user to log in via browser...",
-    #     spinner="simpleDotsScrolling",
-    # )
+
     console.print(
         Panel(
             f"""
@@ -68,7 +65,6 @@ def login() -> None:
         f"{Fore.BLUE + verification_uri_complete}"
     )
 
-    # spinner.start()
 
     polling_for_seconds = 0
     while polling_for_seconds < expires_in:
@@ -102,7 +98,6 @@ def login() -> None:
         consolidate_error(res=resp, description="Browser Login")
         # spinner.stop()
         return
-    # spinner.stop()
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
 

@@ -4,8 +4,6 @@ import typing
 import httpx
 
 from qnexus.client.utils import (
-    is_jupyterhub_environment,
-    parse_token_file_jupyter,
     read_token,
     write_token,
 )
@@ -23,13 +21,10 @@ class AuthHandler(httpx.Auth):
     def __init__(self) -> None:
         self.cookies = httpx.Cookies()
         try:
-            refresh_token = read_token(
+            token = read_token(
                 "refresh_token",
-                parse_token_file_jupyter
-                if is_jupyterhub_environment()
-                else lambda x: x,
             )
-            self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
+            self.cookies.set("myqos_oat", token.refresh_token, domain=config.domain)
         except FileNotFoundError:
             pass  # Okay to ignore this as the user may log in later
 
@@ -43,13 +38,10 @@ class AuthHandler(httpx.Auth):
         if response.status_code == 401:
             if self.cookies.get("myqos_oat") is None:
                 try:
-                    refresh_token = read_token(
+                    token = read_token(
                         "refresh_token",
-                        parse_token_file_jupyter
-                        if is_jupyterhub_environment()
-                        else lambda x: x,
                     )
-                    self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
+                    self.cookies.set("myqos_oat", token.refresh_token, domain=config.domain)
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
                         "Not authenticated. Please run `qnx login` in your terminal."
