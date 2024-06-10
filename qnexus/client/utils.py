@@ -10,7 +10,6 @@ import qnexus.exceptions as qnx_exc
 from qnexus import consts
 
 
-
 TokenTypes = Literal["access_token", "refresh_token"]
 
 
