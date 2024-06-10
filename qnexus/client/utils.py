@@ -4,7 +4,7 @@ import http
 import json
 import os
 from pathlib import Path
-from typing import Any, Literal, Callable
+from typing import Any, Literal, Optional
 from httpx import Response
 import qnexus.exceptions as qnx_exc
 from qnexus import consts
@@ -40,7 +40,7 @@ def remove_token(token_type: TokenTypes) -> None:
 
 class Token(BaseModel):
     """Stored token data."""
-    delete_version_after: str
+    delete_version_after: Optional[str]
     refresh_token: str
 
 def read_token(token_type: TokenTypes) -> Token:
@@ -57,7 +57,7 @@ def write_token(token_type: TokenTypes, token: str) -> None:
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
     token_file_path.mkdir(parents=True, exist_ok=True)
     with (token_file_path / token_type).open(encoding="UTF-8", mode="w") as file:
-        file.write(token)
+        file.write(Token(refresh_token=token, delete_version_after=None).model_dump_json())
 
 
 def consolidate_error(res: Response, description: str) -> None:
