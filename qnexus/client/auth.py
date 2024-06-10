@@ -65,7 +65,6 @@ def login() -> None:
         f"{Fore.BLUE + verification_uri_complete}"
     )
 
-
     polling_for_seconds = 0
     while polling_for_seconds < expires_in:
         time.sleep(poll_interval)

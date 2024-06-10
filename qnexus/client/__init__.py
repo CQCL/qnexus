@@ -41,7 +41,9 @@ class AuthHandler(httpx.Auth):
                     token = read_token(
                         "refresh_token",
                     )
-                    self.cookies.set("myqos_oat", token.refresh_token, domain=config.domain)
+                    self.cookies.set(
+                        "myqos_oat", token.refresh_token, domain=config.domain
+                    )
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
                         "Not authenticated. Please run `qnx login` in your terminal."

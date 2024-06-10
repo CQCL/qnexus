@@ -11,7 +11,6 @@ from qnexus import consts
 from pydantic import BaseModel
 
 
-
 TokenTypes = Literal["access_token", "refresh_token"]
 
 
