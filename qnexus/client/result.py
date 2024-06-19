@@ -1,4 +1,4 @@
-"""Client API for results in Nexus."""
+"""Module for actions related for results in Nexus."""
 
 # https://staging.myqos.com/api-docs#/results
 

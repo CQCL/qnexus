@@ -20,8 +20,8 @@ sys.setrecursionlimit(1500)
 # -- Project information -----------------------------------------------------
 
 project = "qnexus documentation"
-copyright = "2024, Quantinuum Ltd"
-author = "Nexus Team"
+copyright = " 2024, Quantinuum Ltd"
+author = " Nexus Team"
 
 
 # -- General configuration ---------------------------------------------------
@@ -65,7 +65,7 @@ html_theme_options = {
 }
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
-html_title = "Docs"
+html_title = "qnexus Docs"
 
 html_css_files = ["custom.css"]
 html_js_files = ["custom.js"]
@@ -75,7 +75,7 @@ html_favicon = "favicon.ico"
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
+#html_static_path = ["_static"]
 
 # Disable notebook execution when building Jupyter notebooks with nbsphinx
 nbsphinx_execute = "never"

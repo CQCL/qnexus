@@ -1,4 +1,4 @@
-"""Client API for role-based-access-control assignments in Nexus."""
+"""Module for role-based-access-control assignments in Nexus."""
 from typing import Literal
 
 from pydantic import EmailStr
@@ -86,7 +86,7 @@ def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
         role_infos.append(
             RoleInfo(
                 assignment_type="public",
-                assignee=None,
+                assignee="public",
                 role=roles_dict[public_role_assignment["role_id"]],
             )
         )

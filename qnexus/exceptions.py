@@ -1,4 +1,4 @@
-"""Custom exceptions thrown in qnexus usage."""
+"""Custom exceptions that can be raised by qnexus."""
 
 from typing import Optional
 

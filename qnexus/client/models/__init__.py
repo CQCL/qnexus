@@ -62,7 +62,7 @@ class RoleInfo(BaseModel):
     """Information on a role assigned on a resource."""
 
     assignment_type: Literal["user", "team", "public"]
-    assignee: TeamRef | UserRef | None
+    assignee: TeamRef | UserRef | Literal["public"]
     role: Role
 
     def df(self) -> pd.DataFrame:
@@ -74,8 +74,8 @@ class RoleInfo(BaseModel):
                 assignee_name = self.assignee.name
             case UserRef():
                 assignee_name = self.assignee.email
-            case None:
-                assignee_name = None
+            case "public":
+                assignee_name = "public"
             case _:
                 assert_never(self.assignee)
 

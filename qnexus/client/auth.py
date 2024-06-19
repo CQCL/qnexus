@@ -1,4 +1,4 @@
-"""Client API for authentication in Nexus."""
+"""Module for actions related to authentication in Nexus."""
 
 import getpass
 import time
@@ -107,7 +107,7 @@ def login() -> None:
 
 
 def credential_login() -> None:
-    """Login to Nexus using a username and password."""
+    """Login to Quantinuum Nexus using a username and password."""
     user_name = input("Enter your Nexus email: ")
     pwd = getpass.getpass(prompt="Enter your Nexus password: ")
 
@@ -117,7 +117,7 @@ def credential_login() -> None:
 
 
 def logout() -> None:
-    """Clear tokens from file system."""
+    """Remove locally stored login tokens."""
     remove_token("refresh_token")
     remove_token("access_token")
     print("Successfully logged out.")

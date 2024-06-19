@@ -34,7 +34,12 @@ T = TypeVar("T", bound=Dataframable)
 
 
 class DataframableList(list[T]):
-    """A Python list that implements the Dataframable protocol."""
+    """A class that inherits from the built-in python List,
+    but also implements the Dataframable protocol to view the list contents
+    in a pandas DataFrame.
+
+    List contents must be of the same type T, and implement the Dataframable protocol.
+    """
 
     def __init__(self, iterable):
         super().__init__(item for item in iterable)
@@ -98,7 +103,7 @@ class ProjectRef(BaseRef):
     id: UUID
 
     @field_serializer("contents_modified")
-    def serialize_modified(
+    def _serialize_modified(
         self, contents_modified: datetime | None, _info
     ) -> str | None:
         """Custom serializer for datetimes."""

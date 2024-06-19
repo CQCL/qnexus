@@ -1,4 +1,4 @@
-"""Client API for execution in Nexus."""
+"""Module for execution in Nexus."""
 from typing import Union, cast
 
 from pytket.backends.backendinfo import BackendInfo
@@ -27,10 +27,10 @@ from qnexus.references import (
 
 
 @merge_properties_from_context
-def _execute(  # pylint: disable=too-many-arguments
+def execute(  # pylint: disable=too-many-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
-    target: BackendConfig,
+    backend_config: BackendConfig,
     project: ProjectRef | None = None,
     valid_check: bool = True,
     postprocess: bool | None = None,
@@ -54,7 +54,7 @@ def _execute(  # pylint: disable=too-many-arguments
     annotations = CreateAnnotations(**kwargs)
 
     execute_job_request = {
-        "backend": target.model_dump(),
+        "backend": backend_config.model_dump(),
         "experiment_id": str(project.id),
         "name": annotations.name,
         "items": [

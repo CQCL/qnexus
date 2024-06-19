@@ -1,4 +1,4 @@
-"""Client API for compilation in Nexus."""
+"""Module for compilation in Nexus."""
 from typing import Union, cast
 
 from pytket.backends.status import StatusEnum
@@ -26,9 +26,9 @@ from qnexus.references import (
 
 
 @merge_properties_from_context
-def _compile(  # pylint: disable=too-many-arguments
+def compile(  # pylint: disable=too-many-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
-    target: BackendConfig,
+    backend_config: BackendConfig,
     optimisation_level: int = 2,
     project: ProjectRef | None = None,
     **kwargs: Unpack[CreateAnnotationsDict],
@@ -46,7 +46,7 @@ def _compile(  # pylint: disable=too-many-arguments
     annotations = CreateAnnotations(**kwargs)
 
     compile_job_request = {
-        "backend": target.model_dump(),
+        "backend": backend_config.model_dump(),
         "experiment_id": str(project.id),
         "name": annotations.name,
         "description": annotations.description,

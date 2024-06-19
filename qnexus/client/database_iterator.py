@@ -1,5 +1,4 @@
-""" A class for iterating over paginated API endpoints, collecting any
-iterated type T into a python Iterator."""
+"""Module containing custom iterators."""
 from __future__ import annotations
 
 from datetime import datetime, timezone
@@ -15,8 +14,13 @@ T = TypeVar("T", bound=Dataframable)
 
 
 class DatabaseIterator(Generic[T], Iterator[T]):
-    """An object that can be used to summarize or iterate through a filter query made to
-    the Nexus database."""
+    """ A class for iterating over paginated API endpoints, collecting any
+    iterated type T into a python Iterator.
+
+    An instance of this class is returned from .get() requests that support pagination, 
+    and can be used to summarize or iterate through the matching data in the Nexus database.
+    """
+
 
     def __init__(
         self,
@@ -98,7 +102,7 @@ class DatabaseIterator(Generic[T], Iterator[T]):
                 message=res.json(), status_code=res.status_code
             )
 
-    def try_unique_match(self) -> T:
+    def _try_unique_match(self) -> T:
         """Utility function for expecting a single match on the filter."""
         match_count = self.count()
 

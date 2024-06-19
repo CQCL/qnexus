@@ -79,7 +79,7 @@ def test_compile(
         circuits=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
-        target=qnx.AerConfig(),
+        backend_config=qnx.AerConfig(),
     )
 
     assert isinstance(compile_job_ref, CompileJobRef)
@@ -117,7 +117,7 @@ def test_execute(
         circuits=[my_circ],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
-        target=qnx.AerConfig(),
+        backend_config=qnx.AerConfig(),
         n_shots=[10],
     )
 
@@ -153,7 +153,7 @@ def test_wait_for_raises_on_job_error(
         name=f"qnexus_integration_test_failing_job_{datetime.now()}",
         project=my_proj,
         n_shots=[10],
-        target=qnx.QuantinuumConfig(device_name="H1-1LE"),
+        backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
     )
 
     with pytest.raises(qnx_exc.ResourceFetchFailed):
@@ -176,7 +176,7 @@ def test_results_not_available_error(
         circuits=[my_circ],
         name=f"qnexus_integration_test_waiting_job_{datetime.now()}",
         project=my_proj,
-        target=qnx.AerConfig(),
+        backend_config=qnx.AerConfig(),
         n_shots=[10],
     )
 

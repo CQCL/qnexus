@@ -1,4 +1,4 @@
-"""Client API for projects in Nexus."""
+"""Module for actions related to projects in Nexus."""
 # pylint: disable=redefined-builtin
 import random
 from typing import Any, Literal, Union
@@ -104,7 +104,7 @@ def get_only(
     if id:
         return _fetch(id)
 
-    return get(**kwargs).try_unique_match()
+    return get(**kwargs)._try_unique_match()
 
 
 def _fetch(project_id: UUID | str) -> ProjectRef:

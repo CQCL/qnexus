@@ -1,4 +1,4 @@
-"""Client API for teams in Nexus."""
+"""Module for actions related to teams in Nexus."""
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client

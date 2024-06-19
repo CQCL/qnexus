@@ -1,5 +1,8 @@
-"""Functions for managing context in the client."""
+"""These functions can be used for forms of context management in the client, 
+enabling the developer to set important data and configuration either in 
+global context, or through a Python 'with:' block."""
 
+import functools
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
@@ -131,23 +134,25 @@ def merge_project_from_context(func: Callable):
     """Decorator to merge a project from the context.
     ProjectRef in kwargs takes precedence (will be selected)."""
 
-    def get_project_from_context(*args, **kwargs):
+    @functools.wraps(func)
+    def _get_project_from_context(*args, **kwargs):
         kwargs["project_ref"] = kwargs.get("project_ref", None)
         if kwargs["project_ref"] is None:
             kwargs["project_ref"] = get_active_project()
         return func(*args, **kwargs)
 
-    return get_project_from_context
+    return _get_project_from_context
 
 
 def merge_properties_from_context(func: Callable):
     """Decorator to take the union of properties from the context with
     any provided in kwargs. Properties in kwargs take precendence."""
-
+    
+    @functools.wraps(func)
     def _merge_properties_from_context(*args, **kwargs):
         kwargs["properties"] = get_active_properties() | kwargs.get(
             "properties", PropertiesDict({})
         )
         return func(*args, **kwargs)
-
+    
     return _merge_properties_from_context

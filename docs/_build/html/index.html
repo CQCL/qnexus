@@ -3,10 +3,10 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="projects" href="qnexus_api/projects.html" />
+<link rel="index" title="Index" href="genindex.html" /><link rel="search" title="Search" href="search.html" /><link rel="next" title="auth" href="qnexus_api/auth.html" />
 
-    <!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
-        <title>Docs</title>
+    <link rel="shortcut icon" href="_static/favicon.ico"/><!-- Generated with Sphinx 5.3.0 and Furo 2022.12.07 -->
+        <title>qnexus Docs</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo.css?digest=91d0f0d1c444bdcb17a68e833c7a53903343c195" />
     <link rel="stylesheet" type="text/css" href="_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
@@ -130,7 +130,7 @@
       </label>
     </div>
     <div class="header-center">
-      <a href="#"><div class="brand">Docs</div></a>
+      <a href="#"><div class="brand">qnexus Docs</div></a>
     </div>
     <div class="header-right">
       <div class="theme-toggle-container theme-toggle-header">
@@ -141,7 +141,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -153,7 +153,7 @@
       <div class="sidebar-sticky"><a class="sidebar-brand" href="#">
   
   
-  <span class="sidebar-brand-text">Docs</span>
+  <span class="sidebar-brand-text">qnexus Docs</span>
   
 </a><form class="sidebar-search-container" method="get" action="search.html" role="search">
   <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
@@ -161,16 +161,25 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <p class="caption" role="heading"><span class="caption-text">qnexus Reference:</span></p>
+  <p class="caption" role="heading"><span class="caption-text">core:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/projects.html">projects</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/jobs.html">jobs</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/circuits.html">circuits</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/pagination_iterator.html">NexusDatabaseIterator</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/teams.html">teams</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/devices.html">devices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/quotas.html">quotas</a></li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/references.html">references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/auth.html">auth</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/assignment.html">assignment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/compile.html">compile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/execute.html">execute</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/project.html">project</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/job.html">job</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/circuit.html">circuit</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/team.html">team</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/device.html">device</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/quota.html">quota</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/user.html">user</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Additional Classes:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/context.html">Context Management</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/database_iterator.html">DatabaseIterator &amp; DataframableList</a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/exceptions.html">Exceptions</a></li>
 </ul>
 
 </div>
@@ -199,7 +208,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -208,75 +217,121 @@
           <section id="qnexus-documentation">
 <h1>qnexus Documentation<a class="headerlink" href="#qnexus-documentation" title="Permalink to this heading">#</a></h1>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">qnexus Reference:</span></p>
+<p class="caption" role="heading"><span class="caption-text">core:</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/projects.html">projects</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/projects.html#qnexus.client.projects.Params"><code class="docutils literal notranslate"><span class="pre">Params</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/projects.html#qnexus.client.projects.ParamsDict"><code class="docutils literal notranslate"><span class="pre">ParamsDict</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/projects.html#qnexus.client.projects.add_property"><code class="docutils literal notranslate"><span class="pre">add_property()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/projects.html#qnexus.client.projects.create"><code class="docutils literal notranslate"><span class="pre">create()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/projects.html#qnexus.client.projects.filter"><code class="docutils literal notranslate"><span class="pre">filter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/projects.html#qnexus.client.projects.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/auth.html">auth</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/auth.html#qnexus.auth.credential_login"><code class="docutils literal notranslate"><span class="pre">credential_login()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/auth.html#qnexus.auth.login"><code class="docutils literal notranslate"><span class="pre">login()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/auth.html#qnexus.auth.logout"><code class="docutils literal notranslate"><span class="pre">logout()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/jobs.html">jobs</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.JobStatusFilter"><code class="docutils literal notranslate"><span class="pre">JobStatusFilter</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.JobStatusFilterDict"><code class="docutils literal notranslate"><span class="pre">JobStatusFilterDict</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.JobTypeFilter"><code class="docutils literal notranslate"><span class="pre">JobTypeFilter</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.JobTypeFilterDict"><code class="docutils literal notranslate"><span class="pre">JobTypeFilterDict</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.Params"><code class="docutils literal notranslate"><span class="pre">Params</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.ParamsDict"><code class="docutils literal notranslate"><span class="pre">ParamsDict</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.listen_job_status"><code class="docutils literal notranslate"><span class="pre">listen_job_status()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.status"><code class="docutils literal notranslate"><span class="pre">status()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.wait_for"><code class="docutils literal notranslate"><span class="pre">wait_for()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.compile.results"><code class="docutils literal notranslate"><span class="pre">results()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.compile.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.execute.results"><code class="docutils literal notranslate"><span class="pre">results()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.execute.retry_error"><code class="docutils literal notranslate"><span class="pre">retry_error()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.execute.retry_submission"><code class="docutils literal notranslate"><span class="pre">retry_submission()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/jobs.html#qnexus.client.jobs.execute.run"><code class="docutils literal notranslate"><span class="pre">run()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/assignment.html">assignment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.assign_team_role"><code class="docutils literal notranslate"><span class="pre">assign_team_role()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.assign_user_role"><code class="docutils literal notranslate"><span class="pre">assign_user_role()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.check"><code class="docutils literal notranslate"><span class="pre">check()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.Role"><code class="docutils literal notranslate"><span class="pre">Role</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/assignment.html#qnexus.assignment.RoleInfo"><code class="docutils literal notranslate"><span class="pre">RoleInfo</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/circuits.html">circuits</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuits.html#qnexus.client.circuits.Params"><code class="docutils literal notranslate"><span class="pre">Params</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuits.html#qnexus.client.circuits.ParamsDict"><code class="docutils literal notranslate"><span class="pre">ParamsDict</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuits.html#qnexus.client.circuits.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/compile.html">compile</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/compile.html#qnexus.client.job.compile.compile"><code class="docutils literal notranslate"><span class="pre">compile()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/compile.html#qnexus.references.CompileJobRef"><code class="docutils literal notranslate"><span class="pre">CompileJobRef</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/compile.html#qnexus.references.CompilationResultRef"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/compile.html#qnexus.references.CompilationPassRef"><code class="docutils literal notranslate"><span class="pre">CompilationPassRef</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/pagination_iterator.html">NexusDatabaseIterator</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/pagination_iterator.html#qnexus.client.pagination_iterator.NexusDatabaseIterator"><code class="docutils literal notranslate"><span class="pre">NexusDatabaseIterator</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/execute.html">execute</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/execute.html#qnexus.execute"><code class="docutils literal notranslate"><span class="pre">execute()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/execute.html#qnexus.references.ExecuteJobRef"><code class="docutils literal notranslate"><span class="pre">ExecuteJobRef</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/execute.html#qnexus.references.ExecutionResultRef"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/teams.html">teams</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/teams.html#qnexus.client.teams.filter"><code class="docutils literal notranslate"><span class="pre">filter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/teams.html#qnexus.client.teams.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/project.html">project</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.add_property"><code class="docutils literal notranslate"><span class="pre">add_property()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.create"><code class="docutils literal notranslate"><span class="pre">create()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.get_properties"><code class="docutils literal notranslate"><span class="pre">get_properties()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.ProjectRef"><code class="docutils literal notranslate"><span class="pre">ProjectRef</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/project.html#qnexus.project.Property"><code class="docutils literal notranslate"><span class="pre">Property</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/devices.html">devices</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/devices.html#qnexus.client.devices.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/job.html">job</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.listen_job_status"><code class="docutils literal notranslate"><span class="pre">listen_job_status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.results"><code class="docutils literal notranslate"><span class="pre">results()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.retry_error"><code class="docutils literal notranslate"><span class="pre">retry_error()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.retry_submission"><code class="docutils literal notranslate"><span class="pre">retry_submission()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.status"><code class="docutils literal notranslate"><span class="pre">status()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/job.html#qnexus.job.wait_for"><code class="docutils literal notranslate"><span class="pre">wait_for()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/quotas.html">quotas</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quotas.html#qnexus.client.quotas.check_quota"><code class="docutils literal notranslate"><span class="pre">check_quota()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quotas.html#qnexus.client.quotas.filter"><code class="docutils literal notranslate"><span class="pre">filter()</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quotas.html#qnexus.client.quotas.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/circuit.html">circuit</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuit.html#qnexus.circuit.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuit.html#qnexus.circuit.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuit.html#qnexus.circuit.update"><code class="docutils literal notranslate"><span class="pre">update()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuit.html#qnexus.circuit.upload"><code class="docutils literal notranslate"><span class="pre">upload()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/circuit.html#qnexus.circuit.CircuitRef"><code class="docutils literal notranslate"><span class="pre">CircuitRef</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="qnexus_api/references.html">references</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.BaseRef"><code class="docutils literal notranslate"><span class="pre">BaseRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.CircuitRef"><code class="docutils literal notranslate"><span class="pre">CircuitRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.CompilationResultRef"><code class="docutils literal notranslate"><span class="pre">CompilationResultRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.DeviceRef"><code class="docutils literal notranslate"><span class="pre">DeviceRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.ExecutionResultRef"><code class="docutils literal notranslate"><span class="pre">ExecutionResultRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.JobRef"><code class="docutils literal notranslate"><span class="pre">JobRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.JobType"><code class="docutils literal notranslate"><span class="pre">JobType</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.NexusQuota"><code class="docutils literal notranslate"><span class="pre">NexusQuota</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.NexusRole"><code class="docutils literal notranslate"><span class="pre">NexusRole</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.ProjectRef"><code class="docutils literal notranslate"><span class="pre">ProjectRef</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.RefList"><code class="docutils literal notranslate"><span class="pre">RefList</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.Summarizable"><code class="docutils literal notranslate"><span class="pre">Summarizable</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="qnexus_api/references.html#qnexus.references.TeamsRef"><code class="docutils literal notranslate"><span class="pre">TeamsRef</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/team.html">team</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/team.html#qnexus.team.create"><code class="docutils literal notranslate"><span class="pre">create()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/team.html#qnexus.team.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/team.html#qnexus.team.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/team.html#qnexus.team.TeamRef"><code class="docutils literal notranslate"><span class="pre">TeamRef</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/device.html">device</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/device.html#qnexus.device.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/device.html#qnexus.device.Device"><code class="docutils literal notranslate"><span class="pre">Device</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/quota.html">quota</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quota.html#qnexus.quota.check_quota"><code class="docutils literal notranslate"><span class="pre">check_quota()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quota.html#qnexus.quota.get"><code class="docutils literal notranslate"><span class="pre">get()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quota.html#qnexus.quota.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/quota.html#qnexus.quota.Quota"><code class="docutils literal notranslate"><span class="pre">Quota</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/user.html">user</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/user.html#qnexus.user.get_only"><code class="docutils literal notranslate"><span class="pre">get_only()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/user.html#qnexus.user.get_self"><code class="docutils literal notranslate"><span class="pre">get_self()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/user.html#qnexus.user.UserRef"><code class="docutils literal notranslate"><span class="pre">UserRef</span></code></a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Additional Classes:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/context.html">Context Management</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.deactivate_project"><code class="docutils literal notranslate"><span class="pre">deactivate_project()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.deactivate_properties"><code class="docutils literal notranslate"><span class="pre">deactivate_properties()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.get_active_project"><code class="docutils literal notranslate"><span class="pre">get_active_project()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.get_active_properties"><code class="docutils literal notranslate"><span class="pre">get_active_properties()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.set_active_project"><code class="docutils literal notranslate"><span class="pre">set_active_project()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.update_active_properties"><code class="docutils literal notranslate"><span class="pre">update_active_properties()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.using_project"><code class="docutils literal notranslate"><span class="pre">using_project()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/context.html#qnexus.context.using_properties"><code class="docutils literal notranslate"><span class="pre">using_properties()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/database_iterator.html">DatabaseIterator &amp; DataframableList</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/database_iterator.html#qnexus.client.database_iterator.DatabaseIterator"><code class="docutils literal notranslate"><span class="pre">DatabaseIterator</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/database_iterator.html#qnexus.references.DataframableList"><code class="docutils literal notranslate"><span class="pre">DataframableList</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="qnexus_api/exceptions.html">Exceptions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.AuthenticationError"><code class="docutils literal notranslate"><span class="pre">AuthenticationError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.JobError"><code class="docutils literal notranslate"><span class="pre">JobError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.NoUniqueMatch"><code class="docutils literal notranslate"><span class="pre">NoUniqueMatch</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.OptionalDependencyError"><code class="docutils literal notranslate"><span class="pre">OptionalDependencyError</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.ResourceCreateFailed"><code class="docutils literal notranslate"><span class="pre">ResourceCreateFailed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.ResourceFetchFailed"><code class="docutils literal notranslate"><span class="pre">ResourceFetchFailed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.ResourceUpdateFailed"><code class="docutils literal notranslate"><span class="pre">ResourceUpdateFailed</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="qnexus_api/exceptions.html#qnexus.exceptions.ZeroMatches"><code class="docutils literal notranslate"><span class="pre">ZeroMatches</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -296,12 +351,12 @@
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="qnexus_api/projects.html">
+          <a class="next-page" href="qnexus_api/auth.html">
               <div class="page-info">
                 <div class="context">
                   <span>Next</span>
                 </div>
-                <div class="title">projects</div>
+                <div class="title">auth</div>
               </div>
               <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
             </a>
@@ -310,7 +365,7 @@
         <div class="bottom-of-page">
           <div class="left-details">
             <div class="copyright">
-                Copyright &#169; 1980, Quantinuum Ltd
+                Copyright &#169;  2024, Quantinuum Ltd
             </div>
             Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
             
@@ -324,8 +379,27 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">qnexus Documentation</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>

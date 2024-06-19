@@ -1,4 +1,4 @@
-"""Client API for jobs in Nexus."""
+"""Module for actions related to jobs in Nexus."""
 import asyncio
 import json
 import ssl
@@ -192,7 +192,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
 def get_only(**kwargs: Unpack[ParamsDict]) -> JobRef:
     """Attempt to get an exact match on a job by using filters
     that uniquely identify one."""
-    return get(**kwargs).try_unique_match()
+    return get(**kwargs)._try_unique_match()
 
 
 def wait_for(

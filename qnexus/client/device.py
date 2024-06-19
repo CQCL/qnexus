@@ -1,4 +1,4 @@
-"""Client API for devices in Nexus."""
+"""Module for actions related to devices in Nexus."""
 
 from qnexus.client import nexus_client
 from qnexus.client.models import Device
@@ -9,7 +9,7 @@ from qnexus.references import DataframableList
 
 
 def get() -> DataframableList:
-    """Get all available devices, work-in-progress."""
+    """Get all available devices."""
     res = nexus_client.get(
         "/api/v5/available_devices",
     )

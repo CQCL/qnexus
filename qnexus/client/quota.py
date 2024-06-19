@@ -1,4 +1,4 @@
-"""Client API for quotas in Nexus."""
+"""Module for actions related to quotas in Nexus."""
 from typing import Literal
 
 from qnexus.client import nexus_client

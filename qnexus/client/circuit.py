@@ -1,4 +1,4 @@
-"""Client API for circuits in Nexus."""
+"""Module for actions related to circuits in Nexus."""
 # pylint: disable=redefined-builtin
 from typing import Any, Union, cast
 from uuid import UUID
@@ -119,7 +119,7 @@ def get_only(
     if id:
         return _fetch(circuit_id=id)
 
-    return get(**kwargs).try_unique_match()
+    return get(**kwargs)._try_unique_match()
 
 
 @merge_properties_from_context
