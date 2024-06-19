@@ -70,7 +70,7 @@ def _authenticated_nexus(
             name=qa_compile_job_name,
             description=test_desc,
             project=my_proj,
-            target=qnx.AerConfig(),
+            backend_config=qnx.AerConfig(),
         )
 
         qnx.execute(
@@ -78,7 +78,7 @@ def _authenticated_nexus(
             name=qa_execute_job_name,
             description=test_desc,
             project=my_proj,
-            target=qnx.AerConfig(),
+            backend_config=qnx.AerConfig(),
             n_shots=[10],
         )
 
