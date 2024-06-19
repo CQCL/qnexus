@@ -24,7 +24,7 @@ class AuthHandler(httpx.Auth):
             token = read_token(
                 "refresh_token",
             )
-            self.cookies.set("myqos_oat", token.refresh_token, domain=config.domain)
+            self.cookies.set("myqos_oat", token.data.refresh_token, domain=config.domain)
         except FileNotFoundError:
             pass  # Okay to ignore this as the user may log in later
 
@@ -42,7 +42,7 @@ class AuthHandler(httpx.Auth):
                         "refresh_token",
                     )
                     self.cookies.set(
-                        "myqos_oat", token.refresh_token, domain=config.domain
+                        "myqos_oat", token.data.refresh_token, domain=config.domain
                     )
                 except FileNotFoundError as exc:
                     raise AuthenticationError(

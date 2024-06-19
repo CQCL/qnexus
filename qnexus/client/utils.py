@@ -38,12 +38,13 @@ def remove_token(token_type: TokenTypes) -> None:
         token_file_path.unlink()
 
 
-class Token(BaseModel):
+class TokenData(BaseModel):
     """Stored token data."""
-
     delete_version_after: Optional[str]
     refresh_token: str
 
+class Token(BaseModel):
+    data: TokenData
 
 def read_token(token_type: TokenTypes) -> Token:
     """Read a token from a file."""
@@ -60,7 +61,7 @@ def write_token(token_type: TokenTypes, token: str) -> None:
     token_file_path.mkdir(parents=True, exist_ok=True)
     with (token_file_path / token_type).open(encoding="UTF-8", mode="w") as file:
         file.write(
-            Token(refresh_token=token, delete_version_after=None).model_dump_json()
+            Token(data=TokenData(refresh_token=token, delete_version_after=None)).model_dump_json()
         )
 
 
