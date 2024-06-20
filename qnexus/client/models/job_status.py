@@ -2,6 +2,7 @@
 from datetime import datetime
 from typing import Any, Callable, Dict, NamedTuple, Optional
 
+import pandas as pd
 from pytket.backends.status import (  # pylint: disable=unused-import
     WAITING_STATUS,
     StatusEnum,
@@ -69,3 +70,9 @@ class JobStatus(NamedTuple):
             error_time,
             queue_position,
         )
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return pd.DataFrame.from_dict(
+            self._asdict(), orient="index"  # pylint: disable=no-member
+        ).T
