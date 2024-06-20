@@ -22,6 +22,7 @@ from qnexus.client.models.nexus_dataclasses.aer_noise import (
     AerNoiseModel,
     CrosstalkParams,
 )
+from qnexus.client.models.nexus_dataclasses.h_series_noise import UserErrorParams
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
@@ -180,6 +181,7 @@ class QuantinuumConfig(BaseBackendConfig):
     allow_2q_gate_rebase: bool = False
     leakage_detection: bool = False
     simplify_initial: bool = False
+    error_params: Optional[UserErrorParams] = None
 
 
 class IBMQConfig(BaseBackendConfig):
