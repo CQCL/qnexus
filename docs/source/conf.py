@@ -36,39 +36,27 @@ extensions = [
 ]
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
+
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store", "**.ipynb_checkpoints"]
 
-
+html_theme = "furo"
+templates_path = ["qui-sphinx/_templates"]
+html_static_path = ['qui-sphinx/_static', '_static']
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
 # html_theme = "sphinx_material"
-html_theme = "furo"
-html_theme_options = {
-    # "light_logo": "logo-light-mode.png",
-    # "dark_logo": "logo-dark-mode.png",
-    "light_css_variables": {
-        "color-brand-primary": "#2563eb",
-        "color-brand-content": "#2563eb",
-    },
-    "dark_css_variables": {
-        "color-brand-primary": "#60a5fa",
-        "color-brand-content": "#60a5fa",
-    },
-}
+
+html_theme_options = {}
 pygments_style = "sphinx"
 pygments_dark_style = "monokai"
 html_title = "qnexus Docs"
-
-html_css_files = ["custom.css"]
-html_js_files = ["custom.js"]
 html_favicon = "favicon.ico"
 
 
