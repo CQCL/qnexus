@@ -1,4 +1,4 @@
-[submodule "docs/source/qui-sphinx"]
-	path = docs/source/qui-sphinx
-	url = https://github.com/aidanCQ/qui-sphinx.git
+[submodule "docs/source/quantinuum-sphinx"]
+	path = docs/source/quantinuum-sphinx
+	url = https://github.com/CQCL/quantinuum-sphinx.git
 	branch = dist
