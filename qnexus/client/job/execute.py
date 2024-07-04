@@ -33,9 +33,10 @@ def _execute(  # pylint: disable=too-many-arguments
     backend_config: BackendConfig,
     project: ProjectRef | None = None,
     valid_check: bool = True,
-    postprocess: bool | None = None,
-    noisy_simulator: bool | None = None,
+    postprocess: bool = True,
+    noisy_simulator: bool = True,
     seed: int | None = None,
+    credential_name: str | None = None,
     **kwargs: Unpack[CreateAnnotationsDict],
 ) -> ExecuteJobRef:
     """Submit a execute job to be run in Nexus."""
@@ -51,39 +52,53 @@ def _execute(  # pylint: disable=too-many-arguments
     if len(n_shots) != len(circuit_ids):
         raise ValueError("Number of circuits must equal number of n_shots.")
 
-    annotations = CreateAnnotations(**kwargs)
-
-    execute_job_request = {
-        "backend": backend_config.model_dump(),
-        "experiment_id": str(project.id),
-        "name": annotations.name,
-        "items": [
-            {"circuit_id": circuit_id, "n_shots": n_shot}
-            for circuit_id, n_shot in zip(circuit_ids, n_shots)
-        ],
-        "valid_check": valid_check,
-        "postprocess": postprocess,
-        "noisy_simulator": noisy_simulator,
-        "seed": seed,
-        "description": annotations.description,
-        "properties": annotations.properties,
+    attributes_dict = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
+    attributes_dict.update(
+        {
+            "job_type": "PROCESS",
+            "definition": {
+                "job_definition_type": "process_job_definition",
+                "backend_config": backend_config.model_dump(),
+                "valid_check": valid_check,
+                "postprocess": postprocess,
+                "noisy_simulator": noisy_simulator,
+                "seed": seed,
+                "credential_name": credential_name,
+                "items": [
+                    {"circuit_id": circuit_id, "n_shots": n_shot}
+                    for circuit_id, n_shot in zip(circuit_ids, n_shots)
+                ],
+            },
+        }
+    )
+    relationships = {
+        "project": {"data": {"id": str(project.id), "type": "project"}},
+        "circuits": {
+            "data": [
+                {"id": str(circuit_id), "type": "circuit"} for circuit_id in circuit_ids
+            ]
+        },
+    }
+    req_dict = {
+        "data": {
+            "attributes": attributes_dict,
+            "relationships": relationships,
+            "type": "job",
+        }
     }
 
     resp = nexus_client.post(
-        "api/v6/jobs/process/submit",
-        json=execute_job_request,
+        "/api/jobs/v1beta",
+        json=req_dict,
     )
     if resp.status_code != 202:
         raise qnx_exc.ResourceCreateFailed(
             message=resp.text, status_code=resp.status_code
         )
+
     return ExecuteJobRef(
-        id=resp.json()["job_id"],
-        annotations=Annotations(
-            # TODO add once v1beta jobs api is ready
-            name=annotations.name,
-            description=annotations.description,
-        ),
+        id=resp.json()["data"]["id"],
+        annotations=Annotations.from_dict(resp.json()["data"]["attributes"]),
         job_type=JobType.EXECUTE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
@@ -96,23 +111,22 @@ def _results(
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
-    resp = nexus_client.get(
-        f"api/v6/jobs/process/{execute_job.id}",
-    )
+    resp = nexus_client.get(f"/api/jobs/v1beta/{execute_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
         )
-
-    job_status = resp.json()["job"]["job_status"]["status"]
+    resp_data = resp.json()["data"]
+    job_status = resp_data["attributes"]["status"]["status"]
 
     if job_status != "COMPLETED":
+        # TODO maybe we want to return a partial list of results?
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
-    for item in resp.json()["items"]:
+    for item in resp_data["attributes"]["definition"]["items"]:
         result_ref = ExecutionResultRef(
             id=item["result_id"],
             annotations=execute_job.annotations,

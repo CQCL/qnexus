@@ -1,6 +1,7 @@
 """Client API for jobs in Nexus."""
 import asyncio
 import json
+from enum import Enum
 import ssl
 from datetime import datetime, timezone
 from typing import Annotated, Any, Literal, Type, TypedDict, Union, overload
@@ -45,6 +46,31 @@ from qnexus.references import (
 config = Config()
 
 EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
+
+
+class RemoteRetryStrategy(str, Enum):
+    """Strategy to use when retrying jobs.
+
+    Each strategy defines how the system should approach resolving
+    potential conflicts with remote state.
+
+    DEFAULT will only attempt to re-sync status and collect results
+    from the third party. Duplicate results will not be saved.
+
+    ALLOW_RESUBMIT will submit the job to the third party again if
+    # the system has no record of a third party handle.
+
+    FORCE_RESUBMIT will submit the job to the third party again if
+    the system has a job handle already but no result.
+
+    FULL_RESTART will act as though the job is entirely fresh and
+    re-perform every action.
+    """
+
+    DEFAULT = "DEFAULT"
+    ALLOW_RESUBMIT = "ALLOW_RESUBMIT"
+    FORCE_RESUBMIT = "FORCE_RESUBMIT"
+    FULL_RESTART = "FULL_RESTART"
 
 
 class JobStatusFilter(BaseModel):
@@ -106,7 +132,8 @@ class JobTypeFilterDict(TypedDict, total=False):
 
 
 class Params(
-    # TODO add job id filter when availables
+    # TODO add job id filter when available
+    # TODO add job properties filter when available
     PaginationFilter,
     FuzzyNameFilter,
     JobStatusFilter,
@@ -144,7 +171,7 @@ def get(
 
     return DatabaseIterator(
         resource_type="Job",
-        nexus_url="/api/v6/jobs",
+        nexus_url="/api/jobs/v1beta",
         params=params,
         wrapper_method=_to_jobref,
         nexus_client=nexus_client,
@@ -157,32 +184,32 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
     job_list: list[CompileJobRef | ExecuteJobRef] = []
 
     for entry in data["data"]:
+        project_id = entry["relationships"]["project"]["data"]["id"]
+        project_details = next(
+            proj for proj in data["included"] if proj["id"] == project_id
+        )
+        project_ref = ProjectRef(
+            id=project_id,
+            annotations=Annotations.from_dict(project_details["attributes"]),
+            contents_modified=project_details["attributes"]["contents_modified"],
+        )
         job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
-        match entry["job_type"]:
+        match entry["attributes"]["job_type"]:
             case JobType.COMPILE:
                 job_type = CompileJobRef
             case JobType.EXECUTE:
                 job_type = ExecuteJobRef
             case _:
-                assert_never(entry["job_type"])
+                assert_never(entry["attributes"]["job_type"])
 
         job_list.append(
-            # TODO fix this when v1beta jobs api is available
             job_type(
-                id=entry["job_id"],
-                annotations=Annotations(
-                    name=entry["name"], created=EPOCH_START, modified=EPOCH_START
-                ),
-                job_type=entry["job_type"],
-                last_status=JobStatus.from_dict(entry["job_status"]).status,
-                last_message=JobStatus.from_dict(entry["job_status"]).message,
-                project=ProjectRef(
-                    id=entry["experiment_id"],
-                    annotations=Annotations(
-                        name="unimplemented", created=EPOCH_START, modified=EPOCH_START
-                    ),
-                    contents_modified=EPOCH_START,
-                ),
+                id=entry["id"],
+                annotations=Annotations.from_dict(entry["attributes"]),
+                job_type=entry["attributes"]["job_type"],
+                last_status=JobStatus.from_dict(entry["attributes"]["status"]).status,
+                last_message=JobStatus.from_dict(entry["attributes"]["status"]).message,
+                project=project_ref,
             )
         )
     return DataframableList(job_list)
@@ -215,7 +242,7 @@ def wait_for(
 
 def status(job: JobRef) -> JobStatus:
     """Get the status of a job."""
-    resp = nexus_client.get(f"api/v6/jobs/{job.id}/status")
+    resp = nexus_client.get(f"api/jobs/v1beta/{job.id}/attributes/status")
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
@@ -248,7 +275,7 @@ async def listen_job_status(
         "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
-        f"{config.websockets_url}/api/v6/jobs/{job.id}/status/ws",
+        f"{config.websockets_url}/api/jobs/v1beta//{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
         extra_headers=extra_headers,
         # logger=logger,
@@ -301,27 +328,31 @@ def results(
             assert_never(job.job_type)
 
 
-def retry_error(job: ExecuteJobRef):
-    """Retry an errored execute job."""
-    if job.job_type != JobType.EXECUTE:
-        raise ValueError("Invalid job type")
+def retry_submission(
+    job: JobRef,
+    retry_status: list[StatusEnum],
+    remote_retry_strategy: RemoteRetryStrategy,
+):
+    """Retry a job in Nexus according to status(es) or retry strategy."""
 
     res = nexus_client.post(
-        "/api/v6/jobs/process/retry_check", json={"job_id": str(job.id)}
+        f"/api/jobs/v1beta/{job.id}/rpc/retry",
+        json={
+            "retry_status": retry_status,
+            "remote_retry_strategy": remote_retry_strategy,
+        },
     )
-
     if res.status_code != 202:
         res.raise_for_status()
 
 
-def retry_submission(job: ExecuteJobRef):
-    """Retry the submission of an execute job from Nexus to the target."""
-    if job.job_type != JobType.EXECUTE:
-        raise ValueError("Invalid job type")
+def cancel(job: JobRef):
+    """Attempt cancellation of a job in Nexus.
 
+    If the job has been submitted to a backend, Nexus will request cancellation of the job.
+    """
     res = nexus_client.post(
-        "/api/v6/jobs/process/retry_submit",
-        json={"job_id": str(job.id), "resubmit_to_backend": True},
+        f"/api/jobs/v1beta/{job.id}/rpc/cancel",
     )
 
     if res.status_code != 202:
