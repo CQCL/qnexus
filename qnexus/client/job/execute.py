@@ -14,7 +14,7 @@ from qnexus.client.models.annotations import (
     CreateAnnotations,
     CreateAnnotationsDict,
 )
-from qnexus.client.models.nexus_dataclasses import BackendConfig, StoredBackendInfo
+from qnexus.client.models import BackendConfig, StoredBackendInfo
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.references import (
     CircuitRef,

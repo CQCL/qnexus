@@ -18,11 +18,11 @@ from pydantic import (
 from pydantic.fields import Field
 from typing_extensions import Annotated
 
-from qnexus.client.models.nexus_dataclasses.aer_noise import (
+from qnexus.client.models.aer_noise import (
     AerNoiseModel,
     CrosstalkParams,
 )
-from qnexus.client.models.nexus_dataclasses.h_series_noise import UserErrorParams
+from qnexus.client.models.h_series_noise import UserErrorParams
 
 
 class BaseBackendConfig(BaseModel, abc.ABC):
