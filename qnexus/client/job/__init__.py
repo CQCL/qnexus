@@ -7,6 +7,7 @@ from enum import Enum
 from typing import Any, Type, Union, cast, overload
 from uuid import UUID
 
+from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
@@ -14,8 +15,8 @@ from websockets.exceptions import ConnectionClosedError
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.job import compile as _compile  # pylint: disable=unused-import
-from qnexus.client.job import execute as _execute
+from qnexus.client.job import _compile
+from qnexus.client.job import _execute
 from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.client.models.filters import (
     CreatorFilter,
@@ -31,11 +32,17 @@ from qnexus.client.models.filters import (
     TimeFilter,
 )
 from qnexus.client.models.job_status import JobStatus
+from qnexus.client.models import BackendConfig
 from qnexus.client.models.utils import AllowNone, assert_never
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.config import Config
-from qnexus.context import get_active_project, merge_project_from_context
+from qnexus.context import (
+    get_active_project,
+    merge_project_from_context,
+    merge_properties_from_context,
+)
 from qnexus.references import (
+    CircuitRef,
     CompilationResultRef,
     CompileJobRef,
     DataframableList,
@@ -388,3 +395,79 @@ def cancel(job: JobRef):
 
     if res.status_code != 202:
         res.raise_for_status()
+
+
+@merge_properties_from_context
+def compile(  # pylint: disable=redefined-builtin
+    circuits: Union[CircuitRef, list[CircuitRef]],
+    backend_config: BackendConfig,
+    name: str,
+    description: str = "",
+    project: ProjectRef | None = None,
+    properties: PropertiesDict | None = None,
+    optimisation_level: int = 2,
+    credential_name: str | None = None,
+    timeout: float | None = 300.0,
+) -> DataframableList[CircuitRef]:
+    """Utility method to run a compile job and return the compiled CircuitRefs."""
+    project = project or get_active_project(project_required=True)
+    project = cast(ProjectRef, project)
+
+    compile_job_ref = _compile.start_compile_job(  # pylint: disable=protected-access
+        circuits=circuits,
+        backend_config=backend_config,
+        name=name,
+        description=description,
+        project=project,
+        properties=properties,
+        optimisation_level=optimisation_level,
+        credential_name=credential_name,
+    )
+
+    wait_for(job=compile_job_ref, timeout=timeout)
+
+    compile_results = results(compile_job_ref)
+
+    return DataframableList(
+        [compile_result.get_output() for compile_result in compile_results]
+    )
+
+
+@merge_properties_from_context
+def execute(
+    circuits: Union[CircuitRef, list[CircuitRef]],
+    n_shots: list[int] | list[None],
+    backend_config: BackendConfig,
+    name: str,
+    description: str = "",
+    properties: PropertiesDict | None = None,
+    project: ProjectRef | None = None,
+    valid_check: bool = True,
+    postprocess: bool = True,
+    noisy_simulator: bool = True,
+    seed: int | None = None,
+    credential_name: str | None = None,
+    timeout: float | None = 300.0,
+) -> list[BackendResult]:
+    """Utility method to run an execute job and return the results."""
+
+    execute_job_ref = _execute.start_execute_job(  # pylint: disable=protected-access
+        circuits=circuits,
+        n_shots=n_shots,
+        backend_config=backend_config,
+        name=name,
+        description=description,
+        properties=properties,
+        project=project,
+        valid_check=valid_check,
+        postprocess=postprocess,
+        noisy_simulator=noisy_simulator,
+        seed=seed,
+        credential_name=credential_name,
+    )
+
+    wait_for(job=execute_job_ref, timeout=timeout)
+
+    execute_results = results(execute_job_ref)
+
+    return [result.download_result() for result in execute_results]

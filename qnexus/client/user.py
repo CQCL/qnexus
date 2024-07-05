@@ -5,6 +5,8 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.references import UserRef
 
+# delete me if not used
+
 
 def get_only(user_id: UUID) -> UserRef:
     """Get a specific user."""
