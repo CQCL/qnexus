@@ -275,7 +275,7 @@ async def listen_job_status(
         "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
-        f"{config.websockets_url}/api/jobs/v1beta//{job.id}/attributes/status/ws",
+        f"{config.websockets_url}/api/jobs/v1beta/{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
         extra_headers=extra_headers,
         # logger=logger,
