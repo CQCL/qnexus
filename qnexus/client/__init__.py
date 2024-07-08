@@ -3,7 +3,10 @@ import typing
 
 import httpx
 
-from qnexus.client.utils import read_token, write_token
+from qnexus.client.utils import (
+    read_token,
+    write_token,
+)
 from qnexus.config import get_config
 from qnexus.exceptions import AuthenticationError
 
@@ -18,8 +21,10 @@ class AuthHandler(httpx.Auth):
     def __init__(self) -> None:
         self.cookies = httpx.Cookies()
         try:
-            refresh_token = read_token("refresh_token")
-            self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
+            token = read_token(
+                "refresh_token",
+            )
+            self.cookies.set("myqos_oat", token, domain=config.domain)
         except FileNotFoundError:
             pass  # Okay to ignore this as the user may log in later
 
@@ -33,8 +38,10 @@ class AuthHandler(httpx.Auth):
         if response.status_code == 401:
             if self.cookies.get("myqos_oat") is None:
                 try:
-                    refresh_token = read_token("refresh_token")
-                    self.cookies.set("myqos_oat", refresh_token, domain=config.domain)
+                    token = read_token(
+                        "refresh_token",
+                    )
+                    self.cookies.set("myqos_oat", token, domain=config.domain)
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
                         "Not authenticated. Please run `qnx login` in your terminal."

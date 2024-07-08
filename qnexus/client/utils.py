@@ -1,38 +1,22 @@
 """Utlity functions for the client."""
 # pylint: disable=protected-access
 import http
-from dataclasses import dataclass
+import json
 from pathlib import Path
 from typing import Any, Literal
-
+import os
 from httpx import Response
-
+from pydantic import BaseModel
 import qnexus.exceptions as qnx_exc
 from qnexus import consts
-from qnexus.client.models.utils import assert_never
+
 
 TokenTypes = Literal["access_token", "refresh_token"]
 
-
-@dataclass
-class MemoryTokenStore:
-    """Simple store for in-memory token storage."""
-
-    in_memory_refresh_token: str | None = None
-    in_memory_access_token: str | None = None
-
-    def remove_token(self, token_type: TokenTypes):
-        "Remove an in-memory token"
-        match token_type:
-            case "access_token":
-                self.in_memory_access_token = None
-            case "refresh_token":
-                self.in_memory_refresh_token = None
-            case _:
-                assert_never(token_type)
-
-
-_memory_token_store = MemoryTokenStore()
+token_file_from_type = {
+    "access_token": "id.json",
+    "refresh_token": "token.json",
+}
 
 
 def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
@@ -53,54 +37,77 @@ def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
     return included_map
 
 
-def write_token(token_type: TokenTypes, token: str) -> None:
-    """Write a token to a file."""
-    if consts.STORE_TOKENS:
-        _write_token_file(token_type, token)
-    match token_type:
-        case "access_token":
-            _memory_token_store.in_memory_access_token = token
-        case "refresh_token":
-            _memory_token_store.in_memory_refresh_token = token
-
-
-def read_token(token_type: TokenTypes) -> str:
-    """Read a token from a file."""
-    if consts.STORE_TOKENS:
-        return _read_token_file(token_type)
-    match token_type:
-        case "access_token":
-            if _memory_token_store.in_memory_access_token:
-                return _memory_token_store.in_memory_access_token
-        case "refresh_token":
-            if _memory_token_store.in_memory_refresh_token:
-                return _memory_token_store.in_memory_refresh_token
-    raise FileNotFoundError
-
-
 def remove_token(token_type: TokenTypes) -> None:
     """Delete a token file."""
-    _memory_token_store.remove_token(token_type)
-    token_file_path = Path.home() / consts.TOKEN_FILE_PATH / token_type
+    # Don't try to delete refresh token in Jupyterhub
+    if is_jupyterhub_environment() and token_type == "refresh_token":
+        return
+    token_file_path = (
+        Path.home() / consts.TOKEN_FILE_PATH / token_file_from_type[token_type]
+    )
     if token_file_path.exists():
         token_file_path.unlink()
 
 
-def _read_token_file(token_type: TokenTypes) -> str:
+class RefreshTokenData(BaseModel):
+    """Stored refresh token data."""
+
+    delete_version_after: str | None
+    refresh_token: str
+
+
+class RefreshToken(BaseModel):
+    """Model for token storage file."""
+
+    data: RefreshTokenData
+
+
+class AccessTokenData(BaseModel):
+    """Stored access token data."""
+
+    access_token: str
+
+
+class AccessToken(BaseModel):
+    """Model for access token storage."""
+
+    data: AccessTokenData
+
+
+def read_token(token_type: TokenTypes) -> str:
     """Read a token from a file."""
-
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
-    with (token_file_path / token_type).open(encoding="UTF-8") as file:
-        return file.read().strip()
+    with (token_file_path / token_file_from_type[token_type]).open(
+        encoding="UTF-8"
+    ) as file:
+        file_contents = file.read().strip()
+        if token_type == "access_token":
+            return AccessToken(**json.loads(file_contents)).data.access_token
+        return RefreshToken(**json.loads(file_contents)).data.refresh_token
 
 
-def _write_token_file(token_type: TokenTypes, token: str) -> None:
+def write_token(token_type: TokenTypes, token: str) -> None:
     """Write a token to a file."""
+
+    # don't allow writing of refresh token in Jupyterhub
+    if is_jupyterhub_environment() and token_type == "refresh_token":
+        return
 
     token_file_path = Path.home() / consts.TOKEN_FILE_PATH
     token_file_path.mkdir(parents=True, exist_ok=True)
-    with (token_file_path / token_type).open(encoding="UTF-8", mode="w") as file:
-        file.write(token)
+    with (token_file_path / token_file_from_type[token_type]).open(
+        encoding="UTF-8", mode="w"
+    ) as file:
+        if token_type == "access_token":
+            file.write(
+                AccessToken(data=AccessTokenData(access_token=token)).model_dump_json()
+            )
+            return
+        file.write(
+            RefreshToken(
+                data=RefreshTokenData(refresh_token=token, delete_version_after=None)
+            ).model_dump_json()
+        )
 
 
 def consolidate_error(res: Response, description: str) -> None:
@@ -130,3 +137,10 @@ def handle_fetch_errors(res: Response) -> None:
         raise qnx_exc.ResourceFetchFailed(
             message=res.json(), status_code=res.status_code
         )
+
+
+def is_jupyterhub_environment() -> bool:
+    """Check if the module is running in the Nexus JupyterHub."""
+    if os.environ.get("JUPYTERHUB_USER"):
+        return True
+    return False
