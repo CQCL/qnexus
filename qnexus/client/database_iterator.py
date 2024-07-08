@@ -75,8 +75,6 @@ class DatabaseIterator(Generic[T], Iterator[T]):
 
     def count(self) -> int:
         """Count the items that match the filter."""
-        summary_params = self.params.copy()
-        summary_params["page[size]"] = 1
 
         res = self.nexus_client.get(
             url=self.nexus_url + "/meta/count", params=self.params
