@@ -7,11 +7,11 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field, field_validator
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client.models.nexus_dataclasses.backend_info import Register
-from qnexus.client.models.nexus_dataclasses.backend_info import (
+from qnexus.client.models.backend_info import Register
+from qnexus.client.models.backend_info import (
     register_from_pytket_node as reg_from_qb,
 )
-from qnexus.client.models.nexus_dataclasses.backend_info import (
+from qnexus.client.models.backend_info import (
     register_to_pytket_node as reg_to_qb,
 )
 

@@ -10,6 +10,34 @@ from qnexus.client.models.annotations import Annotations
 from qnexus.client.models.utils import assert_never
 from qnexus.references import TeamRef, UserRef
 
+from qnexus.client.models.backend_config import (
+    AerConfig,
+    AerStateConfig,
+    AerUnitaryConfig,
+    BackendConfig,
+    BraketConfig,
+    IBMQConfig,
+    IBMQEmulatorConfig,
+    ProjectQConfig,
+    QuantinuumConfig,
+    QulacsConfig,
+)
+from qnexus.client.models.backend_info import StoredBackendInfo
+
+__all__ = [
+    "AerConfig",
+    "AerStateConfig",
+    "AerUnitaryConfig",
+    "BackendConfig",
+    "BraketConfig",
+    "IBMQConfig",
+    "IBMQEmulatorConfig",
+    "ProjectQConfig",
+    "QuantinuumConfig",
+    "QulacsConfig",
+    "StoredBackendInfo",
+]
+
 
 class Device(BaseModel):
     """A device in Nexus, work-in-progress"""

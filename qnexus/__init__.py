@@ -17,7 +17,7 @@ from qnexus.client import (
 )
 from qnexus.client.job.compile import _compile as compile
 from qnexus.client.job.execute import _execute as execute
-from qnexus.client.models.nexus_dataclasses import (
+from qnexus.client.models import (
     AerConfig,
     AerStateConfig,
     AerUnitaryConfig,

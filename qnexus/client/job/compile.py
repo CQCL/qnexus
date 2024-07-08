@@ -12,7 +12,7 @@ from qnexus.client.models.annotations import (
     CreateAnnotations,
     CreateAnnotationsDict,
 )
-from qnexus.client.models.nexus_dataclasses import BackendConfig
+from qnexus.client.models import BackendConfig
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.references import (
     CircuitRef,
@@ -30,6 +30,7 @@ def _compile(  # pylint: disable=too-many-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     optimisation_level: int = 2,
+    credential_name: str | None = None,
     project: ProjectRef | None = None,
     **kwargs: Unpack[CreateAnnotationsDict],
 ) -> CompileJobRef:
@@ -43,33 +44,52 @@ def _compile(  # pylint: disable=too-many-arguments
         else [str(c.id) for c in circuits]
     )
 
-    annotations = CreateAnnotations(**kwargs)
-
-    compile_job_request = {
-        "backend": backend_config.model_dump(),
-        "experiment_id": str(project.id),
-        "name": annotations.name,
-        "description": annotations.description,
-        "properties": annotations.properties,
-        "circuit_ids": circuit_ids,
-        "optimisation_level": optimisation_level,
+    attributes_dict = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
+    attributes_dict.update(
+        {
+            "job_type": "compile",
+            "definition": {
+                "job_definition_type": "compile_job_definition",
+                "backend_config": backend_config.model_dump(),
+                "optimisation_level": optimisation_level,
+                "credential_name": credential_name,
+                "items": [
+                    {
+                        "circuit_id": circuit_id,
+                    }
+                    for circuit_id in circuit_ids
+                ],
+            },
+        }
+    )
+    relationships = {
+        "project": {"data": {"id": str(project.id), "type": "project"}},
+        "circuits": {
+            "data": [
+                {"id": str(circuit_id), "type": "circuit"} for circuit_id in circuit_ids
+            ]
+        },
+    }
+    req_dict = {
+        "data": {
+            "attributes": attributes_dict,
+            "relationships": relationships,
+            "type": "job",
+        }
     }
 
     resp = nexus_client.post(
-        "api/v6/jobs/compile/submit",
-        json=compile_job_request,
+        "/api/jobs/v1beta",
+        json=req_dict,
     )
     if resp.status_code != 202:
         raise qnx_exc.ResourceCreateFailed(
             message=resp.text, status_code=resp.status_code
         )
+    res_data_dict = resp.json()["data"]
     return CompileJobRef(
-        id=resp.json()["job_id"],
-        annotations=Annotations(
-            # TODO add once v1beta jobs api is ready
-            name=annotations.name,
-            description=annotations.description,
-        ),
+        id=res_data_dict["id"],
+        annotations=Annotations.from_dict(res_data_dict["attributes"]),
         job_type=JobType.COMPILE,
         last_status=StatusEnum.SUBMITTED,
         last_message="",
@@ -82,21 +102,24 @@ def _results(
 ) -> DataframableList[CompilationResultRef]:
     """Get the results from a compile job."""
 
-    resp = nexus_client.get(
-        f"api/v6/jobs/compile/{compile_job.id}",
-    )
+    resp = nexus_client.get(f"/api/jobs/v1beta/{compile_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
         )
+    resp_data = resp.json()["data"]
 
-    job_status = resp.json()["job"]["job_status"]["status"]
+    job_status = resp_data["attributes"]["status"]["status"]
 
     if job_status != "COMPLETED":
+        # TODO maybe we want to return a partial list of results?
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
-    compilation_ids = [item["compilation_id"] for item in resp.json()["items"]]
+    compilation_ids = [
+        item["compilation_id"]
+        for item in resp_data["attributes"]["definition"]["items"]
+    ]
 
     compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])
 
