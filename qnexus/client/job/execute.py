@@ -55,9 +55,9 @@ def _execute(  # pylint: disable=too-many-arguments
     attributes_dict = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
     attributes_dict.update(
         {
-            "job_type": "PROCESS",
+            "job_type": "EXECUTE",
             "definition": {
-                "job_definition_type": "process_job_definition",
+                "job_definition_type": "execute_job_definition",
                 "backend_config": backend_config.model_dump(),
                 "valid_check": valid_check,
                 "postprocess": postprocess,

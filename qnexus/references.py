@@ -152,7 +152,7 @@ class CircuitRef(BaseRef):
 class JobType(str, Enum):
     """Enum for a job's type."""
 
-    EXECUTE = "PROCESS"
+    EXECUTE = "EXECUTE"
     COMPILE = "COMPILE"
 
 
