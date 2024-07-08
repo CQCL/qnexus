@@ -47,7 +47,7 @@ def _compile(  # pylint: disable=too-many-arguments
     attributes_dict = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
     attributes_dict.update(
         {
-            "job_type": "COMPILE",
+            "job_type": "compile",
             "definition": {
                 "job_definition_type": "compile_job_definition",
                 "backend_config": backend_config.model_dump(),
