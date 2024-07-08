@@ -78,12 +78,14 @@ class DatabaseIterator(Generic[T], Iterator[T]):
         summary_params = self.params.copy()
         summary_params["page[size]"] = 1
 
-        res = self.nexus_client.get(url=self.nexus_url, params=self.params)
+        res = self.nexus_client.get(
+            url=self.nexus_url + "/meta/count", params=self.params
+        )
 
         self._handle_errors(res)
 
         res_dict = res.json()
-        return res_dict["meta"]["total_count"]
+        return res_dict["count"]
 
     def summarize(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
