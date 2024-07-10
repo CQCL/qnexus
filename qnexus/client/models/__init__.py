@@ -7,9 +7,6 @@ import pandas as pd
 from pydantic import BaseModel
 
 from qnexus.client.models.annotations import Annotations
-from qnexus.client.models.utils import assert_never
-from qnexus.references import TeamRef, UserRef
-
 from qnexus.client.models.backend_config import (
     AerConfig,
     AerStateConfig,
@@ -23,6 +20,8 @@ from qnexus.client.models.backend_config import (
     QulacsConfig,
 )
 from qnexus.client.models.backend_info import StoredBackendInfo
+from qnexus.client.models.utils import assert_never
+from qnexus.references import TeamRef, UserRef
 
 __all__ = [
     "AerConfig",

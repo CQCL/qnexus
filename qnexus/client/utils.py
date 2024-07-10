@@ -2,14 +2,15 @@
 # pylint: disable=protected-access
 import http
 import json
+import os
 from pathlib import Path
 from typing import Any, Literal
-import os
+
 from httpx import Response
 from pydantic import BaseModel
+
 import qnexus.exceptions as qnx_exc
 from qnexus import consts
-
 
 TokenTypes = Literal["access_token", "refresh_token"]
 

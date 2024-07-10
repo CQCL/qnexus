@@ -1,17 +1,17 @@
 """CLI for qnexus."""
 
-import click
-from typing_extensions import Unpack
+from typing import Any
 
-from qnexus.client.project import Params, ParamsDict
-from qnexus.client.project import get
+import click
+
+from qnexus.client.project import Params, get
 
 from .utils import add_options_to_command, is_documented_by
 
 
 @click.command()
 @is_documented_by(get)
-def projects(**kwargs: Unpack[ParamsDict]):
+def projects(**kwargs: Any):
     """List all projects"""
     click.echo(get(**kwargs))
 

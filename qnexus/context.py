@@ -132,9 +132,9 @@ def merge_project_from_context(func: Callable):
     ProjectRef in kwargs takes precedence (will be selected)."""
 
     def get_project_from_context(*args, **kwargs):
-        kwargs["project_ref"] = kwargs.get("project_ref", None)
-        if kwargs["project_ref"] is None:
-            kwargs["project_ref"] = get_active_project()
+        kwargs["project"] = kwargs.get("project", None)
+        if kwargs["project"] is None:
+            kwargs["project"] = get_active_project()
         return func(*args, **kwargs)
 
     return get_project_from_context

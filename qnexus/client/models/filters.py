@@ -1,19 +1,15 @@
 """Filter models for use by the client."""
-from datetime import datetime
-from typing import Annotated, Literal, OrderedDict, TypedDict, Union
-from uuid import UUID
+from __future__ import annotations
 
-from pydantic import BaseModel, Field, field_serializer
+from datetime import datetime
+from enum import Enum
+from typing import Annotated, Literal, OrderedDict, Union
+
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
 from qnexus.client.models.annotations import PropertiesDict
 from qnexus.client.models.utils import AllowNone
-from qnexus.references import ProjectRef
-
-
-class PropertiesFilterDict(TypedDict, total=False):
-    """Properties filters model."""
-
-    properties: PropertiesDict
+from qnexus.references import JobType, ProjectRef
 
 
 def _format_property(key: str, value: bool | int | float | str) -> str:
@@ -25,7 +21,7 @@ def _format_property(key: str, value: bool | int | float | str) -> str:
 class PropertiesFilter(BaseModel):
     """Properties filters model."""
 
-    properties: PropertiesDict = Field(
+    properties: PropertiesDict | None = Field(
         default=OrderedDict(),
         serialization_alias="filter[properties]",
         description="Filter by resource label value.",
@@ -37,72 +33,50 @@ class PropertiesFilter(BaseModel):
         return [_format_property(key, value) for key, value in properties.items()]
 
 
-class TimeFilterDict(TypedDict, total=False):
-    """Resource time filters model."""
-
-    created_before: datetime
-    created_after: datetime
-    modified_before: datetime
-    modified_after: datetime
-
-
 class TimeFilter(BaseModel):
     """Resource time filters model."""
 
-    created_before: Annotated[datetime, AllowNone] = Field(
+    created_before: Annotated[datetime | None, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][created][before]",
         description="Show items created before this date.",
     )
-    created_after: Annotated[datetime, AllowNone] = Field(
+    created_after: Annotated[datetime | None, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][created][after]",
         description="Show items created after this date.",
     )
-    modified_before: Annotated[datetime, AllowNone] = Field(
+    modified_before: Annotated[datetime | None, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][modified][before]",
         description="Show items modified before this date.",
     )
-    modified_after: Annotated[datetime, AllowNone] = Field(
+    modified_after: Annotated[datetime | None, AllowNone] = Field(
         default=None,
         serialization_alias="filter[timestamps][modified][after]",
         description="Show items modified after this date.",
     )
 
 
-class PaginationFilterDict(TypedDict, total=False):
-    """Pagination model."""
-
-    page_number: int
-    page_size: int
-
-
 class PaginationFilter(BaseModel):
     """Pagination model."""
 
-    page_number: int = Field(
+    page_number: int | None = Field(
         default=0,
         serialization_alias="page[number]",
         description="Specific page to return.",
     )
-    page_size: int = Field(
+    page_size: int | None = Field(
         default=50,
         serialization_alias="page[size]",
         description="Size of page that is returned.",
     )
 
 
-class CreatorFilterDict(TypedDict, total=False):
-    """Creator email model."""
-
-    creator_email: list[str]
-
-
 class CreatorFilter(BaseModel):
     """Creator email model."""
 
-    creator_email: list[str] = Field(
+    creator_email: list[str] | None = Field(
         default=[],
         serialization_alias="filter[creator][email]",
         examples=["user@domain.com"],
@@ -110,35 +84,44 @@ class CreatorFilter(BaseModel):
     )
 
 
-class FuzzyNameFilterDict(TypedDict, total=False):
-    """Name model."""
-
-    name_like: str
-
-
 class FuzzyNameFilter(BaseModel):
     """Name model."""
 
-    name_like: str = Field(
+    name_like: str | None = Field(
         default="",
         serialization_alias="filter[name]",
         description="Filter by name, fuzzy search.",
     )
 
 
-class SortFilterDict(TypedDict, total=False):
-    """Resource sorting model."""
+class SortFilterEnum(str, Enum):
+    """SortFilterEnum model."""
 
-    sort: list[
-        Union[
-            Literal["timestamps.created"],
-            Literal["-timestamps.created"],
-            Literal["timestamps.modified"],
-            Literal["-timestamps.modified"],
-            Literal["name"],
-            Literal["-name"],
-        ]
-    ]
+    CREATED_ASC = "created"
+    CREATED_DESC = "-created"
+    MODIFIED_ASC = "modified"
+    MODIFIED_DESC = "-modified"
+    NAME_ASC = "name"
+    NAME_DESC = "-name"
+
+
+SortFilterString = Union[
+    Literal["timestamps.created"],
+    Literal["-timestamps.created"],
+    Literal["timestamps.modified"],
+    Literal["-timestamps.modified"],
+    Literal["name"],
+    Literal["-name"],
+]
+
+sortfilterenum_to_string: dict[SortFilterEnum, SortFilterString] = {
+    SortFilterEnum.CREATED_ASC: "timestamps.created",
+    SortFilterEnum.CREATED_DESC: "-timestamps.created",
+    SortFilterEnum.MODIFIED_ASC: "timestamps.modified",
+    SortFilterEnum.MODIFIED_DESC: "-timestamps.modified",
+    SortFilterEnum.NAME_ASC: "name",
+    SortFilterEnum.NAME_DESC: "-name",
+}
 
 
 class SortFilter(BaseModel):
@@ -153,48 +136,37 @@ class SortFilter(BaseModel):
             Literal["name"],
             Literal["-name"],
         ]
-    ] = Field(
+    ] | None = Field(
         default=["-timestamps.created"],
         serialization_alias="sort",
         description="Sort items.",
     )
 
-
-class ProjectIDFilter(BaseModel):
-    """Project Id filter"""
-
-    project_id: Annotated[str | UUID, AllowNone] = Field(
-        default=None,
-        serialization_alias="filter[project][id]",
-        description="Filter by project id",
-    )
-
-
-class ProjectIDFilterDict(TypedDict, total=False):
-    """ProjectRef filter (TypedDict)"""
-
-    project_id: str | UUID
+    @staticmethod
+    def convert_sort_filters(
+        sort_filters: list[SortFilterEnum] | None,
+    ) -> list[SortFilterString] | None:
+        """Convert SortFilterEnum to SortFilterString."""
+        return (
+            [sortfilterenum_to_string[sort_filter] for sort_filter in sort_filters]
+            if sort_filters
+            else None
+        )
 
 
 class ProjectRefFilter(BaseModel):
     """Project Id filter"""
 
-    project_ref: Annotated[ProjectRef, AllowNone] = Field(
+    project: Annotated[ProjectRef | None, AllowNone] = Field(
         default=None,
         serialization_alias="filter[project][id]",
         description="Filter by project ref",
     )
 
-    @field_serializer("project_ref")
-    def serialize_project_ref(self, project_ref: ProjectRef):
+    @field_serializer("project")
+    def serialize_project_ref(self, project: ProjectRef):
         """Serialize the id for a ProjectRef."""
-        return project_ref.id
-
-
-class ProjectRefFilterDict(TypedDict, total=False):
-    """ProjectRef filter (TypedDict)"""
-
-    project_ref: ProjectRef
+        return project.id
 
 
 class ArchivedFilter(BaseModel):
@@ -207,7 +179,62 @@ class ArchivedFilter(BaseModel):
     )
 
 
-class ArchivedFilterDict(TypedDict, total=False):
-    """Include or omit archived projects (TypedDict)"""
+class JobStatusEnum(str, Enum):
+    """Possible job statuses"""
 
-    is_archived: bool
+    COMPLETED = "COMPLETED"
+    QUEUED = "QUEUED"
+    SUBMITTED = "SUBMITTED"
+    RUNNING = "RUNNING"
+    CANCELLED = "CANCELLED"
+    ERROR = "ERROR"
+
+
+JobStatusString = Union[
+    Literal["COMPLETED"],
+    Literal["QUEUED"],
+    Literal["SUBMITTED"],
+    Literal["RUNNING"],
+    Literal["CANCELLED"],
+    Literal["ERROR"],
+]
+
+jobstatusenum_to_string: dict[JobStatusEnum, JobStatusString] = {
+    JobStatusEnum.COMPLETED: "COMPLETED",
+    JobStatusEnum.QUEUED: "QUEUED",
+    JobStatusEnum.SUBMITTED: "SUBMITTED",
+    JobStatusEnum.RUNNING: "RUNNING",
+    JobStatusEnum.CANCELLED: "CANCELLED",
+    JobStatusEnum.ERROR: "ERROR",
+}
+
+
+class JobStatusFilter(BaseModel):
+    """Job status filter"""
+
+    status: list[JobStatusString] | None = Field(
+        default=["COMPLETED", "QUEUED", "SUBMITTED", "RUNNING", "CANCELLED", "ERROR"],
+        serialization_alias="filter[status][status]",
+        description="Filter by job status",
+    )
+
+    @staticmethod
+    def convert_status_filters(
+        status_filters: list[JobStatusEnum],
+    ) -> list[JobStatusString]:
+        """Convert SortFilterEnum to SortFilterString."""
+        return [
+            jobstatusenum_to_string[status_filter] for status_filter in status_filters
+        ]
+
+
+class JobTypeFilter(BaseModel):
+    """Filter by job type."""
+
+    job_type: list[JobType] | None = Field(
+        default=[JobType.EXECUTE, JobType.COMPILE],
+        serialization_alias="filter[job_type]",
+        description="Filter by job_type",
+    )
+
+    model_config = ConfigDict(use_enum_values=True)

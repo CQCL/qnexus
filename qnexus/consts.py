@@ -1,7 +1,7 @@
 """Constants for use by the package."""
 
-from os import getenv
 import os
+from os import getenv
 
 
 def str_to_bool(value: str) -> bool:
