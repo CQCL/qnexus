@@ -4,17 +4,16 @@ from typing import Union, cast
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
-from typing_extensions import Unpack
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuit as circuit_api
 from qnexus.client import nexus_client
+from qnexus.client.models import BackendConfig, StoredBackendInfo
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
-    CreateAnnotationsDict,
+    PropertiesDict,
 )
-from qnexus.client.models import BackendConfig, StoredBackendInfo
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.references import (
     CircuitRef,
@@ -27,17 +26,19 @@ from qnexus.references import (
 
 
 @merge_properties_from_context
-def _execute(  # pylint: disable=too-many-arguments
+def execute(  # pylint: disable=too-many-arguments, too-many-locals
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
+    name: str,
+    description: str = "",
+    properties: PropertiesDict | None = None,
     project: ProjectRef | None = None,
     valid_check: bool = True,
     postprocess: bool = True,
     noisy_simulator: bool = True,
     seed: int | None = None,
     credential_name: str | None = None,
-    **kwargs: Unpack[CreateAnnotationsDict],
 ) -> ExecuteJobRef:
     """Submit a execute job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
@@ -52,7 +53,11 @@ def _execute(  # pylint: disable=too-many-arguments
     if len(n_shots) != len(circuit_ids):
         raise ValueError("Number of circuits must equal number of n_shots.")
 
-    attributes_dict = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
+    attributes_dict = CreateAnnotations(
+        name=name,
+        description=description,
+        properties=properties,
+    ).model_dump(exclude_none=True)
     attributes_dict.update(
         {
             "job_type": "execute",

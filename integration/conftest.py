@@ -45,7 +45,7 @@ def _authenticated_nexus(
         qnx.project.add_property(
             name="QA_test_prop",
             property_type="string",
-            project_ref=my_proj,
+            project=my_proj,
         )
 
         qnx.team.create(name=qa_team_name, description=test_desc)

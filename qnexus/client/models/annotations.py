@@ -35,7 +35,7 @@ class Annotations(BaseModel):
     @field_validator("properties")
     @classmethod
     def sort_properties(cls, v: dict):
-        """Sort the values of"""
+        """Sort the values of the properties dict."""
         return OrderedDict(sorted(v.items()))
 
     @field_serializer("created")
@@ -77,19 +77,19 @@ class Annotations(BaseModel):
         )
 
 
-class CreateAnnotationsDict(TypedDict, total=False):
-    """TypedDict for annotations when the name is required."""
-
-    name: str  # type: ignore
-    description: str | None
-    properties: PropertiesDict
-
-
 class CreateAnnotations(BaseModel):
     """Pydantic model for annotations when the name is required."""
 
     name: str  # type: ignore
     description: str | None = None
-    properties: PropertiesDict = Field(default_factory=OrderedDict)
+    properties: PropertiesDict | None = Field(default_factory=OrderedDict)
 
     model_config = ConfigDict(frozen=True)
+
+    @field_validator("properties")
+    @classmethod
+    def set_properties_default(cls, v):
+        """Replace None properties with an empty PropertiesDict on model construction."""
+        if v is None:
+            return PropertiesDict()
+        return v

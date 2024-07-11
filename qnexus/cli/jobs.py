@@ -1,15 +1,16 @@
 """CLI for qnexus."""
-import click
-from typing_extensions import Unpack
+from typing import Any
 
-from qnexus.client.job import Params, ParamsDict
-from qnexus.client.job import get
+import click
+
+from qnexus.client.job import Params, get
+
 from .utils import add_options_to_command, is_documented_by
 
 
 @click.command()
 @is_documented_by(get)
-def jobs(**kwargs: Unpack[ParamsDict]):
+def jobs(**kwargs: Any):
     """List jobs."""
     click.echo(get(**kwargs))
 

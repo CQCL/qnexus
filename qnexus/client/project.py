@@ -1,10 +1,9 @@
 """Client API for projects in Nexus."""
 # pylint: disable=redefined-builtin
 import random
+from datetime import datetime
 from typing import Any, Literal, Union
 from uuid import UUID
-
-from typing_extensions import Unpack
 
 # from halo import Halo
 import qnexus.exceptions as qnx_exc
@@ -14,23 +13,17 @@ from qnexus.client.models import Property
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
-    CreateAnnotationsDict,
+    PropertiesDict,
 )
 from qnexus.client.models.filters import (
     ArchivedFilter,
-    ArchivedFilterDict,
     CreatorFilter,
-    CreatorFilterDict,
     FuzzyNameFilter,
-    FuzzyNameFilterDict,
     PaginationFilter,
-    PaginationFilterDict,
     PropertiesFilter,
-    PropertiesFilterDict,
     SortFilter,
-    SortFilterDict,
+    SortFilterEnum,
     TimeFilter,
-    TimeFilterDict,
 )
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.context import get_active_project
@@ -52,23 +45,35 @@ class Params(
     """Params for filtering projects"""
 
 
-class ParamsDict(
-    PaginationFilterDict,
-    FuzzyNameFilterDict,
-    CreatorFilterDict,
-    PropertiesFilterDict,
-    TimeFilterDict,
-    SortFilterDict,
-    ArchivedFilterDict,
-):
-    """Params for filtering projects (TypedDict)"""
-
-
 # @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
-def get(**kwargs: Unpack[ParamsDict]) -> DatabaseIterator[ProjectRef]:
+def get(
+    name_like: str | None = None,
+    creator_email: list[str] | None = None,
+    properties: PropertiesDict | None = None,
+    created_before: datetime | None = None,
+    created_after: datetime | None = None,
+    modified_before: datetime | None = None,
+    modified_after: datetime | None = None,
+    is_archived: bool = False,
+    sort_filters: list[SortFilterEnum] | None = None,
+    page_number: int | None = None,
+    page_size: int | None = None,
+) -> DatabaseIterator[ProjectRef]:
     """Get a DatabaseIterator over projects with optional filters."""
 
-    params = Params(**kwargs).model_dump(
+    params = Params(
+        name_like=name_like,
+        creator_email=creator_email,
+        properties=properties,
+        created_before=created_before,
+        created_after=created_after,
+        modified_before=modified_before,
+        modified_after=modified_after,
+        is_archived=is_archived,
+        sort=SortFilter.convert_sort_filters(sort_filters),
+        page_number=page_number,
+        page_size=page_size,
+    ).model_dump(
         by_alias=True,
         exclude_unset=True,
         exclude_none=True,
@@ -97,14 +102,38 @@ def _to_projectref(data: dict[str, Any]) -> DataframableList[ProjectRef]:
 
 
 def get_only(
-    *, id: Union[str, UUID, None] = None, **kwargs: Unpack[ParamsDict]
+    *,
+    id: Union[str, UUID, None] = None,
+    name_like: str | None = None,
+    creator_email: list[str] | None = None,
+    properties: PropertiesDict | None = None,
+    created_before: datetime | None = None,
+    created_after: datetime | None = None,
+    modified_before: datetime | None = None,
+    modified_after: datetime | None = None,
+    is_archived: bool = False,
+    sort_filters: list[SortFilterEnum] | None = None,
+    page_number: int | None = None,
+    page_size: int | None = None,
 ) -> ProjectRef:
     """Attempt to get an exact match on a project by using filters
     that uniquely identify one."""
     if id:
         return _fetch(id)
 
-    return get(**kwargs).try_unique_match()
+    return get(
+        name_like=name_like,
+        creator_email=creator_email,
+        properties=properties,
+        created_before=created_before,
+        created_after=created_after,
+        modified_before=modified_before,
+        modified_after=modified_after,
+        is_archived=is_archived,
+        sort_filters=sort_filters,
+        page_number=page_number,
+        page_size=page_size,
+    ).try_unique_match()
 
 
 def _fetch(project_id: UUID | str) -> ProjectRef:
@@ -122,10 +151,18 @@ def _fetch(project_id: UUID | str) -> ProjectRef:
     )
 
 
-def create(**kwargs: Unpack[CreateAnnotationsDict]) -> ProjectRef:
+def create(
+    name: str,
+    description: str | None = None,
+    properties: PropertiesDict | None = None,
+) -> ProjectRef:
     """Create a new project in Nexus."""
     attributes = {}
-    annotations = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
+    annotations = CreateAnnotations(
+        name=name,
+        description=description,
+        properties=properties,
+    ).model_dump(exclude_none=True)
     attributes.update(annotations)
 
     req_dict = {
@@ -155,13 +192,13 @@ def create(**kwargs: Unpack[CreateAnnotationsDict]) -> ProjectRef:
 def add_property(
     name: str,
     property_type: Literal["bool", "int", "float", "string"],
-    project_ref: ProjectRef | None = None,
+    project: ProjectRef | None = None,
     description: str | None = None,
     required: bool = False,
 ) -> None:
     """Add a property definition to a project."""
-    project_ref = project_ref or get_active_project(project_required=True)
-    assert project_ref, "ProjectRef required."
+    project = project or get_active_project(project_required=True)
+    assert project, "ProjectRef required."
 
     # For now required to add properties in a seperate API step
     props_req_dict = {
@@ -174,7 +211,7 @@ def add_property(
                 "color": random.choice(_COLOURS),
             },
             "relationships": {
-                "project": {"data": {"id": str(project_ref.id), "type": "project"}}
+                "project": {"data": {"id": str(project.id), "type": "project"}}
             },
             "type": "property",
         }
@@ -183,7 +220,7 @@ def add_property(
         "/api/property_definitions/v1beta", json=props_req_dict
     )
 
-    if props_res.status_code != 200:
+    if props_res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
             message=props_res.json(), status_code=props_res.status_code
         )

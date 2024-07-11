@@ -2,17 +2,16 @@
 from typing import Union, cast
 
 from pytket.backends.status import StatusEnum
-from typing_extensions import Unpack
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuit as circuit_api
 from qnexus.client import nexus_client
+from qnexus.client.models import BackendConfig
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
-    CreateAnnotationsDict,
+    PropertiesDict,
 )
-from qnexus.client.models import BackendConfig
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.references import (
     CircuitRef,
@@ -26,13 +25,15 @@ from qnexus.references import (
 
 
 @merge_properties_from_context
-def _compile(  # pylint: disable=too-many-arguments
+def compile(  # pylint: disable=too-many-arguments, redefined-builtin
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
+    name: str,
+    description: str = "",
+    project: ProjectRef | None = None,
+    properties: PropertiesDict | None = None,
     optimisation_level: int = 2,
     credential_name: str | None = None,
-    project: ProjectRef | None = None,
-    **kwargs: Unpack[CreateAnnotationsDict],
 ) -> CompileJobRef:
     """Submit a compile job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
@@ -44,7 +45,11 @@ def _compile(  # pylint: disable=too-many-arguments
         else [str(c.id) for c in circuits]
     )
 
-    attributes_dict = CreateAnnotations(**kwargs).model_dump(exclude_none=True)
+    attributes_dict = CreateAnnotations(
+        name=name,
+        description=description,
+        properties=properties,
+    ).model_dump(exclude_none=True)
     attributes_dict.update(
         {
             "job_type": "compile",
@@ -139,7 +144,7 @@ def _results(
         project_details = next(
             proj for proj in comp_json["included"] if proj["id"] == project_id
         )
-        project_ref = ProjectRef(
+        project = ProjectRef(
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
             contents_modified=project_details["attributes"]["contents_modified"],
@@ -149,7 +154,7 @@ def _results(
             CompilationResultRef(
                 id=comp_json["data"]["id"],
                 annotations=Annotations.from_dict(comp_json["data"]["attributes"]),
-                project=project_ref,
+                project=project,
             )
         )
 

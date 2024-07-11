@@ -8,12 +8,8 @@ from pydantic import BaseModel, Field, field_validator
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client.models.backend_info import Register
-from qnexus.client.models.backend_info import (
-    register_from_pytket_node as reg_from_qb,
-)
-from qnexus.client.models.backend_info import (
-    register_to_pytket_node as reg_to_qb,
-)
+from qnexus.client.models.backend_info import register_from_pytket_node as reg_from_qb
+from qnexus.client.models.backend_info import register_to_pytket_node as reg_to_qb
 
 if TYPE_CHECKING:
     from pytket.extensions.qiskit.backends.crosstalk_model import (
@@ -80,15 +76,8 @@ class AerQuantumError(BaseModel):
             # fmt: off
             from qiskit.circuit import QuantumCircuit
             from qiskit.circuit.library import Reset  # type: ignore
-            from qiskit.circuit.library import (  # type: ignore
-                IGate,
-                XGate,
-                YGate,
-                ZGate,
-            )
-            from qiskit.circuit.library.generalized_gates import (  # type: ignore
-                PauliGate,
-            )
+            from qiskit.circuit.library import (IGate,  # type: ignore
+                                                PauliGate, XGate, YGate, ZGate)
             from qiskit.quantum_info.operators import Kraus  # type: ignore
 
             # fmt: on

@@ -1,14 +1,13 @@
 """Client API for jobs in Nexus."""
 import asyncio
 import json
-from enum import Enum
 import ssl
 from datetime import datetime, timezone
-from typing import Annotated, Any, Literal, Type, TypedDict, Union, overload
+from enum import Enum
+from typing import Any, Type, Union, cast, overload
+from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, Field
 from pytket.backends.status import WAITING_STATUS, StatusEnum
-from typing_extensions import Unpack
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
@@ -17,21 +16,25 @@ from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
 from qnexus.client.job import compile as _compile  # pylint: disable=unused-import
 from qnexus.client.job import execute as _execute
-from qnexus.client.models.annotations import Annotations
+from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.client.models.filters import (
+    CreatorFilter,
     FuzzyNameFilter,
-    FuzzyNameFilterDict,
+    JobStatusEnum,
+    JobStatusFilter,
+    JobTypeFilter,
     PaginationFilter,
-    PaginationFilterDict,
-    ProjectIDFilter,
-    ProjectIDFilterDict,
     ProjectRefFilter,
-    ProjectRefFilterDict,
+    PropertiesFilter,
+    SortFilter,
+    SortFilterEnum,
+    TimeFilter,
 )
 from qnexus.client.models.job_status import JobStatus
 from qnexus.client.models.utils import AllowNone, assert_never
+from qnexus.client.utils import handle_fetch_errors
 from qnexus.config import Config
-from qnexus.context import merge_project_from_context
+from qnexus.context import get_active_project, merge_project_from_context
 from qnexus.references import (
     CompilationResultRef,
     CompileJobRef,
@@ -73,101 +76,58 @@ class RemoteRetryStrategy(str, Enum):
     FULL_RESTART = "FULL_RESTART"
 
 
-class JobStatusFilter(BaseModel):
-    """Job status filter"""
-
-    status: list[
-        Union[
-            Literal["COMPLETED"],
-            Literal["QUEUED"],
-            Literal["SUBMITTED"],
-            Literal["RUNNING"],
-            Literal["CANCELLED"],
-            Literal["ERROR"],
-        ]
-    ] = Field(
-        default=["COMPLETED", "QUEUED", "SUBMITTED", "RUNNING", "CANCELLED", "ERROR"],
-        serialization_alias="filter[job_status.status]",
-        description="Filter by job status",
-    )
-
-
-class JobStatusFilterDict(TypedDict, total=False):
-    """Job status filter (TypedDict)"""
-
-    status: list[
-        Union[
-            Literal["COMPLETED"],
-            Literal["QUEUED"],
-            Literal["SUBMITTED"],
-            Literal["RUNNING"],
-            Literal["CANCELLED"],
-            Literal["ERROR"],
-        ]
-    ]
-
-
-class JobTypeFilter(BaseModel):
-    """Filter by job type."""
-
-    type: JobType = Field(
-        default=[JobType.EXECUTE, JobType.COMPILE],
-        serialization_alias="filter[job_type]",
-        description="Filter by project_id",
-    )
-    submitted_after: Annotated[datetime, AllowNone] = Field(
-        default=None,
-        serialization_alias="filter[submitted_after]",
-        description="Show jobs submitted after this date.",
-    )
-
-    model_config = ConfigDict(use_enum_values=True)
-
-
-class JobTypeFilterDict(TypedDict, total=False):
-    """Filter by job type (TypedDict)"""
-
-    type: JobType
-    submitted_after: datetime
-
-
 class Params(
-    # TODO add job id filter when available
-    # TODO add job properties filter when available
+    CreatorFilter,
+    PropertiesFilter,
     PaginationFilter,
     FuzzyNameFilter,
     JobStatusFilter,
-    ProjectIDFilter,
     ProjectRefFilter,
     JobTypeFilter,
+    SortFilter,
+    TimeFilter,
 ):
     """Params for filtering jobs"""
-
-
-class ParamsDict(
-    PaginationFilterDict,
-    FuzzyNameFilterDict,
-    ProjectIDFilterDict,
-    ProjectRefFilterDict,
-    JobStatusFilterDict,
-    JobTypeFilterDict,
-):
-    """Params for filtering jobs (TypedDict)"""
 
 
 # @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
 @merge_project_from_context
 def get(
-    **kwargs: Unpack[ParamsDict],
+    name_like: str | None = None,
+    creator_email: list[str] | None = None,
+    project: ProjectRef | None = None,
+    properties: PropertiesDict | None = None,
+    job_status: list[JobStatusEnum] | None = None,
+    job_type: list[JobType] | None = None,
+    created_before: datetime | None = None,
+    created_after: datetime | None = None,
+    modified_before: datetime | None = None,
+    modified_after: datetime | None = None,
+    sort_filters: list[SortFilterEnum] | None = None,
+    page_number: int | None = None,
+    page_size: int | None = None,
 ) -> DatabaseIterator[CompileJobRef | ExecuteJobRef]:
     """Get a DatabaseIterator over jobs with optional filters."""
+    project = project or get_active_project(project_required=False)
+    project = cast(ProjectRef, project)
 
-    params = Params(**kwargs).model_dump(
-        by_alias=True, exclude_unset=True, exclude_none=True, mode=""
-    )
-    if project_id_filter := params.pop("filter[project][id]", None):
-        # TODO not needed after v1beta jobs api
-        params["filter[experiment_id]"] = project_id_filter
+    params = Params(
+        name_like=name_like,
+        creator_email=creator_email,
+        project=project,
+        status=JobStatusFilter.convert_status_filters(job_status)
+        if job_status
+        else None,
+        job_type=job_type,
+        properties=properties,
+        created_before=created_before,
+        created_after=created_after,
+        modified_before=modified_before,
+        modified_after=modified_after,
+        sort=SortFilter.convert_sort_filters(sort_filters),
+        page_number=page_number,
+        page_size=page_size,
+    ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True, mode="")
 
     return DatabaseIterator(
         resource_type="Job",
@@ -188,7 +148,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
         project_details = next(
             proj for proj in data["included"] if proj["id"] == project_id
         )
-        project_ref = ProjectRef(
+        project = ProjectRef(
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
             contents_modified=project_details["attributes"]["contents_modified"],
@@ -209,17 +169,88 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
                 job_type=entry["attributes"]["job_type"],
                 last_status=JobStatus.from_dict(entry["attributes"]["status"]).status,
                 last_message=JobStatus.from_dict(entry["attributes"]["status"]).message,
-                project=project_ref,
+                project=project,
             )
         )
     return DataframableList(job_list)
 
 
-# id: Optional[str] = None,
-def get_only(**kwargs: Unpack[ParamsDict]) -> JobRef:
+def get_only(
+    job_id: Union[str, UUID, None] = None,
+    name_like: str | None = None,
+    creator_email: list[str] | None = None,
+    project: ProjectRef | None = None,
+    properties: PropertiesDict | None = None,
+    job_status: list[JobStatusEnum] | None = None,
+    job_type: list[JobType] | None = None,
+    created_before: datetime | None = None,
+    created_after: datetime | None = None,
+    modified_before: datetime | None = None,
+    modified_after: datetime | None = None,
+    sort_filters: list[SortFilterEnum] | None = None,
+    page_number: int | None = None,
+    page_size: int | None = None,
+) -> JobRef:
     """Attempt to get an exact match on a job by using filters
     that uniquely identify one."""
-    return get(**kwargs).try_unique_match()
+    if job_id:
+        return _fetch(job_id=job_id)
+
+    return get(
+        name_like=name_like,
+        creator_email=creator_email,
+        project=project,
+        properties=properties,
+        job_status=job_status,
+        job_type=job_type,
+        created_before=created_before,
+        created_after=created_after,
+        modified_before=modified_before,
+        modified_after=modified_after,
+        sort_filters=sort_filters,
+        page_number=page_number,
+        page_size=page_size,
+    ).try_unique_match()
+
+
+def _fetch(job_id: UUID | str) -> JobRef:
+    """Utility method for fetching directly by a unique identifier."""
+    res = nexus_client.get(f"/api/jobs/v1beta/{job_id}")
+
+    handle_fetch_errors(res)
+
+    job_data = res.json()
+
+    project_id = job_data["data"]["relationships"]["project"]["data"]["id"]
+    project_details = next(
+        proj for proj in job_data["included"] if proj["id"] == project_id
+    )
+    project = ProjectRef(
+        id=project_id,
+        annotations=Annotations.from_dict(project_details["attributes"]),
+        contents_modified=project_details["attributes"]["contents_modified"],
+    )
+    job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
+    match job_data["attributes"]["job_type"]:
+        case JobType.COMPILE:
+            job_type = CompileJobRef
+        case JobType.EXECUTE:
+            job_type = ExecuteJobRef
+        case _:
+            assert_never(job_data["attributes"]["job_type"])
+
+    return job_type(
+        id=job_data["data"]["id"],
+        annotations=Annotations.from_dict(job_data["data"]["attributes"]),
+        job_type=job_data["data"]["attributes"]["job_type"],
+        last_status=JobStatus.from_dict(
+            job_data["data"]["attributes"]["status"]
+        ).status,
+        last_message=JobStatus.from_dict(
+            job_data["data"]["attributes"]["status"]
+        ).message,
+        project=project,
+    )
 
 
 def wait_for(

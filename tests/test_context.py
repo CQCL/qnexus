@@ -22,17 +22,17 @@ from qnexus.references import ProjectRef
 def test_attach_project() -> None:
     """Test that we can set a Project in the global context."""
     project_id = uuid4()
-    project_ref = ProjectRef(
+    project = ProjectRef(
         id=project_id,
         annotations=Annotations(name=""),
         contents_modified=datetime.now(),
     )
 
-    token = set_active_project(project=project_ref)
+    token = set_active_project(project=project)
 
     ctx_project = get_active_project()
 
-    assert project_ref == ctx_project
+    assert project == ctx_project
 
     deactivate_project(token)
 
@@ -41,15 +41,15 @@ def test_attach_project_context_manager() -> None:
     """Test that we can set a Project via a context manager."""
 
     project_id = uuid4()
-    project_ref = ProjectRef(
+    project = ProjectRef(
         id=project_id,
         annotations=Annotations(name=""),
         contents_modified=datetime.now(),
     )
-    with using_project(project=project_ref):
+    with using_project(project=project):
         ctx_project = get_active_project()
 
-        assert project_ref == ctx_project
+        assert project == ctx_project
 
     ctx_project = get_active_project()
 
@@ -81,7 +81,7 @@ def test_attach_properties() -> None:
 def test_merge_project_from_context() -> None:
     """Test the decorator for merging a projectref from context or function arguments."""
 
-    project_ref = ProjectRef(
+    project = ProjectRef(
         id=uuid4(),
         annotations=Annotations(
             name="test_project",
@@ -90,21 +90,21 @@ def test_merge_project_from_context() -> None:
     )
 
     @merge_project_from_context
-    def func_wants_project(project_ref: ProjectRef | None = None) -> ProjectRef:
+    def func_wants_project(project: ProjectRef | None = None) -> ProjectRef:
         """Dummy function for testing the merge_project decorator"""
-        assert project_ref is not None
-        assert isinstance(project_ref, ProjectRef)
-        return project_ref
+        assert project is not None
+        assert isinstance(project, ProjectRef)
+        return project
 
     with pytest.raises(AssertionError):
         func_wants_project()
 
-    returned_project = func_wants_project(project_ref=project_ref)
-    assert returned_project == project_ref
+    returned_project = func_wants_project(project=project)
+    assert returned_project == project
 
-    with using_project(project=project_ref):
+    with using_project(project=project):
         returned_project = func_wants_project()
-        assert returned_project == project_ref
+        assert returned_project == project
 
     other_project = ProjectRef(
         id=uuid4(),
@@ -114,9 +114,9 @@ def test_merge_project_from_context() -> None:
         contents_modified=datetime.now(),
     )
 
-    with using_project(project=project_ref):
+    with using_project(project=project):
         # kwarg takes precedence
-        returned_project = func_wants_project(project_ref=other_project)
+        returned_project = func_wants_project(project=other_project)
         assert returned_project == other_project
 
 

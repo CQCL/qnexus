@@ -56,7 +56,7 @@ def test_project_create(
     qnx.project.add_property(
         name="QA_test_prop",
         property_type="bool",
-        project_ref=my_new_project,
+        project=my_new_project,
         description="A test property for my QA test project",
     )
 

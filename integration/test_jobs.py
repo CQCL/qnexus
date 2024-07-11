@@ -111,7 +111,7 @@ def test_execute(
     obtain the results from the execution."""
 
     my_proj = qnx.project.get_only(name_like=qa_project_name)
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project_ref=my_proj)
+    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
 
     execute_job_ref = qnx.execute(
         circuits=[my_circ],
@@ -146,7 +146,7 @@ def test_wait_for_raises_on_job_error(
     my_proj = qnx.project.get_only(name_like=qa_project_name)
 
     # Circuit not compiled for H1-1LE, so we expect it to error when executed
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project_ref=my_proj)
+    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
 
     failing_job_ref = qnx.execute(
         circuits=[my_circ],
@@ -171,7 +171,7 @@ def test_results_not_available_error(
     """Test that we can't get the results of a job until it is complete."""
 
     my_proj = qnx.project.get_only(name_like=qa_project_name)
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project_ref=my_proj)
+    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
     execute_job_ref = qnx.execute(
         circuits=[my_circ],
         name=f"qnexus_integration_test_waiting_job_{datetime.now()}",
