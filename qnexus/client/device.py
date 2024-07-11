@@ -1,17 +1,53 @@
 """Client API for devices in Nexus."""
 
 from qnexus.client import nexus_client
-from qnexus.client.models import Device
+from qnexus.client.models import (
+    Credential,
+    Device,
+    IssuerEnum,
+    StoredBackendInfo,
+    issuer_enum_to_config_str,
+)
+from qnexus.client.models.filters import DevicesFilter
 from qnexus.exceptions import ResourceFetchFailed
 from qnexus.references import DataframableList
 
-# work in progress
+
+class Params(DevicesFilter):
+    """Params for filtering devices."""
 
 
-def get() -> DataframableList:
-    """Get all available devices, work-in-progress."""
+def get(
+    issuers: list[IssuerEnum] | None = None,
+    aws_region: str | None = None,
+    ibmq_hub: str | None = None,
+    ibmq_group: str | None = None,
+    ibmq_project: str | None = None,
+    credentials: list[Credential] | None = None,
+    credential_names: list[str] | None = None,
+    nexus_hosted: bool | None = None,
+) -> DataframableList[Device]:
+    """Get all available devices."""
+
+    issuer_config_names = []
+    if issuers:
+        for issuer in issuers:
+            issuer_config_names.extend(issuer_enum_to_config_str(issuer))
+
+    params = Params(
+        backend=issuer_config_names if issuer_config_names else None,
+        region=aws_region,
+        ibmq_hub=ibmq_hub,
+        ibmq_group=ibmq_group,
+        ibmq_project=ibmq_project,
+        credential_ids=[cred.id for cred in credentials] if credentials else None,
+        credential_names=credential_names,
+        is_local=nexus_hosted,
+    ).model_dump_json(by_alias=True, exclude_unset=True, exclude_none=True)
+
     res = nexus_client.get(
         "/api/v5/available_devices",
+        params=params,
     )
 
     if res.status_code != 200:
@@ -26,6 +62,9 @@ def get() -> DataframableList:
                     backend_name=backend_info["name"],
                     device_name=backend_info["device_name"],
                     nexus_hosted=backendinfolist["is_local"],
+                    backend_info=StoredBackendInfo(
+                        **backend_info
+                    ).to_pytket_backend_info(),
                 )
             )
 

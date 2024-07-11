@@ -7,6 +7,7 @@ from typing import Annotated, Literal, OrderedDict, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
+from qnexus.client.models import CredentialIssuer
 from qnexus.client.models.annotations import PropertiesDict
 from qnexus.client.models.utils import AllowNone
 from qnexus.references import JobType, ProjectRef
@@ -238,3 +239,22 @@ class JobTypeFilter(BaseModel):
     )
 
     model_config = ConfigDict(use_enum_values=True)
+
+
+class DevicesFilter(BaseModel):
+    """Filter by device details."""
+
+    backend: list[str] | None = None
+    region: str | None = None
+    ibmq_hub: str | None = None
+    ibmq_group: str | None = None
+    ibmq_project: str | None = None
+    credential_ids: list[str] | None = None
+    credential_names: list[str] | None = None
+    is_local: bool | None = None
+
+
+class CredentialsFilter(BaseModel):
+    """Filter for credentials."""
+
+    issuer: CredentialIssuer | str | None = None

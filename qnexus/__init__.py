@@ -8,6 +8,7 @@ from qnexus.client import (
     assignment,
     auth,
     circuit,
+    credential,
     device,
     job,
     project,
