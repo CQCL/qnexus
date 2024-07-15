@@ -1,4 +1,4 @@
-"""Client API for role-based-access-control assignments in Nexus."""
+"""Client API for role-based-access-control roles and assignments in Nexus."""
 from typing import Literal
 
 from pydantic import EmailStr
@@ -47,7 +47,7 @@ def get_only(name: RoleName) -> Role:
     raise qnx_exc.NoUniqueMatch()
 
 
-def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
+def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     """Check the assignments on a particular resource."""
 
     res = nexus_client.get(
@@ -61,20 +61,22 @@ def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
 
     roles_dict = {str(role.id): role for role in get()}
 
-    assignments = res.json()["data"]["attributes"]
+    res_assignments = res.json()["data"]["attributes"]
 
     role_infos: DataframableList[RoleInfo] = DataframableList([])
 
-    for user_role_assignment in assignments["user_role_assignments"]:
+    for user_role_assignment in res_assignments["user_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="user",
-                assignee=user_client.get_only(user_id=user_role_assignment["user_id"]),
+                assignee=user_client._fetch(  # pylint: disable=protected-access
+                    user_id=user_role_assignment["user_id"]
+                ),
                 role=roles_dict[user_role_assignment["role_id"]],
             )
         )
 
-    for team_role_assignment in assignments["team_role_assignments"]:
+    for team_role_assignment in res_assignments["team_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="team",
@@ -82,7 +84,7 @@ def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
                 role=roles_dict[team_role_assignment["role_id"]],
             )
         )
-    for public_role_assignment in assignments["public_role_assignments"]:
+    for public_role_assignment in res_assignments["public_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="public",

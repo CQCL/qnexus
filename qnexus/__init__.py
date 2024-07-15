@@ -5,7 +5,6 @@ import nest_asyncio  # type: ignore
 
 from qnexus import context
 from qnexus.client import (
-    assignment,
     auth,
     circuit,
     credential,
@@ -13,6 +12,7 @@ from qnexus.client import (
     job,
     project,
     quota,
+    role,
     team,
     user,
 )
@@ -41,7 +41,7 @@ except (RuntimeError, ValueError):
 
 __all__ = [
     "context",
-    "assignment",
+    "role",
     "auth",
     "circuit",
     "device",

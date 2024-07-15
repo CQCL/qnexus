@@ -74,7 +74,6 @@ class TeamRef(BaseRef):
 class UserRef(BaseRef):
     """Proxy object to a User in Nexus."""
 
-    email: str
     display_name: Optional[str]
     id: UUID
 
@@ -82,8 +81,7 @@ class UserRef(BaseRef):
         """Present in a pandas DataFrame."""
         return pd.DataFrame(
             {
-                "email": self.email,
-                "description": self.display_name,
+                "name": self.display_name,
                 "id": self.id,
             },
             index=[0],
