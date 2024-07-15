@@ -76,10 +76,10 @@ def test_project_get_or_create(
     with pytest.raises(qnx_exc.ZeroMatches):
         qnx.project.get_only(name_like=project_name)
 
-    my_new_project = qnx.project.get_only_or_create(name=project_name)
+    my_new_project = qnx.project.get_or_create(name=project_name)
 
     assert isinstance(my_new_project, ProjectRef)
 
-    my_new_project_again = qnx.project.get_only_or_create(name=project_name)
+    my_new_project_again = qnx.project.get_or_create(name=project_name)
 
     assert my_new_project == my_new_project_again

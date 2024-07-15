@@ -12,7 +12,7 @@ from qnexus.context import (
     get_active_properties,
     merge_project_from_context,
     merge_properties_from_context,
-    set_active_project,
+    set_active_project_token,
     using_project,
     using_properties,
 )
@@ -28,7 +28,7 @@ def test_attach_project() -> None:
         contents_modified=datetime.now(),
     )
 
-    token = set_active_project(project=project)
+    token = set_active_project_token(project=project)
 
     ctx_project = get_active_project()
 

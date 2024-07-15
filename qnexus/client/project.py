@@ -136,7 +136,7 @@ def get_only(
     ).try_unique_match()
 
 
-def get_only_or_create(
+def get_or_create(
     name: str,
     description: str | None = None,
     properties: PropertiesDict | None = None,
