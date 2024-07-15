@@ -69,7 +69,9 @@ def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
         role_infos.append(
             RoleInfo(
                 assignment_type="user",
-                assignee=user_client.get_only(user_id=user_role_assignment["user_id"]),
+                assignee=user_client._fetch(  # pylint: disable=protected-access
+                    user_id=user_role_assignment["user_id"]
+                ),
                 role=roles_dict[user_role_assignment["role_id"]],
             )
         )
