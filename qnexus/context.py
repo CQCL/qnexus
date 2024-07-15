@@ -34,7 +34,7 @@ def get_active_project(project_required: bool = False) -> ProjectRef | None:
     >>> get_active_project()
 
     >>> from qnexus.client.models.annotations import Annotations
-    >>> token = set_active_project(
+    >>> token = set_active_project_token(
     ... ProjectRef(id="dca33f7f-9619-4cf7-a3fb-56256b117d6e",
     ... annotations=Annotations(name="example")))
     >>> get_active_project()
@@ -58,7 +58,7 @@ def get_active_properties() -> PropertiesDict:
     >>> get_active_properties()
     OrderedDict()
 
-    >>> token = update_active_properties(foo=3, bar=True)
+    >>> token = update_active_properties_token(foo=3, bar=True)
     >>> get_active_properties()
     OrderedDict([('foo', 3), ('bar', True)])
 
@@ -71,15 +71,22 @@ def get_active_properties() -> PropertiesDict:
     return properties
 
 
-def set_active_project(project: ProjectRef) -> Token[ProjectRef | None]:
-    """Globally set a project as active."""
+def set_active_project_token(project: ProjectRef) -> Token[ProjectRef | None]:
+    """Globally set a project as active,
+    returning a Token to the ProjectRef in the context."""
     return _QNEXUS_PROJECT.set(project)
 
 
-def update_active_properties(
+def set_active_project(project: ProjectRef) -> None:
+    """Globally set a project as active."""
+    set_active_project_token(project)
+
+
+def update_active_properties_token(
     **properties: int | float | str | bool,
 ) -> Token[PropertiesDict | None]:
-    """Globally update and merge properties with the existing ones."""
+    """Globally update and merge properties with the existing ones,
+    returning a token to the PropertiesDict in the context."""
     current_properties = _QNEXUS_PROPERTIES.get()
     if current_properties is None:
         current_properties = PropertiesDict({})
@@ -89,6 +96,13 @@ def update_active_properties(
     current_properties.update(properties)
 
     return _QNEXUS_PROPERTIES.set(current_properties)
+
+
+def update_active_properties(
+    **properties: int | float | str | bool,
+) -> None:
+    """Globally update and merge properties with the existing ones."""
+    update_active_properties_token(**properties)
 
 
 @contextmanager
@@ -110,7 +124,7 @@ def using_project(project: ProjectRef):
 
     >>> get_active_project()
     """
-    token = set_active_project(project)
+    token = set_active_project_token(project)
     try:
         yield
     finally:
@@ -120,7 +134,7 @@ def using_project(project: ProjectRef):
 @contextmanager
 def using_properties(**properties: int | float | str | bool):
     """Attach properties to the current context."""
-    token = update_active_properties(**properties)
+    token = update_active_properties_token(**properties)
     try:
         yield
     finally:
