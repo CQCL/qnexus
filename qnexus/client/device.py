@@ -29,10 +29,15 @@ def get(
 ) -> DataframableList[Device]:
     """Get all available devices."""
 
-    issuer_config_names = []
-    if issuers:
-        for issuer in issuers:
-            issuer_config_names.extend(issuer_enum_to_config_str(issuer))
+    issuer_config_names = (
+        [
+            config_str
+            for issuer in issuers
+            for config_str in issuer_enum_to_config_str(issuer)
+        ]
+        if issuers
+        else []
+    )
 
     params = Params(
         backend=issuer_config_names if issuer_config_names else None,

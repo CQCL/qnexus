@@ -141,7 +141,8 @@ def get_only_or_create(
     description: str | None = None,
     properties: PropertiesDict | None = None,
 ) -> ProjectRef:
-    """Get the active project if it exists, otherwise create a new project."""
+    """Get a project reference if the projects exists (by name),
+    otherwise create a new project using the supplied description and properties."""
     annotations = CreateAnnotations(
         name=name,
         description=description,
