@@ -49,7 +49,7 @@ class Params(
 def get(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
-    properties: PropertiesDict | None = None,
+    # properties: PropertiesDict | None = None, # Not yet implemented
     created_before: datetime | None = None,
     created_after: datetime | None = None,
     modified_before: datetime | None = None,
@@ -64,7 +64,7 @@ def get(
     params = Params(
         name_like=name_like,
         creator_email=creator_email,
-        properties=properties,
+        # properties=properties,
         created_before=created_before,
         created_after=created_after,
         modified_before=modified_before,
@@ -106,7 +106,7 @@ def get_only(
     id: Union[str, UUID, None] = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
-    properties: PropertiesDict | None = None,
+    # properties: PropertiesDict | None = None,
     created_before: datetime | None = None,
     created_after: datetime | None = None,
     modified_before: datetime | None = None,
@@ -124,7 +124,7 @@ def get_only(
     return get(
         name_like=name_like,
         creator_email=creator_email,
-        properties=properties,
+        # properties=properties,
         created_before=created_before,
         created_after=created_after,
         modified_before=modified_before,
