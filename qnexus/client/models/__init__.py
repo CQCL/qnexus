@@ -153,7 +153,7 @@ class RoleInfo(BaseModel):
             case TeamRef():
                 assignee_name = self.assignee.name
             case UserRef():
-                assignee_name = self.assignee.email
+                assignee_name = self.assignee.display_name
             case None:
                 assignee_name = None
             case _:
