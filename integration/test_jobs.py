@@ -1,5 +1,5 @@
 """Test basic functionality relating to the job module."""
-
+from collections import Counter
 from datetime import datetime
 
 import pandas as pd
@@ -66,7 +66,7 @@ def test_execute_job_getonly(
         qnx.job.get_only(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
-def test_compile(
+def test_submit_compile(
     _authenticated_nexus_circuit_ref: CircuitRef,
     qa_project_name: str,
 ) -> None:
@@ -75,7 +75,7 @@ def test_compile(
 
     my_proj = qnx.project.get_only(name_like=qa_project_name)
 
-    compile_job_ref = qnx.compile(
+    compile_job_ref = qnx.start_compile_job(
         circuits=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
@@ -102,7 +102,26 @@ def test_compile(
     assert isinstance(first_pass_data.pass_name, str)
 
 
-def test_execute(
+def test_compile(
+    _authenticated_nexus_circuit_ref: CircuitRef,
+    qa_project_name: str,
+) -> None:
+    """Test that we can run the utility compile function and get compiled circuits."""
+
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
+
+    compiled_circuits = qnx.compile(
+        circuits=[_authenticated_nexus_circuit_ref],
+        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.AerConfig(),
+    )
+
+    assert len(compiled_circuits) == 1
+    assert isinstance(compiled_circuits[0], CircuitRef)
+
+
+def test_submit_execute(
     _authenticated_nexus: None,
     qa_project_name: str,
     qa_circuit_name: str,
@@ -113,7 +132,7 @@ def test_execute(
     my_proj = qnx.project.get_only(name_like=qa_project_name)
     my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
 
-    execute_job_ref = qnx.execute(
+    execute_job_ref = qnx.start_execute_job(
         circuits=[my_circ],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
@@ -136,6 +155,28 @@ def test_execute(
     assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
 
 
+def test_execute(
+    _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_circuit_name: str,
+) -> None:
+    """Test that we can run the utility execute function and get the results of the execution."""
+
+    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
+
+    backend_results = qnx.execute(
+        circuits=[my_circ],
+        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.AerConfig(),
+        n_shots=[10],
+    )
+
+    assert len(backend_results) == 1
+    assert isinstance(backend_results[0].get_counts(), Counter)
+
+
 def test_wait_for_raises_on_job_error(
     _authenticated_nexus: None,
     qa_project_name: str,
@@ -148,7 +189,7 @@ def test_wait_for_raises_on_job_error(
     # Circuit not compiled for H1-1LE, so we expect it to error when executed
     my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
 
-    failing_job_ref = qnx.execute(
+    failing_job_ref = qnx.start_execute_job(
         circuits=[my_circ],
         name=f"qnexus_integration_test_failing_job_{datetime.now()}",
         project=my_proj,
@@ -172,7 +213,7 @@ def test_results_not_available_error(
 
     my_proj = qnx.project.get_only(name_like=qa_project_name)
     my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
-    execute_job_ref = qnx.execute(
+    execute_job_ref = qnx.start_execute_job(
         circuits=[my_circ],
         name=f"qnexus_integration_test_waiting_job_{datetime.now()}",
         project=my_proj,

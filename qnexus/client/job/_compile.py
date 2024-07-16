@@ -25,7 +25,7 @@ from qnexus.references import (
 
 
 @merge_properties_from_context
-def compile(  # pylint: disable=too-many-arguments, redefined-builtin
+def start_compile_job(  # pylint: disable=too-many-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,

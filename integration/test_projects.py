@@ -64,3 +64,22 @@ def test_project_create(
 
     assert len(test_props) == 1
     assert test_props[0].annotations.name == test_property_name
+
+
+def test_project_get_or_create(
+    _authenticated_nexus: None,
+):
+    """Test that we can get or create a project."""
+
+    project_name = f"QA_test_project_get_or_create_{datetime.now()}"
+
+    with pytest.raises(qnx_exc.ZeroMatches):
+        qnx.project.get_only(name_like=project_name)
+
+    my_new_project = qnx.project.get_only_or_create(name=project_name)
+
+    assert isinstance(my_new_project, ProjectRef)
+
+    my_new_project_again = qnx.project.get_only_or_create(name=project_name)
+
+    assert my_new_project == my_new_project_again

@@ -1,10 +1,13 @@
 """Models for use by the client."""
 
+from datetime import datetime
+from enum import Enum
 from typing import Literal, Optional
 from uuid import UUID
 
 import pandas as pd
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, field_validator
+from pytket.backends.backendinfo import BackendInfo
 
 from qnexus.client.models.annotations import Annotations
 from qnexus.client.models.backend_config import (
@@ -38,16 +41,66 @@ __all__ = [
 ]
 
 
+class CredentialIssuer(str, Enum):
+    """An Issuer of credentials."""
+
+    QUANTINUUM = "Quantinuum"
+    QISKIT = "Qiskit"
+    BRAKET = "Braket"
+
+
+class Credential(BaseModel):
+    """A saved credential for a backend provider/issuer."""
+
+    name: str
+    backend_issuer: CredentialIssuer
+    is_default_for_issuer: bool
+    submitted_time: datetime
+    id: str
+
+    def df(self) -> pd.DataFrame:
+        """Convert to a pandas DataFrame."""
+        return pd.DataFrame(
+            {
+                "name": self.name,
+                "issuer": self.backend_issuer,
+                "is_default_for_issuer": self.is_default_for_issuer,
+                "created": self.submitted_time,
+                "id": self.id,
+            },
+            index=[0],
+        )
+
+
 class Device(BaseModel):
     """A device in Nexus, work-in-progress"""
 
     backend_name: str
     device_name: Optional[str]
     nexus_hosted: bool
+    backend_info: BackendInfo
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
-        return pd.DataFrame(self.model_dump(), index=[0])
+        return pd.DataFrame(
+            {
+                "backend_name": self.backend_name,
+                "device_name": self.device_name,
+                "nexus_hosted": self.nexus_hosted,
+                "backend_info": self.backend_info.to_dict(),
+            },
+            index=[0],
+        )
+
+    @field_validator("backend_name")
+    @classmethod
+    def convert_backend_name(cls, v: str) -> str:
+        """Convert the internal name for QuantinuumBackend."""
+        if v == "EmulatorEnabledQuantinuumBackend":
+            return "QuantinuumBackend"
+        return v
 
 
 class Quota(BaseModel):
@@ -137,3 +190,39 @@ class Property(BaseModel):
                 index=[0],
             )
         )
+
+
+class IssuerEnum(str, Enum):
+    """Backend issuers in Nexus."""
+
+    QUANTINUUM = "QUANTINUUM"
+    IBMQ = "IBMQ"
+    QISKIT = "QISKIT"
+    BRAKET = "BRAKET"
+    PROJECTQ = "PROJECTQ"
+    QULACS = "QULACS"
+
+
+def issuer_enum_to_config_str(issuer: IssuerEnum) -> list[str]:
+    """Convert an IssuerEnum to a list of BackendConfig names."""
+
+    match issuer:
+        case IssuerEnum.QUANTINUUM:
+            return ["QuantinuumConfig"]
+        case IssuerEnum.IBMQ:
+            return ["IBMQConfig"]
+        case IssuerEnum.QISKIT:
+            return [
+                "IBMQEmulatorConfig",
+                "AerConfig",
+                "AerStateConfig",
+                "AerUnitaryConfig",
+            ]
+        case IssuerEnum.PROJECTQ:
+            return ["ProjectQConfig"]
+        case IssuerEnum.QULACS:
+            return ["QulacsConfig"]
+        case IssuerEnum.BRAKET:
+            return ["BraketConfig"]
+        case _:
+            assert_never(issuer)

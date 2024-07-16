@@ -65,7 +65,7 @@ def _authenticated_nexus(
             project=my_proj,
         )
 
-        qnx.compile(
+        qnx.start_compile_job(
             circuits=[my_other_circuit],
             name=qa_compile_job_name,
             description=test_desc,
@@ -73,7 +73,7 @@ def _authenticated_nexus(
             backend_config=qnx.AerConfig(),
         )
 
-        qnx.execute(
+        qnx.start_execute_job(
             circuits=[my_new_circuit],
             name=qa_execute_job_name,
             description=test_desc,

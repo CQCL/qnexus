@@ -136,6 +136,28 @@ def get_only(
     ).try_unique_match()
 
 
+def get_only_or_create(
+    name: str,
+    description: str | None = None,
+    properties: PropertiesDict | None = None,
+) -> ProjectRef:
+    """Get a project reference if the projects exists (by name),
+    otherwise create a new project using the supplied description and properties."""
+    annotations = CreateAnnotations(
+        name=name,
+        description=description,
+        properties=properties,
+    )
+    try:
+        return get_only(name_like=annotations.name)
+    except qnx_exc.ZeroMatches:
+        return create(
+            name=annotations.name,
+            description=annotations.description,
+            properties=annotations.properties,
+        )
+
+
 def _fetch(project_id: UUID | str) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
     res = nexus_client.get(f"/api/projects/v1beta/{project_id}")

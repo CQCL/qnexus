@@ -26,7 +26,7 @@ from qnexus.references import (
 
 
 @merge_properties_from_context
-def execute(  # pylint: disable=too-many-arguments, too-many-locals
+def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,

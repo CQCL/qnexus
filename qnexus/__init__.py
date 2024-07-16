@@ -8,6 +8,7 @@ from qnexus.client import (
     assignment,
     auth,
     circuit,
+    credential,
     device,
     job,
     project,
@@ -15,8 +16,9 @@ from qnexus.client import (
     team,
     user,
 )
-from qnexus.client.job.compile import compile as compile
-from qnexus.client.job.execute import execute as execute
+from qnexus.client.job import compile, execute
+from qnexus.client.job._compile import start_compile_job
+from qnexus.client.job._execute import start_execute_job
 from qnexus.client.models import (
     AerConfig,
     AerStateConfig,
