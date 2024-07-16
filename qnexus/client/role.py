@@ -14,7 +14,7 @@ Permission = Literal["ASSIGN", "DELETE", "WRITE", "READ"]
 RoleName = Literal["Administrator", "Contributor", "Reader", "Maintainer"]
 
 
-def get() -> DataframableList[Role]:
+def get_all() -> DataframableList[Role]:
     """Get the definitions of possible role-based access control assignments."""
     res = nexus_client.get(
         "/api/roles/v1beta",
@@ -38,9 +38,9 @@ def get() -> DataframableList[Role]:
     )
 
 
-def get_only(name: RoleName) -> Role:
+def get(name: RoleName) -> Role:
     """Get a unique role-based access control assignment"""
-    for item in get():
+    for item in get_all():
         if item.name == name:
             return item
 
@@ -59,7 +59,7 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
             message=res.json(), status_code=res.status_code
         )
 
-    roles_dict = {str(role.id): role for role in get()}
+    roles_dict = {str(role.id): role for role in get_all()}
 
     res_assignments = res.json()["data"]["attributes"]
 
@@ -80,7 +80,7 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
         role_infos.append(
             RoleInfo(
                 assignment_type="team",
-                assignee=team_client.get_only(name=team_role_assignment["team_id"]),
+                assignee=team_client.get(name=team_role_assignment["team_id"]),
                 role=roles_dict[team_role_assignment["role_id"]],
             )
         )
@@ -95,12 +95,10 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     return role_infos
 
 
-def assign_team_role(
-    resource_ref: BaseRef, team: TeamRef, role: RoleName | Role
-) -> None:
+def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> None:
     """Assign a role-based access control assignment to a team."""
     if isinstance(role, str):
-        role = get_only(role)
+        role = get(role)
 
     req_dict = {
         "data": {
@@ -125,12 +123,12 @@ def assign_team_role(
         )
 
 
-def assign_user_role(
+def assign_user(
     resource_ref: BaseRef, user_email: EmailStr, role: RoleName | Role
 ) -> None:
     """Assign a role-based access control assignment to a user."""
     if isinstance(role, str):
-        role = get_only(role)
+        role = get(role)
 
     req_dict = {
         "data": {

@@ -17,7 +17,7 @@ class Params(DevicesFilter):
     """Params for filtering devices."""
 
 
-def get(
+def get_all(
     issuers: list[IssuerEnum] | None = None,
     aws_region: str | None = None,
     ibmq_hub: str | None = None,

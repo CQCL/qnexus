@@ -24,7 +24,7 @@ def test_job_get(
 ) -> None:
     """Test that we can get an iterator over all jobs."""
 
-    my_job_db_matches = qnx.job.get()
+    my_job_db_matches = qnx.job.get_all()
 
     assert isinstance(my_job_db_matches.count(), int)
     assert isinstance(my_job_db_matches.summarize(), pd.DataFrame)
@@ -39,14 +39,14 @@ def test_compile_job_getonly(
     """Test that we can get a specific unique CompileJobRef,
     or get an appropriate exception."""
 
-    my_job = qnx.job.get_only(name_like=qa_compile_job_name)
+    my_job = qnx.job.get(name_like=qa_compile_job_name)
     assert isinstance(my_job, CompileJobRef)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
-        qnx.job.get_only()
+        qnx.job.get()
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.job.get_only(name_like=f"{datetime.now()}_{datetime.now()}")
+        qnx.job.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_execute_job_getonly(
@@ -56,14 +56,14 @@ def test_execute_job_getonly(
     """Test that we can get a specific unique ExecuteJobRef,
     or get an appropriate exception."""
 
-    my_job = qnx.job.get_only(name_like=qa_execute_job_name)
+    my_job = qnx.job.get(name_like=qa_execute_job_name)
     assert isinstance(my_job, ExecuteJobRef)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
-        qnx.job.get_only()
+        qnx.job.get()
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.job.get_only(name_like=f"{datetime.now()}_{datetime.now()}")
+        qnx.job.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_submit_compile(
@@ -73,7 +73,7 @@ def test_submit_compile(
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.project.get(name_like=qa_project_name)
 
     compile_job_ref = qnx.start_compile_job(
         circuits=[_authenticated_nexus_circuit_ref],
@@ -108,7 +108,7 @@ def test_compile(
 ) -> None:
     """Test that we can run the utility compile function and get compiled circuits."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.project.get(name_like=qa_project_name)
 
     compiled_circuits = qnx.compile(
         circuits=[_authenticated_nexus_circuit_ref],
@@ -129,8 +129,8 @@ def test_submit_execute(
     """Test that we can run an execute job in Nexus, wait for the job to complete and
     obtain the results from the execution."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
+    my_proj = qnx.project.get(name_like=qa_project_name)
+    my_circ = qnx.circuit.get(name_like=qa_circuit_name, project=my_proj)
 
     execute_job_ref = qnx.start_execute_job(
         circuits=[my_circ],
@@ -162,8 +162,8 @@ def test_execute(
 ) -> None:
     """Test that we can run the utility execute function and get the results of the execution."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
+    my_proj = qnx.project.get(name_like=qa_project_name)
+    my_circ = qnx.circuit.get(name_like=qa_circuit_name, project=my_proj)
 
     backend_results = qnx.execute(
         circuits=[my_circ],
@@ -184,10 +184,10 @@ def test_wait_for_raises_on_job_error(
 ) -> None:
     """Test that if a job errors, the wait_for function raises an Exception."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.project.get(name_like=qa_project_name)
 
     # Circuit not compiled for H1-1LE, so we expect it to error when executed
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
+    my_circ = qnx.circuit.get(name_like=qa_circuit_name, project=my_proj)
 
     failing_job_ref = qnx.start_execute_job(
         circuits=[my_circ],
@@ -211,8 +211,8 @@ def test_results_not_available_error(
 ) -> None:
     """Test that we can't get the results of a job until it is complete."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name, project=my_proj)
+    my_proj = qnx.project.get(name_like=qa_project_name)
+    my_circ = qnx.circuit.get(name_like=qa_circuit_name, project=my_proj)
     execute_job_ref = qnx.start_execute_job(
         circuits=[my_circ],
         name=f"qnexus_integration_test_waiting_job_{datetime.now()}",

@@ -9,7 +9,7 @@ def test_device_get(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get a list of devices."""
-    devices = qnx.device.get()
+    devices = qnx.device.get_all()
     assert isinstance(devices, DataframableList)
 
     for device in devices:

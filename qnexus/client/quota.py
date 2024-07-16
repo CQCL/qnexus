@@ -16,7 +16,7 @@ _quota_map = {
 }
 
 
-def get() -> DataframableList[Quota]:
+def get_all() -> DataframableList[Quota]:
     """Get all quotas, including usage."""
     res = nexus_client.get(
         "/api/quotas/v1beta", params={"entity_type": "user", "include_usage": True}
@@ -40,7 +40,7 @@ def get() -> DataframableList[Quota]:
     return quota_list
 
 
-def get_only(name: QuotaName):
+def get(name: QuotaName):
     """Get specific quota details by name."""
     res = nexus_client.get(
         "/api/quotas/v1beta",

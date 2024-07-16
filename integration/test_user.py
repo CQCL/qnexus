@@ -10,7 +10,7 @@ def test_user_getonly(_authenticated_nexus: None) -> None:
     my_user = qnx.user.get_self()
     assert isinstance(my_user, UserRef)
 
-    my_user_again = qnx.user._fetch( # pylint: disable=protected-access
+    my_user_again = qnx.user._fetch(  # pylint: disable=protected-access
         user_id=my_user.id
     )
     assert isinstance(my_user_again, UserRef)

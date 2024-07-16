@@ -8,7 +8,7 @@ def test_credential_get(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get a list of credentials."""
-    creds = qnx.credential.get()
+    creds = qnx.credential.get_all()
     assert isinstance(creds, list)
     for cred in creds:
         assert isinstance(cred, Credential)

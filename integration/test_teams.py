@@ -11,7 +11,7 @@ from qnexus.references import TeamRef
 def test_team_getonly(_authenticated_nexus: None, qa_team_name: str) -> None:
     """Test that we can get a specific unique TeamRef."""
 
-    my_team = qnx.team.get_only(name=qa_team_name)
+    my_team = qnx.team.get(name=qa_team_name)
     assert isinstance(my_team, TeamRef)
 
 
@@ -20,7 +20,7 @@ def test_team_get(
 ) -> None:
     """Test that we can get all teams (currently not a DatabaseIterator)."""
 
-    my_teams = qnx.team.get()
+    my_teams = qnx.team.get_all()
 
     assert len(my_teams) > 1
     assert isinstance(my_teams.df(), pd.DataFrame)

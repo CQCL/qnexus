@@ -20,7 +20,7 @@ from qnexus.client.models.filters import (
     CreatorFilter,
     FuzzyNameFilter,
     PaginationFilter,
-    PropertiesFilter,
+    # PropertiesFilter, # Not yet implemented
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -38,7 +38,7 @@ class Params(
     PaginationFilter,
     FuzzyNameFilter,
     CreatorFilter,
-    PropertiesFilter,
+    # PropertiesFilter, # Not yet implemented
     TimeFilter,
     ArchivedFilter,
 ):
@@ -46,10 +46,9 @@ class Params(
 
 
 # @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
-def get(
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
-    # properties: PropertiesDict | None = None, # Not yet implemented
     created_before: datetime | None = None,
     created_after: datetime | None = None,
     modified_before: datetime | None = None,
@@ -64,7 +63,6 @@ def get(
     params = Params(
         name_like=name_like,
         creator_email=creator_email,
-        # properties=properties,
         created_before=created_before,
         created_after=created_after,
         modified_before=modified_before,
@@ -101,12 +99,11 @@ def _to_projectref(data: dict[str, Any]) -> DataframableList[ProjectRef]:
     )
 
 
-def get_only(
+def get(
     *,
     id: Union[str, UUID, None] = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
-    # properties: PropertiesDict | None = None, # Not yet implemented
     created_before: datetime | None = None,
     created_after: datetime | None = None,
     modified_before: datetime | None = None,
@@ -121,10 +118,9 @@ def get_only(
     if id:
         return _fetch(id)
 
-    return get(
+    return get_all(
         name_like=name_like,
         creator_email=creator_email,
-        # properties=properties,
         created_before=created_before,
         created_after=created_after,
         modified_before=modified_before,
@@ -136,7 +132,7 @@ def get_only(
     ).try_unique_match()
 
 
-def get_only_or_create(
+def get_or_create(
     name: str,
     description: str | None = None,
     properties: PropertiesDict | None = None,
@@ -149,7 +145,7 @@ def get_only_or_create(
         properties=properties,
     )
     try:
-        return get_only(name_like=annotations.name)
+        return get(name_like=annotations.name)
     except qnx_exc.ZeroMatches:
         return create(
             name=annotations.name,

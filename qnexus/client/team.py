@@ -5,7 +5,7 @@ from qnexus.client import nexus_client
 from qnexus.references import DataframableList, TeamRef
 
 
-def get() -> DataframableList[TeamRef]:
+def get_all() -> DataframableList[TeamRef]:
     """No fuzzy name matching."""
     res = nexus_client.get(
         "/api/v5/user/teams",
@@ -28,7 +28,7 @@ def get() -> DataframableList[TeamRef]:
     )
 
 
-def get_only(name: str) -> TeamRef:
+def get(name: str) -> TeamRef:
     """Attempt to get an exact match on a team by using filters
     that uniquely identify one."""
     res = nexus_client.get("/api/v5/user/teams", params={"name": name})

@@ -19,16 +19,16 @@ def test_circuit_getonly(
     """Test that we can get a specific unique CircuitRef,
     or get an appropriate exception."""
 
-    my_circ = qnx.circuit.get_only(name_like=qa_circuit_name)
+    my_circ = qnx.circuit.get(name_like=qa_circuit_name)
     assert isinstance(my_circ, CircuitRef)
 
     assert isinstance(my_circ.download_circuit(), Circuit)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
-        qnx.circuit.get_only()
+        qnx.circuit.get()
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.circuit.get_only(name_like=f"{datetime.now()}_{datetime.now()}")
+        qnx.circuit.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_circuit_get(
@@ -36,7 +36,7 @@ def test_circuit_get(
 ) -> None:
     """Test that we can get an iterator over all circuits."""
 
-    my_circ_db_matches = qnx.circuit.get()
+    my_circ_db_matches = qnx.circuit.get_all()
 
     assert isinstance(my_circ_db_matches.count(), int)
     assert isinstance(my_circ_db_matches.summarize(), pd.DataFrame)
@@ -50,7 +50,7 @@ def test_circuit_create(
 ) -> None:
     """Test that we can create a circuit and add a property value."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.project.get(name_like=qa_project_name)
 
     circuit_name = f"QA_test_circuit_{datetime.now()}"
 

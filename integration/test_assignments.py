@@ -15,7 +15,7 @@ def test_role_getonly(
 ) -> None:
     """Test that we can get a specific Role."""
 
-    role = qnx.role.get_only(name="Administrator")
+    role = qnx.role.get(name="Administrator")
     assert isinstance(role, Role)
 
 
@@ -24,7 +24,7 @@ def test_role_get(
 ) -> None:
     """Test that we can get all assignment role definitions."""
 
-    all_roles = qnx.role.get()
+    all_roles = qnx.role.get_all()
 
     assert len(all_roles) == 4
     assert isinstance(all_roles.df(), pd.DataFrame)
@@ -39,11 +39,9 @@ def test_team_assignment(
 
     new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}_0")
 
-    team = qnx.team.get_only(name=qa_team_name)
+    team = qnx.team.get(name=qa_team_name)
 
-    qnx.role.assign_team_role(
-        resource_ref=new_project_ref, team=team, role="Administrator"
-    )
+    qnx.role.assign_team(resource_ref=new_project_ref, team=team, role="Administrator")
 
     assignments = qnx.role.assignments(resource_ref=new_project_ref)
 
@@ -66,7 +64,7 @@ def test_user_assignment(
 
     new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}_1")
 
-    qnx.role.assign_user_role(
+    qnx.role.assign_user(
         resource_ref=new_project_ref,
         user_email=NEXUS_QA_USER_EMAIL,
         role="Contributor",

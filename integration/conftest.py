@@ -93,7 +93,7 @@ def _authenticated_nexus_circuit_ref(
     """Starting with authenticated nexus instance, yield a CircuitRef
     for use in tests."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.project.get(name_like=qa_project_name)
 
     my_new_circuit = qnx.circuit.upload(
         circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),

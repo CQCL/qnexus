@@ -17,14 +17,14 @@ def test_project_getonly(
     """Test that we can get a specific unique project,
     or get an appropriate exception."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.project.get(name_like=qa_project_name)
     assert isinstance(my_proj, ProjectRef)
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
-        qnx.project.get_only()
+        qnx.project.get()
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.project.get_only(name_like=f"{datetime.now()}_{datetime.now()}")
+        qnx.project.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_project_get(
@@ -32,7 +32,7 @@ def test_project_get(
 ) -> None:
     """Test that we can get an iterator over all projects."""
 
-    my_proj_db_matches = qnx.project.get()
+    my_proj_db_matches = qnx.project.get_all()
 
     assert isinstance(my_proj_db_matches.count(), int)
     assert isinstance(my_proj_db_matches.summarize(), pd.DataFrame)
@@ -74,12 +74,12 @@ def test_project_get_or_create(
     project_name = f"QA_test_project_get_or_create_{datetime.now()}"
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.project.get_only(name_like=project_name)
+        qnx.project.get(name_like=project_name)
 
-    my_new_project = qnx.project.get_only_or_create(name=project_name)
+    my_new_project = qnx.project.get_or_create(name=project_name)
 
     assert isinstance(my_new_project, ProjectRef)
 
-    my_new_project_again = qnx.project.get_only_or_create(name=project_name)
+    my_new_project_again = qnx.project.get_or_create(name=project_name)
 
     assert my_new_project == my_new_project_again

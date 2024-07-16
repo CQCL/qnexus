@@ -11,7 +11,7 @@ def test_quota_getonly(
 ) -> None:
     """Test that we can get a specific Quota."""
 
-    my_quota = qnx.quota.get_only(name="compilation")
+    my_quota = qnx.quota.get(name="compilation")
     assert isinstance(my_quota, Quota)
 
 
@@ -20,7 +20,7 @@ def test_quota_get(
 ) -> None:
     """Test that we can get all quotas (currently not a DatabaseIterator)."""
 
-    my_quotas = qnx.quota.get()
+    my_quotas = qnx.quota.get_all()
 
     assert len(my_quotas) > 1
     assert isinstance(my_quotas.df(), pd.DataFrame)
