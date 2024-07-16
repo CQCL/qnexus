@@ -15,6 +15,8 @@ _quota_map = {
     "database_usage": "megabytes_used",
 }
 
+NO_QUOTA_SET = "No quota set for user"
+
 
 def get_all() -> DataframableList[Quota]:
     """Get all quotas, including usage."""
@@ -28,12 +30,13 @@ def get_all() -> DataframableList[Quota]:
     quota_list: DataframableList[Quota] = DataframableList([])
     for quota in res.json():
         quota_key = _quota_map[quota["quota"]["name"]]
+        quota_value = quota["quota"]["details"].get(quota_key, None)
         quota_list.append(
             Quota(
                 name=quota["quota"]["name"],
                 description=quota["quota"]["details"]["description"],
                 usage=quota["quota"]["usage"].get(quota_key, 0),
-                quota=quota["quota"]["details"].get(quota_key, None),
+                quota=quota_value if quota_value else NO_QUOTA_SET,
             )
         )
 
@@ -53,12 +56,13 @@ def get(name: QuotaName):
     quota = res.json()[0]
 
     quota_key = _quota_map[quota["quota"]["name"]]
+    quota_value = quota["quota"]["details"].get(quota_key, None)
 
     return Quota(
         name=quota["quota"]["name"],
         description=quota["quota"]["details"]["description"],
         usage=quota["quota"]["usage"].get(quota_key, None),
-        quota=quota["quota"]["details"][quota_key],
+        quota=quota_value if quota_value else NO_QUOTA_SET,
     )
 
 

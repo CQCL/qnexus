@@ -109,7 +109,7 @@ class Quota(BaseModel):
     name: str
     description: str
     usage: float
-    quota: Optional[float]
+    quota: float | str
 
     def df(self) -> pd.DataFrame:
         """Convert to a pandas DataFrame."""
