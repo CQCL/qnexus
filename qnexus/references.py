@@ -93,6 +93,7 @@ class ProjectRef(BaseRef):
 
     annotations: Annotations
     contents_modified: datetime
+    archived: bool
     id: UUID
 
     @field_serializer("contents_modified")
@@ -110,6 +111,7 @@ class ProjectRef(BaseRef):
             pd.DataFrame(
                 {
                     "contents_modified": self.contents_modified,
+                    "archived": self.archived,
                     "id": self.id,
                 },
                 index=[0],

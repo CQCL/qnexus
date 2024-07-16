@@ -65,6 +65,21 @@ class ResourceUpdateFailed(Exception):
         super().__init__(self.err)
 
 
+class ResourceDeleteFailed(Exception):
+    """ResourceDeleteFailed is an exception that occurs when a resource
+    cannot be deleted on the platform.
+    """
+
+    def __init__(self, message: str, status_code: Optional[int] = None) -> None:
+        self.message = message
+        self.status_code = status_code
+        self.err = (
+            "Failed to delete resource with status code: "
+            f"{self.status_code}, message: {self.message}"
+        )
+        super().__init__(self.err)
+
+
 class OptionalDependencyError(Exception):
     """Exception for import error"""
 

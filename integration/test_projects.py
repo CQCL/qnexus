@@ -40,10 +40,11 @@ def test_project_get_all(
     assert isinstance(next(my_proj_db_matches), ProjectRef)
 
 
-def test_project_create(
+def test_project_create_and_delete(
     _authenticated_nexus: None,
 ) -> None:
-    """Test that we can create a project and add a property definition."""
+    """Test that we can create a project, add a property definition,
+    and delete the project only if archived first."""
 
     project_name = f"QA_test_project_create_{datetime.now()}"
 
@@ -64,6 +65,16 @@ def test_project_create(
 
     assert len(test_props) == 1
     assert test_props[0].annotations.name == test_property_name
+
+    with pytest.raises(qnx_exc.ResourceDeleteFailed):
+        qnx.projects.delete(my_new_project)
+    
+    qnx.projects.update(my_new_project, archive=True)
+
+    qnx.projects.delete(my_new_project)
+
+    with pytest.raises(qnx_exc.ZeroMatches):
+        qnx.projects.get(name_like=project_name)
 
 
 def test_project_get_or_create(
