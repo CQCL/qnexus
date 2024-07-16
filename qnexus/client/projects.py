@@ -5,6 +5,8 @@ from datetime import datetime
 from typing import Any, Literal, Union
 from uuid import UUID
 
+import pandas as pd
+
 # from halo import Halo
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
@@ -275,4 +277,47 @@ def _to_property(data: dict[str, Any]) -> DataframableList[Property]:
             )
             for property_dict in data["data"]
         ]
+    )
+
+
+def summarize(project: ProjectRef) -> pd.DataFrame:
+    """Summarize the current state of a project."""
+    import qnexus.client.jobs as jobs_client  # pylint: disable=import-outside-toplevel
+
+    all_jobs = jobs_client.get_all(project=project).list()
+
+    return pd.DataFrame(
+        {
+            "project": project.annotations.name,
+            "total_jobs": len(all_jobs),
+            "pending_jobs": len(
+                [
+                    job
+                    for job in all_jobs
+                    if job.last_status in jobs_client.WAITING_STATUS
+                ]
+            ),
+            "cancelled_jobs": len(
+                [
+                    job
+                    for job in all_jobs
+                    if job.last_status == jobs_client.StatusEnum.CANCELLED
+                ]
+            ),
+            "errored_jobs": len(
+                [
+                    job
+                    for job in all_jobs
+                    if job.last_status == jobs_client.StatusEnum.ERROR
+                ]
+            ),
+            "completed_jobs": len(
+                [
+                    job
+                    for job in all_jobs
+                    if job.last_status == jobs_client.StatusEnum.COMPLETED
+                ]
+            ),
+        },
+        index=[0],
     )
