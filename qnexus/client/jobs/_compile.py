@@ -4,7 +4,7 @@ from typing import Union, cast
 from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import circuit as circuit_api
+from qnexus.client import circuits as circuit_api
 from qnexus.client import nexus_client
 from qnexus.client.models import BackendConfig
 from qnexus.client.models.annotations import (

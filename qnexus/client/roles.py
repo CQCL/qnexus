@@ -3,8 +3,8 @@ from typing import Literal
 
 from pydantic import EmailStr
 
-import qnexus.client.team as team_client
-import qnexus.client.user as user_client
+import qnexus.client.teams as team_client
+import qnexus.client.users as user_client
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.models import Role, RoleInfo

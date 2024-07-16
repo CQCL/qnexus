@@ -129,7 +129,7 @@ class CircuitRef(BaseRef):
         """Get a copy of the pytket circuit."""
         if self._circuit:
             return self._circuit.copy()
-        from qnexus.client.circuit import _fetch_circuit
+        from qnexus.client.circuits import _fetch_circuit
 
         self._circuit = _fetch_circuit(self)
         return self._circuit.copy()
@@ -243,7 +243,7 @@ class CompilationResultRef(BaseRef):
         self,
     ) -> tuple[DataframableList[CompilationPassRef], CircuitRef, CircuitRef]:
         """Utility method to retrieve the passes and output circuit."""
-        from qnexus.client.job._compile import _fetch_compilation_passes
+        from qnexus.client.jobs._compile import _fetch_compilation_passes
 
         passes = _fetch_compilation_passes(self)
         return (passes, passes[0].input_circuit, passes[-1].output_circuit)
@@ -309,7 +309,7 @@ class ExecutionResultRef(BaseRef):
 
     def _get_execute_results(self) -> tuple[BackendResult, BackendInfo, CircuitRef]:
         """Utility method to retrieve the passes and output circuit."""
-        from qnexus.client.job._execute import _fetch_execution_result
+        from qnexus.client.jobs._execute import _fetch_execution_result
 
         return _fetch_execution_result(self)
 

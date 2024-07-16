@@ -6,7 +6,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import circuit as circuit_api
+from qnexus.client import circuits as circuit_api
 from qnexus.client import nexus_client
 from qnexus.client.models import BackendConfig, StoredBackendInfo
 from qnexus.client.models.annotations import (
