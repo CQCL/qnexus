@@ -83,3 +83,19 @@ def test_project_get_or_create(
     my_new_project_again = qnx.projects.get_or_create(name=project_name)
 
     assert my_new_project == my_new_project_again
+
+
+def test_project_summarize(
+    _authenticated_nexus: None,
+    qa_project_name: str,
+) -> None:
+    """Test that we can get summary information on the state of a project."""
+
+    my_proj = qnx.projects.get(name_like=qa_project_name)
+    assert isinstance(my_proj, ProjectRef)
+
+    project_summary = qnx.projects.summarize(my_proj)
+
+    assert isinstance(project_summary, pd.DataFrame)
+
+    assert project_summary["total_jobs"] > 0
