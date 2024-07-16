@@ -62,9 +62,13 @@ def get_all(
 
     for backendinfolist in res.json():
         for backend_info in backendinfolist["backend_info_list"]:
+            # Clean up the backend name for user consumption
+            backend_name = backend_info["name"].replace("Backend", "")
+            backend_name = backend_name.replace("EmulatorEnabled", "")
+
             device_list.append(
                 Device(
-                    backend_name=backend_info["name"],
+                    backend_name=backend_name,
                     device_name=backend_info["device_name"],
                     nexus_hosted=backendinfolist["is_local"],
                     backend_info=StoredBackendInfo(
