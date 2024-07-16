@@ -26,7 +26,7 @@ def test_credential_login_full_flow(
     monkeypatch.setattr("sys.stdin", StringIO(username + "\n"))
     monkeypatch.setattr("getpass.getpass", lambda prompt: pwd)
 
-    qnx.auth.credential_login()
+    qnx.auth.login_with_credentials()
 
     assert read_token(token_type="access_token") != ""
     assert read_token(token_type="refresh_token") != ""
