@@ -9,7 +9,7 @@ class Params(CredentialsFilter):
     """Params for filtering credentials."""
 
 
-def get(
+def get_all(
     issuer: CredentialIssuer | str | None = None,
 ) -> list[Credential]:
     """Get saved credentials."""

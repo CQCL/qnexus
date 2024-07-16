@@ -5,20 +5,20 @@ import nest_asyncio  # type: ignore
 
 from qnexus import context
 from qnexus.client import (
-    assignment,
     auth,
-    circuit,
-    credential,
-    device,
-    job,
-    project,
-    quota,
-    team,
-    user,
+    circuits,
+    credentials,
+    devices,
+    jobs,
+    projects,
+    quotas,
+    roles,
+    teams,
+    users,
 )
-from qnexus.client.job import compile, execute
-from qnexus.client.job._compile import start_compile_job
-from qnexus.client.job._execute import start_execute_job
+from qnexus.client.jobs import compile, execute
+from qnexus.client.jobs._compile import start_compile_job
+from qnexus.client.jobs._execute import start_execute_job
 from qnexus.client.models import (
     AerConfig,
     AerStateConfig,
@@ -41,14 +41,14 @@ except (RuntimeError, ValueError):
 
 __all__ = [
     "context",
-    "assignment",
+    "roles",
     "auth",
-    "circuit",
-    "device",
-    "job",
-    "project",
-    "quota",
-    "team",
+    "circuits",
+    "devices",
+    "jobs",
+    "projects",
+    "quotas",
+    "teams",
     "compile",
     "execute",
 ]

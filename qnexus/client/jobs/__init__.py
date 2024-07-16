@@ -15,8 +15,8 @@ from websockets.exceptions import ConnectionClosedError
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.job import _compile
-from qnexus.client.job import _execute
+from qnexus.client.jobs import _compile
+from qnexus.client.jobs import _execute
 from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.client.models.filters import (
     CreatorFilter,
@@ -99,7 +99,7 @@ class Params(
 
 # @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
 @merge_project_from_context
-def get(
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -182,7 +182,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
     return DataframableList(job_list)
 
 
-def get_only(
+def get(
     job_id: Union[str, UUID, None] = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
@@ -203,7 +203,7 @@ def get_only(
     if job_id:
         return _fetch(job_id=job_id)
 
-    return get(
+    return get_all(
         name_like=name_like,
         creator_email=creator_email,
         project=project,

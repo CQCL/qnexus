@@ -4,16 +4,16 @@ from typing import Any
 
 import click
 
-from qnexus.client.project import Params, get
+from qnexus.client.projects import Params, get_all
 
 from .utils import add_options_to_command, is_documented_by
 
 
 @click.command()
-@is_documented_by(get)
+@is_documented_by(get_all)
 def projects(**kwargs: Any):
     """List all projects"""
-    click.echo(get(**kwargs))
+    click.echo(get_all(**kwargs))
 
 
 add_options_to_command(projects, Params)

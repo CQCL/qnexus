@@ -40,24 +40,24 @@ def _authenticated_nexus(
     with make_authenticated_nexus():
         test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
 
-        my_proj = qnx.project.create(name=qa_project_name, description=test_desc)
+        my_proj = qnx.projects.create(name=qa_project_name, description=test_desc)
 
-        qnx.project.add_property(
+        qnx.projects.add_property(
             name="QA_test_prop",
             property_type="string",
             project=my_proj,
         )
 
-        qnx.team.create(name=qa_team_name, description=test_desc)
+        qnx.teams.create(name=qa_team_name, description=test_desc)
 
-        my_new_circuit = qnx.circuit.upload(
+        my_new_circuit = qnx.circuits.upload(
             circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
             name=qa_circuit_name,
             description=test_desc,
             project=my_proj,
         )
 
-        my_other_circuit = qnx.circuit.upload(
+        my_other_circuit = qnx.circuits.upload(
             # re-uploading with a unique name to avoid conflicts
             circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
             name=qa_circuit_name_2,
@@ -93,9 +93,9 @@ def _authenticated_nexus_circuit_ref(
     """Starting with authenticated nexus instance, yield a CircuitRef
     for use in tests."""
 
-    my_proj = qnx.project.get_only(name_like=qa_project_name)
+    my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    my_new_circuit = qnx.circuit.upload(
+    my_new_circuit = qnx.circuits.upload(
         circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
         name=f"qnexus_integration_additional_test_circuit_{datetime.now()}",
         description=f"This can be safely deleted. Test Run: {datetime.now()}",

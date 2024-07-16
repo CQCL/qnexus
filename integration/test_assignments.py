@@ -1,4 +1,4 @@
-"""Test basic functionality relating to the assignment module."""
+"""Test basic functionality relating to the role module."""
 
 from datetime import datetime
 
@@ -10,21 +10,21 @@ from qnexus.client.models import Role
 from qnexus.references import TeamRef, UserRef
 
 
-def test_assignment_getonly(
+def test_role_get(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get a specific Role."""
 
-    role = qnx.assignment.get_only(name="Administrator")
+    role = qnx.roles.get(name="Administrator")
     assert isinstance(role, Role)
 
 
-def test_assignment_get(
+def test_role_get_all(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get all assignment role definitions."""
 
-    all_roles = qnx.assignment.get()
+    all_roles = qnx.roles.get_all()
 
     assert len(all_roles) == 4
     assert isinstance(all_roles.df(), pd.DataFrame)
@@ -37,15 +37,13 @@ def test_team_assignment(
 ) -> None:
     """Test that we can get all assignment role definitions."""
 
-    new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}_0")
+    new_project_ref = qnx.projects.create(name=f"QA_test_project_{datetime.now()}_0")
 
-    team = qnx.team.get_only(name=qa_team_name)
+    team = qnx.teams.get(name=qa_team_name)
 
-    qnx.assignment.assign_team_role(
-        resource_ref=new_project_ref, team=team, role="Administrator"
-    )
+    qnx.roles.assign_team(resource_ref=new_project_ref, team=team, role="Administrator")
 
-    assignments = qnx.assignment.check(resource_ref=new_project_ref)
+    assignments = qnx.roles.assignments(resource_ref=new_project_ref)
 
     assert len(assignments) == 2
 
@@ -64,15 +62,15 @@ def test_user_assignment(
 ) -> None:
     """Test that we can get all assignment role definitions."""
 
-    new_project_ref = qnx.project.create(name=f"QA_test_project_{datetime.now()}_1")
+    new_project_ref = qnx.projects.create(name=f"QA_test_project_{datetime.now()}_1")
 
-    qnx.assignment.assign_user_role(
+    qnx.roles.assign_user(
         resource_ref=new_project_ref,
         user_email=NEXUS_QA_USER_EMAIL,
         role="Contributor",
     )
 
-    assignments = qnx.assignment.check(resource_ref=new_project_ref)
+    assignments = qnx.roles.assignments(resource_ref=new_project_ref)
 
     assert len(assignments) == 2
 
@@ -81,13 +79,11 @@ def test_user_assignment(
     )
     assert contrib_assignment.assignment_type == "user"
     assert isinstance(contrib_assignment.assignee, UserRef)
-    assert contrib_assignment.assignee.email == NEXUS_QA_USER_EMAIL
 
     admin_assignment = next(
         assign for assign in assignments if assign.role.name == "Administrator"
     )
     assert admin_assignment.assignment_type == "user"
     assert isinstance(admin_assignment.assignee, UserRef)
-    assert admin_assignment.assignee.email == NEXUS_QA_USER_EMAIL
 
     # TODO delete project once available

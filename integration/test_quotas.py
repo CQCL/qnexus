@@ -6,21 +6,21 @@ import qnexus as qnx
 from qnexus.client.models import Quota
 
 
-def test_quota_getonly(
+def test_quota_get(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get a specific Quota."""
 
-    my_quota = qnx.quota.get_only(name="compilation")
+    my_quota = qnx.quotas.get(name="compilation")
     assert isinstance(my_quota, Quota)
 
 
-def test_quota_get(
+def test_quota_get_all(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get all quotas (currently not a DatabaseIterator)."""
 
-    my_quotas = qnx.quota.get()
+    my_quotas = qnx.quotas.get_all()
 
     assert len(my_quotas) > 1
     assert isinstance(my_quotas.df(), pd.DataFrame)
@@ -33,4 +33,4 @@ def test_check_quota(
     """Test that we can check a specific quota guard."""
 
     # Assumes the user isn't over their Jupyterhub quota
-    assert qnx.quota.check_quota(name="jupyterhub") is True
+    assert qnx.quotas.check_quota(name="jupyterhub") is True

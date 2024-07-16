@@ -17,7 +17,7 @@ class Params(DevicesFilter):
     """Params for filtering devices."""
 
 
-def get(
+def get_all(
     issuers: list[IssuerEnum] | None = None,
     aws_region: str | None = None,
     ibmq_hub: str | None = None,
@@ -62,9 +62,13 @@ def get(
 
     for backendinfolist in res.json():
         for backend_info in backendinfolist["backend_info_list"]:
+            # Clean up the backend name for user consumption
+            backend_name = backend_info["name"].replace("Backend", "")
+            backend_name = backend_name.replace("EmulatorEnabled", "")
+
             device_list.append(
                 Device(
-                    backend_name=backend_info["name"],
+                    backend_name=backend_name,
                     device_name=backend_info["device_name"],
                     nexus_hosted=backendinfolist["is_local"],
                     backend_info=StoredBackendInfo(

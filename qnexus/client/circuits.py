@@ -46,7 +46,7 @@ class Params(
 
 
 @merge_project_from_context
-def get(
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -110,7 +110,7 @@ def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
     return circuit_refs
 
 
-def get_only(
+def get(
     *,
     id: Union[UUID, str, None] = None,
     name_like: str | None = None,
@@ -130,7 +130,7 @@ def get_only(
     if id:
         return _fetch(circuit_id=id)
 
-    return get(
+    return get_all(
         name_like=name_like,
         creator_email=creator_email,
         properties=properties,

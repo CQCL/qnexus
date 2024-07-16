@@ -1,10 +1,10 @@
-"""Client API for role-based-access-control assignments in Nexus."""
+"""Client API for role-based-access-control roles and assignments in Nexus."""
 from typing import Literal
 
 from pydantic import EmailStr
 
-import qnexus.client.team as team_client
-import qnexus.client.user as user_client
+import qnexus.client.teams as team_client
+import qnexus.client.users as user_client
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.models import Role, RoleInfo
@@ -14,7 +14,7 @@ Permission = Literal["ASSIGN", "DELETE", "WRITE", "READ"]
 RoleName = Literal["Administrator", "Contributor", "Reader", "Maintainer"]
 
 
-def get() -> DataframableList[Role]:
+def get_all() -> DataframableList[Role]:
     """Get the definitions of possible role-based access control assignments."""
     res = nexus_client.get(
         "/api/roles/v1beta",
@@ -38,16 +38,16 @@ def get() -> DataframableList[Role]:
     )
 
 
-def get_only(name: RoleName) -> Role:
+def get(name: RoleName) -> Role:
     """Get a unique role-based access control assignment"""
-    for item in get():
+    for item in get_all():
         if item.name == name:
             return item
 
     raise qnx_exc.NoUniqueMatch()
 
 
-def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
+def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     """Check the assignments on a particular resource."""
 
     res = nexus_client.get(
@@ -59,30 +59,32 @@ def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
             message=res.json(), status_code=res.status_code
         )
 
-    roles_dict = {str(role.id): role for role in get()}
+    roles_dict = {str(role.id): role for role in get_all()}
 
-    assignments = res.json()["data"]["attributes"]
+    res_assignments = res.json()["data"]["attributes"]
 
     role_infos: DataframableList[RoleInfo] = DataframableList([])
 
-    for user_role_assignment in assignments["user_role_assignments"]:
+    for user_role_assignment in res_assignments["user_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="user",
-                assignee=user_client.get_only(user_id=user_role_assignment["user_id"]),
+                assignee=user_client._fetch(  # pylint: disable=protected-access
+                    user_id=user_role_assignment["user_id"]
+                ),
                 role=roles_dict[user_role_assignment["role_id"]],
             )
         )
 
-    for team_role_assignment in assignments["team_role_assignments"]:
+    for team_role_assignment in res_assignments["team_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="team",
-                assignee=team_client.get_only(name=team_role_assignment["team_id"]),
+                assignee=team_client.get(name=team_role_assignment["team_id"]),
                 role=roles_dict[team_role_assignment["role_id"]],
             )
         )
-    for public_role_assignment in assignments["public_role_assignments"]:
+    for public_role_assignment in res_assignments["public_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="public",
@@ -93,12 +95,10 @@ def check(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     return role_infos
 
 
-def assign_team_role(
-    resource_ref: BaseRef, team: TeamRef, role: RoleName | Role
-) -> None:
+def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> None:
     """Assign a role-based access control assignment to a team."""
     if isinstance(role, str):
-        role = get_only(role)
+        role = get(role)
 
     req_dict = {
         "data": {
@@ -123,12 +123,12 @@ def assign_team_role(
         )
 
 
-def assign_user_role(
+def assign_user(
     resource_ref: BaseRef, user_email: EmailStr, role: RoleName | Role
 ) -> None:
     """Assign a role-based access control assignment to a user."""
     if isinstance(role, str):
-        role = get_only(role)
+        role = get(role)
 
     req_dict = {
         "data": {

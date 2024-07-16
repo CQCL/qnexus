@@ -5,11 +5,11 @@ from qnexus.client.models import Device
 from qnexus.references import DataframableList
 
 
-def test_device_get(
+def test_device_get_all(
     _authenticated_nexus: None,
 ) -> None:
     """Test that we can get a list of devices."""
-    devices = qnx.device.get()
+    devices = qnx.devices.get_all()
     assert isinstance(devices, DataframableList)
 
     for device in devices:

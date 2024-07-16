@@ -3,16 +3,16 @@ from typing import Any
 
 import click
 
-from qnexus.client.job import Params, get
+from qnexus.client.jobs import Params, get_all
 
 from .utils import add_options_to_command, is_documented_by
 
 
 @click.command()
-@is_documented_by(get)
+@is_documented_by(get_all)
 def jobs(**kwargs: Any):
     """List jobs."""
-    click.echo(get(**kwargs))
+    click.echo(get_all(**kwargs))
 
 
 add_options_to_command(jobs, Params)
