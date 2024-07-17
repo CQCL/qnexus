@@ -45,6 +45,7 @@ These instructions will get you a copy of the project up and running on your loc
 
 - Python >= 3.10
 - [Poetry](https://python-poetry.org/docs/#installation)
+- [commitizen](https://commitizen-tools.github.io/commitizen/)
 
 If you have [Nix](https://zero-to-nix.com/start/install) and [direnv](https://github.com/direnv available on your system you can reuse the nix shell environment to provide a development environment.
 
@@ -92,6 +93,33 @@ Run basic unit tests using
 ```sh
 poetry run pytest tests/
 ```
+
+### Release
+
+### Step 1 - update the changelog
+
+- Update `CHANGELOG.md`: this is automated. Use `devenv` and the `commitizen` [tool](https://commitizen-tools.github.io/commitizen/):
+  ```
+  git fetch --tags origin  # make sure your local tags are same as in github
+  cz bump --files-only  # --files-only prevents the tool making a git tag
+  ```
+  This will use the [commit history](https://www.conventionalcommits.org/) and modify `CHANGELOG.md` to include a heading with the new version number and the date. It also updates `.cz.toml`. The tool automatically decides whether to increment the patch version, minor version or major version (major version changes are currently disabled in its config file).
+- If you like, you can manually edit `CHANGELOG.md` at this point. Consider moving important entries under these headings, or writing under them (see [Keep A Changelog](https://keepachangelog.com/en/1.1.0/#how)):
+  - Deprecated
+  - Removed
+  - Security
+- Create a release branch `git checkout -b release/vx.y.z`
+- `git add` the modifications, then `git commit` and `git push` them.
+- Create a PR (title: `docs: Update CHANGELOG for vx.y.z`)
+- Ask a colleague to review the changes (should be just `CHANGELOG.md` and `.cz.toml`)
+- Squash merge the PR into `main`
+
+### Step 2 - run the release workflow
+
+- On https://github.com/CQCL-DEV/qnexus, via the `make new release` button on the side:
+- Select `create new tag` when selecting the tag, with name in the format below.
+- Choose the target branch/commit for the release.
+
 
 ## License
 

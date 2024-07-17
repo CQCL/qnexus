@@ -1,0 +1,15 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+tag_format = "$version"
+version_scheme = "semver"
+version = "0.1.0"
+update_changelog_on_bump = true
+major_version_zero = true
+
+[tool.commitizen.customize]
+# Choices here are based on cz.conventional_commits.conventional_commits.ConventionalCommitsCz
+
+# We group some change_type values into "Internal". The custom template for the changelog may exclude them.
+change_type_map = { "feat" = "Added", "fix" = "Fixed", "docs" = "Internal", "style" = "Internal", "refactor" = "Internal", "perf" = "Internal", "test" = "Internal", "ci" = "Internal", "chore" = "Internal", "revert" = "Internal", "infra" = "Internal", "build" = "Internal" }
+
+change_type_order = ["Added", "Fixed", "Internal"]
