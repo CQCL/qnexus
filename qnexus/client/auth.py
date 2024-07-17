@@ -100,7 +100,7 @@ def login() -> None:
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
 
-def credential_login() -> None:
+def login_with_credentials() -> None:
     """Login to Nexus using a username and password."""
     user_name = input("Enter your Nexus email: ")
     pwd = getpass.getpass(prompt="Enter your Nexus password: ")

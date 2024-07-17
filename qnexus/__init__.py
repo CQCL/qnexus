@@ -16,6 +16,7 @@ from qnexus.client import (
     teams,
     users,
 )
+from qnexus.client.auth import login, login_with_credentials, logout
 from qnexus.client.jobs import compile, execute
 from qnexus.client.jobs._compile import start_compile_job
 from qnexus.client.jobs._execute import start_execute_job
@@ -51,4 +52,7 @@ __all__ = [
     "teams",
     "compile",
     "execute",
+    "login",
+    "login_with_credentials",
+    "logout",
 ]
