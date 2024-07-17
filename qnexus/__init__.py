@@ -32,6 +32,7 @@ from qnexus.client.models import (
     QuantinuumConfig,
     QulacsConfig,
 )
+from qnexus import filesystem
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
 try:
@@ -45,6 +46,7 @@ __all__ = [
     "roles",
     "auth",
     "circuits",
+    "credentials",
     "devices",
     "jobs",
     "projects",
@@ -52,6 +54,10 @@ __all__ = [
     "teams",
     "compile",
     "execute",
+    "users",
+    "filesystem",
+    "start_compile_job",
+    "start_execute_job",
     "login",
     "login_with_credentials",
     "logout",

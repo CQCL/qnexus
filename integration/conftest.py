@@ -65,7 +65,7 @@ def _authenticated_nexus(
             project=my_proj,
         )
 
-        qnx.start_compile_job(
+        compile_job_ref = qnx.start_compile_job(
             circuits=[my_other_circuit],
             name=qa_compile_job_name,
             description=test_desc,
@@ -73,7 +73,7 @@ def _authenticated_nexus(
             backend_config=qnx.AerConfig(),
         )
 
-        qnx.start_execute_job(
+        execute_job_ref = qnx.start_execute_job(
             circuits=[my_new_circuit],
             name=qa_execute_job_name,
             description=test_desc,
@@ -81,6 +81,9 @@ def _authenticated_nexus(
             backend_config=qnx.AerConfig(),
             n_shots=[10],
         )
+
+        qnx.jobs.wait_for(compile_job_ref)
+        qnx.jobs.wait_for(execute_job_ref)
 
         yield
 

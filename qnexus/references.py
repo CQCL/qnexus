@@ -7,11 +7,11 @@ from abc import abstractmethod
 from copy import copy
 from datetime import datetime
 from enum import Enum
-from typing import Optional, Protocol, TypeVar
+from typing import Annotated, Any, Literal, Optional, Protocol, TypeVar, Union
 from uuid import UUID
 
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, field_serializer
+from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
@@ -58,6 +58,7 @@ class TeamRef(BaseRef):
     name: str
     description: Optional[str]
     id: UUID
+    type: Literal["TeamRef"] = "TeamRef"
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -76,6 +77,7 @@ class UserRef(BaseRef):
 
     display_name: Optional[str]
     id: UUID
+    type: Literal["UserRef"] = "UserRef"
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -94,6 +96,7 @@ class ProjectRef(BaseRef):
     annotations: Annotations
     contents_modified: datetime
     id: UUID
+    type: Literal["ProjectRef"] = "ProjectRef"
 
     @field_serializer("contents_modified")
     def serialize_modified(
@@ -124,6 +127,7 @@ class CircuitRef(BaseRef):
     project: ProjectRef
     id: UUID
     _circuit: Circuit | None = None
+    type: Literal["CircuitRef"] = "CircuitRef"
 
     def download_circuit(self) -> Circuit:
         """Get a copy of the pytket circuit."""
@@ -165,6 +169,7 @@ class JobRef(BaseRef):
     last_message: str
     project: ProjectRef
     id: UUID
+    type: Literal["JobRef", "CompileJobRef", "ExecuteJobRef"] = "JobRef"
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -181,16 +186,18 @@ class JobRef(BaseRef):
         )
 
 
-class CompileJobRef(JobRef):
+class CompileJobRef(JobRef, BaseRef):
     """Proxy object to a CompileJob in Nexus."""
 
     job_type: JobType = JobType.COMPILE
+    type: Literal["CompileJobRef"] = "CompileJobRef"
 
 
-class ExecuteJobRef(JobRef):
+class ExecuteJobRef(JobRef, BaseRef):
     """Proxy object to an ExecuteJob in Nexus."""
 
     job_type: JobType = JobType.EXECUTE
+    type: Literal["ExecuteJobRef"] = "ExecuteJobRef"
 
 
 class CompilationResultRef(BaseRef):
@@ -202,6 +209,7 @@ class CompilationResultRef(BaseRef):
     _output_circuit: CircuitRef | None = None
     _compilation_passes: DataframableList[CompilationPassRef] | None = None
     id: UUID  # compilation id
+    type: Literal["CompilationResultRef"] = "CompilationResultRef"
 
     def get_input(self) -> CircuitRef:
         """Get the CircuitRef of the original circuit."""
@@ -270,6 +278,7 @@ class ExecutionResultRef(BaseRef):
     _backend_result: BackendResult | None = None
     _backend_info: BackendInfo | None = None
     id: UUID
+    type: Literal["ExecutionResultRef"] = "ExecutionResultRef"
 
     def get_input(self) -> CircuitRef:
         """Get the CircuitRef of the input circuit."""
@@ -333,6 +342,7 @@ class CompilationPassRef(BaseRef):
     input_circuit: CircuitRef
     output_circuit: CircuitRef
     id: UUID
+    type: Literal["CompilationPassRef"] = "CompilationPassRef"
 
     def get_input(self) -> CircuitRef:
         """Get the CircuitRef of the original circuit."""
@@ -353,3 +363,40 @@ class CompilationPassRef(BaseRef):
             },
             index=[0],
         )
+
+
+Ref = Annotated[
+    Union[
+        TeamRef,
+        UserRef,
+        ProjectRef,
+        CircuitRef,
+        JobRef,
+        CompileJobRef,
+        ExecuteJobRef,
+        CompilationResultRef,
+        ExecutionResultRef,
+        CompilationPassRef,
+    ],
+    Field(discriminator="type"),
+]
+
+# TODO test that all subclasses of BaseRef are in this
+
+
+ref_name_to_class: dict[str, Ref] = {
+    config_type.__name__: config_type  # type: ignore
+    for config_type in BaseRef.__subclasses__()
+}
+
+
+def deserialize_nexus_ref(jsonable: dict[str, Any]) -> Ref:
+    """Deserialize something that should be a subclass of BaseRef based on
+    the value of its 'type' field."""
+    ref_type = jsonable["type"]
+    if ref_type in ref_name_to_class.keys():
+        ref_class = ref_name_to_class[ref_type]
+        return ref_class(**jsonable)  # type: ignore
+    raise ValueError(
+        f"Cannot deserialize as {ref_type}, no known class matches that value."
+    )
