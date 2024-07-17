@@ -1,11 +1,8 @@
 name: Create Release
 
 on:
-    push:
-      tags:
-        - "*"
-      branches:
-        - main
+  release:
+    types: [created]
   
 jobs:
   build-and-publish:
