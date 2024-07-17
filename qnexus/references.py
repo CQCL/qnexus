@@ -79,7 +79,6 @@ class UserRef(BaseRef):
     id: UUID
     type: Literal["UserRef"] = "UserRef"
 
-
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
         return pd.DataFrame(
@@ -98,7 +97,6 @@ class ProjectRef(BaseRef):
     contents_modified: datetime
     id: UUID
     type: Literal["ProjectRef"] = "ProjectRef"
-
 
     @field_serializer("contents_modified")
     def serialize_modified(
@@ -130,7 +128,6 @@ class CircuitRef(BaseRef):
     id: UUID
     _circuit: Circuit | None = None
     type: Literal["CircuitRef"] = "CircuitRef"
-
 
     def download_circuit(self) -> Circuit:
         """Get a copy of the pytket circuit."""
@@ -172,7 +169,7 @@ class JobRef(BaseRef):
     last_message: str
     project: ProjectRef
     id: UUID
-    type: Literal["JobRef"] = "JobRef"
+    type: Literal["JobRef", "CompileJobRef", "ExecuteJobRef"] = "JobRef"
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -189,17 +186,19 @@ class JobRef(BaseRef):
         )
 
 
-class CompileJobRef(JobRef):
+class CompileJobRef(JobRef, BaseRef):
     """Proxy object to a CompileJob in Nexus."""
 
     job_type: JobType = JobType.COMPILE
-    type: Literal["CompileJobRef"] = "CompileJobRef"
+    type = "CompileJobRef"
 
-class ExecuteJobRef(JobRef):
+
+class ExecuteJobRef(JobRef, BaseRef):
     """Proxy object to an ExecuteJob in Nexus."""
 
     job_type: JobType = JobType.EXECUTE
-    type: Literal["ExecuteJobRef"] = "ExecuteJobRef"
+    type = "ExecuteJobRef"
+
 
 class CompilationResultRef(BaseRef):
     """Proxy object to the results of a circuit compilation in Nexus."""
@@ -280,7 +279,6 @@ class ExecutionResultRef(BaseRef):
     _backend_info: BackendInfo | None = None
     id: UUID
     type: Literal["ExecutionResultRef"] = "ExecutionResultRef"
-
 
     def get_input(self) -> CircuitRef:
         """Get the CircuitRef of the input circuit."""
@@ -398,8 +396,7 @@ def deserialize_nexus_ref(jsonable: dict[str, Any]) -> Ref:
     ref_type = jsonable["type"]
     if ref_type in ref_name_to_class.keys():
         ref_class = ref_name_to_class[ref_type]
-        return ref_class.model_construct(**jsonable)
+        return ref_class(**jsonable)  # type: ignore
     raise ValueError(
         f"Cannot deserialize as {ref_type}, no known class matches that value."
     )
-
