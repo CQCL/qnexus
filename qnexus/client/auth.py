@@ -14,6 +14,7 @@ from rich.console import Console
 from rich.panel import Panel
 
 import qnexus.exceptions as qnx_exc
+from qnexus.client import reload_client
 from qnexus.client.utils import consolidate_error, remove_token, write_token
 from qnexus.config import Config
 
@@ -96,6 +97,9 @@ def login() -> None:
         # Fail for all other statuses
         consolidate_error(res=resp, description="Browser Login")
         # spinner.stop()
+
+        reload_client()
+
         return
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
@@ -107,6 +111,7 @@ def login_with_credentials() -> None:
 
     _request_tokens(user=user_name, pwd=pwd)
 
+    reload_client()
     print(f"✅ Successfully logged in as {user_name}.")
 
 
