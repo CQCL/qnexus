@@ -190,14 +190,14 @@ class CompileJobRef(JobRef, BaseRef):
     """Proxy object to a CompileJob in Nexus."""
 
     job_type: JobType = JobType.COMPILE
-    type = "CompileJobRef"
+    type: Literal["CompileJobRef"] = "CompileJobRef"
 
 
 class ExecuteJobRef(JobRef, BaseRef):
     """Proxy object to an ExecuteJob in Nexus."""
 
     job_type: JobType = JobType.EXECUTE
-    type = "ExecuteJobRef"
+    type: Literal["ExecuteJobRef"] = "ExecuteJobRef"
 
 
 class CompilationResultRef(BaseRef):
