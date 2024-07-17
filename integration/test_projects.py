@@ -98,4 +98,4 @@ def test_project_summarize(
 
     assert isinstance(project_summary, pd.DataFrame)
 
-    assert project_summary["total_jobs"] > 0
+    assert (project_summary["total_jobs"] > 0).all()
