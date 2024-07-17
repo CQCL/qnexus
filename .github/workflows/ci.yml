@@ -38,7 +38,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Setup poetry
         run: |
-          pip install pip==22.2.1 poetry==1.6.1
+          pip install pip==22.2.1 poetry==1.8.2
           poetry run pip install --upgrade pip
       - name: Install dev dependencies
         run: |
