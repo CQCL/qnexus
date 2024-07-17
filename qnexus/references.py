@@ -381,8 +381,6 @@ Ref = Annotated[
     Field(discriminator="type"),
 ]
 
-# TODO test that all subclasses of BaseRef are in this
-
 
 ref_name_to_class: dict[str, Ref] = {
     config_type.__name__: config_type  # type: ignore

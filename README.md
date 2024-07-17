@@ -123,6 +123,9 @@ poetry run pytest tests/
 
 ## License
 
-This project is licensed under Apache License, Version 2.0 ([LICENCE][] or http://www.apache.org/licenses/LICENSE-2.0).
+This project is licensed under Apache License, Version 2.0 ([LICENSE][] or http://www.apache.org/licenses/LICENSE-2.0).
 
-  [LICENCE]: ./LICENCE
+  [LICENSE]: ./LICENSE
+
+
+Copyright 2024 Quantinuum Ltd.
