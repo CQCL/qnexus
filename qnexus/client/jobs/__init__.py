@@ -15,8 +15,8 @@ from websockets.exceptions import ConnectionClosedError
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.database_iterator import DatabaseIterator
-from qnexus.client.jobs import _compile
-from qnexus.client.jobs import _execute
+from qnexus.client.jobs import _compile, _execute
+from qnexus.client.models import BackendConfig
 from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.client.models.filters import (
     CreatorFilter,
@@ -32,7 +32,6 @@ from qnexus.client.models.filters import (
     TimeFilter,
 )
 from qnexus.client.models.job_status import JobStatus
-from qnexus.client.models import BackendConfig
 from qnexus.client.models.utils import AllowNone, assert_never
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.config import Config
