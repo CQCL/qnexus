@@ -2,7 +2,6 @@
 iterated type T into a python Iterator."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Generic, Iterator, List, TypeVar
 
 import httpx
@@ -14,7 +13,7 @@ from qnexus.references import Dataframable, DataframableList
 T = TypeVar("T", bound=Dataframable)
 
 
-class DatabaseIterator(Generic[T], Iterator[T]):
+class NexusIterator(Generic[T], Iterator[T]):
     """An object that can be used to summarize or iterate through a filter query made to
     the Nexus database."""
 
@@ -34,11 +33,6 @@ class DatabaseIterator(Generic[T], Iterator[T]):
         self.params = params
         self._cached_list: DataframableList[T] | None = None
         self._current_page_subiterator: Iterator[T] = iter([])
-        # TODO Hack to avoid older broken circuits and projects (will affect old users)
-        self.params["filter[timestamps][created][after]"] = self.params.get(
-            "filter[timestamps][created][after]",
-            datetime(day=1, month=1, year=2023, tzinfo=timezone.utc),
-        )
 
     def __iter__(self) -> Iterator[T]:
         """Return the Iterator."""
@@ -46,7 +40,6 @@ class DatabaseIterator(Generic[T], Iterator[T]):
 
     def __next__(self) -> T:
         """Get the next element of the Iterator."""
-        # TODO check performance
         try:
             return next(self._current_page_subiterator)
         except StopIteration as exc:

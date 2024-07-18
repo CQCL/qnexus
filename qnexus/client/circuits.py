@@ -8,7 +8,6 @@ from pytket import Circuit
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.client.database_iterator import DatabaseIterator
 from qnexus.client.models.annotations import (
     Annotations,
     CreateAnnotations,
@@ -24,6 +23,7 @@ from qnexus.client.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
+from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.context import (
     get_active_project,
@@ -52,14 +52,14 @@ def get_all(
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
     created_before: datetime | None = None,
-    created_after: datetime | None = None,
+    created_after: datetime | None = datetime(day=1, month=1, year=2023),
     modified_before: datetime | None = None,
     modified_after: datetime | None = None,
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> DatabaseIterator:
-    """Get a DatabaseIterator over circuits with optional filters."""
+) -> NexusIterator:
+    """Get a NexusIterator over circuits with optional filters."""
 
     params = Params(
         name_like=name_like,
@@ -75,7 +75,7 @@ def get_all(
         page_size=page_size,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    return DatabaseIterator(
+    return NexusIterator(
         resource_type="Circuit",
         nexus_url="/api/circuits/v1beta",
         params=params,
@@ -118,7 +118,7 @@ def get(
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
     created_before: datetime | None = None,
-    created_after: datetime | None = None,
+    created_after: datetime | None = datetime(day=1, month=1, year=2023),
     modified_before: datetime | None = None,
     modified_after: datetime | None = None,
     sort_filters: list[SortFilterEnum] | None = None,

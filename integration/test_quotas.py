@@ -18,7 +18,7 @@ def test_quota_get(
 def test_quota_get_all(
     _authenticated_nexus: None,
 ) -> None:
-    """Test that we can get all quotas (currently not a DatabaseIterator)."""
+    """Test that we can get all quotas (currently not a NexusIterator)."""
 
     my_quotas = qnx.quotas.get_all()
 

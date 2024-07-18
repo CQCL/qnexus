@@ -18,7 +18,7 @@ def test_team_get(_authenticated_nexus: None, qa_team_name: str) -> None:
 def test_team_get_all(
     _authenticated_nexus: None,
 ) -> None:
-    """Test that we can get all teams (currently not a DatabaseIterator)."""
+    """Test that we can get all teams (currently not a NexusIterator)."""
 
     my_teams = qnx.teams.get_all()
 

@@ -10,7 +10,6 @@ import pandas as pd
 # from halo import Halo
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.client.database_iterator import DatabaseIterator
 from qnexus.client.models import Property
 from qnexus.client.models.annotations import (
     Annotations,
@@ -26,6 +25,7 @@ from qnexus.client.models.filters import (  # PropertiesFilter, # Not yet implem
     SortFilterEnum,
     TimeFilter,
 )
+from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.context import get_active_project
 from qnexus.references import DataframableList, ProjectRef
@@ -51,15 +51,15 @@ def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
-    created_after: datetime | None = None,
+    created_after: datetime | None = datetime(day=1, month=1, year=2023),
     modified_before: datetime | None = None,
     modified_after: datetime | None = None,
     is_archived: bool = False,
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> DatabaseIterator[ProjectRef]:
-    """Get a DatabaseIterator over projects with optional filters."""
+) -> NexusIterator[ProjectRef]:
+    """Get a NexusIterator over projects with optional filters."""
 
     params = Params(
         name_like=name_like,
@@ -78,7 +78,7 @@ def get_all(
         exclude_none=True,
     )
 
-    return DatabaseIterator(
+    return NexusIterator(
         resource_type="Project",
         nexus_url="/api/projects/v1beta",
         params=params,
@@ -106,7 +106,7 @@ def get(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
-    created_after: datetime | None = None,
+    created_after: datetime | None = datetime(day=1, month=1, year=2023),
     modified_before: datetime | None = None,
     modified_after: datetime | None = None,
     is_archived: bool = False,
@@ -253,7 +253,7 @@ def get_properties(project: ProjectRef | None = None) -> DataframableList[Proper
     project = project or get_active_project(project_required=True)
     assert project, "ProjectRef required."
 
-    all_project_properties_iterator = DatabaseIterator(
+    all_project_properties_iterator = NexusIterator(
         resource_type="Property",
         nexus_url="/api/property_definitions/v1beta",
         params={"filter[project][id]": str(project.id)},
