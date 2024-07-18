@@ -78,3 +78,15 @@ nexus_client = httpx.Client(
     auth=AuthHandler(),
     timeout=None,
 )
+
+
+def reload_client() -> None:
+    """Reload the nexus client with new tokens."""
+    global nexus_client  # pylint: disable=global-statement
+    global config  # pylint: disable=global-statement
+    config = get_config()
+    nexus_client = httpx.Client(
+        base_url=config.url,
+        auth=AuthHandler(),
+        timeout=None,
+    )

@@ -1,13 +1,13 @@
 """Test filesystem operations with Nexus Refs."""
 
+import shutil
 from datetime import datetime
 from pathlib import Path
-import shutil
 from typing import cast
 
 import qnexus as qnx
+from qnexus.filesystem import load, save
 from qnexus.references import BaseRef, JobRef
-from qnexus.filesystem import save, load
 
 
 def test_save_load(  # pylint: disable=too-many-locals

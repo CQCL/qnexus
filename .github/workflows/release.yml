@@ -1,0 +1,30 @@
+name: Create Release
+
+on:
+    push:
+      tags:
+        - "*"
+      branches:
+        - main
+  
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.11'
+
+    - name : Setup poetry
+      run: |
+        pip install pip==22.2.1 poetry==1.8.2
+        poetry run pip install --upgrade pip
+
+    - name: Install dependencies
+      run:  poetry install --all-extras
+
+    - name: Build and Publish to PyPI
+      run: poetry publish --build --repository pypi --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}

@@ -17,12 +17,11 @@ from qnexus.client.models.annotations import (
     CreateAnnotations,
     PropertiesDict,
 )
-from qnexus.client.models.filters import (
+from qnexus.client.models.filters import (  # PropertiesFilter, # Not yet implemented
     ArchivedFilter,
     CreatorFilter,
     FuzzyNameFilter,
     PaginationFilter,
-    # PropertiesFilter, # Not yet implemented
     SortFilter,
     SortFilterEnum,
     TimeFilter,

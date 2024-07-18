@@ -3,7 +3,7 @@
 
 import nest_asyncio  # type: ignore
 
-from qnexus import context
+from qnexus import context, filesystem
 from qnexus.client import (
     auth,
     circuits,
@@ -32,7 +32,6 @@ from qnexus.client.models import (
     QuantinuumConfig,
     QulacsConfig,
 )
-from qnexus import filesystem
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
 try:
