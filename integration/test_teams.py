@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.references import TeamRef
+from qnexus.models.references import TeamRef
 
 
 def test_team_get(_authenticated_nexus: None, qa_team_name: str) -> None:

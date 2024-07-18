@@ -5,7 +5,6 @@ from uuid import uuid4
 
 import pytest
 
-from qnexus.client.models.annotations import Annotations, PropertiesDict
 from qnexus.context import (
     deactivate_project,
     get_active_project,
@@ -16,7 +15,8 @@ from qnexus.context import (
     using_project,
     using_properties,
 )
-from qnexus.references import ProjectRef
+from qnexus.models.annotations import Annotations, PropertiesDict
+from qnexus.models.references import ProjectRef
 
 
 def test_attach_project() -> None:

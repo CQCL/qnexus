@@ -8,7 +8,7 @@ import httpx
 import pandas as pd
 
 import qnexus.exceptions as qnx_exc
-from qnexus.references import Dataframable, DataframableList
+from qnexus.models.references import Dataframable, DataframableList
 
 T = TypeVar("T", bound=Dataframable)
 

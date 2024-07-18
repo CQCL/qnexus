@@ -7,7 +7,7 @@ from typing import cast
 
 import qnexus as qnx
 from qnexus.filesystem import load, save
-from qnexus.references import BaseRef, JobRef
+from qnexus.models.references import BaseRef, JobRef
 
 
 def test_save_load(  # pylint: disable=too-many-locals

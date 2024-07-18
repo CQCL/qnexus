@@ -1,7 +1,7 @@
 """Test basic functionality relating to the user module."""
 
 import qnexus as qnx
-from qnexus.references import UserRef
+from qnexus.models.references import UserRef
 
 
 def test_user_get(_authenticated_nexus: None) -> None:

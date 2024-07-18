@@ -7,8 +7,8 @@ import qnexus.client.teams as team_client
 import qnexus.client.users as user_client
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.client.models import Role, RoleInfo
-from qnexus.references import BaseRef, DataframableList, TeamRef
+from qnexus.models import Role, RoleInfo
+from qnexus.models.references import BaseRef, DataframableList, TeamRef
 
 Permission = Literal["ASSIGN", "DELETE", "WRITE", "READ"]
 RoleName = Literal["Administrator", "Contributor", "Reader", "Maintainer"]

@@ -1,16 +1,16 @@
 """Client API for devices in Nexus."""
 
 from qnexus.client import nexus_client
-from qnexus.client.models import (
+from qnexus.exceptions import ResourceFetchFailed
+from qnexus.models import (
     Credential,
     Device,
     IssuerEnum,
     StoredBackendInfo,
     issuer_enum_to_config_str,
 )
-from qnexus.client.models.filters import DevicesFilter
-from qnexus.exceptions import ResourceFetchFailed
-from qnexus.references import DataframableList
+from qnexus.models.filters import DevicesFilter
+from qnexus.models.references import DataframableList
 
 
 class Params(DevicesFilter):

@@ -15,9 +15,17 @@ from websockets.exceptions import ConnectionClosedError
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
 from qnexus.client.jobs import _compile, _execute
-from qnexus.client.models import BackendConfig
-from qnexus.client.models.annotations import Annotations, PropertiesDict
-from qnexus.client.models.filters import (
+from qnexus.client.nexus_iterator import NexusIterator
+from qnexus.client.utils import handle_fetch_errors
+from qnexus.config import Config
+from qnexus.context import (
+    get_active_project,
+    merge_project_from_context,
+    merge_properties_from_context,
+)
+from qnexus.models import BackendConfig
+from qnexus.models.annotations import Annotations, PropertiesDict
+from qnexus.models.filters import (
     CreatorFilter,
     FuzzyNameFilter,
     JobStatusEnum,
@@ -30,17 +38,8 @@ from qnexus.client.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.client.models.job_status import JobStatus
-from qnexus.client.models.utils import AllowNone, assert_never
-from qnexus.client.nexus_iterator import NexusIterator
-from qnexus.client.utils import handle_fetch_errors
-from qnexus.config import Config
-from qnexus.context import (
-    get_active_project,
-    merge_project_from_context,
-    merge_properties_from_context,
-)
-from qnexus.references import (
+from qnexus.models.job_status import JobStatus
+from qnexus.models.references import (
     CircuitRef,
     CompilationResultRef,
     CompileJobRef,
@@ -51,6 +50,7 @@ from qnexus.references import (
     JobType,
     ProjectRef,
 )
+from qnexus.models.utils import AllowNone, assert_never
 
 config = Config()
 

@@ -17,7 +17,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 
-from qnexus.client.models.annotations import Annotations
+from qnexus.models.annotations import Annotations
 
 
 class Dataframable(Protocol):

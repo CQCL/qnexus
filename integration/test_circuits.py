@@ -8,8 +8,8 @@ from pytket import Circuit
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from qnexus.client.models.annotations import PropertiesDict
-from qnexus.references import CircuitRef
+from qnexus.models.annotations import PropertiesDict
+from qnexus.models.references import CircuitRef
 
 
 def test_circuit_get(

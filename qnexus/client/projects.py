@@ -10,13 +10,12 @@ import pandas as pd
 # from halo import Halo
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.client.models import Property
-from qnexus.client.models.annotations import (
-    Annotations,
-    CreateAnnotations,
-    PropertiesDict,
-)
-from qnexus.client.models.filters import (  # PropertiesFilter, # Not yet implemented
+from qnexus.client.nexus_iterator import NexusIterator
+from qnexus.client.utils import handle_fetch_errors
+from qnexus.context import get_active_project
+from qnexus.models import Property
+from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.filters import (  # PropertiesFilter, # Not yet implemented
     ArchivedFilter,
     CreatorFilter,
     FuzzyNameFilter,
@@ -25,10 +24,7 @@ from qnexus.client.models.filters import (  # PropertiesFilter, # Not yet implem
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.client.nexus_iterator import NexusIterator
-from qnexus.client.utils import handle_fetch_errors
-from qnexus.context import get_active_project
-from qnexus.references import DataframableList, ProjectRef
+from qnexus.models.references import DataframableList, ProjectRef
 
 # Colour-blind friendly colours from https://www.nature.com/articles/nmeth.1618
 _COLOURS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7"]

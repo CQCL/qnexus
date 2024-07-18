@@ -6,8 +6,8 @@ import pandas as pd
 from constants import NEXUS_QA_USER_EMAIL
 
 import qnexus as qnx
-from qnexus.client.models import Role
-from qnexus.references import TeamRef, UserRef
+from qnexus.models import Role
+from qnexus.models.references import TeamRef, UserRef
 
 
 def test_role_get(

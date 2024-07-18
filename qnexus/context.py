@@ -5,8 +5,8 @@ from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from typing import Callable
 
-from qnexus.client.models.annotations import PropertiesDict
-from qnexus.references import ProjectRef
+from qnexus.models.annotations import PropertiesDict
+from qnexus.models.references import ProjectRef
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +33,7 @@ def get_active_project(project_required: bool = False) -> ProjectRef | None:
 
     >>> get_active_project()
 
-    >>> from qnexus.client.models.annotations import Annotations
+    >>> from qnexus.models.annotations import Annotations
     >>> token = set_active_project_token(
     ... ProjectRef(id="dca33f7f-9619-4cf7-a3fb-56256b117d6e",
     ... annotations=Annotations(name="example")))
@@ -111,7 +111,7 @@ def using_project(project: ProjectRef):
 
     All operations in the context will make use of the project.
 
-    >>> from qnexus.client.models.annotations import Annotations
+    >>> from qnexus.models.annotations import Annotations
     >>> project = ProjectRef(
     ... id="cd325b9c-d4a2-4b6e-ae58-8fad89749fac",
     ... annotations=Annotations(name="example"))

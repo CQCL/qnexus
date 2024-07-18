@@ -1,8 +1,8 @@
 """Test basic functionality relating to the device module."""
 
 import qnexus as qnx
-from qnexus.client.models import Device
-from qnexus.references import DataframableList
+from qnexus.models import Device
+from qnexus.models.references import DataframableList
 
 
 def test_device_get_all(
