@@ -1,13 +1,18 @@
 [tool.commitizen]
-name = "cz_conventional_commits"
-tag_format = "$version"
+name = "cz_customize"
+tag_format = "v$version"
 version_scheme = "semver"
-version = "0.1.0"
+version = "0.1.1"
 update_changelog_on_bump = true
 major_version_zero = true
+template = "templates/CHANGELOG.md.j2"
 
 [tool.commitizen.customize]
 # Choices here are based on cz.conventional_commits.conventional_commits.ConventionalCommitsCz
+
+# See https://commitizen-tools.github.io/commitizen/commands/changelog/#description
+# Sync the list of change_type values with .github/workflows/pr-title.yml
+commit_parser = "^((?P<change_type>feat|fix|docs|style|refactor|perf|test|ci|chore|revert|infra|build)(?:\\((?P<scope>[^()\r\n]*)\\)|\\()?(?P<breaking>!)?|\\w+!):\\s(?P<message>.*)?"
 
 # We group some change_type values into "Internal". The custom template for the changelog may exclude them.
 change_type_map = { "feat" = "Added", "fix" = "Fixed", "docs" = "Internal", "style" = "Internal", "refactor" = "Internal", "perf" = "Internal", "test" = "Internal", "ci" = "Internal", "chore" = "Internal", "revert" = "Internal", "infra" = "Internal", "build" = "Internal" }

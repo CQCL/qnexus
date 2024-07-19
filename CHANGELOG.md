@@ -1,6 +1,14 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.1.1 (2024-07-19)
+
+
+### Fixed
+
+- Relax websockets constraint.
+
 ## 0.1.0 (2024-07-17)
+
 
 ### Feat
 
@@ -14,7 +22,7 @@
 - Allow querying by properties (#22)
 - Allow job properties to be passed (#21)
 
-### Fix
+### Fixed
 
 - update small tests (#20)
 

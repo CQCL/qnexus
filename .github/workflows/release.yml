@@ -24,4 +24,4 @@ jobs:
       run:  poetry install --all-extras
 
     - name: Build and Publish to PyPI
-      run: poetry publish --build --repository pypi --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
+      run: poetry --no-interaction publish --build --username __token__ --password ${{ secrets.PYPI_API_TOKEN }}
