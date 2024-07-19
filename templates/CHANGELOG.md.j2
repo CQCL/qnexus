@@ -1,0 +1,27 @@
+{#
+    We base this on https://github.com/commitizen-tools/commitizen/blob/3e57007bf1f882a6ed34717c68d3a265e16dcf7a/commitizen/templates/CHANGELOG.md.j2
+    with the following mods:
+    - exclude the "v" in entry.version so that 'v0.1.2' appears as '0.1.2'
+    - exclude the change key "Internal" so it doesn't get into the changelog
+#}
+{% for entry in tree %}
+
+## {{ entry.version|replace("v","") }}{% if entry.date %} ({{ entry.date }}){% endif %}
+
+{% for change_key, changes in entry.changes.items() %}
+
+{% if change_key != 'Internal' %}
+
+{% if change_key %}
+### {{ change_key }}
+{% endif %}
+
+{% for change in changes %}
+{% if change.message %}
+-{% if change.scope %} **{{ change.scope }}**:{% endif %} {{ change.message|capitalize }}{% if not change.message.endswith((".", "?", "!")) %}.{% endif %}
+{% endif %}
+
+{% endfor %}
+{% endif %}
+{% endfor %}
+{% endfor %}
