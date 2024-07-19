@@ -130,7 +130,7 @@ class CircuitRef(BaseRef):
     type: Literal["CircuitRef"] = "CircuitRef"
 
     def download_circuit(self) -> Circuit:
-        """Get a copy of the pytket circuit."""
+        """Get a copy of the circuit as a pytket ``Circuit`` object."""
         if self._circuit:
             return self._circuit.copy()
         from qnexus.client.circuits import _fetch_circuit

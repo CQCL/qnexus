@@ -110,8 +110,10 @@ def get(
     page_number: int | None = None,
     page_size: int | None = None,
 ) -> ProjectRef:
-    """Attempt to get an exact match on a project by using filters
-    that uniquely identify one."""
+    """
+    Get a single project using filters. Throws an exception if the filters do
+    not match exactly one object.
+    """
     if id:
         return _fetch(id)
 

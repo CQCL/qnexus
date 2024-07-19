@@ -197,8 +197,10 @@ def get(
     page_number: int | None = None,
     page_size: int | None = None,
 ) -> JobRef:
-    """Attempt to get an exact match on a job by using filters
-    that uniquely identify one."""
+    """
+    Get a single job using filters. Throws an exception if the filters do
+    not match exactly one object.    
+    """
     if job_id:
         return _fetch(job_id=job_id)
 
@@ -408,7 +410,10 @@ def compile(  # pylint: disable=redefined-builtin
     credential_name: str | None = None,
     timeout: float | None = 300.0,
 ) -> DataframableList[CircuitRef]:
-    """Utility method to run a compile job and return the compiled CircuitRefs."""
+    """
+    Utility method to run a compile job on a circuit or circuits and return a
+    DataframableList of the compiled circuits.
+    """
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
@@ -448,7 +453,12 @@ def execute(
     credential_name: str | None = None,
     timeout: float | None = 300.0,
 ) -> list[BackendResult]:
-    """Utility method to run an execute job and return the results."""
+    """
+    Utility method to run an execute job and return the results. Blocks until
+    the results are available. See ``qnexus.start_execute_job`` for a function
+    that submits the job and returns immediately, rather than waiting for
+    results.
+    """
 
     execute_job_ref = _execute.start_execute_job(  # pylint: disable=protected-access
         circuits=circuits,

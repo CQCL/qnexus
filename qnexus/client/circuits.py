@@ -121,8 +121,10 @@ def get(
     page_number: int | None = None,
     page_size: int | None = None,
 ) -> CircuitRef:
-    """Attempt to get an exact match on a circuit by using filters
-    that uniquely identify one."""
+    """
+    Get a single circuit using filters. Throws an exception if the filters do
+    not match exactly one object.
+    """
     if id:
         return _fetch(circuit_id=id)
 

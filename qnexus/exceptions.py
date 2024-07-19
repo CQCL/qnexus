@@ -8,9 +8,9 @@ class AuthenticationError(Exception):
 
 
 class ResourceFetchFailed(Exception):
-    """ResourceFetchFailed is an exception that occurs when a resource
-    cannot be fetched from the platform to be read, or when expected data wasn't
-    found on an object.
+    """
+    Raised when a resource cannot be fetched from the platform to be read, or
+    when expected data wasn't found on an object.
     """
 
     def __init__(self, message: str, status_code: Optional[int] = None) -> None:
@@ -24,21 +24,19 @@ class ResourceFetchFailed(Exception):
 
 
 class ZeroMatches(Exception):
-    """Zero Matches on a get call made to the Nexus database."""
+    """Raised when a ``get`` call finds no matches."""
 
 
 class NoUniqueMatch(Exception):
-    """No Unique Match on a get call made to the Nexus database."""
+    """Raised when a ``get`` call finds more than one match."""
 
 
 class JobError(Exception):
-    """A Nexus Job has errored."""
+    """Raised when a Nexus Job has errored."""
 
 
 class ResourceCreateFailed(Exception):
-    """ResourceCreateFailed is an exception that occurs when a resource
-    couldn't be created on the platform.
-    """
+    """Raised when a resource couldn't be created on the platform."""
 
     def __init__(self, message: str, status_code: Optional[int] = None) -> None:
         self.message = message
@@ -51,9 +49,7 @@ class ResourceCreateFailed(Exception):
 
 
 class ResourceUpdateFailed(Exception):
-    """ResourceUpdateFailed is an exception that occurs when a resource
-    cannot be updated on the platform.
-    """
+    """Raised when a resource cannot be updated on the platform."""
 
     def __init__(self, message: str, status_code: Optional[int] = None) -> None:
         self.message = message

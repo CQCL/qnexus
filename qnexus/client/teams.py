@@ -29,8 +29,10 @@ def get_all() -> DataframableList[TeamRef]:
 
 
 def get(name: str) -> TeamRef:
-    """Attempt to get an exact match on a team by using filters
-    that uniquely identify one."""
+    """
+    Get a single team using filters. Throws an exception if the filters do not
+    match exactly one object.
+    """
     res = nexus_client.get("/api/v5/user/teams", params={"name": name})
 
     if res.status_code == 404:

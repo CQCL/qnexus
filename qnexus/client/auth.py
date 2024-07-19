@@ -25,7 +25,8 @@ config = Config()
 def login() -> None:
     """
     Log in to Quantinuum Nexus using the web browser.
-    ...
+
+    (if web browser can't be launched, displays the link)
     """
 
     res = httpx.Client(base_url=f"{config.url}/auth").post(
@@ -48,7 +49,7 @@ def login() -> None:
         "client_id": "scales",
     }
 
-    print("🌐 Browser login initiated.")
+    print("🌐 Browser log in initiated.")
 
     console.print(
         Panel(
@@ -105,7 +106,7 @@ def login() -> None:
 
 
 def login_with_credentials() -> None:
-    """Login to Nexus using a username and password."""
+    """Log in to Nexus using a username and password."""
     user_name = input("Enter your Nexus email: ")
     pwd = getpass.getpass(prompt="Enter your Nexus password: ")
 
