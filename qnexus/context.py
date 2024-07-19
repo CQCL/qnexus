@@ -3,6 +3,7 @@
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
+from functools import wraps
 from typing import Callable
 
 from qnexus.models.annotations import PropertiesDict
@@ -145,6 +146,7 @@ def merge_project_from_context(func: Callable):
     """Decorator to merge a project from the context.
     ProjectRef in kwargs takes precedence (will be selected)."""
 
+    @wraps(func)
     def get_project_from_context(*args, **kwargs):
         kwargs["project"] = kwargs.get("project", None)
         if kwargs["project"] is None:
@@ -158,6 +160,7 @@ def merge_properties_from_context(func: Callable):
     """Decorator to take the union of properties from the context with
     any provided in kwargs. Properties in kwargs take precendence."""
 
+    @wraps(func)
     def _merge_properties_from_context(*args, **kwargs):
         kwargs["properties"] = get_active_properties() | kwargs.get(
             "properties", PropertiesDict({})
