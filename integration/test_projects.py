@@ -7,7 +7,7 @@ import pytest
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from qnexus.references import ProjectRef
+from qnexus.models.references import ProjectRef
 
 
 def test_project_get(

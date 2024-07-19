@@ -3,7 +3,7 @@ from uuid import UUID
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.references import UserRef
+from qnexus.models.references import UserRef
 
 
 def get_self() -> UserRef:

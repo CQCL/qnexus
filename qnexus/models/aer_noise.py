@@ -7,9 +7,9 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field, field_validator
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client.models.backend_info import Register
-from qnexus.client.models.backend_info import register_from_pytket_node as reg_from_qb
-from qnexus.client.models.backend_info import register_to_pytket_node as reg_to_qb
+from qnexus.models.backend_info import Register
+from qnexus.models.backend_info import register_from_pytket_node as reg_from_qb
+from qnexus.models.backend_info import register_to_pytket_node as reg_to_qb
 
 if TYPE_CHECKING:
     from pytket.extensions.qiskit.backends.crosstalk_model import (

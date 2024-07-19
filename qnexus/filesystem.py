@@ -3,7 +3,7 @@
 import json
 from pathlib import Path
 
-from qnexus.references import Ref, deserialize_nexus_ref
+from qnexus.models.references import Ref, deserialize_nexus_ref
 
 
 def save(ref: Ref, path: Path, mkdir: bool = False) -> None:

@@ -2,7 +2,7 @@
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.references import DataframableList, TeamRef
+from qnexus.models.references import DataframableList, TeamRef
 
 
 def get_all() -> DataframableList[TeamRef]:

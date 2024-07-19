@@ -9,7 +9,7 @@ from pytket.backends.backendresult import BackendResult
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from qnexus.references import (
+from qnexus.models.references import (
     CircuitRef,
     CompilationPassRef,
     CompilationResultRef,

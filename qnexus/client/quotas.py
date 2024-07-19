@@ -2,9 +2,9 @@
 from typing import Literal
 
 from qnexus.client import nexus_client
-from qnexus.client.models import Quota
 from qnexus.exceptions import ResourceFetchFailed
-from qnexus.references import DataframableList
+from qnexus.models import Quota
+from qnexus.models.references import DataframableList
 
 QuotaName = Literal["compilation", "simulation", "jupyterhub", "database_usage"]
 

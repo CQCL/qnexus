@@ -9,8 +9,8 @@ import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
 from pytket.backends.backendinfo import BackendInfo
 
-from qnexus.client.models.annotations import Annotations
-from qnexus.client.models.backend_config import (
+from qnexus.models.annotations import Annotations
+from qnexus.models.backend_config import (
     AerConfig,
     AerStateConfig,
     AerUnitaryConfig,
@@ -22,9 +22,9 @@ from qnexus.client.models.backend_config import (
     QuantinuumConfig,
     QulacsConfig,
 )
-from qnexus.client.models.backend_info import StoredBackendInfo
-from qnexus.client.models.utils import assert_never
-from qnexus.references import TeamRef, UserRef
+from qnexus.models.backend_info import StoredBackendInfo
+from qnexus.models.references import TeamRef, UserRef
+from qnexus.models.utils import assert_never
 
 __all__ = [
     "AerConfig",

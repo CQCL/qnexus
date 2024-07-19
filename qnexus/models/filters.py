@@ -7,10 +7,10 @@ from typing import Annotated, Literal, OrderedDict, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from qnexus.client.models import CredentialIssuer
-from qnexus.client.models.annotations import PropertiesDict
-from qnexus.client.models.utils import AllowNone
-from qnexus.references import JobType, ProjectRef
+from qnexus.models import CredentialIssuer
+from qnexus.models.annotations import PropertiesDict
+from qnexus.models.references import JobType, ProjectRef
+from qnexus.models.utils import AllowNone
 
 
 def _format_property(key: str, value: bool | int | float | str) -> str:

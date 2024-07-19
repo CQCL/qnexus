@@ -2,7 +2,7 @@
 
 from typing import get_args
 
-from qnexus.references import BaseRef, Ref
+from qnexus.models.references import BaseRef, Ref
 
 
 def test_base_ref() -> None:

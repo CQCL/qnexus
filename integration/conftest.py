@@ -9,7 +9,7 @@ from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
 from pytket import Circuit
 
 import qnexus as qnx
-from qnexus.references import CircuitRef
+from qnexus.models.references import CircuitRef
 
 
 @contextmanager

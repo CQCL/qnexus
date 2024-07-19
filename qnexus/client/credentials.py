@@ -1,8 +1,9 @@
 """Client API for credentials in Nexus."""
 
 from qnexus.client import nexus_client
-from qnexus.client.models import Credential, CredentialIssuer
-from qnexus.client.models.filters import CredentialsFilter
+from qnexus.models import Credential, CredentialIssuer
+from qnexus.models.filters import CredentialsFilter
+from qnexus.models.references import DataframableList
 
 
 class Params(CredentialsFilter):
@@ -11,7 +12,7 @@ class Params(CredentialsFilter):
 
 def get_all(
     issuer: CredentialIssuer | str | None = None,
-) -> list[Credential]:
+) -> DataframableList[Credential]:
     """Get saved credentials."""
 
     params = Params(
@@ -23,4 +24,4 @@ def get_all(
         params=params,
     )
 
-    return [Credential(**cred) for cred in res.json()]
+    return DataframableList([Credential(**cred) for cred in res.json()])

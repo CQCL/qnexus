@@ -14,11 +14,18 @@ from websockets.exceptions import ConnectionClosedError
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import nexus_client
-from qnexus.client.database_iterator import DatabaseIterator
 from qnexus.client.jobs import _compile, _execute
-from qnexus.client.models import BackendConfig
-from qnexus.client.models.annotations import Annotations, PropertiesDict
-from qnexus.client.models.filters import (
+from qnexus.client.nexus_iterator import NexusIterator
+from qnexus.client.utils import handle_fetch_errors
+from qnexus.config import Config
+from qnexus.context import (
+    get_active_project,
+    merge_project_from_context,
+    merge_properties_from_context,
+)
+from qnexus.models import BackendConfig
+from qnexus.models.annotations import Annotations, PropertiesDict
+from qnexus.models.filters import (
     CreatorFilter,
     FuzzyNameFilter,
     JobStatusEnum,
@@ -31,16 +38,8 @@ from qnexus.client.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.client.models.job_status import JobStatus
-from qnexus.client.models.utils import AllowNone, assert_never
-from qnexus.client.utils import handle_fetch_errors
-from qnexus.config import Config
-from qnexus.context import (
-    get_active_project,
-    merge_project_from_context,
-    merge_properties_from_context,
-)
-from qnexus.references import (
+from qnexus.models.job_status import JobStatus
+from qnexus.models.references import (
     CircuitRef,
     CompilationResultRef,
     CompileJobRef,
@@ -51,6 +50,7 @@ from qnexus.references import (
     JobType,
     ProjectRef,
 )
+from qnexus.models.utils import AllowNone, assert_never
 
 config = Config()
 
@@ -106,14 +106,14 @@ def get_all(
     job_status: list[JobStatusEnum] | None = None,
     job_type: list[JobType] | None = None,
     created_before: datetime | None = None,
-    created_after: datetime | None = None,
+    created_after: datetime | None = datetime(day=1, month=1, year=2023),
     modified_before: datetime | None = None,
     modified_after: datetime | None = None,
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> DatabaseIterator[CompileJobRef | ExecuteJobRef]:
-    """Get a DatabaseIterator over jobs with optional filters."""
+) -> NexusIterator[CompileJobRef | ExecuteJobRef]:
+    """Get a NexusIterator over jobs with optional filters."""
     project = project or get_active_project(project_required=False)
     project = cast(ProjectRef, project)
 
@@ -135,7 +135,7 @@ def get_all(
         page_size=page_size,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True, mode="")
 
-    return DatabaseIterator(
+    return NexusIterator(
         resource_type="Job",
         nexus_url="/api/jobs/v1beta",
         params=params,
@@ -190,7 +190,7 @@ def get(
     job_status: list[JobStatusEnum] | None = None,
     job_type: list[JobType] | None = None,
     created_before: datetime | None = None,
-    created_after: datetime | None = None,
+    created_after: datetime | None = datetime(day=1, month=1, year=2023),
     modified_before: datetime | None = None,
     modified_after: datetime | None = None,
     sort_filters: list[SortFilterEnum] | None = None,

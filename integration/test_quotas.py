@@ -3,7 +3,7 @@
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.client.models import Quota
+from qnexus.models import Quota
 
 
 def test_quota_get(
@@ -18,7 +18,7 @@ def test_quota_get(
 def test_quota_get_all(
     _authenticated_nexus: None,
 ) -> None:
-    """Test that we can get all quotas (currently not a DatabaseIterator)."""
+    """Test that we can get all quotas (currently not a NexusIterator)."""
 
     my_quotas = qnx.quotas.get_all()
 

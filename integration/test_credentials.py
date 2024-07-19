@@ -1,7 +1,7 @@
 """Test basic functionality relating to the credential module."""
 
 import qnexus as qnx
-from qnexus.client.models import Credential, CredentialIssuer
+from qnexus.models import Credential, CredentialIssuer
 
 
 def test_credential_get_all(
