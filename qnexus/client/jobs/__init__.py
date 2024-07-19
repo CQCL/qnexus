@@ -1,4 +1,5 @@
 """Client API for jobs in Nexus."""
+
 import asyncio
 import json
 import ssl
@@ -121,9 +122,9 @@ def get_all(
         name_like=name_like,
         creator_email=creator_email,
         project=project,
-        status=JobStatusFilter.convert_status_filters(job_status)
-        if job_status
-        else None,
+        status=(
+            JobStatusFilter.convert_status_filters(job_status) if job_status else None
+        ),
         job_type=job_type,
         properties=properties,
         created_before=created_before,
@@ -199,7 +200,7 @@ def get(
 ) -> JobRef:
     """
     Get a single job using filters. Throws an exception if the filters do
-    not match exactly one object.    
+    not match exactly one object.
     """
     if job_id:
         return _fetch(job_id=job_id)
@@ -345,13 +346,11 @@ async def listen_job_status(
 
 
 @overload
-def results(job: CompileJobRef) -> DataframableList[CompilationResultRef]:
-    ...
+def results(job: CompileJobRef) -> DataframableList[CompilationResultRef]: ...
 
 
 @overload
-def results(job: ExecuteJobRef) -> DataframableList[ExecutionResultRef]:
-    ...
+def results(job: ExecuteJobRef) -> DataframableList[ExecutionResultRef]: ...
 
 
 def results(
