@@ -39,7 +39,9 @@ def get_all() -> DataframableList[Role]:
 
 
 def get(name: RoleName) -> Role:
-    """Get a unique role-based access control assignment"""
+    """
+    Get a single ``Role`` by name.
+    """
     for item in get_all():
         if item.name == name:
             return item

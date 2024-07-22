@@ -61,7 +61,7 @@ class AerConfig(BaseBackendConfig):
 
 
 class AerStateConfig(BaseBackendConfig):
-    """Qiskit Aer statevector simulator."""
+    """Qiskit Aer state vector simulator."""
 
     type: Literal["AerStateConfig"] = "AerStateConfig"
     n_qubits: PositiveInt = 40
@@ -182,7 +182,7 @@ class QuantinuumConfig(BaseBackendConfig):
 
 
 class IBMQConfig(BaseBackendConfig):
-    """Runs circuits on IBM's quantum devices and simulators."""
+    """Runs circuits on IBM's quantum devices."""
 
     type: Literal["IBMQConfig"] = "IBMQConfig"
     backend_name: str  # The quantum computer or simulator to run a circuit on.
@@ -196,8 +196,8 @@ class IBMQConfig(BaseBackendConfig):
 
 class IBMQEmulatorConfig(BaseBackendConfig):
     """
-    Runs circuits on the IBM-hosted simulator ibmq_qasm_simulator, using the noise model "
-    of a specific IBM quantum device.
+    Runs circuits on a Nexus-hosted simulator which uses the noise model of a
+    specific IBM quantum device.
     """
 
     type: Literal["IBMQEmulatorConfig"] = "IBMQEmulatorConfig"
@@ -208,13 +208,13 @@ class IBMQEmulatorConfig(BaseBackendConfig):
 
 
 class ProjectQConfig(BaseBackendConfig):
-    """ProjectQ statevector simulator."""
+    """ProjectQ state vector simulator."""
 
     type: Literal["ProjectQConfig"] = "ProjectQConfig"
 
 
 class QulacsConfig(BaseBackendConfig):
-    """ "Qulacs simulator."""
+    """Qulacs simulator."""
 
     type: Literal["QulacsConfig"] = "QulacsConfig"
     result_type: str = "state_vector"

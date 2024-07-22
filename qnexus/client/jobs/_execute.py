@@ -36,7 +36,11 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
     seed: int | None = None,
     credential_name: str | None = None,
 ) -> ExecuteJobRef:
-    """Submit a execute job to be run in Nexus."""
+    """
+    Submit an execute job to be run in Nexus. Returns an ``ExecuteJobRef``
+    object which can be used to check the job's status.  See ``qnexus.execute``
+    for a utility method that waits for the results and returns them.
+    """
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
