@@ -1,5 +1,13 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.2.0 (2024-07-24)
+
+
+### Added
+
+- Add function to get h-series circuit cost (#68).
+
+
 ## 0.1.1 (2024-07-19)
 
 
