@@ -4,6 +4,7 @@ from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
 
+from httpx import QueryParams
 from pytket import Circuit
 
 import qnexus.exceptions as qnx_exc
@@ -16,6 +17,7 @@ from qnexus.context import (
     merge_properties_from_context,
 )
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.backend_config import BackendConfig, QuantinuumConfig
 from qnexus.models.filters import (
     CreatorFilter,
     FuzzyNameFilter,
@@ -271,3 +273,36 @@ def _fetch_circuit(handle: CircuitRef) -> Circuit:
     circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}
 
     return Circuit.from_dict(circuit_dict)
+
+
+def cost(
+    circuit_ref: CircuitRef,
+    n_shots: int,
+    backend_config: BackendConfig,
+    syntax_checker: str | None = None,
+) -> float | None:
+    """Calculate the cost (in HQC) of running a circuit for n_shots
+    number of shots on a specific Quantinuum device."""
+
+    if not isinstance(backend_config, QuantinuumConfig):
+        raise ValueError("QuantinuumConfig is the only supported backend config")
+
+    params = {
+        "n_shots": n_shots,
+        "device_name": backend_config.device_name,
+    }
+    if syntax_checker:
+        params["syntax_checker"] = syntax_checker
+
+    res = nexus_client.get(
+        f"/api/circuits/v1beta/cost/{circuit_ref.id}",
+        params=cast(QueryParams, params),
+    )
+
+    if res.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(
+            message=res.json(), status_code=res.status_code
+        )
+
+    circuit_cost: float | None = res.json()
+    return circuit_cost

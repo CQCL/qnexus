@@ -74,3 +74,29 @@ def test_circuit_create(
         updated_circuit_ref.annotations.properties[test_property_name]
         == test_prop_value
     )
+
+
+def test_circuit_get_cost(
+    _authenticated_nexus: None,
+    qa_project_name: str,
+) -> None:
+    """Test that we can get the cost to run a CircuitRef,
+    on a particular H-series device."""
+
+    my_proj = qnx.projects.get(name_like=qa_project_name)
+
+    my_h_series_circuit = qnx.circuits.upload(
+        circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
+        name="qa_h_series_circuit",
+        project=my_proj,
+    )
+
+    cost = qnx.circuits.cost(
+        circuit_ref=my_h_series_circuit,
+        n_shots=10,
+        backend_config=qnx.QuantinuumConfig(device_name="H1-1E"),
+        syntax_checker="H1-1SC",
+    )
+
+    assert isinstance(cost, float)
+    assert cost > 0.0
