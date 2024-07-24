@@ -109,6 +109,7 @@ poetry run pytest tests/
   - Removed
   - Security
 - Create a release branch `git checkout -b release/vx.y.z`
+- Update the version in `pyproject.toml` (will be used as the release version).
 - `git add` the modifications, then `git commit` and `git push` them.
 - Create a PR (title: `docs: Update CHANGELOG for vx.y.z`)
 - Ask a colleague to review the changes (should be just `CHANGELOG.md` and `.cz.toml`)
