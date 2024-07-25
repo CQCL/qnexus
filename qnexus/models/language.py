@@ -1,5 +1,6 @@
 from enum import Enum
 
+
 class Language(str, Enum):
     """Enumeration for the possible submission languages for remote submissions."""
 
