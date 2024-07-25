@@ -10,6 +10,7 @@ from uuid import UUID
 
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
+from qnexus.models.language import Language
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
@@ -450,6 +451,7 @@ def execute(
     valid_check: bool = True,
     postprocess: bool = True,
     noisy_simulator: bool = True,
+    language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
     timeout: float | None = 300.0,
@@ -472,6 +474,7 @@ def execute(
         valid_check=valid_check,
         postprocess=postprocess,
         noisy_simulator=noisy_simulator,
+        language=language,
         seed=seed,
         credential_name=credential_name,
     )

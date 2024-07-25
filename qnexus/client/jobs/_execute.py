@@ -11,6 +11,7 @@ from qnexus.client import nexus_client
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
     DataframableList,
@@ -33,6 +34,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
     valid_check: bool = True,
     postprocess: bool = True,
     noisy_simulator: bool = True,
+    language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
 ) -> ExecuteJobRef:
@@ -67,6 +69,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
                 "valid_check": valid_check,
                 "postprocess": postprocess,
                 "noisy_simulator": noisy_simulator,
+                "language": language.value,
                 "seed": seed,
                 "credential_name": credential_name,
                 "items": [
