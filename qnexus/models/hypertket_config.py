@@ -5,5 +5,3 @@ from pydantic import BaseModel
 
 class HyperTketConfig(BaseModel):
     """Configuration for HyperTKET compilation."""
-
-    pass
