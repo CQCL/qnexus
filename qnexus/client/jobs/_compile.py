@@ -9,6 +9,7 @@ from qnexus.client import nexus_client
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.hypertket_config import HyperTketConfig
 from qnexus.models.references import (
     CircuitRef,
     CompilationPassRef,
@@ -30,6 +31,7 @@ def start_compile_job(  # pylint: disable=too-many-arguments
     properties: PropertiesDict | None = None,
     optimisation_level: int = 2,
     credential_name: str | None = None,
+    hypertket_config: HyperTketConfig | None = None,
 ) -> CompileJobRef:
     """Submit a compile job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
@@ -52,6 +54,9 @@ def start_compile_job(  # pylint: disable=too-many-arguments
             "definition": {
                 "job_definition_type": "compile_job_definition",
                 "backend_config": backend_config.model_dump(),
+                "hypertket_config": hypertket_config.model_dump()
+                if hypertket_config is not None
+                else None,
                 "optimisation_level": optimisation_level,
                 "credential_name": credential_name,
                 "items": [

@@ -9,6 +9,7 @@ from pytket.backends.backendresult import BackendResult
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
+from qnexus.models.hypertket_config import HyperTketConfig
 from qnexus.models.references import (
     CircuitRef,
     CompilationPassRef,
@@ -115,6 +116,26 @@ def test_compile(
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),
+    )
+
+    assert len(compiled_circuits) == 1
+    assert isinstance(compiled_circuits[0], CircuitRef)
+
+
+def test_compile_hypertket(
+    _authenticated_nexus_circuit_ref: CircuitRef,
+    qa_project_name: str,
+) -> None:
+    """Test that we can run compile circuits for hypertket."""
+
+    my_proj = qnx.projects.get(name_like=qa_project_name)
+
+    compiled_circuits = qnx.compile(
+        circuits=[_authenticated_nexus_circuit_ref],
+        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.QuantinuumConfig(device_name="H1-Emulator"),
+        hypertket_config=HyperTketConfig(),
     )
 
     assert len(compiled_circuits) == 1

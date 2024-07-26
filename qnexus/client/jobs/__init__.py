@@ -10,6 +10,8 @@ from uuid import UUID
 
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
+from qnexus.models.hypertket_config import HyperTketConfig
+from qnexus.models.language import Language
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
@@ -409,6 +411,7 @@ def compile(  # pylint: disable=redefined-builtin
     properties: PropertiesDict | None = None,
     optimisation_level: int = 2,
     credential_name: str | None = None,
+    hypertket_config: HyperTketConfig | None = None,
     timeout: float | None = 300.0,
 ) -> DataframableList[CircuitRef]:
     """
@@ -427,6 +430,7 @@ def compile(  # pylint: disable=redefined-builtin
         properties=properties,
         optimisation_level=optimisation_level,
         credential_name=credential_name,
+        hypertket_config=hypertket_config,
     )
 
     wait_for(job=compile_job_ref, timeout=timeout)
