@@ -10,7 +10,6 @@ from uuid import UUID
 
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
-from qnexus.models.language import Language
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
@@ -41,6 +40,7 @@ from qnexus.models.filters import (
     TimeFilter,
 )
 from qnexus.models.job_status import JobStatus
+from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
     CompilationResultRef,
@@ -440,7 +440,7 @@ def compile(  # pylint: disable=redefined-builtin
 
 
 @merge_properties_from_context
-def execute(
+def execute( # pylint: disable=too-many-locals
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,

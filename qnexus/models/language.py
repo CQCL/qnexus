@@ -1,3 +1,5 @@
+"""Language options for remote job submission."""
+
 from enum import Enum
 
 
