@@ -41,6 +41,7 @@ from qnexus.models.filters import (
 )
 from qnexus.models.hypertket_config import HyperTketConfig
 from qnexus.models.job_status import JobStatus
+from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
     CompilationResultRef,
@@ -442,7 +443,7 @@ def compile(  # pylint: disable=redefined-builtin
 
 
 @merge_properties_from_context
-def execute(
+def execute(  # pylint: disable=too-many-locals
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
@@ -453,6 +454,7 @@ def execute(
     valid_check: bool = True,
     postprocess: bool = True,
     noisy_simulator: bool = True,
+    language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
     timeout: float | None = 300.0,
@@ -475,6 +477,7 @@ def execute(
         valid_check=valid_check,
         postprocess=postprocess,
         noisy_simulator=noisy_simulator,
+        language=language,
         seed=seed,
         credential_name=credential_name,
     )
