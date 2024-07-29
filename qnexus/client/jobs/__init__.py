@@ -440,7 +440,7 @@ def compile(  # pylint: disable=redefined-builtin
 
 
 @merge_properties_from_context
-def execute( # pylint: disable=too-many-locals
+def execute(  # pylint: disable=too-many-locals
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
