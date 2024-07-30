@@ -1,8 +1,8 @@
 """Quantinuum Nexus API client."""
 
+from typing import Optional
 from colorama import Fore
 from pydantic import BaseModel, ConfigDict
-from typing import Optional
 from qnexus import consts
 
 
