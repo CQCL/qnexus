@@ -13,3 +13,5 @@ CONFIG_FILE_NAME = ".env.qnx"
 TOKEN_FILE_PATH = os.environ.get("NEXUS_TOKEN_PATH") or ".qnx/auth"
 STORE_TOKENS = str_to_bool(getenv("STORE_NEXUS_TOKENS", "true"))
 NEXUS_HOST = getenv("NEXUS_HOST", "nexus.quantinuum.com")
+NEXUS_PORT = getenv("NEXUS_PORT", None)
+HTTPX_VERIFY = getenv("HTTPX_VERIFY", True)

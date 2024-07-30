@@ -2,7 +2,7 @@
 
 from colorama import Fore
 from pydantic import BaseModel, ConfigDict
-
+from typing import Optional
 from qnexus import consts
 
 
@@ -14,6 +14,8 @@ class Config(BaseModel):
     protocol: str = "https"
     websockets_protocol: str = "wss"
     domain: str = consts.NEXUS_HOST
+    port: Optional[int] = int(consts.NEXUS_PORT) if consts.NEXUS_PORT else None
+    httpx_verify: bool = True
 
     def __str__(self) -> str:
         """String representation of current config."""
@@ -28,7 +30,8 @@ class Config(BaseModel):
     @property
     def url(self) -> str:
         """Current http API URL"""
-        return f"{self.protocol}://{self.domain}"
+        port = f":{self.port}" if self.port else ""
+        return f"{self.protocol}://{self.domain}{port}"
 
     @property
     def websockets_url(self) -> str:

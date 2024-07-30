@@ -77,6 +77,7 @@ nexus_client = httpx.Client(
     base_url=config.url,
     auth=AuthHandler(),
     timeout=None,
+    verify=config.httpx_verify
 )
 
 
@@ -89,4 +90,5 @@ def reload_client() -> None:
         base_url=config.url,
         auth=AuthHandler(),
         timeout=None,
+       verify=config.httpx_verify
     )

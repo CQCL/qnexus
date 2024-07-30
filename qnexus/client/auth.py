@@ -29,10 +29,11 @@ def login() -> None:
     (if web browser can't be launched, displays the link)
     """
 
-    res = httpx.Client(base_url=f"{config.url}/auth").post(
+    res = httpx.Client(base_url=f"{config.url}/auth", verify=config.httpx_verify).post(
         "/device/device_authorization",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data={"client_id": "scales", "scope": "myqos"},
+        
     )
 
     user_code = res.json()["user_code"]
@@ -71,7 +72,7 @@ def login() -> None:
     while polling_for_seconds < expires_in:
         time.sleep(poll_interval)
         polling_for_seconds += poll_interval
-        resp = httpx.Client(base_url=f"{config.url}/auth").post(
+        resp = httpx.Client(base_url=f"{config.url}/auth",verify=config.httpx_verify).post(
             "/device/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             data=token_request_body,
@@ -127,7 +128,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
     """Method to send login request to Nexus auth api and save tokens."""
     body = {"email": user, "password": pwd}
     try:
-        resp = httpx.Client(base_url=f"{config.url}/auth").post(
+        resp = httpx.Client(base_url=f"{config.url}/auth",verify=config.httpx_verify).post(
             "/login",
             json=body,
         )
@@ -137,7 +138,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
             mfa_code = input("Enter your MFA verification code: ")
             body["code"] = mfa_code
             body.pop("password")
-            resp = httpx.Client(base_url=f"{config.url}/auth").post(
+            resp = httpx.Client(base_url=f"{config.url}/auth",verify=config.httpx_verify).post(
                 "/mfa_challenge",
                 json=body,
             )
