@@ -15,7 +15,7 @@ class Config(BaseModel):
     websockets_protocol: str = "wss"
     domain: str = consts.NEXUS_HOST
     port: Optional[int] = int(consts.NEXUS_PORT) if consts.NEXUS_PORT else None
-    httpx_verify: bool = bool(consts.HTTPX_VERIFY) if consts.HTTPX_VERIFY else True
+    httpx_verify: bool = False if consts.HTTPX_VERIFY == 'False' else True
 
     def __str__(self) -> str:
         """String representation of current config."""
