@@ -1,5 +1,14 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.3.0 (2024-08-05)
+
+
+### Added
+
+- Add qir support (#70).
+- Add hypertket support (#71).
+
+
 ## 0.2.0 (2024-07-24)
 
 
