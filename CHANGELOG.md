@@ -1,5 +1,12 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.4.1 (2024-08-09)
+
+
+### Fixed
+
+- Fix retry_status argument in client.
+
 ## 0.4.0 (2024-08-09)
 
 

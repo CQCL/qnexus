@@ -379,10 +379,10 @@ def retry_submission(
 
     By default, jobs with the ERROR status will be retried.
     """
-    body = {"remote_retry_strategy": remote_retry_strategy}
+    body: dict[str, str | list[str]] = {"remote_retry_strategy": remote_retry_strategy}
 
     if retry_status is not None:
-        body["retry_status"] = remote_retry_strategy
+        body["retry_status"] = [status.name for status in retry_status]
 
     res = nexus_client.post(
         f"/api/jobs/v1beta/{job.id}/rpc/retry",
