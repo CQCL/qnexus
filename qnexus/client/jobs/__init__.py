@@ -372,17 +372,21 @@ def results(
 
 def retry_submission(
     job: JobRef,
-    retry_status: list[StatusEnum],
-    remote_retry_strategy: RemoteRetryStrategy,
+    retry_status: list[StatusEnum] | None = None,
+    remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.DEFAULT,
 ):
-    """Retry a job in Nexus according to status(es) or retry strategy."""
+    """Retry a job in Nexus according to status(es) or retry strategy.
+
+    By default, jobs with the ERROR status will be retried.
+    """
+    body = {"remote_retry_strategy": remote_retry_strategy}
+
+    if retry_status is not None:
+        body["retry_status"] = remote_retry_strategy
 
     res = nexus_client.post(
         f"/api/jobs/v1beta/{job.id}/rpc/retry",
-        json={
-            "retry_status": retry_status,
-            "remote_retry_strategy": remote_retry_strategy,
-        },
+        json=body,
     )
     if res.status_code != 202:
         res.raise_for_status()
@@ -395,6 +399,7 @@ def cancel(job: JobRef):
     """
     res = nexus_client.post(
         f"/api/jobs/v1beta/{job.id}/rpc/cancel",
+        json={},
     )
 
     if res.status_code != 202:
