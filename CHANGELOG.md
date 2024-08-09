@@ -1,5 +1,19 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.4.0 (2024-08-09)
+
+
+### Added
+
+- Added py.typed (#74).
+
+
+### Fixed
+
+- A bug where job cancellation would result in a 422 error.
+- A bug where job retry would result in a serialization error.
+
+
 ## 0.3.0 (2024-08-05)
 
 
