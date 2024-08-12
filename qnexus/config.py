@@ -1,8 +1,10 @@
 """Quantinuum Nexus API client."""
 
 from typing import Optional
+
 from colorama import Fore
 from pydantic import BaseModel, ConfigDict
+
 from qnexus import consts
 
 
@@ -14,8 +16,8 @@ class Config(BaseModel):
     protocol: str = "https"
     websockets_protocol: str = "wss"
     domain: str = consts.NEXUS_HOST
-    port: Optional[int] = int(consts.NEXUS_PORT) if consts.NEXUS_PORT else None
-    httpx_verify: bool = False if consts.HTTPX_VERIFY == 'False' else True
+    port: Optional[int] = int(consts.NEXUS_PORT)
+    httpx_verify: bool = consts.HTTPX_VERIFY
 
     def __str__(self) -> str:
         """String representation of current config."""
@@ -30,8 +32,7 @@ class Config(BaseModel):
     @property
     def url(self) -> str:
         """Current http API URL"""
-        port = f":{self.port}" if self.port else ""
-        return f"{self.protocol}://{self.domain}{port}"
+        return f"{self.protocol}://{self.domain}{self.port}"
 
     @property
     def websockets_url(self) -> str:
