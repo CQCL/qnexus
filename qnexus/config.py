@@ -32,7 +32,7 @@ class Config(BaseModel):
     @property
     def url(self) -> str:
         """Current http API URL"""
-        return f"{self.protocol}://{self.domain}{self.port}"
+        return f"{self.protocol}://{self.domain}:{self.port}"
 
     @property
     def websockets_url(self) -> str:
