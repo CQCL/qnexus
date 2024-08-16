@@ -5,9 +5,10 @@ from pydantic import BaseModel
 
 
 class UserErrorParams(BaseModel):
-    """User provided error values that override machine values.
+    """User provided error values that override machine values for
+    emulation of H-series devices.
 
-    See the emulator device sheets for details of each parameter.
+    See the H-series documentation for details of each parameter.
     """
 
     # Physical Noise
