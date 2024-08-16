@@ -5,16 +5,11 @@ from uuid import uuid4
 
 import pytest
 
-from qnexus.context import (
-    deactivate_project,
-    get_active_project,
-    get_active_properties,
-    merge_project_from_context,
-    merge_properties_from_context,
-    set_active_project_token,
-    using_project,
-    using_properties,
-)
+from qnexus.context import (deactivate_project, get_active_project,
+                            get_active_properties, merge_project_from_context,
+                            merge_properties_from_context,
+                            set_active_project_token, using_project,
+                            using_properties)
 from qnexus.models.annotations import Annotations, PropertiesDict
 from qnexus.models.references import ProjectRef
 
