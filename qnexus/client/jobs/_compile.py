@@ -5,7 +5,7 @@ from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -84,7 +84,7 @@ def start_compile_job(  # pylint: disable=too-many-arguments
         }
     }
 
-    resp = nexus_client.post(
+    resp = get_nexus_client().post(
         "/api/jobs/v1beta",
         json=req_dict,
     )
@@ -108,7 +108,7 @@ def _results(
 ) -> DataframableList[CompilationResultRef]:
     """Get the results from a compile job."""
 
-    resp = nexus_client.get(f"/api/jobs/v1beta/{compile_job.id}")
+    resp = get_nexus_client().get(f"/api/jobs/v1beta/{compile_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -130,7 +130,7 @@ def _results(
     compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])
 
     for compilation_id in compilation_ids:
-        comp_record_resp = nexus_client.get(
+        comp_record_resp = get_nexus_client().get(
             f"/api/compilations/v1beta/{compilation_id}",
         )
 
@@ -170,7 +170,7 @@ def _fetch_compilation_passes(
 
     params = {"filter[compilation][id]": str(compilation_result_ref.id)}
 
-    resp = nexus_client.get("/api/compilation_passes/v1beta", params=params)
+    resp = get_nexus_client().get("/api/compilation_passes/v1beta", params=params)
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(

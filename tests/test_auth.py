@@ -5,7 +5,7 @@ import pytest
 import respx
 
 import qnexus as qnx
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.client.utils import read_token, write_token
 from qnexus.config import get_config
 from qnexus.exceptions import AuthenticationError
@@ -22,7 +22,9 @@ def test_token_refresh() -> None:
     refreshed_access_token = "new_dummy_id"
 
     # Mock the list projects endpoint to force a refresh
-    list_project_route = respx.get(f"{nexus_client.base_url}/api/projects/v1beta").mock(
+    list_project_route = respx.get(
+        f"{get_nexus_client().base_url}/api/projects/v1beta"
+    ).mock(
         side_effect=[
             httpx.Response(401),
             httpx.Response(200, json={"included": {}, "data": []}),
@@ -31,7 +33,7 @@ def test_token_refresh() -> None:
 
     # Mock the refresh endpoint
     refresh_token_route = respx.post(
-        f"{nexus_client.base_url}/auth/tokens/refresh"
+        f"{get_nexus_client().base_url}/auth/tokens/refresh"
     ).mock(
         return_value=httpx.Response(
             200,
@@ -49,7 +51,7 @@ def test_token_refresh() -> None:
 
     # Confirm that the access token was updated
     assert read_token("access_token") == refreshed_access_token
-    assert nexus_client.auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
+    assert get_nexus_client().auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
 
 
 @respx.mock
@@ -62,13 +64,13 @@ def test_token_refresh_expired() -> None:
     write_token("access_token", "dummy_id")
 
     # Mock the list projects endpoint to force a refresh
-    list_project_route = respx.get(f"{nexus_client.base_url}/api/projects/v1beta").mock(
-        return_value=httpx.Response(401)
-    )
+    list_project_route = respx.get(
+        f"{get_nexus_client().base_url}/api/projects/v1beta"
+    ).mock(return_value=httpx.Response(401))
 
     # Mock the expiry of the refresh token
     refresh_token_route = respx.post(
-        f"{nexus_client.base_url}/auth/tokens/refresh"
+        f"{get_nexus_client().base_url}/auth/tokens/refresh"
     ).mock(return_value=httpx.Response(401))
 
     with pytest.raises(AuthenticationError):

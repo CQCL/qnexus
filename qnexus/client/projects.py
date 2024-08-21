@@ -9,7 +9,7 @@ import pandas as pd
 
 # from halo import Halo
 import qnexus.exceptions as qnx_exc
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.context import get_active_project
@@ -79,7 +79,7 @@ def get_all(
         nexus_url="/api/projects/v1beta",
         params=params,
         wrapper_method=_to_projectref,
-        nexus_client=nexus_client,
+        nexus_client=get_nexus_client(),
     )
 
 
@@ -156,7 +156,7 @@ def get_or_create(
 
 def _fetch(project_id: UUID | str) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
-    res = nexus_client.get(f"/api/projects/v1beta/{project_id}")
+    res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}")
 
     handle_fetch_errors(res)
 
@@ -192,7 +192,7 @@ def create(
         }
     }
 
-    res = nexus_client.post("/api/projects/v1beta", json=req_dict)
+    res = get_nexus_client().post("/api/projects/v1beta", json=req_dict)
 
     if res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
@@ -236,7 +236,7 @@ def add_property(
             "type": "property",
         }
     }
-    props_res = nexus_client.post(
+    props_res = get_nexus_client().post(
         "/api/property_definitions/v1beta", json=props_req_dict
     )
 
@@ -259,7 +259,7 @@ def get_properties(project: ProjectRef | None = None) -> DataframableList[Proper
         nexus_url="/api/property_definitions/v1beta",
         params={"filter[project][id]": str(project.id)},
         wrapper_method=_to_property,
-        nexus_client=nexus_client,
+        nexus_client=get_nexus_client(),
     )
 
     return all_project_properties_iterator.list()
@@ -342,7 +342,7 @@ def update(
         }
     }
 
-    res = nexus_client.patch(f"/api/projects/v1beta/{project.id}", json=req_dict)
+    res = get_nexus_client().patch(f"/api/projects/v1beta/{project.id}", json=req_dict)
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
@@ -364,7 +364,7 @@ def delete(project: ProjectRef) -> None:
     Project must be archived first.
     WARNING: this will delete all data associated with the project.
     """
-    res = nexus_client.delete(
+    res = get_nexus_client().delete(
         url=f"/api/projects/v1beta/{project.id}", params={"scope": "user"}
     )
 

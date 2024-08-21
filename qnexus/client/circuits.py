@@ -8,7 +8,7 @@ from httpx import QueryParams
 from pytket import Circuit
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
 from qnexus.context import (
@@ -78,7 +78,7 @@ def get_all(
         nexus_url="/api/circuits/v1beta",
         params=params,
         wrapper_method=_to_circuitref,
-        nexus_client=nexus_client,
+        nexus_client=get_nexus_client(),
     )
 
 
@@ -179,7 +179,7 @@ def upload(
         }
     }
 
-    res = nexus_client.post("/api/circuits/v1beta", json=req_dict)
+    res = get_nexus_client().post("/api/circuits/v1beta", json=req_dict)
 
     # https://cqc.atlassian.net/browse/MUS-3054
     if res.status_code != 201:
@@ -220,7 +220,7 @@ def update(
         }
     }
 
-    res = nexus_client.patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
+    res = get_nexus_client().patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
@@ -239,7 +239,7 @@ def update(
 def _fetch(circuit_id: UUID | str) -> CircuitRef:
     """Utility method for fetching directly by a unique identifier."""
 
-    res = nexus_client.get(f"/api/circuits/v1beta/{circuit_id}")
+    res = get_nexus_client().get(f"/api/circuits/v1beta/{circuit_id}")
 
     handle_fetch_errors(res)
 
@@ -265,7 +265,7 @@ def _fetch(circuit_id: UUID | str) -> CircuitRef:
 
 def _fetch_circuit(handle: CircuitRef) -> Circuit:
     """Utility method for fetching a pytket circuit from a CircuitRef."""
-    res = nexus_client.get(f"/api/circuits/v1beta/{handle.id}")
+    res = get_nexus_client().get(f"/api/circuits/v1beta/{handle.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=res.json(), status_code=res.status_code
@@ -296,7 +296,7 @@ def cost(
     if syntax_checker:
         params["syntax_checker"] = syntax_checker
 
-    res = nexus_client.get(
+    res = get_nexus_client().get(
         f"/api/circuits/v1beta/cost/{circuit_ref.id}",
         params=cast(QueryParams, params),
     )

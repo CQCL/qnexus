@@ -120,9 +120,10 @@ def login_with_credentials() -> None:
 
 
 def logout() -> None:
-    """Clear tokens from file system."""
+    """Clear tokens from file system and the client."""
     remove_token("refresh_token")
     remove_token("access_token")
+    reload_client()
     print("Successfully logged out.")
 
 

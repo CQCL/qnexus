@@ -7,7 +7,7 @@ from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -95,7 +95,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
         }
     }
 
-    resp = nexus_client.post(
+    resp = get_nexus_client().post(
         "/api/jobs/v1beta",
         json=req_dict,
     )
@@ -119,7 +119,7 @@ def _results(
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
-    resp = nexus_client.get(f"/api/jobs/v1beta/{execute_job.id}")
+    resp = get_nexus_client().get(f"/api/jobs/v1beta/{execute_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -150,7 +150,7 @@ def _fetch_execution_result(
     handle: ExecutionResultRef,
 ) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
-    res = nexus_client.get(f"/api/results/v1beta/{handle.id}")
+    res = get_nexus_client().get(f"/api/results/v1beta/{handle.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=res.json(), status_code=res.status_code

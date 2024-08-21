@@ -6,7 +6,7 @@ from pydantic import EmailStr
 import qnexus.client.teams as team_client
 import qnexus.client.users as user_client
 import qnexus.exceptions as qnx_exc
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.models import Role, RoleInfo
 from qnexus.models.references import BaseRef, DataframableList, TeamRef
 
@@ -16,7 +16,7 @@ RoleName = Literal["Administrator", "Contributor", "Reader", "Maintainer"]
 
 def get_all() -> DataframableList[Role]:
     """Get the definitions of possible role-based access control assignments."""
-    res = nexus_client.get(
+    res = get_nexus_client().get(
         "/api/roles/v1beta",
     )
 
@@ -52,7 +52,7 @@ def get(name: RoleName) -> Role:
 def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     """Check the assignments on a particular resource."""
 
-    res = nexus_client.get(
+    res = get_nexus_client().get(
         f"/api/resources/v1beta/{resource_ref.id}/assignments",
     )
 
@@ -114,7 +114,7 @@ def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> 
         }
     }
 
-    res = nexus_client.post(
+    res = get_nexus_client().post(
         "/api/assignments/v1beta/team",
         json=req_dict,
     )
@@ -144,7 +144,7 @@ def assign_user(
         }
     }
 
-    res = nexus_client.post(
+    res = get_nexus_client().post(
         "/api/assignments/v1beta/user",
         json=req_dict,
     )

@@ -1,7 +1,7 @@
 """Client API for devices in Nexus."""
 from typing import Literal
 
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.exceptions import ResourceFetchFailed
 from qnexus.models import (
     BackendConfig,
@@ -52,7 +52,7 @@ def get_all(
         is_local=nexus_hosted,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    res = nexus_client.get(
+    res = get_nexus_client().get(
         "/api/v5/available_devices",
         params=params,
     )
@@ -137,7 +137,7 @@ def _get_backend_property(
 ) -> bool:
     """Retrieves a Backend property for a given BackendConfig."""
 
-    res = nexus_client.post(
+    res = get_nexus_client().post(
         "/api/v5/backend_info/backend_property",
         json={
             "backend_config": backend_config.model_dump(),
