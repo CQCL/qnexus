@@ -1,9 +1,8 @@
 """Script to setup tokens in the testing environment."""
 
-from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
-
 import qnexus as qnx
+from qnexus.config import get_config
 
 qnx.auth._request_tokens(  # pylint: disable=protected-access
-    NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
+    get_config().qa_user_email, get_config().qa_user_password
 )

@@ -3,10 +3,10 @@ from io import StringIO
 from typing import Any
 
 import pytest
-from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
 
 import qnexus as qnx
 from qnexus.client.utils import read_token
+from qnexus.config import get_config
 
 
 def test_credential_login_full_flow(
@@ -14,8 +14,8 @@ def test_credential_login_full_flow(
 ) -> None:
     """Test that we can delete access tokens, login using credentials and
     delete tokens once again."""
-    username = NEXUS_QA_USER_EMAIL
-    pwd = NEXUS_QA_USER_PASSWORD
+    username = get_config().qa_user_email
+    pwd = get_config().qa_user_password
 
     qnx.auth.logout()
     with pytest.raises(FileNotFoundError):

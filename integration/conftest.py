@@ -5,17 +5,17 @@ from datetime import datetime
 from typing import Generator
 
 import pytest
-from constants import NEXUS_QA_USER_EMAIL, NEXUS_QA_USER_PASSWORD
 from pytket import Circuit
 
 import qnexus as qnx
+from qnexus.config import get_config
 from qnexus.models.references import CircuitRef
 
 
 @contextmanager
 def make_authenticated_nexus(
-    user_email: str = NEXUS_QA_USER_EMAIL,
-    user_password: str = NEXUS_QA_USER_PASSWORD,
+    user_email: str = get_config().qa_user_email,
+    user_password: str = get_config().qa_user_password,
 ) -> Generator:
     """Authenticate the qnexus client."""
     try:
