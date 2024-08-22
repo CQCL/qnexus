@@ -1,5 +1,6 @@
 """Validation classes for H series noise models."""
-from typing import Optional
+
+from typing import Optional, Tuple, Union
 
 from pydantic import BaseModel
 
@@ -14,7 +15,7 @@ class UserErrorParams(BaseModel):
     # Physical Noise
     p1: Optional[float] = None
     p2: Optional[float] = None
-    p_meas: Optional[float] = None
+    p_meas: Optional[Union[float, Tuple[float, float]]] = None
     p_init: Optional[float] = None
     p_crosstalk_meas: Optional[float] = None
     p_crosstalk_init: Optional[float] = None
