@@ -154,8 +154,8 @@ jobs:
     env:
       NEXUS_QA_USER_EMAIL: ${{ secrets.NEXUS_QA_USER_EMAIL }}
       NEXUS_QA_USER_PASSWORD: ${{ secrets.NEXUS_QA_USER_PASSWORD }}
-      NEXUS_HOST: "staging.myqos.com"
-      STORE_NEXUS_TOKENS: "false"
+      NEXUS_DOMAIN: "staging.myqos.com"
+      NEXUS_STORE_TOKENS: "false"
 
     steps:
       - name: Checkout code

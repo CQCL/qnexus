@@ -16,13 +16,12 @@ from rich.panel import Panel
 import qnexus.exceptions as qnx_exc
 from qnexus.client import reload_client
 from qnexus.client.utils import consolidate_error, remove_token, write_token
-from qnexus.config import Config
+from qnexus.config import get_config
 
 console = Console()
-config = Config()
 
 _auth_client = httpx.Client(
-    base_url=f"{config.url}/auth", timeout=None, verify=config.httpx_verify
+    base_url=f"{get_config().url}/auth", timeout=None, verify=get_config().httpx_verify
 )
 
 

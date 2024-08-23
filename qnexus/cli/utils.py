@@ -5,11 +5,6 @@ from typing import Any, Callable
 
 from click import Command, Option
 
-# from ..client import status as _status
-from ..config import Config
-
-config = Config()
-
 
 def is_documented_by(original: Callable):
     """Forward the documentation from the underlying client function."""

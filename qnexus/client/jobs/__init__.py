@@ -18,7 +18,7 @@ from qnexus.client import nexus_client
 from qnexus.client.jobs import _compile, _execute
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.config import Config
+from qnexus.config import get_config
 from qnexus.context import (
     get_active_project,
     merge_project_from_context,
@@ -54,8 +54,6 @@ from qnexus.models.references import (
     ProjectRef,
 )
 from qnexus.models.utils import AllowNone, assert_never
-
-config = Config()
 
 EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
@@ -317,7 +315,7 @@ async def listen_job_status(
         "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
-        f"{config.websockets_url}/api/jobs/v1beta/{job.id}/attributes/status/ws",
+        f"{get_config().websockets_url}/api/jobs/v1beta/{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
         extra_headers=extra_headers,
         # logger=logger,
