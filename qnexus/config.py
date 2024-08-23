@@ -1,6 +1,6 @@
 """Quantinuum Nexus API client configuration via pydantic-settings."""
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -14,7 +14,10 @@ class Config(BaseSettings):
     # web
     protocol: str = "https"
     websockets_protocol: str = "wss"
-    domain: str = Field(alias="NEXUS_HOST", default="nexus.quantinuum.com")
+    domain: str = Field(
+        validation_alias=AliasChoices("NEXUS_DOMAIN", "NEXUS_HOST"),
+        default="nexus.quantinuum.com",
+    )
     port: int = 443
     httpx_verify: bool = True
 
