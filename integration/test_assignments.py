@@ -54,7 +54,8 @@ def test_team_assignment(
     assert isinstance(team_assignment.assignee, TeamRef)
     assert team_assignment.assignee.id == team.id
 
-    # TODO delete project once available
+    qnx.projects.update(new_project_ref, archive=True)
+    qnx.projects.delete(new_project_ref)
 
 
 def test_user_assignment(
@@ -86,4 +87,5 @@ def test_user_assignment(
     assert admin_assignment.assignment_type == "user"
     assert isinstance(admin_assignment.assignee, UserRef)
 
-    # TODO delete project once available
+    qnx.projects.update(new_project_ref, archive=True)
+    qnx.projects.delete(new_project_ref)

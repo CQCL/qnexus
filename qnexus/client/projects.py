@@ -90,6 +90,7 @@ def _to_projectref(data: dict[str, Any]) -> DataframableList[ProjectRef]:
                 id=project["id"],
                 annotations=Annotations.from_dict(project["attributes"]),
                 contents_modified=project["attributes"]["contents_modified"],
+                archived=project["attributes"]["archived"],
             )
             for project in data["data"]
         ]
@@ -165,6 +166,7 @@ def _fetch(project_id: UUID | str) -> ProjectRef:
         id=res_dict["data"]["id"],
         annotations=Annotations.from_dict(res_dict["data"]["attributes"]),
         contents_modified=res_dict["data"]["attributes"]["contents_modified"],
+        archived=res_dict["data"]["attributes"]["archived"],
     )
 
 
@@ -203,6 +205,7 @@ def create(
         id=UUID(res_data_dict["id"]),
         annotations=Annotations.from_dict(res_data_dict["attributes"]),
         contents_modified=res_data_dict["attributes"]["contents_modified"],
+        archived=res_data_dict["attributes"]["archived"],
     )
 
 
@@ -318,3 +321,54 @@ def summarize(project: ProjectRef) -> pd.DataFrame:
         },
         index=[0],
     )
+
+
+def update(
+    project: ProjectRef,
+    name: str | None = None,
+    description: str | None = None,
+    archive: bool = False,
+) -> ProjectRef:
+    """Update the details of a project."""
+    req_dict = {
+        "data": {
+            "attributes": {
+                "name": name,
+                "description": description,
+                "archived": archive,
+            },
+            "type": "project",
+            "relationships": {},
+        }
+    }
+
+    res = nexus_client.patch(f"/api/projects/v1beta/{project.id}", json=req_dict)
+
+    if res.status_code != 200:
+        raise qnx_exc.ResourceUpdateFailed(
+            message=res.json(), status_code=res.status_code
+        )
+
+    res_data_dict = res.json()["data"]
+
+    return ProjectRef(
+        id=UUID(res_data_dict["id"]),
+        annotations=Annotations.from_dict(res_data_dict["attributes"]),
+        contents_modified=res_data_dict["attributes"]["contents_modified"],
+        archived=res_data_dict["attributes"]["archived"],
+    )
+
+
+def delete(project: ProjectRef) -> None:
+    """Delete a project and all associated data in Nexus.
+    Project must be archived first.
+    WARNING: this will delete all data associated with the project.
+    """
+    res = nexus_client.delete(
+        url=f"/api/projects/v1beta/{project.id}", params={"scope": "user"}
+    )
+
+    if res.status_code != 204:
+        raise qnx_exc.ResourceDeleteFailed(
+            message=res.json(), status_code=res.status_code
+        )

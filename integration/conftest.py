@@ -87,6 +87,9 @@ def _authenticated_nexus(
 
         yield
 
+        qnx.projects.update(my_proj, archive=True)
+        qnx.projects.delete(my_proj)
+
 
 @pytest.fixture(scope="session")
 def _authenticated_nexus_circuit_ref(

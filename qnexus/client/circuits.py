@@ -96,6 +96,7 @@ def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
             contents_modified=project_details["attributes"]["contents_modified"],
+            archived=project_details["attributes"]["archived"],
         )
 
         circuit_refs.append(
@@ -252,6 +253,7 @@ def _fetch(circuit_id: UUID | str) -> CircuitRef:
         id=project_id,
         annotations=Annotations.from_dict(project_details["attributes"]),
         contents_modified=project_details["attributes"]["contents_modified"],
+        archived=project_details["attributes"]["archived"],
     )
 
     return CircuitRef(

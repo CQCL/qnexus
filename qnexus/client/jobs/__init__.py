@@ -159,6 +159,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
             contents_modified=project_details["attributes"]["contents_modified"],
+            archived=project_details["attributes"]["archived"],
         )
         job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
         match entry["attributes"]["job_type"]:
@@ -238,6 +239,7 @@ def _fetch(job_id: UUID | str) -> JobRef:
         id=project_id,
         annotations=Annotations.from_dict(project_details["attributes"]),
         contents_modified=project_details["attributes"]["contents_modified"],
+        archived=project_details["attributes"]["archived"],
     )
     job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
     match job_data["attributes"]["job_type"]:
