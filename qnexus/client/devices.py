@@ -48,7 +48,7 @@ def get_all(
         credential_ids=[cred.id for cred in credentials] if credentials else None,
         credential_names=credential_names,
         is_local=nexus_hosted,
-    ).model_dump_json(by_alias=True, exclude_unset=True, exclude_none=True)
+    ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
     res = nexus_client.get(
         "/api/v5/available_devices",
