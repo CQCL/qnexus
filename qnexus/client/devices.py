@@ -1,8 +1,10 @@
 """Client API for devices in Nexus."""
+from typing import Literal
 
 from qnexus.client import nexus_client
 from qnexus.exceptions import ResourceFetchFailed
 from qnexus.models import (
+    BackendConfig,
     Credential,
     Device,
     IssuerEnum,
@@ -78,3 +80,73 @@ def get_all(
             )
 
     return device_list
+
+
+def supports_shots(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support shots?"""
+    return _get_backend_property(backend_config, "supports_shots")
+
+
+def supports_counts(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support shots?"""
+    return _get_backend_property(backend_config, "supports_counts")
+
+
+def supports_state(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support statevector results?"""
+    return _get_backend_property(backend_config, "supports_state")
+
+
+def supports_unitary(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support a unitary?"""
+    return _get_backend_property(backend_config, "supports_unitary")
+
+
+def supports_density_matrix(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support density matrix results?"""
+    return _get_backend_property(backend_config, "supports_density_matrix")
+
+
+def supports_expectation(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support expectation values?"""
+    return _get_backend_property(backend_config, "supports_expectation")
+
+
+def expectation_allows_nonhermitian(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support expectation_allows_nonhermitian?"""
+    return _get_backend_property(backend_config, "expectation_allows_nonhermitian")
+
+
+def supports_contextual_optimisation(backend_config: BackendConfig) -> bool:
+    """Does the backend configuration support TKET contextual optimization?"""
+    return _get_backend_property(backend_config, "supports_contextual_optimisation")
+
+
+def _get_backend_property(
+    backend_config: BackendConfig,
+    backend_property: Literal[
+        "supports_shots",
+        "supports_counts",
+        "supports_state",
+        "supports_unitary",
+        "supports_density_matrix",
+        "supports_expectation",
+        "expectation_allows_nonhermitian",
+        "supports_contextual_optimisation",
+    ],
+) -> bool:
+    """Retrieves a Backend property for a given BackendConfig."""
+
+    res = nexus_client.post(
+        "/api/v5/backend_info/backend_property",
+        json={
+            "backend_config": backend_config.model_dump(),
+            "property": backend_property,
+        },
+    )
+    if res.status_code != 200:
+        raise ResourceFetchFailed(message=res.text, status_code=res.status_code)
+
+    property_value: bool = res.json()
+
+    return property_value
