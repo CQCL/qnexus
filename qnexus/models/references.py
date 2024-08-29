@@ -95,6 +95,7 @@ class ProjectRef(BaseRef):
 
     annotations: Annotations
     contents_modified: datetime
+    archived: bool = Field(default=False)
     id: UUID
     type: Literal["ProjectRef"] = "ProjectRef"
 
@@ -113,6 +114,7 @@ class ProjectRef(BaseRef):
             pd.DataFrame(
                 {
                     "contents_modified": self.contents_modified,
+                    "archived": self.archived,
                     "id": self.id,
                 },
                 index=[0],

@@ -65,6 +65,16 @@ def test_project_create(
     assert len(test_props) == 1
     assert test_props[0].annotations.name == test_property_name
 
+    with pytest.raises(qnx_exc.ResourceDeleteFailed):
+        qnx.projects.delete(my_new_project)
+
+    qnx.projects.update(my_new_project, archive=True)
+
+    qnx.projects.delete(my_new_project)
+
+    with pytest.raises(qnx_exc.ZeroMatches):
+        qnx.projects.get(name_like=project_name)
+
 
 def test_project_get_or_create(
     _authenticated_nexus: None,
@@ -83,6 +93,9 @@ def test_project_get_or_create(
     my_new_project_again = qnx.projects.get_or_create(name=project_name)
 
     assert my_new_project == my_new_project_again
+
+    qnx.projects.update(my_new_project, archive=True)
+    qnx.projects.delete(my_new_project)
 
 
 def test_project_summarize(

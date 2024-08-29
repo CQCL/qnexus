@@ -26,6 +26,7 @@ def test_attach_project() -> None:
         id=project_id,
         annotations=Annotations(name=""),
         contents_modified=datetime.now(),
+        archived=False,
     )
 
     token = set_active_project_token(project=project)
@@ -45,6 +46,7 @@ def test_attach_project_context_manager() -> None:
         id=project_id,
         annotations=Annotations(name=""),
         contents_modified=datetime.now(),
+        archived=False,
     )
     with using_project(project=project):
         ctx_project = get_active_project()
@@ -87,6 +89,7 @@ def test_merge_project_from_context() -> None:
             name="test_project",
         ),
         contents_modified=datetime.now(),
+        archived=False,
     )
 
     @merge_project_from_context
@@ -112,6 +115,7 @@ def test_merge_project_from_context() -> None:
             name="test_project_2",
         ),
         contents_modified=datetime.now(),
+        archived=False,
     )
 
     with using_project(project=project):

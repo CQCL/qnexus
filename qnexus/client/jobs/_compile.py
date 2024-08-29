@@ -149,6 +149,7 @@ def _results(
             id=project_id,
             annotations=Annotations.from_dict(project_details["attributes"]),
             contents_modified=project_details["attributes"]["contents_modified"],
+            archived=project_details["attributes"]["archived"],
         )
 
         compilation_refs.append(
