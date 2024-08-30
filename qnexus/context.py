@@ -162,9 +162,9 @@ def merge_properties_from_context(func: Callable):
 
     @wraps(func)
     def _merge_properties_from_context(*args, **kwargs):
-        kwargs["properties"] = get_active_properties() | kwargs.get(
-            "properties", PropertiesDict({})
-        )
+        if kwargs.get("properties") is None:
+            kwargs["properties"] = PropertiesDict()
+        kwargs["properties"] = get_active_properties() | kwargs["properties"]
         return func(*args, **kwargs)
 
     return _merge_properties_from_context

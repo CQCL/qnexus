@@ -28,7 +28,7 @@ def start_compile_job(  # pylint: disable=too-many-arguments
     name: str,
     description: str = "",
     project: ProjectRef | None = None,
-    properties: PropertiesDict = PropertiesDict(),
+    properties: PropertiesDict | None = None,
     optimisation_level: int = 2,
     credential_name: str | None = None,
     hypertket_config: HyperTketConfig | None = None,

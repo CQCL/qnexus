@@ -29,7 +29,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
     backend_config: BackendConfig,
     name: str,
     description: str = "",
-    properties: PropertiesDict = PropertiesDict(),
+    properties: PropertiesDict | None = None,
     project: ProjectRef | None = None,
     valid_check: bool = True,
     postprocess: bool = True,

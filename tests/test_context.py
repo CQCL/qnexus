@@ -165,7 +165,7 @@ def test_merge_only_properties_from_context() -> None:
 
     @merge_properties_from_context
     def func_wants_properties(
-        properties: PropertiesDict = PropertiesDict(),
+        properties: PropertiesDict | None = None,
     ) -> PropertiesDict:
         """Dummy function for testing the merge_properties decorator"""
         # Property decorator provides empty properties dict by default
@@ -176,10 +176,6 @@ def test_merge_only_properties_from_context() -> None:
 
     test_props = PropertiesDict({"1": 2, "shared_key": "world"})
 
-    with pytest.raises(TypeError):
-        # will fail trying to take union of None and PropertiesDict
-        func_wants_properties(properties=None)  # type: ignore
-
     with using_properties(**test_props):
-        returned_props = func_wants_properties()
+        returned_props = func_wants_properties(properties=None)
         assert returned_props == test_props
