@@ -25,6 +25,7 @@ def test_supports_shots(
     supports_shots = qnx.devices.supports_shots(backend_config)
 
     assert isinstance(supports_shots, bool)
+    assert supports_shots is True
 
 
 def test_supports_counts(
@@ -36,6 +37,7 @@ def test_supports_counts(
     supports_counts = qnx.devices.supports_counts(backend_config)
 
     assert isinstance(supports_counts, bool)
+    assert supports_counts is True
 
 
 def test_supports_state(
@@ -47,6 +49,7 @@ def test_supports_state(
     supports_state = qnx.devices.supports_state(backend_config)
 
     assert isinstance(supports_state, bool)
+    assert supports_state is False
 
 
 def test_supports_unitary(
@@ -58,6 +61,7 @@ def test_supports_unitary(
     supports_unitary = qnx.devices.supports_unitary(backend_config)
 
     assert isinstance(supports_unitary, bool)
+    assert supports_unitary is False
 
 
 def test_supports_density_matrix(
@@ -69,6 +73,7 @@ def test_supports_density_matrix(
     supports_density_matrix = qnx.devices.supports_density_matrix(backend_config)
 
     assert isinstance(supports_density_matrix, bool)
+    assert supports_density_matrix is False
 
 
 def test_supports_expectation(
@@ -80,6 +85,7 @@ def test_supports_expectation(
     supports_expectation = qnx.devices.supports_expectation(backend_config)
 
     assert isinstance(supports_expectation, bool)
+    assert supports_expectation is False
 
 
 def test_expectation_allows_nonhermitian(
@@ -93,6 +99,7 @@ def test_expectation_allows_nonhermitian(
     )
 
     assert isinstance(expectation_allows_nonhermitian, bool)
+    assert expectation_allows_nonhermitian is False
 
 
 def test_supports_contextual_optimisation(
@@ -106,3 +113,4 @@ def test_supports_contextual_optimisation(
     )
 
     assert isinstance(supports_contextual_optimisation, bool)
+    assert supports_contextual_optimisation is True
