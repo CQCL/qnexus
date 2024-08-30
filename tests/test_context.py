@@ -131,7 +131,7 @@ def test_merge_properties_from_context() -> None:
     def func_wants_properties(
         properties: PropertiesDict | None = None,
     ) -> PropertiesDict:
-        """Dummy function for testing the merge_project decorator"""
+        """Dummy function for testing the merge_properties decorator"""
         # Property decorator provides empty properties dict by default
         assert isinstance(properties, OrderedDict)
         return properties
@@ -157,3 +157,29 @@ def test_merge_properties_from_context() -> None:
         assert returned_props["bingo"] == second_props["bingo"]
         assert returned_props["shared_key"] == second_props["shared_key"]
         assert len(returned_props.keys()) == 3
+
+
+def test_merge_only_properties_from_context() -> None:
+    """Test the decorator for merging properties from context when no properties are
+    passed as an argument."""
+
+    @merge_properties_from_context
+    def func_wants_properties(
+        properties: PropertiesDict = PropertiesDict(),
+    ) -> PropertiesDict:
+        """Dummy function for testing the merge_properties decorator"""
+        # Property decorator provides empty properties dict by default
+        assert isinstance(properties, OrderedDict)
+        return properties
+
+    assert func_wants_properties() == PropertiesDict({})
+
+    test_props = PropertiesDict({"1": 2, "shared_key": "world"})
+
+    with pytest.raises(TypeError):
+        # will fail trying to take union of None and PropertiesDict
+        func_wants_properties(properties=None)  # type: ignore
+
+    with using_properties(**test_props):
+        returned_props = func_wants_properties()
+        assert returned_props == test_props

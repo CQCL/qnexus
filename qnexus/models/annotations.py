@@ -82,7 +82,7 @@ class CreateAnnotations(BaseModel):
 
     name: str  # type: ignore
     description: str | None = None
-    properties: PropertiesDict | None = Field(default_factory=OrderedDict)
+    properties: PropertiesDict | None = Field(default_factory=PropertiesDict)
 
     model_config = ConfigDict(frozen=True)
 

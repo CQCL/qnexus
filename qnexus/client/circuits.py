@@ -152,7 +152,7 @@ def upload(
     project: ProjectRef | None = None,
     name: str | None = None,
     description: str | None = None,
-    properties: PropertiesDict | None = None,
+    properties: PropertiesDict = PropertiesDict(),
 ) -> CircuitRef:
     """Upload a pytket Circuit to Nexus."""
     project = project or get_active_project(project_required=True)
@@ -201,7 +201,7 @@ def update(
     ref: CircuitRef,
     name: str | None = None,
     description: str | None = None,
-    properties: PropertiesDict | None = None,
+    properties: PropertiesDict = PropertiesDict(),
 ) -> CircuitRef:
     """Update the annotations on a CircuitRef."""
     ref_annotations = ref.annotations.model_dump()
