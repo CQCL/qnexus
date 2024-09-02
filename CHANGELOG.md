@@ -1,5 +1,20 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.5.0 (2024-08-30)
+
+
+### Added
+
+- Query backend property features (#89).
+- Updating and deleting projects (#88).
+
+
+### Fixed
+
+- Merging properties from context when no properties argument is provided (#91).
+- Allow p_meas tuples in h series noise (#85).
+
+
 ## 0.4.1 (2024-08-09)
 
 

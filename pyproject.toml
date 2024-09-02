@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qnexus"
-version = "0.4.1"
+version = "0.5.0"
 description = "Quantinuum Nexus python client."
 authors = ["Vanya Eccles <vanya.eccles@quantinuum.com>", "Aidan Keay <aidan.keay@quantinuum.com>", "John Children <john.children@quantinuum.com>"]
 license = "Apache-2.0"
