@@ -2,10 +2,9 @@
 
 # Script to run formatting, liniting and type checking tools
 
-poetry run isort qnexus/
+poetry run isort qnexus/ 
 poetry run isort tests/
 poetry run isort integration/
-
 poetry run black .
 
 poetry run pylint qnexus/

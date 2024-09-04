@@ -23,7 +23,7 @@ from qnexus.models.references import (
 
 
 @merge_properties_from_context
-def start_compile_job(  # pylint: disable=too-many-arguments, too-many-positional-arguments
+def start_compile_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,
@@ -32,6 +32,7 @@ def start_compile_job(  # pylint: disable=too-many-arguments, too-many-positiona
     properties: PropertiesDict | None = None,
     optimisation_level: int = 2,
     credential_name: str | None = None,
+    user_group: str | None = None,
     hypertket_config: HyperTketConfig | None = None,
 ) -> CompileJobRef:
     """Submit a compile job to be run in Nexus."""
@@ -55,11 +56,10 @@ def start_compile_job(  # pylint: disable=too-many-arguments, too-many-positiona
             "definition": {
                 "job_definition_type": "compile_job_definition",
                 "backend_config": backend_config.model_dump(),
-                "hypertket_config": (
-                    hypertket_config.model_dump()
-                    if hypertket_config is not None
-                    else None
-                ),
+                "user_group": user_group,
+                "hypertket_config": hypertket_config.model_dump()
+                if hypertket_config is not None
+                else None,
                 "optimisation_level": optimisation_level,
                 "credential_name": credential_name,
                 "items": [

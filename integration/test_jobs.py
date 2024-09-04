@@ -277,3 +277,58 @@ def test_results_not_available_error(
     assert isinstance(execute_results[0].download_result(), BackendResult)
 
     assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
+
+
+def test_submit_under_user_group(
+    _authenticated_nexus_circuit_ref: CircuitRef,
+    qa_project_name: str,
+    qa_circuit_name: str,
+) -> None:
+    """Test that a user can submit jobs under a user_group that
+    they belong to.
+
+    Requires that the test user is a member of a group called:
+    'QA_IntegrationTestGroup',
+    and not a member of a group called:
+    'made_up_group'.
+    """
+
+    my_proj = qnx.projects.get(name_like=qa_project_name)
+
+    with pytest.raises(qnx_exc.ResourceCreateFailed):
+        qnx.start_compile_job(
+            circuits=[_authenticated_nexus_circuit_ref],
+            name=f"qnexus_integration_test_compile_job_{datetime.now()}",
+            project=my_proj,
+            backend_config=qnx.AerConfig(),
+            user_group="made_up_group",
+        )
+
+    qnx.start_compile_job(
+        circuits=[_authenticated_nexus_circuit_ref],
+        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.AerConfig(),
+        user_group="QA_IntegrationTestGroup",
+    )
+
+    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
+
+    with pytest.raises(qnx_exc.ResourceCreateFailed):
+        qnx.start_execute_job(
+            circuits=[my_circ],
+            name=f"qnexus_integration_test_execute_job_{datetime.now()}",
+            project=my_proj,
+            backend_config=qnx.AerConfig(),
+            n_shots=[10],
+            user_group="made_up_group",
+        )
+
+    qnx.start_execute_job(
+        circuits=[my_circ],
+        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.AerConfig(),
+        n_shots=[10],
+        user_group="QA_IntegrationTestGroup",
+    )
