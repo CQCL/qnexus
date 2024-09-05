@@ -91,7 +91,7 @@ def reload_client() -> None:
     global _nexus_client  # pylint: disable=global-statement
     _nexus_client = get_nexus_client()
     _nexus_client.cookies.clear()
-    _nexus_client.auth.cookies.clear() #type:ignore
+    _nexus_client.auth.cookies.clear()  # type:ignore
     _nexus_client = httpx.Client(
         base_url=get_config().url,
         auth=AuthHandler(),
