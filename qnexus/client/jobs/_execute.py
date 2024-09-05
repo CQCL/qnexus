@@ -37,6 +37,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
     language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
+    user_group: str | None = None,
 ) -> ExecuteJobRef:
     """
     Submit an execute job to be run in Nexus. Returns an ``ExecuteJobRef``
@@ -66,6 +67,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
             "definition": {
                 "job_definition_type": "execute_job_definition",
                 "backend_config": backend_config.model_dump(),
+                "user_group": user_group,
                 "valid_check": valid_check,
                 "postprocess": postprocess,
                 "noisy_simulator": noisy_simulator,

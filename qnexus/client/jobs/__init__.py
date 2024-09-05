@@ -374,12 +374,16 @@ def retry_submission(
     job: JobRef,
     retry_status: list[StatusEnum] | None = None,
     remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.DEFAULT,
+    user_group: str | None = None,
 ):
     """Retry a job in Nexus according to status(es) or retry strategy.
 
     By default, jobs with the ERROR status will be retried.
     """
     body: dict[str, str | list[str]] = {"remote_retry_strategy": remote_retry_strategy}
+
+    if user_group is not None:
+        body["user_group"] = user_group
 
     if retry_status is not None:
         body["retry_status"] = [status.name for status in retry_status]
@@ -416,6 +420,7 @@ def compile(  # pylint: disable=redefined-builtin
     properties: PropertiesDict | None = None,
     optimisation_level: int = 2,
     credential_name: str | None = None,
+    user_group: str | None = None,
     hypertket_config: HyperTketConfig | None = None,
     timeout: float | None = 300.0,
 ) -> DataframableList[CircuitRef]:
@@ -435,6 +440,7 @@ def compile(  # pylint: disable=redefined-builtin
         properties=properties,
         optimisation_level=optimisation_level,
         credential_name=credential_name,
+        user_group=user_group,
         hypertket_config=hypertket_config,
     )
 
@@ -462,6 +468,7 @@ def execute(  # pylint: disable=too-many-locals
     language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
+    user_group: str | None = None,
     timeout: float | None = 300.0,
 ) -> list[BackendResult]:
     """
@@ -485,6 +492,7 @@ def execute(  # pylint: disable=too-many-locals
         language=language,
         seed=seed,
         credential_name=credential_name,
+        user_group=user_group,
     )
 
     wait_for(job=execute_job_ref, timeout=timeout)
