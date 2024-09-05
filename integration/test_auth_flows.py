@@ -45,6 +45,12 @@ def test_credential_login_full_flow(
     with pytest.raises(AuthenticationError):
         qnx.users.get_self()
 
+    # Login again to make sure credentials are in the system for the other tests
+    # fake user input from stdin
+    monkeypatch.setattr("sys.stdin", StringIO(username + "\n"))
+    monkeypatch.setattr("getpass.getpass", lambda prompt: pwd)
+    qnx.login_with_credentials()
+
 
 @pytest.mark.skip(reason="Not implemented")
 def test_device_code_flow_login_full_flow() -> None:
