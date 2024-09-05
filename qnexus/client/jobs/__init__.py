@@ -14,7 +14,7 @@ from websockets.client import connect
 from websockets.exceptions import ConnectionClosedError
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.client.jobs import _compile, _execute
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
@@ -141,7 +141,7 @@ def get_all(
         nexus_url="/api/jobs/v1beta",
         params=params,
         wrapper_method=_to_jobref,
-        nexus_client=nexus_client,
+        nexus_client=get_nexus_client(),
     )
 
 
@@ -225,7 +225,7 @@ def get(
 
 def _fetch(job_id: UUID | str) -> JobRef:
     """Utility method for fetching directly by a unique identifier."""
-    res = nexus_client.get(f"/api/jobs/v1beta/{job_id}")
+    res = get_nexus_client().get(f"/api/jobs/v1beta/{job_id}")
 
     handle_fetch_errors(res)
 
@@ -284,7 +284,7 @@ def wait_for(
 
 def status(job: JobRef) -> JobStatus:
     """Get the status of a job."""
-    resp = nexus_client.get(f"api/jobs/v1beta/{job.id}/attributes/status")
+    resp = get_nexus_client().get(f"api/jobs/v1beta/{job.id}/attributes/status")
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
@@ -314,7 +314,7 @@ async def listen_job_status(
 
     extra_headers = {
         # TODO, this cookie will expire frequently
-        "Cookie": f"myqos_id={nexus_client.auth.cookies.get('myqos_id')}"  # type: ignore
+        "Cookie": f"myqos_id={get_nexus_client().auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
         f"{get_config().websockets_url}/api/jobs/v1beta/{job.id}/attributes/status/ws",
@@ -384,7 +384,7 @@ def retry_submission(
     if retry_status is not None:
         body["retry_status"] = [status.name for status in retry_status]
 
-    res = nexus_client.post(
+    res = get_nexus_client().post(
         f"/api/jobs/v1beta/{job.id}/rpc/retry",
         json=body,
     )
@@ -397,7 +397,7 @@ def cancel(job: JobRef):
 
     If the job has been submitted to a backend, Nexus will request cancellation of the job.
     """
-    res = nexus_client.post(
+    res = get_nexus_client().post(
         f"/api/jobs/v1beta/{job.id}/rpc/cancel",
         json={},
     )

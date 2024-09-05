@@ -1,13 +1,13 @@
 """Client API for teams in Nexus."""
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import nexus_client
+from qnexus.client import get_nexus_client
 from qnexus.models.references import DataframableList, TeamRef
 
 
 def get_all() -> DataframableList[TeamRef]:
     """No fuzzy name matching."""
-    res = nexus_client.get(
+    res = get_nexus_client().get(
         "/api/v5/user/teams",
     )
 
@@ -33,7 +33,7 @@ def get(name: str) -> TeamRef:
     Get a single team using filters. Throws an exception if the filters do not
     match exactly one object.
     """
-    res = nexus_client.get("/api/v5/user/teams", params={"name": name})
+    res = get_nexus_client().get("/api/v5/user/teams", params={"name": name})
 
     if res.status_code == 404:
         raise qnx_exc.ZeroMatches
@@ -61,7 +61,7 @@ def get(name: str) -> TeamRef:
 def create(name: str, description: str | None = None) -> TeamRef:
     """Create a team in Nexus."""
 
-    resp = nexus_client.post(
+    resp = get_nexus_client().post(
         "api/v5/user/teams/new",
         json={
             "team_name": name,

@@ -8,6 +8,7 @@ from qnexus.config import get_config
 from qnexus.exceptions import AuthenticationError
 
 config = get_config()
+_nexus_client: httpx.Client | None = None
 
 
 class AuthHandler(httpx.Auth):
@@ -21,7 +22,7 @@ class AuthHandler(httpx.Auth):
             token = read_token(
                 "refresh_token",
             )
-            self.cookies.set("myqos_oat", token, domain=config.domain)
+            self.cookies.set("myqos_oat", token, domain=get_config().domain)
         except FileNotFoundError:
             pass  # Okay to ignore this as the user may log in later
 
@@ -38,7 +39,7 @@ class AuthHandler(httpx.Auth):
                     token = read_token(
                         "refresh_token",
                     )
-                    self.cookies.set("myqos_oat", token, domain=config.domain)
+                    self.cookies.set("myqos_oat", token, domain=get_config().domain)
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
                         "Not authenticated. Please run `qnx login` in your terminal."
@@ -55,7 +56,7 @@ class AuthHandler(httpx.Auth):
 
             write_token(
                 "access_token",
-                self.cookies.get("myqos_id", domain=config.domain) or "",
+                self.cookies.get("myqos_id", domain=get_config().domain) or "",
             )
             if request.headers.get("cookie"):
                 request.headers.pop("cookie")
@@ -67,25 +68,33 @@ class AuthHandler(httpx.Auth):
         self.cookies.delete("myqos_id")  # We need to delete the existing token first
         return httpx.Request(
             method="POST",
-            url=f"{config.url}/auth/tokens/refresh",
+            url=f"{get_config().url}/auth/tokens/refresh",
             cookies=self.cookies,
         )
 
 
-config = get_config()
-nexus_client = httpx.Client(
-    base_url=config.url, auth=AuthHandler(), timeout=None, verify=config.httpx_verify
-)
+def get_nexus_client() -> httpx.Client:
+    """Getter function for the nexus client."""
+    global _nexus_client  # pylint: disable=global-statement
+    if _nexus_client is None:
+        _nexus_client = httpx.Client(
+            base_url=config.url,
+            auth=AuthHandler(),
+            timeout=None,
+            verify=config.httpx_verify,
+        )
+    return _nexus_client
 
 
 def reload_client() -> None:
     """Reload the nexus client with new tokens."""
-    global nexus_client  # pylint: disable=global-statement
-    global config  # pylint: disable=global-statement
-    config = get_config()
-    nexus_client = httpx.Client(
-        base_url=config.url,
+    global _nexus_client  # pylint: disable=global-statement
+    _nexus_client = get_nexus_client()
+    _nexus_client.cookies.clear()
+    _nexus_client.auth.cookies.clear()  # type:ignore
+    _nexus_client = httpx.Client(
+        base_url=get_config().url,
         auth=AuthHandler(),
         timeout=None,
-        verify=config.httpx_verify,
+        verify=get_config().httpx_verify,
     )
