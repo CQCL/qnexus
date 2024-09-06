@@ -110,15 +110,17 @@ class ProjectRef(BaseRef):
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
-        return self.annotations.df().join(
-            pd.DataFrame(
-                {
-                    "contents_modified": self.contents_modified,
-                    "archived": self.archived,
-                    "id": self.id,
-                },
-                index=[0],
-            )
+        return pd.DataFrame(
+            {
+                "name": self.annotations.name,
+                "description": self.annotations.description,
+                "created": self.annotations.created,
+                "modified": self.annotations.modified,
+                "contents_modified": self.contents_modified,
+                "archived": self.archived,
+                "id": self.id,
+            },
+            index=[0],
         )
 
 
