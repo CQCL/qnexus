@@ -196,7 +196,7 @@ def create(
 
     if res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
     res_data_dict = res.json()["data"]
@@ -242,7 +242,7 @@ def add_property(
 
     if props_res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
-            message=props_res.json(), status_code=props_res.status_code
+            message=props_res.text, status_code=props_res.status_code
         )
 
 
@@ -346,7 +346,7 @@ def update(
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
     res_data_dict = res.json()["data"]
@@ -370,5 +370,5 @@ def delete(project: ProjectRef) -> None:
 
     if res.status_code != 204:
         raise qnx_exc.ResourceDeleteFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )

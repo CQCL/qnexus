@@ -152,9 +152,7 @@ def _fetch_execution_result(
     """Get the results for an execute job item."""
     res = get_nexus_client().get(f"/api/results/v1beta/{handle.id}")
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_dict = res.json()
 

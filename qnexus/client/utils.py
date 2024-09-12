@@ -135,9 +135,7 @@ def handle_fetch_errors(res: Response) -> None:
         raise qnx_exc.ZeroMatches()
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
 
 def is_jupyterhub_environment() -> bool:

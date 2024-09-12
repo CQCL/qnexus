@@ -12,9 +12,7 @@ def get_self() -> UserRef:
     res = get_nexus_client().get("/api/v6/user/me")
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     user_dict = res.json()
 
@@ -30,9 +28,7 @@ def _fetch(user_id: UUID) -> UserRef:
     res = get_nexus_client().get(f"/api/v6/user/{user_id}")
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     user_dict = res.json()
 
