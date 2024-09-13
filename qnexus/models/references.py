@@ -220,11 +220,9 @@ class CompilationResultRef(BaseRef):
         if self._input_circuit:
             return self._input_circuit
 
-        (
-            self._compilation_passes,
-            self._input_circuit,
-            self._output_circuit,
-        ) = self._get_compile_results()
+        from qnexus.client.jobs._compile import _fetch_compilation_output
+
+        (self._input_circuit, self._output_circuit) = _fetch_compilation_output(self)
         return self._input_circuit
 
     def get_output(self) -> CircuitRef:
@@ -232,11 +230,9 @@ class CompilationResultRef(BaseRef):
         if self._output_circuit:
             return self._output_circuit
 
-        (
-            self._compilation_passes,
-            self._input_circuit,
-            self._output_circuit,
-        ) = self._get_compile_results()
+        from qnexus.client.jobs._compile import _fetch_compilation_output
+
+        (self._input_circuit, self._output_circuit) = _fetch_compilation_output(self)
         return self._output_circuit
 
     def get_passes(self) -> DataframableList[CompilationPassRef]:
