@@ -19,8 +19,10 @@ def test_property_creation_and_filtering(
 
     my_new_project = qnx.projects.create(name=project_name)
 
-    test_property_name_1 = "QA_test_prop"
+    test_property_name_1 = "QA_test_prop_1"
     test_property_name_2 = "QA_test_prop_2"
+    test_property_name_3 = "QA_test_prop_3"
+    test_property_name_4 = "QA_test_prop_4"
 
     qnx.projects.add_property(
         name=test_property_name_1,
@@ -32,6 +34,20 @@ def test_property_creation_and_filtering(
     qnx.projects.add_property(
         name=test_property_name_2,
         property_type="string",
+        project=my_new_project,
+        description="Another test property for my QA test project",
+    )
+
+    qnx.projects.add_property(
+        name=test_property_name_3,
+        property_type="int",
+        project=my_new_project,
+        description="Another test property for my QA test project",
+    )
+
+    qnx.projects.add_property(
+        name=test_property_name_4,
+        property_type="float",
         project=my_new_project,
         description="Another test property for my QA test project",
     )
@@ -51,6 +67,8 @@ def test_property_creation_and_filtering(
         properties={
             test_property_name_1: True,
             test_property_name_2: "test_string",
+            test_property_name_3: 42,
+            test_property_name_4: 3.15,
         },
     )
 
@@ -64,7 +82,15 @@ def test_property_creation_and_filtering(
     )
 
     my_circuit_refs = qnx.circuits.get_all(
-        project=my_new_project, properties=PropertiesDict({test_property_name_1: True})
+        project=my_new_project,
+        properties=PropertiesDict(
+            {
+                test_property_name_1: True,
+                test_property_name_2: "test_string",
+                test_property_name_3: 42,
+                test_property_name_4: 3.15,
+            }
+        ),
     )
 
     assert my_circuit_refs.count() == 1

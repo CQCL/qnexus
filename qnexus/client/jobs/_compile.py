@@ -1,7 +1,6 @@
 """Client API for compilation in Nexus."""
 from typing import Union, cast
 
-from pytket import Circuit
 from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
@@ -197,7 +196,8 @@ def _fetch_compilation_output(
     compiled_circuit_details = next(
         item for item in res_dict["included"] if item["id"] == compiled_circuit_id
     )
-    # compiled_circuit_dict = {k: v for k, v in compiled_circuit_details["attributes"].items() if v is not None}
+    # compiled_circuit_dict = {
+    # k: v for k, v in compiled_circuit_details["attributes"].items() if v is not None}
 
     compiled_circuit_ref = CircuitRef(
         id=compiled_circuit_id,
@@ -212,7 +212,8 @@ def _fetch_compilation_output(
     input_circuit_details = next(
         item for item in res_dict["included"] if item["id"] == input_circuit_id
     )
-    # input_circuit_dict = {k: v for k, v in input_circuit_details["attributes"].items() if v is not None}
+    # input_circuit_dict = {
+    # k: v for k, v in input_circuit_details["attributes"].items() if v is not None}
 
     input_circuit_ref = CircuitRef(
         id=input_circuit_id,

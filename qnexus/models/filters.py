@@ -16,6 +16,8 @@ from qnexus.models.utils import AllowNone
 def _format_property(key: str, value: bool | int | float | str) -> str:
     if isinstance(value, str):
         return f'({key},"{value}")'
+    if isinstance(value, bool):
+        return f"({key},{str(value).lower()})"
     return f"({key},{value})"
 
 
