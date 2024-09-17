@@ -54,7 +54,7 @@ def test_property_creation_and_filtering(
 
     test_props = qnx.projects.get_properties(my_new_project)
 
-    assert len(test_props) == 2
+    assert len(test_props) == 4
 
     circuit_name = f"QA_test_circuit_with_props_{datetime.now()}"
 
