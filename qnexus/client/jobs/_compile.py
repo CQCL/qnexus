@@ -196,14 +196,11 @@ def _fetch_compilation_output(
     compiled_circuit_details = next(
         item for item in res_dict["included"] if item["id"] == compiled_circuit_id
     )
-    # compiled_circuit_dict = {
-    # k: v for k, v in compiled_circuit_details["attributes"].items() if v is not None}
 
     compiled_circuit_ref = CircuitRef(
         id=compiled_circuit_id,
         annotations=Annotations.from_dict(compiled_circuit_details["attributes"]),
         project=project,
-        # _circuit=Circuit.from_dict(compiled_circuit_dict)
     )
 
     input_circuit_id = res_dict["data"]["relationships"]["original_circuit"]["data"][
@@ -212,14 +209,11 @@ def _fetch_compilation_output(
     input_circuit_details = next(
         item for item in res_dict["included"] if item["id"] == input_circuit_id
     )
-    # input_circuit_dict = {
-    # k: v for k, v in input_circuit_details["attributes"].items() if v is not None}
 
     input_circuit_ref = CircuitRef(
         id=input_circuit_id,
         annotations=Annotations.from_dict(input_circuit_details["attributes"]),
         project=project,
-        # _circuit=Circuit.from_dict(input_circuit_dict)
     )
 
     return input_circuit_ref, compiled_circuit_ref
