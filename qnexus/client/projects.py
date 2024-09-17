@@ -2,7 +2,7 @@
 # pylint: disable=redefined-builtin
 import random
 from datetime import datetime
-from typing import Any, Literal, Union
+from typing import Any, Literal, Union, cast
 from uuid import UUID
 
 import pandas as pd
@@ -280,9 +280,12 @@ def _to_property(data: dict[str, Any]) -> DataframableList[Property]:
     )
 
 
-def summarize(project: ProjectRef) -> pd.DataFrame:
+def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
     """Summarize the current state of a project."""
     import qnexus.client.jobs as jobs_client  # pylint: disable=import-outside-toplevel
+
+    project = project or get_active_project(project_required=True)
+    project = cast(ProjectRef, project)
 
     all_jobs = jobs_client.get_all(project=project).list()
 
