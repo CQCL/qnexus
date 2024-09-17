@@ -17,6 +17,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 
+import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
 
 
@@ -41,6 +42,8 @@ class DataframableList(list[T]):
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
+        if len(self) == 0:
+            raise qnx_exc.ZeroMatches("No data matched provided filters.")
         return pd.concat([item.df() for item in self], ignore_index=True)
 
 
