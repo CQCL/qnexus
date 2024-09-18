@@ -184,7 +184,7 @@ def upload(
     # https://cqc.atlassian.net/browse/MUS-3054
     if res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
     res_data_dict = res.json()["data"]
@@ -224,7 +224,7 @@ def update(
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
     res_dict = res.json()["data"]
@@ -267,9 +267,7 @@ def _fetch_circuit(handle: CircuitRef) -> Circuit:
     """Utility method for fetching a pytket circuit from a CircuitRef."""
     res = get_nexus_client().get(f"/api/circuits/v1beta/{handle.id}")
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_data_attributes_dict = res.json()["data"]["attributes"]
     circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}
@@ -302,9 +300,7 @@ def cost(
     )
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     circuit_cost: float | None = res.json()
     return circuit_cost

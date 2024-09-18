@@ -2,7 +2,7 @@
 # pylint: disable=redefined-builtin
 import random
 from datetime import datetime
-from typing import Any, Literal, Union
+from typing import Any, Literal, Union, cast
 from uuid import UUID
 
 import pandas as pd
@@ -196,7 +196,7 @@ def create(
 
     if res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
     res_data_dict = res.json()["data"]
@@ -242,7 +242,7 @@ def add_property(
 
     if props_res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
-            message=props_res.json(), status_code=props_res.status_code
+            message=props_res.text, status_code=props_res.status_code
         )
 
 
@@ -280,9 +280,12 @@ def _to_property(data: dict[str, Any]) -> DataframableList[Property]:
     )
 
 
-def summarize(project: ProjectRef) -> pd.DataFrame:
+def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
     """Summarize the current state of a project."""
     import qnexus.client.jobs as jobs_client  # pylint: disable=import-outside-toplevel
+
+    project = project or get_active_project(project_required=True)
+    project = cast(ProjectRef, project)
 
     all_jobs = jobs_client.get_all(project=project).list()
 
@@ -346,7 +349,7 @@ def update(
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
     res_data_dict = res.json()["data"]
@@ -370,5 +373,5 @@ def delete(project: ProjectRef) -> None:
 
     if res.status_code != 204:
         raise qnx_exc.ResourceDeleteFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )

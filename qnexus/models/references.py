@@ -17,6 +17,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 
+import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
 
 
@@ -41,6 +42,8 @@ class DataframableList(list[T]):
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
+        if len(self) == 0:
+            raise qnx_exc.ZeroMatches("No data matched provided filters.")
         return pd.concat([item.df() for item in self], ignore_index=True)
 
 
@@ -110,15 +113,17 @@ class ProjectRef(BaseRef):
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
-        return self.annotations.df().join(
-            pd.DataFrame(
-                {
-                    "contents_modified": self.contents_modified,
-                    "archived": self.archived,
-                    "id": self.id,
-                },
-                index=[0],
-            )
+        return pd.DataFrame(
+            {
+                "name": self.annotations.name,
+                "description": self.annotations.description,
+                "created": self.annotations.created,
+                "modified": self.annotations.modified,
+                "contents_modified": self.contents_modified,
+                "archived": self.archived,
+                "id": self.id,
+            },
+            index=[0],
         )
 
 
@@ -218,11 +223,9 @@ class CompilationResultRef(BaseRef):
         if self._input_circuit:
             return self._input_circuit
 
-        (
-            self._compilation_passes,
-            self._input_circuit,
-            self._output_circuit,
-        ) = self._get_compile_results()
+        from qnexus.client.jobs._compile import _fetch_compilation_output
+
+        (self._input_circuit, self._output_circuit) = _fetch_compilation_output(self)
         return self._input_circuit
 
     def get_output(self) -> CircuitRef:
@@ -230,11 +233,9 @@ class CompilationResultRef(BaseRef):
         if self._output_circuit:
             return self._output_circuit
 
-        (
-            self._compilation_passes,
-            self._input_circuit,
-            self._output_circuit,
-        ) = self._get_compile_results()
+        from qnexus.client.jobs._compile import _fetch_compilation_output
+
+        (self._input_circuit, self._output_circuit) = _fetch_compilation_output(self)
         return self._output_circuit
 
     def get_passes(self) -> DataframableList[CompilationPassRef]:

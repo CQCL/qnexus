@@ -21,9 +21,7 @@ def get_all() -> DataframableList[Role]:
     )
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     return DataframableList(
         [
@@ -57,9 +55,7 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     )
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     roles_dict = {str(role.id): role for role in get_all()}
 
@@ -121,7 +117,7 @@ def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> 
 
     if res.status_code != 201:
         raise qnx_exc.ResourceUpdateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )
 
 
@@ -151,5 +147,5 @@ def assign_user(
 
     if res.status_code != 201:
         raise qnx_exc.ResourceUpdateFailed(
-            message=res.json(), status_code=res.status_code
+            message=res.text, status_code=res.status_code
         )

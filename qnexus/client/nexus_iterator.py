@@ -88,7 +88,7 @@ class NexusIterator(Generic[T], Iterator[T]):
         """Consolidated error handling."""
         if res.status_code != 200:
             raise qnx_exc.ResourceFetchFailed(
-                message=res.json(), status_code=res.status_code
+                message=res.text, status_code=res.status_code
             )
 
     def try_unique_match(self) -> T:

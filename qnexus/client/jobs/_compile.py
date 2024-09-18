@@ -163,6 +163,62 @@ def _results(
     return compilation_refs
 
 
+def _fetch_compilation_output(
+    compilation_result_ref: CompilationResultRef,
+) -> tuple[CircuitRef, CircuitRef]:
+    """Get the input/output compiled circuit from a compilation job."""
+
+    resp = get_nexus_client().get(
+        f"/api/compilations/v1beta/{compilation_result_ref.id}"
+    )
+
+    if resp.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(
+            message=resp.text, status_code=resp.status_code
+        )
+
+    res_dict = resp.json()
+
+    project_id = res_dict["data"]["relationships"]["project"]["data"]["id"]
+    project_details = next(
+        proj for proj in res_dict["included"] if proj["id"] == project_id
+    )
+    project = ProjectRef(
+        id=project_id,
+        annotations=Annotations.from_dict(project_details["attributes"]),
+        contents_modified=project_details["attributes"]["contents_modified"],
+        archived=project_details["attributes"]["archived"],
+    )
+
+    compiled_circuit_id = res_dict["data"]["relationships"]["compiled_circuit"]["data"][
+        "id"
+    ]
+    compiled_circuit_details = next(
+        item for item in res_dict["included"] if item["id"] == compiled_circuit_id
+    )
+
+    compiled_circuit_ref = CircuitRef(
+        id=compiled_circuit_id,
+        annotations=Annotations.from_dict(compiled_circuit_details["attributes"]),
+        project=project,
+    )
+
+    input_circuit_id = res_dict["data"]["relationships"]["original_circuit"]["data"][
+        "id"
+    ]
+    input_circuit_details = next(
+        item for item in res_dict["included"] if item["id"] == input_circuit_id
+    )
+
+    input_circuit_ref = CircuitRef(
+        id=input_circuit_id,
+        annotations=Annotations.from_dict(input_circuit_details["attributes"]),
+        project=project,
+    )
+
+    return input_circuit_ref, compiled_circuit_ref
+
+
 def _fetch_compilation_passes(
     compilation_result_ref: CompilationResultRef,
 ) -> DataframableList[CompilationPassRef]:

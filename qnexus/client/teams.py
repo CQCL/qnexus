@@ -12,9 +12,7 @@ def get_all() -> DataframableList[TeamRef]:
     )
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     return DataframableList(
         [
@@ -39,9 +37,7 @@ def get(name: str) -> TeamRef:
         raise qnx_exc.ZeroMatches
 
     if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(
-            message=res.json(), status_code=res.status_code
-        )
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     teams_list = [
         TeamRef(

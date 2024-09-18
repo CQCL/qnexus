@@ -25,7 +25,7 @@ def get_all() -> DataframableList[Quota]:
     )
 
     if res.status_code != 200:
-        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+        raise ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     quota_list: DataframableList[Quota] = DataframableList([])
     for quota in res.json():
@@ -51,7 +51,7 @@ def get(name: QuotaName):
     )
 
     if res.status_code != 200:
-        raise ResourceFetchFailed(message=res.json(), status_code=res.status_code)
+        raise ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     quota = res.json()[0]
 
