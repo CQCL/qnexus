@@ -134,7 +134,7 @@ def test_compile_hypertket(
         circuits=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
-        backend_config=qnx.QuantinuumConfig(device_name="H1-Emulator"),
+        backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
         hypertket_config=HyperTketConfig(),
     )
 
