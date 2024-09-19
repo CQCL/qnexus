@@ -1,5 +1,18 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
+## 0.6.0 (2024-09-19)
+
+
+### Added
+
+- Dynamic login and logout (#93).
+
+### Fixed
+
+- Filtering by properties (#95).
+- Faster compilation results (#95).
+- Summary obtainable for ProjectRef in context.
+
 ## 0.5.0 (2024-08-30)
 
 
