@@ -11,7 +11,7 @@
 
 - Filtering by properties (#95).
 - Faster compilation results (#95).
-- Summary obtainable for ProjectRef in context.
+- Summary obtainable for ProjectRef in context (#95).
 
 ## 0.5.0 (2024-08-30)
 
