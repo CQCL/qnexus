@@ -78,7 +78,7 @@ poetry run scripts/fmt.sh
 
 Most of the test suite are integration tests that require the following environment variables:
 
-NEXUS_HOST = "staging.myqos.com"
+NEXUS_HOST = "qa.myqos.com"
 NEXUS_QA_USER_EMAIL = ...
 NEXUS_QA_USER_PASSWORD = ...
 
