@@ -11,7 +11,11 @@ from uuid import UUID
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
 from websockets.client import connect
-from websockets.exceptions import ConnectionClosedError
+from websockets.exceptions import (
+    ConnectionClosed,
+    ConnectionClosedError,
+    ConnectionClosedOK,
+)
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
@@ -333,14 +337,14 @@ async def listen_job_status(
                 ):
                     break
             break
-        except ConnectionClosedError:
+        except (ConnectionClosedError, ConnectionClosedOK, ConnectionClosed):
             # logger.debug(
             #     "Websocket connection closed... attempting to reconnect..."
             # )
             continue
         finally:
             try:
-                await websocket.close()
+                await websocket.close(code=1000, reason="Client closed connection")
             except GeneratorExit:
                 pass
 
