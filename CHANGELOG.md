@@ -2,6 +2,14 @@
 
 # `qnexus` Changelog
 
+## 0.6.1 (2024-10-01)
+
+
+### Fixed
+
+- Jobs websockets handling.
+
+
 ## 0.6.0 (2024-09-19)
 
 
