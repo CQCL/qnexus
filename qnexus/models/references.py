@@ -157,6 +157,7 @@ class CircuitRef(BaseRef):
             )
         )
 
+
 class WasmModuleRef(BaseRef):
     """Proxy object to a WasmModule in Nexus."""
 
@@ -395,6 +396,7 @@ Ref = Annotated[
         UserRef,
         ProjectRef,
         CircuitRef,
+        WasmModuleRef,
         JobRef,
         CompileJobRef,
         ExecuteJobRef,
