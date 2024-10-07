@@ -157,6 +157,27 @@ class CircuitRef(BaseRef):
             )
         )
 
+class WasmModuleRef(BaseRef):
+    """Proxy object to a WasmModule in Nexus."""
+
+    annotations: Annotations
+    project: ProjectRef
+    id: UUID
+    _circuit: Circuit | None = None
+    type: Literal["WasmModuleRef"] = "WasmModuleRef"
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
+        )
+
 
 class JobType(str, Enum):
     """Enum for a job's type."""
