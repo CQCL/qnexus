@@ -16,6 +16,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
+from pytket.wasm.wasm import WasmModuleHandler
 
 import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
@@ -164,8 +165,18 @@ class WasmModuleRef(BaseRef):
     annotations: Annotations
     project: ProjectRef
     id: UUID
-    _circuit: Circuit | None = None
+    _contents: WasmModuleHandler | None = None
     type: Literal["WasmModuleRef"] = "WasmModuleRef"
+
+    def download_wasm_contents(self) -> WasmModuleHandler:
+        """Get the contents of the original uploaded WASM."""
+        if self._contents:
+            return self._contents
+
+        from qnexus.client.wasm_modules import _fetch_wasm_module
+
+        self._contents = _fetch_wasm_module(self)
+        return self._contents
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""

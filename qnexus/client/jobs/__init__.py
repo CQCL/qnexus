@@ -52,6 +52,7 @@ from qnexus.models.references import (
     JobRef,
     JobType,
     ProjectRef,
+    WasmModuleRef,
 )
 from qnexus.models.utils import AllowNone, assert_never
 
@@ -459,6 +460,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     valid_check: bool = True,
     postprocess: bool = True,
     noisy_simulator: bool = True,
+    wasm_module: WasmModuleRef | None = None,
     language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
@@ -482,6 +484,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
         valid_check=valid_check,
         postprocess=postprocess,
         noisy_simulator=noisy_simulator,
+        wasm_module=wasm_module,
         language=language,
         seed=seed,
         credential_name=credential_name,

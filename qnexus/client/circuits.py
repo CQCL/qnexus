@@ -57,7 +57,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> NexusIterator:
+) -> NexusIterator[CircuitRef]:
     """Get a NexusIterator over circuits with optional filters."""
 
     params = Params(

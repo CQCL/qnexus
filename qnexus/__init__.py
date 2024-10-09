@@ -15,6 +15,7 @@ from qnexus.client import (
     roles,
     teams,
     users,
+    wasm_modules,
 )
 from qnexus.client.auth import login, login_with_credentials, logout
 from qnexus.client.jobs import compile, execute
@@ -54,6 +55,7 @@ __all__ = [
     "compile",
     "execute",
     "users",
+    "wasm_modules",
     "filesystem",
     "start_compile_job",
     "start_execute_job",

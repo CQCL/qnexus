@@ -27,7 +27,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.references import WasmModuleRef, DataframableList, ProjectRef
+from qnexus.models.references import DataframableList, ProjectRef, WasmModuleRef
 
 
 class Params(
@@ -55,7 +55,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> NexusIterator:
+) -> NexusIterator[WasmModuleRef]:
     """Get a NexusIterator over wasm_modules with optional filters."""
 
     params = Params(
@@ -157,7 +157,7 @@ def upload(
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    attributes = {"contents": wasm_module_handler.bytecode_base64}
+    attributes = {"contents": str(wasm_module_handler.bytecode_base64, "utf-8")}
     if name is None:
         raise ValueError("WasmModule must have a name to be uploaded")
 
@@ -173,7 +173,7 @@ def upload(
         "data": {
             "attributes": attributes,
             "relationships": relationships,
-            "type": "wasm_module",
+            "type": "wasm",
         }
     }
 
