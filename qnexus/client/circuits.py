@@ -17,7 +17,7 @@ from qnexus.context import (
     merge_properties_from_context,
 )
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.backend_config import BackendConfig, QuantinuumConfig
+from quantinuum_schemas.models.backend_config import BackendConfig, QuantinuumConfig
 from qnexus.models.filters import (
     CreatorFilter,
     FuzzyNameFilter,
