@@ -1,5 +1,6 @@
 """Test basic functionality relating to the wasm_modules module."""
 from datetime import datetime
+from pathlib import Path
 
 import pandas as pd
 from pytket import Circuit
@@ -17,7 +18,9 @@ def test_wasm_flow(
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    wfh = WasmFileHandler(filepath="../examples/data/add_one.wasm")
+    wasm_path = Path("examples/data/add_one.wasm").resolve()
+    print(wasm_path)
+    wfh = WasmFileHandler(filepath=str(wasm_path))
     qa_wasm_module_name_fixture = f"qnexus_integration_test_wasm_{datetime.now()}"
 
     qnx.wasm_modules.upload(
@@ -42,6 +45,7 @@ def test_wasm_flow(
     wasm_circuit_ref = qnx.circuits.upload(
         name=qa_wasm_circuit_name_fixture,
         circuit=circuit,
+        project=my_proj,
     )
 
     execute_job_ref = qnx.start_execute_job(
@@ -49,9 +53,10 @@ def test_wasm_flow(
         name=f"qnexus_integration_test_wasm_execute_job_{datetime.now()}",
         n_shots=[100],
         backend_config=qnx.QuantinuumConfig(
-            device_name="H1-1LE",
+            device_name="H1-Emulator",
         ),
         wasm_module=wasm_ref,
+        project=my_proj,
     )
 
     qnx.jobs.wait_for(execute_job_ref)
