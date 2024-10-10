@@ -2,10 +2,12 @@
 
 from contextlib import contextmanager
 from datetime import datetime
+from pathlib import Path
 from typing import Generator
 
 import pytest
 from pytket import Circuit
+from pytket.wasm.wasm import WasmFileHandler
 
 import qnexus as qnx
 from qnexus.config import get_config
@@ -35,6 +37,7 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
     qa_team_name: str,
     qa_compile_job_name: str,
     qa_execute_job_name: str,
+    qa_wasm_module_name: str,
 ) -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
     with make_authenticated_nexus():
@@ -80,6 +83,15 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
             project=my_proj,
             backend_config=qnx.AerConfig(),
             n_shots=[10],
+        )
+
+        wasm_path = Path("examples/data/add_one.wasm").resolve()
+        wfh = WasmFileHandler(filepath=str(wasm_path))
+
+        qnx.wasm_modules.upload(
+            wasm_module_handler=wfh,
+            name=qa_wasm_module_name,
+            project=my_proj,
         )
 
         qnx.jobs.wait_for(compile_job_ref)
@@ -149,3 +161,9 @@ def qa_execute_job_name_fixture() -> str:
     """A name for uniquely identifying an execute job owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_execute_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_wasm_module_name")
+def qa_wasm_module_name_fixture() -> str:
+    """A name for uniquely identifying a WASM module owned by the Nexus QA user."""
+    return f"qnexus_integration_test_wasm_{datetime.now()}"
