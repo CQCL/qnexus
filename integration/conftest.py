@@ -139,13 +139,20 @@ def qa_circuit_name2_fixture() -> str:
 
 @pytest.fixture(scope="session", name="qa_compile_job_name")
 def qa_compile_job_name_fixture() -> str:
-    """An id for uniquely identifying a compile job owned by the Nexus QA user,
+    """A name for uniquely identifying a compile job owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_compile_{datetime.now()}"
 
 
 @pytest.fixture(scope="session", name="qa_execute_job_name")
 def qa_execute_job_name_fixture() -> str:
-    """An id for uniquely identifying an execute job owned by the Nexus QA user,
+    """A name for uniquely identifying an execute job owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_execute_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_wasm_module_name")
+def qa_wasm_module_name_fixture() -> str:
+    """An name for uniquely identifying a Nexus wasm module owned by the Nexus QA user,
+    in the project specified by qa_project_name."""
+    return f"qnexus_integration_test_wasm_{datetime.now()}"
