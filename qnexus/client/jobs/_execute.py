@@ -1,4 +1,5 @@
 """Client API for execution in Nexus."""
+
 from typing import Union, cast
 
 from pytket.backends.backendinfo import BackendInfo
@@ -23,7 +24,7 @@ from qnexus.models.references import (
 
 
 @merge_properties_from_context
-def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals
+def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,

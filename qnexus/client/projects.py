@@ -43,7 +43,7 @@ class Params(
 
 
 # @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
-def get_all(
+def get_all(  # pylint: disable=too-many-positional-arguments
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,

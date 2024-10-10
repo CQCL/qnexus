@@ -22,7 +22,7 @@ from qnexus.models.references import (
 
 
 @merge_properties_from_context
-def start_compile_job(  # pylint: disable=too-many-arguments
+def start_compile_job(  # pylint: disable=too-many-arguments, too-many-positional-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,

@@ -99,7 +99,7 @@ class Params(
 
 # @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
 @merge_project_from_context
-def get_all(
+def get_all(  # pylint: disable=too-many-positional-arguments
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -183,7 +183,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
     return DataframableList(job_list)
 
 
-def get(
+def get(  # pylint: disable=too-many-positional-arguments
     job_id: Union[str, UUID, None] = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
@@ -407,7 +407,7 @@ def cancel(job: JobRef):
 
 
 @merge_properties_from_context
-def compile(  # pylint: disable=redefined-builtin
+def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,
@@ -448,7 +448,7 @@ def compile(  # pylint: disable=redefined-builtin
 
 
 @merge_properties_from_context
-def execute(  # pylint: disable=too-many-locals
+def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,

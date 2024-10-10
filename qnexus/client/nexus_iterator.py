@@ -17,7 +17,7 @@ class NexusIterator(Generic[T], Iterator[T]):
     """An object that can be used to summarize or iterate through a filter query made to
     the Nexus database."""
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-positional-arguments
         self,
         resource_type: str,
         nexus_url: str,
