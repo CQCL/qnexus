@@ -10,6 +10,7 @@ from uuid import UUID
 
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
+from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosed
 
@@ -39,7 +40,6 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.hypertket_config import HyperTketConfig
 from qnexus.models.job_status import JobStatus
 from qnexus.models.language import Language
 from qnexus.models.references import (

@@ -1,4 +1,5 @@
 """Test basic functionality relating to the job module."""
+
 from collections import Counter
 from datetime import datetime
 
@@ -6,10 +7,10 @@ import pandas as pd
 import pytest
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
+from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from qnexus.models.hypertket_config import HyperTketConfig
 from qnexus.models.references import (
     CircuitRef,
     CompilationPassRef,
