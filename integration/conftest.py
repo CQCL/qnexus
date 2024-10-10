@@ -149,10 +149,3 @@ def qa_execute_job_name_fixture() -> str:
     """A name for uniquely identifying an execute job owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_execute_{datetime.now()}"
-
-
-@pytest.fixture(scope="session", name="qa_wasm_module_name")
-def qa_wasm_module_name_fixture() -> str:
-    """An name for uniquely identifying a Nexus wasm module owned by the Nexus QA user,
-    in the project specified by qa_project_name."""
-    return f"qnexus_integration_test_wasm_{datetime.now()}"
