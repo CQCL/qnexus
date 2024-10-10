@@ -1,13 +1,11 @@
-"""Client API for circuits in Nexus."""
+"""Client API for wasm_modules in Nexus."""
 
 # pylint: disable=redefined-builtin
 from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
 
-from httpx import QueryParams
-from pytket import Circuit
-from quantinuum_schemas.models.backend_config import BackendConfig, QuantinuumConfig
+from pytket.wasm.wasm import WasmModuleHandler
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
@@ -29,7 +27,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.references import CircuitRef, DataframableList, ProjectRef
+from qnexus.models.references import DataframableList, ProjectRef, WasmModuleRef
 
 
 class Params(
@@ -41,7 +39,7 @@ class Params(
     PropertiesFilter,
     TimeFilter,
 ):
-    """Params for filtering circuits."""
+    """Params for filtering wasm_modules."""
 
 
 @merge_project_from_context
@@ -57,8 +55,8 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> NexusIterator[CircuitRef]:
-    """Get a NexusIterator over circuits with optional filters."""
+) -> NexusIterator[WasmModuleRef]:
+    """Get a NexusIterator over wasm_modules with optional filters."""
 
     params = Params(
         name_like=name_like,
@@ -75,21 +73,21 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
     return NexusIterator(
-        resource_type="Circuit",
-        nexus_url="/api/circuits/v1beta",
+        resource_type="WasmModule",
+        nexus_url="/api/wasm/v1beta",
         params=params,
-        wrapper_method=_to_circuitref,
+        wrapper_method=_to_wasm_module_ref,
         nexus_client=get_nexus_client(),
     )
 
 
-def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
-    """Convert JSON response dict to a list of CircuitRefs."""
+def _to_wasm_module_ref(page_json: dict[str, Any]) -> DataframableList[WasmModuleRef]:
+    """Convert JSON response dict to a list of WasmModuleRefs."""
 
-    circuit_refs: DataframableList[CircuitRef] = DataframableList([])
+    wasm_module_refs: DataframableList[WasmModuleRef] = DataframableList([])
 
-    for circuit_data in page_json["data"]:
-        project_id = circuit_data["relationships"]["project"]["data"]["id"]
+    for wasm_module_data in page_json["data"]:
+        project_id = wasm_module_data["relationships"]["project"]["data"]["id"]
         project_details = next(
             proj for proj in page_json["included"] if proj["id"] == project_id
         )
@@ -100,14 +98,14 @@ def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
             archived=project_details["attributes"]["archived"],
         )
 
-        circuit_refs.append(
-            CircuitRef(
-                id=UUID(circuit_data["id"]),
-                annotations=Annotations.from_dict(circuit_data["attributes"]),
+        wasm_module_refs.append(
+            WasmModuleRef(
+                id=UUID(wasm_module_data["id"]),
+                annotations=Annotations.from_dict(wasm_module_data["attributes"]),
                 project=project,
             )
         )
-    return circuit_refs
+    return wasm_module_refs
 
 
 def get(
@@ -124,13 +122,13 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-) -> CircuitRef:
+) -> WasmModuleRef:
     """
-    Get a single circuit using filters. Throws an exception if the filters do
+    Get a single wasm_module using filters. Throws an exception if the filters do
     not match exactly one object.
     """
     if id:
-        return _fetch(circuit_id=id)
+        return _fetch(wasm_module_id=id)
 
     return get_all(
         name_like=name_like,
@@ -149,38 +147,37 @@ def get(
 
 @merge_properties_from_context
 def upload(
-    circuit: Circuit,
+    wasm_module_handler: WasmModuleHandler,
     project: ProjectRef | None = None,
     name: str | None = None,
     description: str | None = None,
     properties: PropertiesDict | None = None,
-) -> CircuitRef:
-    """Upload a pytket Circuit to Nexus."""
+) -> WasmModuleRef:
+    """Upload a pytket WasmModule to Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    circuit_dict = circuit.to_dict()
-    circuit_name = name if name else circuit.name
-    if circuit_name is None:
-        raise ValueError("Circuit must have a name to be uploaded")
+    attributes = {"contents": str(wasm_module_handler.bytecode_base64, "utf-8")}
+    if name is None:
+        raise ValueError("WasmModule must have a name to be uploaded")
 
     annotations = CreateAnnotations(
-        name=circuit_name,
+        name=name,
         description=description,
         properties=properties,
     ).model_dump(exclude_none=True)
-    circuit_dict.update(annotations)
+    attributes.update(annotations)
     relationships = {"project": {"data": {"id": str(project.id), "type": "project"}}}
 
     req_dict = {
         "data": {
-            "attributes": circuit_dict,
+            "attributes": attributes,
             "relationships": relationships,
-            "type": "circuit",
+            "type": "wasm",
         }
     }
 
-    res = get_nexus_client().post("/api/circuits/v1beta", json=req_dict)
+    res = get_nexus_client().post("/api/wasm/v1beta", json=req_dict)
 
     # https://cqc.atlassian.net/browse/MUS-3054
     if res.status_code != 201:
@@ -190,7 +187,7 @@ def upload(
 
     res_data_dict = res.json()["data"]
 
-    return CircuitRef(
+    return WasmModuleRef(
         id=UUID(res_data_dict["id"]),
         annotations=Annotations.from_dict(res_data_dict["attributes"]),
         project=project,
@@ -199,12 +196,12 @@ def upload(
 
 @merge_properties_from_context
 def update(
-    ref: CircuitRef,
+    ref: WasmModuleRef,
     name: str | None = None,
     description: str | None = None,
     properties: PropertiesDict | None = None,
-) -> CircuitRef:
-    """Update the annotations on a CircuitRef."""
+) -> WasmModuleRef:
+    """Update the annotations on a WasmModuleRef."""
     ref_annotations = ref.annotations.model_dump()
     annotations = Annotations(
         name=name,
@@ -217,11 +214,11 @@ def update(
         "data": {
             "attributes": annotations,
             "relationships": {},
-            "type": "circuit",
+            "type": "wasm_module",
         }
     }
 
-    res = get_nexus_client().patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
+    res = get_nexus_client().patch(f"/api/wasm/v1beta/{ref.id}", json=req_dict)
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
@@ -230,17 +227,17 @@ def update(
 
     res_dict = res.json()["data"]
 
-    return CircuitRef(
+    return WasmModuleRef(
         id=UUID(res_dict["id"]),
         annotations=Annotations.from_dict(res_dict["attributes"]),
         project=ref.project,
     )
 
 
-def _fetch(circuit_id: UUID | str) -> CircuitRef:
+def _fetch(wasm_module_id: UUID | str) -> WasmModuleRef:
     """Utility method for fetching directly by a unique identifier."""
 
-    res = get_nexus_client().get(f"/api/circuits/v1beta/{circuit_id}")
+    res = get_nexus_client().get(f"/api/wasm/v1beta/{wasm_module_id}")
 
     handle_fetch_errors(res)
 
@@ -257,51 +254,19 @@ def _fetch(circuit_id: UUID | str) -> CircuitRef:
         archived=project_details["attributes"]["archived"],
     )
 
-    return CircuitRef(
+    return WasmModuleRef(
         id=UUID(res_dict["data"]["id"]),
         annotations=Annotations.from_dict(res_dict["data"]["attributes"]),
         project=project,
     )
 
 
-def _fetch_circuit(handle: CircuitRef) -> Circuit:
-    """Utility method for fetching a pytket circuit from a CircuitRef."""
-    res = get_nexus_client().get(f"/api/circuits/v1beta/{handle.id}")
+def _fetch_wasm_module(handle: WasmModuleRef) -> WasmModuleHandler:
+    """Utility method for fetching a pytket WasmModuleHandler from a WasmModuleRef."""
+    res = get_nexus_client().get(f"/api/wasm/v1beta/{handle.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_data_attributes_dict = res.json()["data"]["attributes"]
-    circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}
 
-    return Circuit.from_dict(circuit_dict)
-
-
-def cost(
-    circuit_ref: CircuitRef,
-    n_shots: int,
-    backend_config: BackendConfig,
-    syntax_checker: str | None = None,
-) -> float | None:
-    """Calculate the cost (in HQC) of running a circuit for n_shots
-    number of shots on a specific Quantinuum device."""
-
-    if not isinstance(backend_config, QuantinuumConfig):
-        raise ValueError("QuantinuumConfig is the only supported backend config")
-
-    params = {
-        "n_shots": n_shots,
-        "device_name": backend_config.device_name,
-    }
-    if syntax_checker:
-        params["syntax_checker"] = syntax_checker
-
-    res = get_nexus_client().get(
-        f"/api/circuits/v1beta/cost/{circuit_ref.id}",
-        params=cast(QueryParams, params),
-    )
-
-    if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
-
-    circuit_cost: float | None = res.json()
-    return circuit_cost
+    return WasmModuleHandler(res_data_attributes_dict["contents"], check=False)

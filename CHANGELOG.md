@@ -1,6 +1,6 @@
 <!-- This CHANGELOG is populated automatically by commitizen, but can be manually edited if needed. -->
 
-# `qnexus` Changelog
+# `qnexus` Release Notes
 
 ## 0.6.1 (2024-10-01)
 

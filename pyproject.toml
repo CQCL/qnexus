@@ -19,7 +19,7 @@ jinja2 = "^3.1.2"
 halo = "^0.0.31"
 nest-asyncio = "^1.6.0"
 rich = "^13.6.0"
-pytket = "^1.21.0"
+pytket = "^1.33.0"
 pytket-qiskit = {version = ">=0.50", optional = true}
 websockets = "^11.0"
 pydantic-settings = "^2"

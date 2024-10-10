@@ -20,6 +20,7 @@ from qnexus.models.references import (
     ExecutionResultRef,
     JobType,
     ProjectRef,
+    WasmModuleRef,
 )
 
 
@@ -38,6 +39,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
     language: Language = Language.AUTO,
     seed: int | None = None,
     credential_name: str | None = None,
+    wasm_module: WasmModuleRef | None = None,
 ) -> ExecuteJobRef:
     """
     Submit an execute job to be run in Nexus. Returns an ``ExecuteJobRef``
@@ -70,8 +72,11 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
                 "valid_check": valid_check,
                 "postprocess": postprocess,
                 "noisy_simulator": noisy_simulator,
-                "language": language.value,
+                "language": language.value
+                if isinstance(language, Language)
+                else language,
                 "seed": seed,
+                "wasm_module_id": str(wasm_module.id) if wasm_module else None,
                 "credential_name": credential_name,
                 "items": [
                     {"circuit_id": circuit_id, "n_shots": n_shot}
