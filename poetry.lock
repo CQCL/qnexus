@@ -3229,23 +3229,21 @@ websocket-client = ">=1.5.1"
 
 [[package]]
 name = "quantinuum-schemas"
-version = "0.2.1"
+version = "0.3.0"
 description = "Shared data models for Quantinuum."
 optional = false
-python-versions = "^3.10"
-files = []
-develop = true
+python-versions = "<4.0,>=3.10"
+files = [
+    {file = "quantinuum_schemas-0.3.0-py3-none-any.whl", hash = "sha256:d92dc9fddccb554079ab3ef061a9df2fd4da0c4ee1bca508fa9aaa2246e8f679"},
+    {file = "quantinuum_schemas-0.3.0.tar.gz", hash = "sha256:fe7500163a9f7f7d762b86691259ee892ec9602b8aad2486b819f14b484a2fb2"},
+]
 
 [package.dependencies]
-pydantic = "^2.6.0"
-pytket = "^1.24.0"
+pydantic = ">=2.6.0,<3.0.0"
+pytket = ">=1.24.0,<2.0.0"
 
 [package.extras]
 qiskit = ["pytket-qiskit (>=0.50)"]
-
-[package.source]
-type = "directory"
-url = "../quantinuum-schemas"
 
 [[package]]
 name = "qwasm"
@@ -4246,4 +4244,4 @@ qiskit = ["pytket-qiskit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "943050c12c12ae39c6639896e44ecfe140bc5598a3f320a7635e36463a43dc3b"
+content-hash = "b3e8274a9d2027cbd556549a959f6375ee60dd0e5f4eddd458fc64520aa92b1d"
