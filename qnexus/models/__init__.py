@@ -8,9 +8,7 @@ from uuid import UUID
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
 from pytket.backends.backendinfo import BackendInfo
-
-from qnexus.models.annotations import Annotations
-from qnexus.models.backend_config import (
+from quantinuum_schemas.models.backend_config import (
     AerConfig,
     AerStateConfig,
     AerUnitaryConfig,
@@ -22,7 +20,9 @@ from qnexus.models.backend_config import (
     QuantinuumConfig,
     QulacsConfig,
 )
-from qnexus.models.backend_info import StoredBackendInfo
+from quantinuum_schemas.models.backend_info import StoredBackendInfo
+
+from qnexus.models.annotations import Annotations
 from qnexus.models.references import TeamRef, UserRef
 from qnexus.models.utils import assert_never
 

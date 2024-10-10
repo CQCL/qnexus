@@ -1,7 +1,9 @@
 """Client API for compilation in Nexus."""
+
 from typing import Union, cast
 
 from pytket.backends.status import StatusEnum
+from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -9,7 +11,6 @@ from qnexus.client import get_nexus_client
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.hypertket_config import HyperTketConfig
 from qnexus.models.references import (
     CircuitRef,
     CompilationPassRef,
@@ -22,7 +23,7 @@ from qnexus.models.references import (
 
 
 @merge_properties_from_context
-def start_compile_job(  # pylint: disable=too-many-arguments
+def start_compile_job(  # pylint: disable=too-many-arguments, too-many-positional-arguments
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,
@@ -54,9 +55,11 @@ def start_compile_job(  # pylint: disable=too-many-arguments
             "definition": {
                 "job_definition_type": "compile_job_definition",
                 "backend_config": backend_config.model_dump(),
-                "hypertket_config": hypertket_config.model_dump()
-                if hypertket_config is not None
-                else None,
+                "hypertket_config": (
+                    hypertket_config.model_dump()
+                    if hypertket_config is not None
+                    else None
+                ),
                 "optimisation_level": optimisation_level,
                 "credential_name": credential_name,
                 "items": [

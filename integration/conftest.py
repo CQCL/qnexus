@@ -28,7 +28,7 @@ def make_authenticated_nexus(
 
 
 @pytest.fixture(scope="session")
-def _authenticated_nexus(
+def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
     qa_project_name: str,
     qa_circuit_name: str,
     qa_circuit_name_2: str,

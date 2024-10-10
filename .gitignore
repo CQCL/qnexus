@@ -22,3 +22,4 @@ docs/_build
 
 # Dev stuff
 dev_notebooks/
+venv

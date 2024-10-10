@@ -19,7 +19,7 @@ class Params(DevicesFilter):
     """Params for filtering devices."""
 
 
-def get_all(
+def get_all(  # pylint: disable=too-many-positional-arguments
     issuers: list[IssuerEnum] | None = None,
     aws_region: str | None = None,
     ibmq_hub: str | None = None,
