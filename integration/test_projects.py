@@ -14,11 +14,14 @@ def test_project_get(
     _authenticated_nexus: None,
     qa_project_name: str,
 ) -> None:
-    """Test that we can get a specific unique project,
-    or get an appropriate exception."""
+    """Test that we can get a specific unique project
+    by name or id, or get an appropriate exception."""
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
     assert isinstance(my_proj, ProjectRef)
+
+    my_proj_2 = qnx.projects.get(id=my_proj.id)
+    assert my_proj == my_proj_2
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
         qnx.projects.get()

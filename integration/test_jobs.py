@@ -34,6 +34,26 @@ def test_job_get_all(
     assert isinstance(next(my_job_db_matches), JobRef)
 
 
+def test_job_get_by_id(
+    _authenticated_nexus: None,
+    qa_compile_job_name: str,
+    qa_execute_job_name: str,
+) -> None:
+    """Test that we can get JobRefs by id."""
+
+    my_compile_job = qnx.jobs.get(name_like=qa_compile_job_name)
+    assert isinstance(my_compile_job, CompileJobRef)
+
+    my_compile_job_2 = qnx.jobs.get(id=my_compile_job.id)
+    assert my_compile_job == my_compile_job_2
+
+    my_execute_job = qnx.jobs.get(name_like=qa_execute_job_name)
+    assert isinstance(my_execute_job, ExecuteJobRef)
+
+    my_execute_job_2 = qnx.jobs.get(id=my_execute_job.id)
+    assert my_execute_job == my_execute_job_2
+
+
 def test_compile_job_get(
     _authenticated_nexus: None,
     qa_compile_job_name: str,

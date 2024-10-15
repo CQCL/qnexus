@@ -14,3 +14,4 @@ def test_user_get(_authenticated_nexus: None) -> None:
         user_id=my_user.id
     )
     assert isinstance(my_user_again, UserRef)
+    assert my_user == my_user_again
