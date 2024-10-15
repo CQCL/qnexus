@@ -1,5 +1,6 @@
 """Client API for jobs in Nexus."""
 
+# pylint: disable=redefined-builtin
 import asyncio
 import json
 import ssl
@@ -185,7 +186,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
 
 
 def get(  # pylint: disable=too-many-positional-arguments
-    job_id: Union[str, UUID, None] = None,
+    id: Union[str, UUID, None] = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -204,8 +205,8 @@ def get(  # pylint: disable=too-many-positional-arguments
     Get a single job using filters. Throws an exception if the filters do
     not match exactly one object.
     """
-    if job_id:
-        return _fetch(job_id=job_id)
+    if id:
+        return _fetch(job_id=id)
 
     return get_all(
         name_like=name_like,
@@ -243,7 +244,7 @@ def _fetch(job_id: UUID | str) -> JobRef:
         archived=project_details["attributes"]["archived"],
     )
     job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
-    match job_data["attributes"]["job_type"]:
+    match job_data["data"]["attributes"]["job_type"]:
         case JobType.COMPILE:
             job_type = CompileJobRef
         case JobType.EXECUTE:

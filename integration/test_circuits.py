@@ -16,13 +16,19 @@ def test_circuit_get(
     _authenticated_nexus: None,
     qa_circuit_name: str,
 ) -> None:
-    """Test that we can get a specific unique CircuitRef,
-    or get an appropriate exception."""
+    """Test that we can get a specific unique CircuitRef
+    by name or id, or get an appropriate exception."""
 
     my_circ = qnx.circuits.get(name_like=qa_circuit_name)
     assert isinstance(my_circ, CircuitRef)
 
     assert isinstance(my_circ.download_circuit(), Circuit)
+
+    my_circ_2 = qnx.circuits.get(id=my_circ.id)
+    # For some reason direct equality check fails
+    assert my_circ.id == my_circ_2.id
+    assert my_circ.annotations == my_circ_2.annotations
+    assert my_circ.project == my_circ_2.project
 
     with pytest.raises(qnx_exc.NoUniqueMatch):
         qnx.circuits.get()

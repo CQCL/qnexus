@@ -35,6 +35,9 @@ def test_wasm_flow(
     wasm_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name_fixture)
     assert isinstance(wasm_ref, WasmModuleRef)
 
+    wasm_ref_2 = qnx.wasm_modules.get(id=wasm_ref.id)
+    assert wasm_ref == wasm_ref_2
+
     circuit = Circuit(0, 2)
     circuit.add_wasm("add_one", wfh, [1], [1], [0, 1])
     qa_wasm_circuit_name_fixture = (
