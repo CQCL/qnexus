@@ -2,6 +2,19 @@
 
 # `qnexus` Release Notes
 
+## 0.7.0 (2024-10-17)
+
+
+### Added
+
+- Add basic wasm handling (#101).
+
+
+### Fixed
+
+- Get jobs by id (#106).
+
+
 ## 0.6.1 (2024-10-01)
 
 
