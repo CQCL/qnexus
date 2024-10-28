@@ -18,7 +18,7 @@ def test_wasm_flow(
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    wasm_path = Path("examples/data/add_one.wasm").resolve()
+    wasm_path = Path("examples/basics/data/add_one.wasm").resolve()
     wfh = WasmFileHandler(filepath=str(wasm_path))
     qa_wasm_module_name_fixture = f"qnexus_integration_test_wasm_{datetime.now()}"
 
