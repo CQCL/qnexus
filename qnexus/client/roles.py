@@ -73,12 +73,13 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
                 role=roles_dict[user_role_assignment["role_id"]],
             )
         )
-
     for team_role_assignment in res_assignments["team_role_assignments"]:
         role_infos.append(
             RoleInfo(
                 assignment_type="team",
-                assignee=team_client.get(name=team_role_assignment["team_id"]),
+                assignee=team_client._fetch(  # pylint: disable=protected-access
+                    id=team_role_assignment["team_id"]
+                ),
                 role=roles_dict[team_role_assignment["role_id"]],
             )
         )
