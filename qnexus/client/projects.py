@@ -116,7 +116,7 @@ def get(
     not match exactly one object.
     """
     if id:
-        return _fetch(id)
+        return _fetch_by_id(id)
 
     return get_all(
         name_like=name_like,
@@ -154,7 +154,7 @@ def get_or_create(
         )
 
 
-def _fetch(project_id: UUID | str) -> ProjectRef:
+def _fetch_by_id(project_id: UUID | str) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
     res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}")
 

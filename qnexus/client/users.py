@@ -22,7 +22,7 @@ def get_self() -> UserRef:
     )
 
 
-def _fetch(user_id: UUID) -> UserRef:
+def _fetch_by_id(user_id: UUID) -> UserRef:
     """Get a specific user."""
 
     res = get_nexus_client().get(f"/api/v6/user/{user_id}")

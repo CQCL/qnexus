@@ -166,7 +166,7 @@ def _fetch_execution_result(
 
     input_circuit_id = res_dict["data"]["relationships"]["circuit"]["data"]["id"]
 
-    input_circuit = circuit_api._fetch(  # pylint: disable=protected-access
+    input_circuit = circuit_api._fetch_by_id(  # pylint: disable=protected-access
         input_circuit_id
     )
 

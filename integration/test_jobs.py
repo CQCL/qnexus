@@ -293,16 +293,19 @@ def test_submit_under_user_group(
     'made_up_group'.
     """
 
+    fake_group = "made_up_group"
+
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    with pytest.raises(qnx_exc.ResourceCreateFailed):
+    with pytest.raises(qnx_exc.ResourceCreateFailed) as exc:
         qnx.start_compile_job(
             circuits=[_authenticated_nexus_circuit_ref],
             name=f"qnexus_integration_test_compile_job_{datetime.now()}",
             project=my_proj,
             backend_config=qnx.AerConfig(),
-            user_group="made_up_group",
+            user_group=fake_group,
         )
+        assert exc.value == f"Not a member of any group with name: {fake_group}"
 
     qnx.start_compile_job(
         circuits=[_authenticated_nexus_circuit_ref],
@@ -323,6 +326,7 @@ def test_submit_under_user_group(
             n_shots=[10],
             user_group="made_up_group",
         )
+        assert exc.value == f"Not a member of any group with name: {fake_group}"
 
     qnx.start_execute_job(
         circuits=[my_circ],

@@ -206,7 +206,7 @@ def get(  # pylint: disable=too-many-positional-arguments
     not match exactly one object.
     """
     if id:
-        return _fetch(job_id=id)
+        return _fetch_by_id(job_id=id)
 
     return get_all(
         name_like=name_like,
@@ -225,7 +225,7 @@ def get(  # pylint: disable=too-many-positional-arguments
     ).try_unique_match()
 
 
-def _fetch(job_id: UUID | str) -> JobRef:
+def _fetch_by_id(job_id: UUID | str) -> JobRef:
     """Utility method for fetching directly by a unique identifier."""
     res = get_nexus_client().get(f"/api/jobs/v1beta/{job_id}")
 

@@ -54,11 +54,11 @@ def get(name: str) -> TeamRef:
     return teams_list[0]
 
 
-def _fetch(id: str) -> TeamRef:  # pylint: disable=redefined-builtin
+def _fetch_by_id(team_id: str) -> TeamRef:  # pylint: disable=redefined-builtin
     """
     Get a single team by id.
     """
-    res = get_nexus_client().get(f"/api/v5/user/teams/{id}")
+    res = get_nexus_client().get(f"/api/v5/user/teams/{team_id}")
 
     if res.status_code == 404:
         raise qnx_exc.ZeroMatches
