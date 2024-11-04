@@ -21,7 +21,7 @@ nest-asyncio = "^1.6.0"
 rich = "^13.6.0"
 pytket = "^1.33.0"
 pytket-qiskit = {version = ">=0.50", optional = true}
-websockets = "^11.0"
+websockets = ">11,<14"
 pydantic-settings = "^2"
 quantinuum-schemas = "^1.0"
 
