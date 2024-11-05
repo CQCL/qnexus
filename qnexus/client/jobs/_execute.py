@@ -40,6 +40,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
     seed: int | None = None,
     credential_name: str | None = None,
     wasm_module: WasmModuleRef | None = None,
+    user_group: str | None = None,
 ) -> ExecuteJobRef:
     """
     Submit an execute job to be run in Nexus. Returns an ``ExecuteJobRef``
@@ -69,6 +70,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
             "definition": {
                 "job_definition_type": "execute_job_definition",
                 "backend_config": backend_config.model_dump(),
+                "user_group": user_group,
                 "valid_check": valid_check,
                 "postprocess": postprocess,
                 "noisy_simulator": noisy_simulator,
@@ -164,7 +166,7 @@ def _fetch_execution_result(
 
     input_circuit_id = res_dict["data"]["relationships"]["circuit"]["data"]["id"]
 
-    input_circuit = circuit_api._fetch(  # pylint: disable=protected-access
+    input_circuit = circuit_api._fetch_by_id(  # pylint: disable=protected-access
         input_circuit_id
     )
 

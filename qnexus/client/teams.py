@@ -33,7 +33,7 @@ def get(name: str) -> TeamRef:
     """
     res = get_nexus_client().get("/api/v5/user/teams", params={"name": name})
 
-    if res.status_code == 404:
+    if res.status_code == 404 or res.json() == []:
         raise qnx_exc.ZeroMatches
 
     if res.status_code != 200:
@@ -52,6 +52,27 @@ def get(name: str) -> TeamRef:
         raise qnx_exc.NoUniqueMatch
 
     return teams_list[0]
+
+
+def _fetch_by_id(team_id: str) -> TeamRef:  # pylint: disable=redefined-builtin
+    """
+    Get a single team by id.
+    """
+    res = get_nexus_client().get(f"/api/v5/user/teams/{team_id}")
+
+    if res.status_code == 404:
+        raise qnx_exc.ZeroMatches
+
+    if res.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
+
+    team_dict = res.json()
+
+    return TeamRef(
+        id=team_dict["id"],
+        name=team_dict["team_name"],
+        description=team_dict["description"],
+    )
 
 
 def create(name: str, description: str | None = None) -> TeamRef:
