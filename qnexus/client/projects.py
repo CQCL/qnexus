@@ -7,7 +7,6 @@ from uuid import UUID
 
 import pandas as pd
 
-# from halo import Halo
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
@@ -42,7 +41,6 @@ class Params(
     """Params for filtering projects"""
 
 
-# @Halo(text="Listing projects...", spinner="simpleDotsScrolling")
 def get_all(  # pylint: disable=too-many-positional-arguments
     name_like: str | None = None,
     creator_email: list[str] | None = None,

@@ -99,7 +99,6 @@ class Params(
     """Params for filtering jobs"""
 
 
-# @Halo(text="Listing jobs...", spinner="simpleDotsScrolling")
 @merge_project_from_context
 def get_all(  # pylint: disable=too-many-positional-arguments
     name_like: str | None = None,
