@@ -38,8 +38,9 @@ def test_wasm_flow(
     wasm_ref_2 = qnx.wasm_modules.get(id=wasm_ref.id)
     assert wasm_ref == wasm_ref_2
 
-    circuit = Circuit(0, 2)
-    circuit.add_wasm("add_one", wfh, [1], [1], [0, 1])
+    circuit = Circuit(1)
+    a = circuit.add_c_register("a", 8)
+    circuit.add_wasm_to_reg("add_one", wfh, [a], [a])
     qa_wasm_circuit_name_fixture = (
         f"qnexus_integration_test_wasm_circuit_{datetime.now()}"
     )
