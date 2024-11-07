@@ -85,7 +85,7 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
             n_shots=[10],
         )
 
-        wasm_path = Path("examples/data/add_one.wasm").resolve()
+        wasm_path = Path("examples/basics/data/add_one.wasm").resolve()
         wfh = WasmFileHandler(filepath=str(wasm_path))
 
         qnx.wasm_modules.upload(
