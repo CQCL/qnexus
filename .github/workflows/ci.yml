@@ -1,4 +1,4 @@
-name: Python package
+name: Python package CI
 
 on:
   pull_request:
@@ -7,17 +7,7 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:
-    inputs:
-      run_integration_tests_only:
-        type: boolean
-        description: "Run integration tests only?"
-        required: false
-        default: false
-  schedule:
-    # everyday at 12:00
-    - cron: '0 12 * * *'
-
+      
 jobs:
 
   version-matrix-integration:
@@ -48,7 +38,6 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-latest
-    if: (!inputs.run_integration_tests_only || github.event_name != 'schedule')
     strategy:
       matrix:
         python-version: ['3.11']
@@ -101,7 +90,6 @@ jobs:
   test:
     name: Test
     runs-on: ubuntu-latest
-    if: (!inputs.run_integration_tests_only || github.event_name != 'schedule')
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
@@ -141,60 +129,3 @@ jobs:
         with:
           name: pytest-results-${{ matrix.python-version }}
           path: htmlcov/
-
-
-  test-integration:
-    name: Integration
-    needs: [version-matrix-integration]
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        python-version: ['3.11']
-    env:
-      NEXUS_QA_USER_EMAIL: ${{ secrets.NEXUS_QA_USER_EMAIL }}
-      NEXUS_QA_USER_PASSWORD: ${{ secrets.NEXUS_QA_USER_PASSWORD }}
-      NEXUS_DOMAIN: "qa.myqos.com"
-      NEXUS_STORE_TOKENS: "false"
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: '0'
-   
-      - name: Cache poetry
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Setup poetry
-        run: |
-          pip install pip==22.2.1 poetry==1.6.1
-          poetry run pip install --upgrade pip
-
-      - name: Install dev dependencies
-        run: |
-          poetry install --all-extras
-      
-      - name: Set up qnexus login tokens
-        run: |
-          poetry run python integration/setup_tokens.py
-
-      - name: Run integration tests
-        run: |
-          poetry run pytest integration/ --html=integration-results.html --timeout=600 -ra --reruns 3
-
-      - name: Upload integration test results
-        uses: actions/upload-artifact@master
-        with:
-          path: |
-            ./integration-results-*.html
-            ./assets/*.css
-          name: integration-results

@@ -88,6 +88,9 @@ And can be run with:
 poetry run pytest integration/
 ```
 
+These will only be available to internal team members. For external contributions we recommend writing unit tests and/or integration tests and requesting they
+be run by an internal reviewer.
+
 Run basic unit tests using
 
 ```sh
