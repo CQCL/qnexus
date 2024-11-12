@@ -2,6 +2,19 @@
 
 # `qnexus` Release Notes
 
+## 0.8.0 (2024-11-12)
+
+
+### Added
+
+- Pass user_group for job submissions and retries (#92).
+
+
+### Fixed
+
+- Update websockets dependency to be compatible with pytket-quantinuum (#109).
+
+
 ## 0.7.0 (2024-10-17)
 
 
