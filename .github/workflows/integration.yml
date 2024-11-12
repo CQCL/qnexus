@@ -1,80 +1,64 @@
-name: Python package CI
+name: Integration Tests
 
 on:
-  pull_request:
-    branches:
-      - main
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      pr_number:
+        description: 'Pull request number (for external PRs)'
+        required: false
+        type: number
+  schedule:
+    # everyday at 12:00
+    - cron: '0 12 * * *'
 
 jobs:
 
-  check:
-    name: Check
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.11']
-        action: ['lint', 'type', 'format']
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: '0'
-
-      - name: Cache poetry
-        uses: actions/cache@v3.3.1
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Setup poetry
-        run: |
-          pip install pip==22.2.1 poetry==1.6.1
-          poetry run pip install --upgrade pip
-
-      - name: Install dev dependencies
-        run: |
-          poetry install --all-extras
-
-      - name: Check formatting with black
-        run: |
-          poetry run black --check .
-        if: ${{ matrix.action == 'format' }}
-
-      - name: Typecheck with mypy
-        run: |
-          poetry run mypy qnexus/
-          poetry run mypy tests/
-          poetry run mypy integration/
-        if: ${{ matrix.action == 'type' }}
-
-      - name: Lint with pylint
-        run: |
-          poetry run pylint qnexus/
-          poetry run pylint tests/
-          poetry run pylint integration/
-        if: ${{ matrix.action == 'lint' }}
-
-  test:
-    name: Test
+  version-matrix-integration:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
+    steps:
+      - uses: actions/checkout@v3
+      - name: Cache poetry
+        uses: actions/cache@v3.3.1
+        with:
+          path: ~/.cache/pypoetry/virtualenvs
+          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
+      - name: Set up ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Setup poetry
+        run: |
+          pip install pip==22.2.1 poetry==1.8.2
+          poetry run pip install --upgrade pip
+      - name: Install dev dependencies
+        run: |
+          poetry install --all-extras
+
+  test-integration:
+    name: Integration
+    needs: [version-matrix-integration]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11']
+    env:
+      NEXUS_QA_USER_EMAIL: ${{ secrets.NEXUS_QA_USER_EMAIL }}
+      NEXUS_QA_USER_PASSWORD: ${{ secrets.NEXUS_QA_USER_PASSWORD }}
+      NEXUS_DOMAIN: "qa.myqos.com"
+      NEXUS_STORE_TOKENS: "false"
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: '0'
-
+          # Use the pull request merge commit ref if one is provided
+          ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || 'main' }}
+   
       - name: Cache poetry
         uses: actions/cache@v3.3.1
         with:
@@ -94,13 +78,19 @@ jobs:
       - name: Install dev dependencies
         run: |
           poetry install --all-extras
-
-      - name: Test with pytest
+      
+      - name: Set up qnexus login tokens
         run: |
-          poetry run pytest tests/ --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+          poetry run python integration/setup_tokens.py
 
-      - name: Upload pytest test results
+      - name: Run integration tests
+        run: |
+          poetry run pytest integration/ --html=integration-results.html --timeout=600 -ra --reruns 3
+
+      - name: Upload integration test results
         uses: actions/upload-artifact@master
         with:
-          name: pytest-results-${{ matrix.python-version }}
-          path: htmlcov/
+          path: |
+            ./integration-results-*.html
+            ./assets/*.css
+          name: integration-results
