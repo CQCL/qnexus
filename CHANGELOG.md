@@ -2,6 +2,13 @@
 
 # `qnexus` Release Notes
 
+## 0.8.1 (2024-11-13)
+
+
+### Fixed
+
+- Update pytket version to 1.34.
+
 ## 0.8.0 (2024-11-12)
 
 

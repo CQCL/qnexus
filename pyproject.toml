@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qnexus"
-version = "0.8.0"
+version = "0.8.1"
 description = "Quantinuum Nexus python client."
 authors = ["Vanya Eccles <vanya.eccles@quantinuum.com>", "Aidan Keay <aidan.keay@quantinuum.com>", "John Children <john.children@quantinuum.com>"]
 license = "Apache-2.0"
@@ -16,7 +16,7 @@ httpx = "^0.25.0"
 pandas = "^2"
 nest-asyncio = "^1.6.0"
 rich = "^13.6.0"
-pytket = "^1"
+pytket = "^1.34"
 pytket-qiskit = {version = ">=0.50", optional = true}
 websockets = ">11,<14"
 pydantic-settings = "^2"
