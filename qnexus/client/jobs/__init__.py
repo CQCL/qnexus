@@ -37,6 +37,8 @@ from qnexus.models.filters import (
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
+    ScopeFilter,
+    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -93,6 +95,7 @@ class Params(
     JobStatusFilter,
     ProjectRefFilter,
     JobTypeFilter,
+    ScopeFilter,
     SortFilter,
     TimeFilter,
 ):
@@ -114,6 +117,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> NexusIterator[CompileJobRef | ExecuteJobRef]:
     """Get a NexusIterator over jobs with optional filters."""
     project = project or get_active_project(project_required=False)
@@ -135,6 +139,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
         sort=SortFilter.convert_sort_filters(sort_filters),
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True, mode="")
 
     return NexusIterator(
@@ -199,6 +204,7 @@ def get(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> JobRef:
     """
     Get a single job using filters. Throws an exception if the filters do
@@ -221,6 +227,7 @@ def get(  # pylint: disable=too-many-positional-arguments
         sort_filters=sort_filters,
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).try_unique_match()
 
 

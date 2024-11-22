@@ -23,6 +23,8 @@ from qnexus.models.filters import (
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
+    ScopeFilter,
+    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -31,6 +33,7 @@ from qnexus.models.references import DataframableList, ProjectRef, WasmModuleRef
 
 
 class Params(
+    ScopeFilter,
     SortFilter,
     PaginationFilter,
     FuzzyNameFilter,
@@ -55,6 +58,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> NexusIterator[WasmModuleRef]:
     """Get a NexusIterator over wasm_modules with optional filters."""
 
@@ -70,6 +74,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
         sort=SortFilter.convert_sort_filters(sort_filters),
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
     return NexusIterator(
@@ -122,6 +127,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> WasmModuleRef:
     """
     Get a single wasm_module using filters. Throws an exception if the filters do
@@ -142,6 +148,7 @@ def get(
         sort_filters=sort_filters,
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).try_unique_match()
 
 

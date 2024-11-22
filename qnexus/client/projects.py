@@ -19,6 +19,8 @@ from qnexus.models.filters import (  # PropertiesFilter, # Not yet implemented
     CreatorFilter,
     FuzzyNameFilter,
     PaginationFilter,
+    ScopeFilter,
+    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -30,6 +32,7 @@ _COLOURS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#
 
 
 class Params(
+    ScopeFilter,
     SortFilter,
     PaginationFilter,
     FuzzyNameFilter,
@@ -52,6 +55,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> NexusIterator[ProjectRef]:
     """Get a NexusIterator over projects with optional filters."""
 
@@ -66,6 +70,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
         sort=SortFilter.convert_sort_filters(sort_filters),
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).model_dump(
         by_alias=True,
         exclude_unset=True,
@@ -108,6 +113,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> ProjectRef:
     """
     Get a single project using filters. Throws an exception if the filters do
@@ -127,6 +133,7 @@ def get(
         sort_filters=sort_filters,
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).try_unique_match()
 
 
@@ -154,7 +161,9 @@ def get_or_create(
 
 def _fetch_by_id(project_id: UUID | str) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
-    res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}")
+    res = get_nexus_client().get(
+        f"/api/projects/v1beta/{project_id}?scope=global_admin"
+    )
 
     handle_fetch_errors(res)
 

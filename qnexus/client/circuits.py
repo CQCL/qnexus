@@ -25,6 +25,8 @@ from qnexus.models.filters import (
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
+    ScopeFilter,
+    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -40,6 +42,7 @@ class Params(
     ProjectRefFilter,
     PropertiesFilter,
     TimeFilter,
+    ScopeFilter,
 ):
     """Params for filtering circuits."""
 
@@ -57,6 +60,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> NexusIterator[CircuitRef]:
     """Get a NexusIterator over circuits with optional filters."""
 
@@ -72,11 +76,12 @@ def get_all(  # pylint: disable=too-many-positional-arguments
         sort=SortFilter.convert_sort_filters(sort_filters),
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
     return NexusIterator(
         resource_type="Circuit",
-        nexus_url="/api/circuits/v1beta",
+        nexus_url="/api/circuits/v1beta?scope=global_admin",
         params=params,
         wrapper_method=_to_circuitref,
         nexus_client=get_nexus_client(),
@@ -124,6 +129,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
+    scope: ScopeFilterEnum | None = None,
 ) -> CircuitRef:
     """
     Get a single circuit using filters. Throws an exception if the filters do
@@ -144,6 +150,7 @@ def get(
         sort_filters=sort_filters,
         page_number=page_number,
         page_size=page_size,
+        scope=scope,
     ).try_unique_match()
 
 
