@@ -8,7 +8,6 @@ from http import HTTPStatus
 import httpx
 from colorama import Fore
 from pydantic import EmailStr
-
 from rich.console import Console
 from rich.panel import Panel
 

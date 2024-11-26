@@ -4185,4 +4185,4 @@ qiskit = ["pytket-qiskit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "3decc75f26901fb8aa1c939ea0ceb58a6adbba374224d8c3464836ae8f4362c4"
+content-hash = "5d39f1342f15696816977c31e159a1457682a6c000496fb8718fed9a2d19971b"

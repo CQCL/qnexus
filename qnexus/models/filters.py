@@ -260,3 +260,23 @@ class CredentialsFilter(BaseModel):
     """Filter for credentials."""
 
     issuer: CredentialIssuer | str | None = None
+
+
+class ScopeFilterEnum(str, Enum):
+    """ScopeFilterEnum model."""
+
+    USER = "user"
+    ORG_ADMIN = "org_admin"
+    GLOBAL_ADMIN = "global_admin"
+    HIGHEST = "highest"
+
+
+class ScopeFilter(BaseModel):
+    """Filter by scope."""
+
+    scope: ScopeFilterEnum | None
+
+    @field_serializer("scope")
+    def serialize_scope(self, scope: ScopeFilterEnum | None):
+        """Serialize a ScopeFilterEnum."""
+        return scope.value if scope else None
