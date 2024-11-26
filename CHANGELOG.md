@@ -2,6 +2,18 @@
 
 # `qnexus` Release Notes
 
+## 0.9.0 (2024-11-26)
+
+
+### Added
+
+- Allow admins to set scope for requests (#118).
+
+### Fixed
+
+- Relaxed dependency version constraints.
+
+
 ## 0.8.1 (2024-11-13)
 
 
