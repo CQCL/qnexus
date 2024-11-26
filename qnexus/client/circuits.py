@@ -81,7 +81,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
 
     return NexusIterator(
         resource_type="Circuit",
-        nexus_url="/api/circuits/v1beta?scope=global_admin",
+        nexus_url="/api/circuits/v1beta",
         params=params,
         wrapper_method=_to_circuitref,
         nexus_client=get_nexus_client(),

@@ -161,9 +161,7 @@ def get_or_create(
 
 def _fetch_by_id(project_id: UUID | str) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
-    res = get_nexus_client().get(
-        f"/api/projects/v1beta/{project_id}?scope=global_admin"
-    )
+    res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}")
 
     handle_fetch_errors(res)
 
