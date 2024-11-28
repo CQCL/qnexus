@@ -276,7 +276,4 @@ class ScopeFilter(BaseModel):
 
     scope: ScopeFilterEnum | None
 
-    @field_serializer("scope")
-    def serialize_scope(self, scope: ScopeFilterEnum | None):
-        """Serialize a ScopeFilterEnum."""
-        return scope.value if scope else None
+    model_config = ConfigDict(use_enum_values=True)

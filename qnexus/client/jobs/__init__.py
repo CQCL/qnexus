@@ -140,7 +140,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
         page_number=page_number,
         page_size=page_size,
         scope=scope,
-    ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True, mode="")
+    ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
     return NexusIterator(
         resource_type="Job",
