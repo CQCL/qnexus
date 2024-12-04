@@ -4,7 +4,7 @@ import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from functools import wraps
-from typing import Callable
+from typing import Callable, ParamSpec, TypeVar
 
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import ProjectRef
@@ -142,7 +142,11 @@ def using_properties(**properties: int | float | str | bool):
         _QNEXUS_PROPERTIES.reset(token)
 
 
-def merge_project_from_context(func: Callable):
+P = ParamSpec("P")
+T = TypeVar("T")
+
+
+def merge_project_from_context(func: Callable[P, T]) -> Callable[P, T]:
     """Decorator to merge a project from the context.
     ProjectRef in kwargs takes precedence (will be selected)."""
 
@@ -156,7 +160,7 @@ def merge_project_from_context(func: Callable):
     return get_project_from_context
 
 
-def merge_properties_from_context(func: Callable):
+def merge_properties_from_context(func: Callable[P, T]) -> Callable[P, T]:
     """Decorator to take the union of properties from the context with
     any provided in kwargs. Properties in kwargs take precendence."""
 
