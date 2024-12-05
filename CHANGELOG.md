@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## 0.9.1 (2024-12-05)
+
+
+### Fixed
+
+- Enum filter serialisation (#120).
+
+
 ## 0.9.0 (2024-11-26)
 
 
