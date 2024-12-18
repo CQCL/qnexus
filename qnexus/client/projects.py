@@ -120,7 +120,7 @@ def get(
     not match exactly one object.
     """
     if id:
-        return _fetch_by_id(id)
+        return _fetch_by_id(id, scope=scope)
 
     return get_all(
         name_like=name_like,
@@ -159,9 +159,13 @@ def get_or_create(
         )
 
 
-def _fetch_by_id(project_id: UUID | str) -> ProjectRef:
+def _fetch_by_id(project_id: UUID | str, scope: ScopeFilterEnum | None) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
-    res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}")
+    params = Params(scope=scope).model_dump(
+        by_alias=True, exclude_unset=True, exclude_none=True
+    )
+
+    res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}", params=params)
 
     handle_fetch_errors(res)
 

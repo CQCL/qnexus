@@ -136,7 +136,7 @@ def get(
     not match exactly one object.
     """
     if id:
-        return _fetch_by_id(circuit_id=id)
+        return _fetch_by_id(circuit_id=id, scope=scope)
 
     return get_all(
         name_like=name_like,
@@ -244,10 +244,13 @@ def update(
     )
 
 
-def _fetch_by_id(circuit_id: UUID | str) -> CircuitRef:
+def _fetch_by_id(circuit_id: UUID | str, scope: ScopeFilterEnum | None) -> CircuitRef:
     """Utility method for fetching directly by a unique identifier."""
+    params = Params(
+        scope=scope,
+    ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    res = get_nexus_client().get(f"/api/circuits/v1beta/{circuit_id}")
+    res = get_nexus_client().get(f"/api/circuits/v1beta/{circuit_id}", params=params)
 
     handle_fetch_errors(res)
 
