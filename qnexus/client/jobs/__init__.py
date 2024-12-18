@@ -211,7 +211,7 @@ def get(  # pylint: disable=too-many-positional-arguments
     not match exactly one object.
     """
     if id:
-        return _fetch_by_id(job_id=id)
+        return _fetch_by_id(job_id=id, scope=scope)
 
     return get_all(
         name_like=name_like,
@@ -231,9 +231,13 @@ def get(  # pylint: disable=too-many-positional-arguments
     ).try_unique_match()
 
 
-def _fetch_by_id(job_id: UUID | str) -> JobRef:
+def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
     """Utility method for fetching directly by a unique identifier."""
-    res = get_nexus_client().get(f"/api/jobs/v1beta/{job_id}")
+    params = Params(
+        scope=scope,
+    ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
+
+    res = get_nexus_client().get(f"/api/jobs/v1beta/{job_id}", params=params)
 
     handle_fetch_errors(res)
 
