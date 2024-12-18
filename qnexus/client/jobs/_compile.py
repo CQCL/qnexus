@@ -245,18 +245,16 @@ def _fetch_compilation_passes(
         pass_input_circuit_id = pass_info["relationships"]["original_circuit"]["data"][
             "id"
         ]
-        pass_input_circuit = (
-            circuit_api._fetch_by_id(  # pylint: disable=protected-access
-                pass_input_circuit_id
-            )
+        pass_input_circuit = circuit_api._fetch_by_id(  # pylint: disable=protected-access
+            pass_input_circuit_id,
+            scope=None,
         )
         pass_output_circuit_id = pass_info["relationships"]["compiled_circuit"]["data"][
             "id"
         ]
-        pass_output_circuit = (
-            circuit_api._fetch_by_id(  # pylint: disable=protected-access
-                pass_output_circuit_id
-            )
+        pass_output_circuit = circuit_api._fetch_by_id(  # pylint: disable=protected-access
+            pass_output_circuit_id,
+            scope=None,
         )
 
         pass_list.append(
