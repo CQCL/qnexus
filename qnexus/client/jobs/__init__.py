@@ -360,11 +360,13 @@ async def listen_job_status(
 
 
 @overload
-def results(job: CompileJobRef) -> DataframableList[CompilationResultRef]: ...
+def results(job: CompileJobRef) -> DataframableList[CompilationResultRef]:
+    ...
 
 
 @overload
-def results(job: ExecuteJobRef) -> DataframableList[ExecutionResultRef]: ...
+def results(job: ExecuteJobRef) -> DataframableList[ExecutionResultRef]:
+    ...
 
 
 def results(
