@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## 0.9.2 (2024-12-18)
+
+
+### Fixed
+
+- Update quantinuum-schemas to v1.1.0 (#124).
+
+
 ## 0.9.1 (2024-12-05)
 
 
