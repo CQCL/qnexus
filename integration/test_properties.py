@@ -2,6 +2,7 @@
 
 
 from datetime import datetime
+from typing import OrderedDict
 
 from pytket import Circuit
 
@@ -64,21 +65,25 @@ def test_property_creation_and_filtering(
         circuit=my_circ,
         name=circuit_name,
         project=my_new_project,
-        properties={
-            test_property_name_1: True,
-            test_property_name_2: "test_string",
-            test_property_name_3: 42,
-            test_property_name_4: 3.15,
-        },
+        properties=OrderedDict(
+            {
+                test_property_name_1: True,
+                test_property_name_2: "test_string",
+                test_property_name_3: 42,
+                test_property_name_4: 3.15,
+            }
+        ),
     )
 
     qnx.circuits.upload(
         circuit=my_circ,
         name=circuit_name,
         project=my_new_project,
-        properties={
-            test_property_name_1: False,
-        },
+        properties=OrderedDict(
+            {
+                test_property_name_1: False,
+            }
+        ),
     )
 
     my_circuit_refs = qnx.circuits.get_all(
