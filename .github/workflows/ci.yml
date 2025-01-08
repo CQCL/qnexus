@@ -104,3 +104,10 @@ jobs:
         with:
           name: pytest-results-${{ matrix.python-version }}
           path: htmlcov/
+
+      - name: Comment with integration test review reminder
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            Hello and thank you for making a PR to qnexus! :wave:
+            A maintainer will review and run integration tests if required.
