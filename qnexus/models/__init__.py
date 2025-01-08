@@ -1,12 +1,15 @@
 """Models for use by the client."""
+from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Optional
+from typing import Any, Literal, Optional
 from uuid import UUID
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic.json_schema import SkipJsonSchema
+from pydantic_core import core_schema
 from pytket.backends.backendinfo import BackendInfo
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
@@ -73,14 +76,19 @@ class Credential(BaseModel):
 
 
 class Device(BaseModel):
-    """A device in Nexus, work-in-progress"""
+    """A device in Nexus."""
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     backend_name: str
     device_name: Optional[str]
     nexus_hosted: bool
-    backend_info: BackendInfo
+    _backend_info: dict[str, Any]
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    @property
+    def backend_info(self) -> BackendInfo:
+        """The BackendInfo for a device."""
+        return BackendInfo.from_dict(self._backend_info)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -89,7 +97,7 @@ class Device(BaseModel):
                 "backend_name": self.backend_name,
                 "device_name": self.device_name,
                 "nexus_hosted": self.nexus_hosted,
-                "backend_info": self.backend_info.to_dict(),
+                "backend_info": self._backend_info,
             },
             index=[0],
         )

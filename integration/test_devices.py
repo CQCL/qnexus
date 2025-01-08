@@ -1,5 +1,7 @@
 """Test basic functionality relating to the device module."""
 
+from pytket.backends.backendinfo import BackendInfo
+
 import qnexus as qnx
 from qnexus.models import Device
 from qnexus.models.references import DataframableList
@@ -14,6 +16,8 @@ def test_device_get_all(
 
     for device in devices:
         assert isinstance(device, Device)
+        assert device._backend_info is not None  # pylint: disable=protected-access
+        assert isinstance(device.backend_info, BackendInfo)
 
 
 def test_supports_shots(
