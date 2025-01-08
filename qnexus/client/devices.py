@@ -73,7 +73,7 @@ def get_all(  # pylint: disable=too-many-positional-arguments
                     backend_name=backend_name,
                     device_name=backend_info["device_name"],
                     nexus_hosted=backendinfolist["is_local"],
-                    _backend_info=StoredBackendInfo(**backend_info)
+                    backend_info_dict=StoredBackendInfo(**backend_info)
                     .to_pytket_backend_info()
                     .to_dict(),
                 )

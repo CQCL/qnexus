@@ -16,7 +16,7 @@ def test_device_get_all(
 
     for device in devices:
         assert isinstance(device, Device)
-        assert device._backend_info is not None  # pylint: disable=protected-access
+        assert device.backend_info_dict is not None  # pylint: disable=protected-access
         assert isinstance(device.backend_info, BackendInfo)
 
 
