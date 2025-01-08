@@ -8,8 +8,6 @@ from uuid import UUID
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
-from pydantic.json_schema import SkipJsonSchema
-from pydantic_core import core_schema
 from pytket.backends.backendinfo import BackendInfo
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
@@ -87,7 +85,7 @@ class Device(BaseModel):
 
     @property
     def backend_info(self) -> BackendInfo:
-        """The BackendInfo for a device."""
+        """The BackendInfo for the Device."""
         return BackendInfo.from_dict(self.backend_info_dict)
 
     def df(self) -> pd.DataFrame:
