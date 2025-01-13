@@ -52,6 +52,14 @@ jobs:
       NEXUS_STORE_TOKENS: "false"
 
     steps:
+      - name: Comment action run link on PR
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          message: |
+            Integration tests are running on this PR at:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+          pr-number: ${{ github.event.inputs.pr_number }}
+
       - name: Checkout code
         uses: actions/checkout@v3
         with:
