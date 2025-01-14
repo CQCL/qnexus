@@ -81,12 +81,12 @@ class Device(BaseModel):
     backend_name: str
     device_name: Optional[str]
     nexus_hosted: bool
-    backend_info_dict: dict[str, Any]
+    stored_backend_info: StoredBackendInfo
 
     @property
     def backend_info(self) -> BackendInfo:
         """The BackendInfo for the Device."""
-        return BackendInfo.from_dict(self.backend_info_dict)
+        return self.stored_backend_info.to_pytket_backend_info()
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -95,7 +95,7 @@ class Device(BaseModel):
                 "backend_name": self.backend_name,
                 "device_name": self.device_name,
                 "nexus_hosted": self.nexus_hosted,
-                "backend_info": self.backend_info_dict,
+                "backend_info": self.stored_backend_info.to_pytket_backend_info(),
             },
             index=[0],
         )

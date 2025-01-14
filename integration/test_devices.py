@@ -1,6 +1,7 @@
 """Test basic functionality relating to the device module."""
 
 from pytket.backends.backendinfo import BackendInfo
+from quantinuum_schemas.models.backend_info import StoredBackendInfo
 
 import qnexus as qnx
 from qnexus.models import Device
@@ -16,7 +17,7 @@ def test_device_get_all(
 
     for device in devices:
         assert isinstance(device, Device)
-        assert device.backend_info_dict is not None  # pylint: disable=protected-access
+        assert isinstance(device.stored_backend_info, StoredBackendInfo)
         assert isinstance(device.backend_info, BackendInfo)
 
 
