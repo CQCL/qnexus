@@ -53,6 +53,7 @@ jobs:
 
     steps:
       - name: Comment action run link on PR
+        if: ${{ github.event.inputs.pr_number && github.event.inputs.pr_number != '' }}
         uses: thollander/actions-comment-pull-request@v3
         with:
           message: |
