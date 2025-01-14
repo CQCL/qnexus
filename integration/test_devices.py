@@ -1,5 +1,8 @@
 """Test basic functionality relating to the device module."""
 
+from pytket.backends.backendinfo import BackendInfo
+from quantinuum_schemas.models.backend_info import StoredBackendInfo
+
 import qnexus as qnx
 from qnexus.models import Device
 from qnexus.models.references import DataframableList
@@ -14,6 +17,8 @@ def test_device_get_all(
 
     for device in devices:
         assert isinstance(device, Device)
+        assert isinstance(device.stored_backend_info, StoredBackendInfo)
+        assert isinstance(device.backend_info, BackendInfo)
 
 
 def test_supports_shots(

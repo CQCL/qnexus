@@ -140,7 +140,7 @@ class SortFilter(BaseModel):
             Literal["-name"],
         ]
     ] | None = Field(
-        default=["-timestamps.created"],
+        default=["-timestamps.created"],  # type: ignore
         serialization_alias="sort",
         description="Sort items.",
     )
@@ -216,7 +216,14 @@ class JobStatusFilter(BaseModel):
     """Job status filter"""
 
     status: list[JobStatusString] | None = Field(
-        default=["COMPLETED", "QUEUED", "SUBMITTED", "RUNNING", "CANCELLED", "ERROR"],
+        default=[  # type: ignore
+            "COMPLETED",
+            "QUEUED",
+            "SUBMITTED",
+            "RUNNING",
+            "CANCELLED",
+            "ERROR",
+        ],
         serialization_alias="filter[status][status]",
         description="Filter by job status",
     )
