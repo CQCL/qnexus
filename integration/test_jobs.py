@@ -263,7 +263,7 @@ def test_get_results_for_incomplete_execute(
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
-        n_shots=[10],
+        n_shots=[10, 10],
     )
 
     assert isinstance(execute_job_ref, ExecuteJobRef)
