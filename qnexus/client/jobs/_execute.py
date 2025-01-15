@@ -124,6 +124,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
 
 def _results(
     execute_job: ExecuteJobRef,
+    allow_incomplete: bool = False,
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
@@ -136,20 +137,20 @@ def _results(
     resp_data = resp.json()["data"]
     job_status = resp_data["attributes"]["status"]["status"]
 
-    if job_status != "COMPLETED":
-        # TODO maybe we want to return a partial list of results?
+    if job_status != "COMPLETED" and not allow_incomplete:
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
     for item in resp_data["attributes"]["definition"]["items"]:
-        result_ref = ExecutionResultRef(
-            id=item["result_id"],
-            annotations=execute_job.annotations,
-            project=execute_job.project,
-        )
+        if item["status"]["status"] == "COMPLETED":
+            result_ref = ExecutionResultRef(
+                id=item["result_id"],
+                annotations=execute_job.annotations,
+                project=execute_job.project,
+            )
 
-        execute_results.append(result_ref)
+            execute_results.append(result_ref)
 
     return execute_results
 

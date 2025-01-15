@@ -360,24 +360,35 @@ async def listen_job_status(
 
 
 @overload
-def results(job: CompileJobRef) -> DataframableList[CompilationResultRef]:
+def results(
+    job: CompileJobRef, allow_incomplete: bool = False
+) -> DataframableList[CompilationResultRef]:
     ...
 
 
 @overload
-def results(job: ExecuteJobRef) -> DataframableList[ExecutionResultRef]:
+def results(
+    job: ExecuteJobRef, allow_incomplete: bool = False
+) -> DataframableList[ExecutionResultRef]:
     ...
 
 
 def results(
     job: CompileJobRef | ExecuteJobRef,
+    allow_incomplete: bool = False,
 ) -> DataframableList[CompilationResultRef] | DataframableList[ExecutionResultRef]:
-    """Get the ResultRefs from a JobRef, if the job is complete."""
+    """Get the ResultRefs from a JobRef, if the job is complete.
+    To enable fetching results from Jobs with incomplete items, set allow_incomplete=True.
+    """
     match job:
         case CompileJobRef():
-            return _compile._results(job)  # pylint: disable=protected-access
+            return _compile._results(  # pylint: disable=protected-access
+                job, allow_incomplete
+            )
         case ExecuteJobRef():
-            return _execute._results(job)  # pylint: disable=protected-access
+            return _execute._results(  # pylint: disable=protected-access
+                job, allow_incomplete
+            )
         case _:
             assert_never(job.job_type)
 

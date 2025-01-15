@@ -108,6 +108,7 @@ def start_compile_job(  # pylint: disable=too-many-arguments, too-many-locals, t
 
 def _results(
     compile_job: CompileJobRef,
+    allow_incomplete: bool = False,
 ) -> DataframableList[CompilationResultRef]:
     """Get the results from a compile job."""
 
@@ -121,13 +122,13 @@ def _results(
 
     job_status = resp_data["attributes"]["status"]["status"]
 
-    if job_status != "COMPLETED":
-        # TODO maybe we want to return a partial list of results?
+    if job_status != "COMPLETED" and not allow_incomplete:
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     compilation_ids = [
         item["compilation_id"]
         for item in resp_data["attributes"]["definition"]["items"]
+        if item["status"]["status"] == "COMPLETED"
     ]
 
     compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])
