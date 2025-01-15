@@ -1,6 +1,7 @@
 """Client API for wasm_modules in Nexus."""
 
 # pylint: disable=redefined-builtin
+import base64
 from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
@@ -281,4 +282,6 @@ def _fetch_wasm_module(handle: WasmModuleRef) -> WasmModuleHandler:
 
     res_data_attributes_dict = res.json()["data"]["attributes"]
 
-    return WasmModuleHandler(res_data_attributes_dict["contents"], check=False)
+    return WasmModuleHandler(
+        wasm_module=base64.b64decode(res_data_attributes_dict["contents"]), check=False
+    )
