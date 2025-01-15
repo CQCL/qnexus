@@ -24,6 +24,7 @@ jobs:
 
     comment-on-pr:
       runs-on: ubuntu-latest
+      if: ${{ github.event.action == 'opened' }}
       steps:
         - name: Comment on Pull Request
           uses: thollander/actions-comment-pull-request@v3
