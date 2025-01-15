@@ -5,6 +5,7 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
+from pytket import Circuit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
@@ -143,6 +144,27 @@ def test_compile(
     assert isinstance(compiled_circuits[0], CircuitRef)
 
 
+def test_get_results_for_incomplete_compile(
+    _authenticated_nexus_circuit_ref: CircuitRef,
+    qa_project_name: str,
+) -> None:
+    """Test that we can run a compile job in Nexus, and fetch complete results for
+    an otherwise errored/incomplete job."""
+
+    my_proj = qnx.projects.get(name_like=qa_project_name)
+
+    compile_job_ref = qnx.start_compile_job(
+        circuits=[_authenticated_nexus_circuit_ref],
+        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.AerConfig(),
+    )
+    # Unsure how to guarantee that the job will be incomplete
+    # This check may fail if the compilation completes quickly
+    compile_results = qnx.jobs.results(compile_job_ref, allow_incomplete=True)
+    assert len(compile_results) == 0
+
+
 def test_compile_hypertket(
     _authenticated_nexus_circuit_ref: CircuitRef,
     qa_project_name: str,
@@ -217,6 +239,46 @@ def test_execute(
 
     assert len(backend_results) == 1
     assert isinstance(backend_results[0].get_counts(), Counter)
+
+
+def test_get_results_for_incomplete_execute(
+    _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_circuit_name: str,
+) -> None:
+    """Test that we can run an execute job in Nexus, and fetch complete results for
+    an otherwise errored/incomplete job."""
+
+    my_proj = qnx.projects.get(name_like=qa_project_name)
+    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
+
+    my_h_series_circuit = qnx.circuits.upload(
+        circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
+        name="qa_h_series_circuit",
+        project=my_proj,
+    )
+
+    execute_job_ref = qnx.start_execute_job(
+        circuits=[my_circ, my_h_series_circuit],
+        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
+        project=my_proj,
+        backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
+        n_shots=[10],
+    )
+
+    assert isinstance(execute_job_ref, ExecuteJobRef)
+
+    with pytest.raises(qnx_exc.JobError):
+        qnx.jobs.wait_for(execute_job_ref)
+
+    incomplete_results = qnx.jobs.results(execute_job_ref, allow_incomplete=True)
+
+    # we expect the CX circuit to fail on H1-1LE, but the ZZPhase circuit should succeed
+    assert len(incomplete_results) == 1
+
+    assert isinstance(incomplete_results[0].get_input(), CircuitRef)
+    assert isinstance(incomplete_results[0].download_result(), BackendResult)
+    assert isinstance(incomplete_results[0].download_backend_info(), BackendInfo)
 
 
 def test_wait_for_raises_on_job_error(

@@ -128,7 +128,7 @@ def _results(
     compilation_ids = [
         item["compilation_id"]
         for item in resp_data["attributes"]["definition"]["items"]
-        if item["status"] == "COMPLETED"
+        if item["status"]["status"] == "COMPLETED"
     ]
 
     compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])

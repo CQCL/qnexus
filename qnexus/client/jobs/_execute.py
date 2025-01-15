@@ -143,7 +143,7 @@ def _results(
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
     for item in resp_data["attributes"]["definition"]["items"]:
-        if item["status"] == "COMPLETED":
+        if item["status"]["status"] == "COMPLETED":
             result_ref = ExecutionResultRef(
                 id=item["result_id"],
                 annotations=execute_job.annotations,
