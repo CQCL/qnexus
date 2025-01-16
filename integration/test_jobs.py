@@ -2,6 +2,7 @@
 
 from collections import Counter
 from datetime import datetime
+from time import sleep
 
 import pandas as pd
 import pytest
@@ -272,6 +273,13 @@ def test_get_results_for_incomplete_execute(
         qnx.jobs.wait_for(execute_job_ref)
 
     incomplete_results = qnx.jobs.results(execute_job_ref, allow_incomplete=True)
+
+    # wait for the ZZPhase circuit execution to complete
+    for _ in range(10):
+        incomplete_results = qnx.jobs.results(execute_job_ref, allow_incomplete=True)
+        if len(incomplete_results) > 0:
+            break
+        sleep(10)
 
     # we expect the CX circuit to fail on H1-1LE, but the ZZPhase circuit should succeed
     assert len(incomplete_results) == 1
