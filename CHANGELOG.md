@@ -2,6 +2,22 @@
 
 # `qnexus` Release Notes
 
+## 0.10.0 (2025-01-16)
+
+
+### Added
+
+- Fetch incomplete job results (#131).
+- Allow use of scope for single resources (#126).
+- Improve typing of decorators (#121).
+
+
+### Fixed
+
+- Ensure wasm can be extracted from wasm downloaded from nexus (#133).
+- Device backend_info pydantic schema generation (#127).
+
+
 ## 0.9.2 (2024-12-18)
 
 
