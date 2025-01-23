@@ -14,7 +14,7 @@ on:
 jobs:
 
   version-matrix-integration:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         python-version: ['3.10', '3.11']
@@ -40,7 +40,7 @@ jobs:
   test-integration:
     name: Integration
     needs: [version-matrix-integration]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
