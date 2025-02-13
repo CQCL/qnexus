@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
 
-from hugr.package import ExecutablePackage, Package
+from hugr.package import Package
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
@@ -160,7 +160,7 @@ def get(
 
 @merge_properties_from_context
 def upload(
-    hugr_package: ExecutablePackage,
+    hugr_package: Package,
     name: str,
     project: ProjectRef | None = None,
     description: str | None = None,
@@ -175,9 +175,7 @@ def upload(
     project = cast(ProjectRef, project)
 
     attributes = {
-        "contents": str(
-            base64.b64encode(bytes(hugr_package.package.to_json(), "utf-8"))
-        )
+        "contents": str(base64.b64encode(bytes(hugr_package.to_json(), "utf-8")))
     }
 
     annotations = CreateAnnotations(

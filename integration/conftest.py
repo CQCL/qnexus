@@ -1,11 +1,13 @@
 """Pytest fixtures and settings used in the qnexus integration tests."""
 
+import json
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Generator
 
 import pytest
+from hugr.package import Package
 from pytket import Circuit
 from pytket.wasm.wasm import WasmFileHandler
 
@@ -38,8 +40,10 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
     qa_compile_job_name: str,
     qa_execute_job_name: str,
     qa_wasm_module_name: str,
+    qa_hugr_name: str,
 ) -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
+    # pylint: disable=too-many-locals
     with make_authenticated_nexus():
         test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
 
@@ -91,6 +95,16 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
         qnx.wasm_modules.upload(
             wasm_module_handler=wfh,
             name=qa_wasm_module_name,
+            project=my_proj,
+        )
+
+        hugr_path = Path("integration/data/hugr_example.json").resolve()
+        hugr_json = json.loads(hugr_path.read_text(encoding="utf-8"))
+        hugr_package = Package.from_json(hugr_json)
+
+        qnx.hugr.upload(
+            hugr_package=hugr_package,
+            name=qa_hugr_name,
             project=my_proj,
         )
 
@@ -167,3 +181,9 @@ def qa_execute_job_name_fixture() -> str:
 def qa_wasm_module_name_fixture() -> str:
     """A name for uniquely identifying a WASM module owned by the Nexus QA user."""
     return f"qnexus_integration_test_wasm_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_hugr_name")
+def qa_hugr_name_fixture() -> str:
+    """A name for uniquely identifying a HUGR owned by the Nexus QA user."""
+    return f"qnexus_integration_test_hugr_{datetime.now()}"
