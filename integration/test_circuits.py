@@ -87,18 +87,18 @@ def test_circuit_get_cost(
     qa_project_name: str,
 ) -> None:
     """Test that we can get the cost to run a CircuitRef,
-    on a particular H-series device."""
+    on a particular Quantinuum Systems device."""
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    my_h_series_circuit = qnx.circuits.upload(
+    my_q_systems_circuit = qnx.circuits.upload(
         circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
-        name="qa_h_series_circuit",
+        name="qa_q_systems_circuit",
         project=my_proj,
     )
 
     cost = qnx.circuits.cost(
-        circuit_ref=my_h_series_circuit,
+        circuit_ref=my_q_systems_circuit,
         n_shots=10,
         backend_config=qnx.QuantinuumConfig(device_name="H1-1E"),
         syntax_checker="H1-1SC",
