@@ -83,21 +83,21 @@ def get_all(  # pylint: disable=too-many-positional-arguments
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
     return NexusIterator(
-        resource_type="HUGRModule",
+        resource_type="HUGR",
         nexus_url="/api/hugr/v1beta",
         params=params,
-        wrapper_method=_to_hugr_module_ref,
+        wrapper_method=_to_hugr_ref,
         nexus_client=get_nexus_client(),
     )
 
 
-def _to_hugr_module_ref(page_json: dict[str, Any]) -> DataframableList[HUGRRef]:
+def _to_hugr_ref(page_json: dict[str, Any]) -> DataframableList[HUGRRef]:
     """Convert JSON response dict to a list of HUGRRefs."""
 
-    hugr_module_refs: DataframableList[HUGRRef] = DataframableList([])
+    hugr_refs: DataframableList[HUGRRef] = DataframableList([])
 
-    for hugr_module_data in page_json["data"]:
-        project_id = hugr_module_data["relationships"]["project"]["data"]["id"]
+    for hugr_data in page_json["data"]:
+        project_id = hugr_data["relationships"]["project"]["data"]["id"]
         project_details = next(
             proj for proj in page_json["included"] if proj["id"] == project_id
         )
@@ -108,14 +108,14 @@ def _to_hugr_module_ref(page_json: dict[str, Any]) -> DataframableList[HUGRRef]:
             archived=project_details["attributes"]["archived"],
         )
 
-        hugr_module_refs.append(
+        hugr_refs.append(
             HUGRRef(
-                id=UUID(hugr_module_data["id"]),
-                annotations=Annotations.from_dict(hugr_module_data["attributes"]),
+                id=UUID(hugr_data["id"]),
+                annotations=Annotations.from_dict(hugr_data["attributes"]),
                 project=project,
             )
         )
-    return hugr_module_refs
+    return hugr_refs
 
 
 def get(
@@ -230,7 +230,7 @@ def update(
         "data": {
             "attributes": annotations,
             "relationships": {},
-            "type": "hugr_module",
+            "type": "hugr",
         }
     }
 

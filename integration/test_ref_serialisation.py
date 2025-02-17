@@ -18,9 +18,11 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
     qa_compile_job_name: str,
     qa_execute_job_name: str,
     qa_wasm_module_name: str,
+    qa_hugr_name: str,
 ) -> None:
     """Test Ref serialization and deserialization roundtrip,
     and check that all Ref types are covered."""
+    # pylint: disable=too-many-statements
 
     user_ref = qnx.users.get_self()
     project_ref = qnx.projects.get(name_like=qa_project_name)
@@ -40,6 +42,7 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
         qnx.jobs.CompilationResultRef, compile_result_ref.model_copy()
     ).get_passes()[0]
     wasm_module_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name)
+    hugr_ref = qnx.hugr.get(name_like=qa_hugr_name)
 
     test_refs = [
         user_ref,
@@ -52,6 +55,7 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
         compile_result_ref,
         compilation_pass_ref,
         wasm_module_ref,
+        hugr_ref,
     ]
     test_ref_types = set(type(test_ref) for test_ref in test_refs)
     all_refs = set(BaseRef.__subclasses__())
@@ -71,6 +75,7 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
     save(ref=compilation_pass_ref, path=test_ref_path / "compilation_pass", mkdir=True)
     save(ref=user_ref, path=test_ref_path / "user", mkdir=True)
     save(ref=wasm_module_ref, path=test_ref_path / "wasm_module", mkdir=True)
+    save(ref=hugr_ref, path=test_ref_path / "hugr_ref", mkdir=True)
 
     project_ref_2 = load(path=test_ref_path / "project")
     team_ref_2 = load(path=test_ref_path / "team")
@@ -82,6 +87,7 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
     compilation_pass_ref_2 = load(path=test_ref_path / "compilation_pass")
     user_ref_2 = load(path=test_ref_path / "user")
     wasm_module_ref_2 = load(path=test_ref_path / "wasm_module")
+    hugr_ref_2 = load(path=test_ref_path / "hugr_ref")
 
     assert project_ref == project_ref_2
     assert team_ref == team_ref_2
@@ -93,6 +99,7 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
     assert compilation_pass_ref == compilation_pass_ref_2
     assert user_ref == user_ref_2
     assert wasm_module_ref == wasm_module_ref_2
+    assert hugr_ref == hugr_ref_2
 
     # Clean up the saved ref files
     shutil.rmtree(test_ref_path)
