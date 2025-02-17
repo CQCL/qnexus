@@ -253,14 +253,14 @@ def test_get_results_for_incomplete_execute(
     my_proj = qnx.projects.get(name_like=qa_project_name)
     my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
 
-    my_h_series_circuit = qnx.circuits.upload(
+    my_q_systems_circuit = qnx.circuits.upload(
         circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
-        name="qa_h_series_circuit",
+        name="qa_q_systems_circuit",
         project=my_proj,
     )
 
     execute_job_ref = qnx.start_execute_job(
-        circuits=[my_circ, my_h_series_circuit],
+        circuits=[my_circ, my_q_systems_circuit],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
