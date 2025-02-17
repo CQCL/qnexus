@@ -1,6 +1,5 @@
 """Pytest fixtures and settings used in the qnexus integration tests."""
 
-import json
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
@@ -99,8 +98,7 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
         )
 
         hugr_path = Path("integration/data/hugr_example.json").resolve()
-        hugr_json = json.loads(hugr_path.read_text(encoding="utf-8"))
-        hugr_package = Package.from_json(hugr_json)
+        hugr_package = Package.from_json(hugr_path.read_text(encoding="utf-8"))
 
         qnx.hugr.upload(
             hugr_package=hugr_package,

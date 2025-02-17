@@ -1,5 +1,4 @@
 """Test basic functionality relating to the hugr module."""
-import json
 from datetime import datetime
 from pathlib import Path
 
@@ -21,8 +20,7 @@ def test_hugr_create_and_update(
     hugr_name = f"QA_test_hugr_{datetime.now()}"
 
     hugr_path = Path("integration/data/hugr_example.json").resolve()
-    hugr_json = json.loads(hugr_path.read_text(encoding="utf-8"))
-    hugr_package = Package.from_json(hugr_json)
+    hugr_package = Package.from_json(hugr_path.read_text(encoding="utf-8"))
 
     my_new_hugr = qnx.hugr.upload(
         hugr_package=hugr_package, name=hugr_name, project=my_proj
