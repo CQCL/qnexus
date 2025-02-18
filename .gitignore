@@ -23,3 +23,12 @@ docs/_build
 # Dev stuff
 dev_notebooks/
 venv
+
+# Direnv
+.direnv/
+.pre-commit-config.yaml
+
+# Devenv
+.devenv*
+devenv.local.nix
+.pre-commit-config.yaml

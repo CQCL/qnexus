@@ -11,6 +11,7 @@ from typing import Annotated, Any, Literal, Optional, Protocol, TypeVar, Union
 from uuid import UUID
 
 import pandas as pd
+from hugr.package import Package
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
@@ -401,6 +402,39 @@ class CompilationPassRef(BaseRef):
         )
 
 
+class HUGRRef(BaseRef):
+    """Proxy object to a HUGR in Nexus."""
+
+    annotations: Annotations
+    project: ProjectRef
+    id: UUID
+    _contents: Package | None = None
+    type: Literal["HUGRRef"] = "HUGRRef"
+
+    def download_hugr(self) -> Package:
+        """Get the HUGR Package of the original uploaded HUGR."""
+
+        if self._contents:
+            return self._contents
+
+        from qnexus.client.hugr import _fetch_hugr_package
+
+        self._contents = _fetch_hugr_package(self)
+        return self._contents
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
+        )
+
+
 Ref = Annotated[
     Union[
         TeamRef,
@@ -408,6 +442,7 @@ Ref = Annotated[
         ProjectRef,
         CircuitRef,
         WasmModuleRef,
+        HUGRRef,
         JobRef,
         CompileJobRef,
         ExecuteJobRef,
