@@ -1,5 +1,6 @@
 """Test basic functionality relating to the device module."""
 
+import pytest
 from pytket.backends.backendinfo import BackendInfo
 from quantinuum_schemas.models.backend_info import StoredBackendInfo
 
@@ -119,3 +120,20 @@ def test_supports_contextual_optimisation(
 
     assert isinstance(supports_contextual_optimisation, bool)
     assert supports_contextual_optimisation is True
+
+
+def test_quantinuum_device_status(
+    _authenticated_nexus: None,
+) -> None:
+    """Check that we can get the status of a hardware-hosted
+    Quantinuum device."""
+
+    unsupported_config = qnx.AerConfig()
+    with pytest.raises(ValueError):
+        qnx.devices.status(unsupported_config)  # type: ignore
+
+    backend_config = qnx.QuantinuumConfig(device_name="H1-1")
+
+    machine_status = qnx.devices.status(backend_config)
+
+    assert isinstance(machine_status, qnx.devices.DeviceStateEnum)
