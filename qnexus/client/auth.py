@@ -117,6 +117,16 @@ def login_with_credentials() -> None:
     print(f"✅ Successfully logged in as {user_name}.")
 
 
+def login_no_interaction(user: EmailStr, pwd: str) -> None:
+    """Log in to Nexus using a username and password.
+    Please be careful with storing credentials in plain text or source code.
+    """
+    _request_tokens(user=user, pwd=pwd)
+
+    reload_client()
+    print(f"✅ Successfully logged in as {user}.")
+
+
 def logout() -> None:
     """Clear tokens from file system and the client."""
     remove_token("refresh_token")
