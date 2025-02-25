@@ -400,6 +400,30 @@ class CompilationPassRef(BaseRef):
             },
             index=[0],
         )
+    
+
+class CompilationRef(BaseRef):
+    """Proxy object for a compilations consumed within Nexus"""
+
+    annotations: Annotations
+    project: ProjectRef
+    id: UUID
+    type: Literal["CompilationRef"] = "CompilationRef"
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame({
+                "project": self.project.annotations.name,
+                "id": self.id,
+                # "backend": self.annotations.backend,
+                # "optimisation_level": self.annotations.optimisation_level,
+                # "pytket_version": self.annotations.pytket_version,
+                # "pytket_extension": self.annotations.pytket_extension,
+                # "compile_time_ns": self.annotations.compile_time_ns
+            },
+            index=[0],
+        ))
 
 
 class HUGRRef(BaseRef):
