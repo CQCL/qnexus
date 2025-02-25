@@ -17,6 +17,7 @@ from qnexus.client import (
     teams,
     users,
     wasm_modules,
+    compilations
 )
 from qnexus.client.auth import login, login_with_credentials, logout
 from qnexus.client.jobs import compile, execute
