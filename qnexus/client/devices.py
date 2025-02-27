@@ -1,4 +1,5 @@
 """Client API for devices in Nexus."""
+from enum import Enum
 from typing import Literal
 
 from qnexus.client import get_nexus_client
@@ -8,11 +9,23 @@ from qnexus.models import (
     Credential,
     Device,
     IssuerEnum,
+    QuantinuumConfig,
     StoredBackendInfo,
     issuer_enum_to_config_str,
 )
 from qnexus.models.filters import DevicesFilter
 from qnexus.models.references import DataframableList
+
+
+class DeviceStateEnum(str, Enum):
+    """Quantinuum Systems Device status enum."""
+
+    ONLINE = "online"
+    OFFLINE = "offline"
+    MAINTENANCE = "in maintenance"
+    RESERVED_ONLINE = "online, reserved"
+    RESERVED_MAINTENANCE = "in maintenance, reserved"
+    RESERVED_OFFLINE = "offline, reserved"
 
 
 class Params(DevicesFilter):
@@ -118,6 +131,26 @@ def expectation_allows_nonhermitian(backend_config: BackendConfig) -> bool:
 def supports_contextual_optimisation(backend_config: BackendConfig) -> bool:
     """Does the backend configuration support TKET contextual optimization?"""
     return _get_backend_property(backend_config, "supports_contextual_optimisation")
+
+
+def status(backend_config: QuantinuumConfig) -> DeviceStateEnum:
+    """Get the status of a hardware-hosted Quantinuum Systems device, such as
+    whether is it online or offline.
+
+    Please note this operation is not supported for cloud-hosted emulators,
+    which can be assumed to be always online.
+    """
+    assert isinstance(
+        backend_config, QuantinuumConfig
+    ), "Operation only supported for QuantinuumConfig."
+
+    res = get_nexus_client().get(
+        f"/api/machines/v1beta/{backend_config.device_name}/status",
+    )
+    if res.status_code != 200:
+        raise ResourceFetchFailed(message=res.text, status_code=res.status_code)
+
+    return DeviceStateEnum(res.json()["state"])
 
 
 def _get_backend_property(
