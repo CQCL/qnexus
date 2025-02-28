@@ -2,6 +2,22 @@
 
 # `qnexus` Release Notes
 
+
+## 0.11.0 (2025-02-28)
+
+
+### Added
+
+- Get quantinuum device status (#144).
+- Headless login (#143).
+- Add hugr upload/download (#141).
+
+
+### Fixed
+
+- Default postprocess to false for execute jobs. (#145).
+
+
 ## 0.10.0 (2025-01-16)
 
 
