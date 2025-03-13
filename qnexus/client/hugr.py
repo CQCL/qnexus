@@ -175,7 +175,9 @@ def upload(
     project = cast(ProjectRef, project)
 
     attributes = {
-        "contents": str(base64.b64encode(bytes(hugr_package.to_json(), "utf-8")))
+        "contents": base64.b64encode(bytes(hugr_package.to_json(), "utf-8")).decode(
+            "utf-8"
+        )
     }
 
     annotations = CreateAnnotations(
@@ -288,14 +290,6 @@ def _fetch_hugr_package(handle: HUGRRef) -> Package:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     hugr_base_64_bytes = res.json()["data"]["attributes"]["contents"]
-    encoded_bytes = hugr_base_64_bytes.strip()
-    # remove leading b'
-    encoded_bytes = encoded_bytes[1:]
-    # add a trailing '='
-    encoded_bytes += "="
-
-    # Step 2: Decode the base64 bytes back into the original bytes
-    # Step 3: Convert the bytes back into the original string
-    decoded_hugr_str = base64.b64decode(encoded_bytes).decode("utf-8")
+    decoded_hugr_str = base64.b64decode(hugr_base_64_bytes).decode("utf-8")
 
     return Package.from_json(decoded_hugr_str)
