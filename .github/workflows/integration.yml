@@ -19,7 +19,7 @@ jobs:
       matrix:
         python-version: ['3.10', '3.11']
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Cache poetry
         uses: actions/cache@v3.3.1
         with:
@@ -62,7 +62,7 @@ jobs:
           pr-number: ${{ github.event.inputs.pr_number }}
 
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: '0'
           # Use the pull request merge commit ref if one is provided
