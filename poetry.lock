@@ -820,6 +820,28 @@ docs = ["sphinx (>=5,<7)", "sphinx-autodoc-typehints", "sphinx-rtd-theme"]
 test = ["coverage", "pytest (>=7,<8.1)", "pytest-cov", "pytest-mock (>=3)"]
 
 [[package]]
+name = "guppylang"
+version = "0.16.0"
+description = "Pythonic quantum-classical programming language"
+optional = false
+python-versions = "<4,>=3.10"
+files = [
+    {file = "guppylang-0.16.0-py3-none-any.whl", hash = "sha256:6282811da45d52c893a3756cc0482e14c64529ea17cf58189a2fcb19a0a3acae"},
+    {file = "guppylang-0.16.0.tar.gz", hash = "sha256:3cfe6aa6ce6a0022ec3d612f957107ff43ccfd8a965636147c104e229242011a"},
+]
+
+[package.dependencies]
+graphviz = ">=0.20.1,<0.21"
+hugr = ">=0.10.3,<0.11"
+networkx = ">=3.2.1,<4"
+pydantic = ">=2.7.0b1,<3"
+tket2-exts = ">=0.3.0,<0.4"
+typing-extensions = ">=4.9.0,<5"
+
+[package.extras]
+pytket = ["pytket (>=1.34)"]
+
+[[package]]
 name = "h11"
 version = "0.14.0"
 description = "A pure-Python, bring-your-own-I/O implementation of HTTP/1.1"
@@ -877,13 +899,13 @@ socks = ["socksio (==1.*)"]
 
 [[package]]
 name = "hugr"
-version = "0.10.2"
+version = "0.10.3"
 description = "Quantinuum's common representation for quantum programs"
 optional = false
 python-versions = "<3.14,>=3.10"
 files = [
-    {file = "hugr-0.10.2-py3-none-any.whl", hash = "sha256:3190ce37682e3412110c6e024d0c63d99137e315e9c8e4b59622482e35f6762e"},
-    {file = "hugr-0.10.2.tar.gz", hash = "sha256:36426d295e278319719852dc65b9adb9290d4b95aef286381e237625da486add"},
+    {file = "hugr-0.10.3-py3-none-any.whl", hash = "sha256:75f510d382b483c92027b767ec58281664d89051e0696ad1302680c3fe45f2bd"},
+    {file = "hugr-0.10.3.tar.gz", hash = "sha256:fd416aa4bf93b7573509661aca7dbc683ff6269e007ebafa1b3f4bddade4712c"},
 ]
 
 [package.dependencies]
@@ -893,7 +915,7 @@ pydantic-extra-types = ">=2.9.0"
 semver = ">=3.0.2"
 
 [package.extras]
-docs = ["sphinx (>=8.0.2,<9.0.0)", "sphinx-book-theme (>=1.1.2)"]
+docs = ["sphinx (>=8.1.3,<9.0.0)", "sphinx-book-theme (>=1.1.2)"]
 
 [[package]]
 name = "ibm-cloud-sdk-core"
@@ -3891,6 +3913,20 @@ doc = ["sphinx", "sphinx_rtd_theme"]
 test = ["pytest", "ruff"]
 
 [[package]]
+name = "tket2-exts"
+version = "0.3.0"
+description = "HUGR extension definitions for the tket2 compiler."
+optional = false
+python-versions = ">=3.10"
+files = [
+    {file = "tket2_exts-0.3.0-py3-none-any.whl", hash = "sha256:5bc144fcc18aacfa26f3ae68c81aa154db5479097c38a75cde12bccc03d6a8cd"},
+    {file = "tket2_exts-0.3.0.tar.gz", hash = "sha256:ddfe1a410059675fad960f8ff6fc3110914a46edf1d29ef59403f242d50551f0"},
+]
+
+[package.dependencies]
+hugr = ">=0.10.0,<0.11"
+
+[[package]]
 name = "tomli"
 version = "2.0.2"
 description = "A lil' TOML parser"
@@ -4239,4 +4275,4 @@ qiskit = ["pytket-qiskit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "b0ee50ff1e71ac1bcf26848bc3120b17c807d4a54d7e602fbfb635aa7cb16ed9"
+content-hash = "588c009cb78621bd22d8989324bd9ecd71d17b53a455d13a9921ab88e0accf72"

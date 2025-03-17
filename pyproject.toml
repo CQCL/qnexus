@@ -22,6 +22,7 @@ websockets = ">11,<14"
 pydantic-settings = "^2"
 quantinuum-schemas = "^2.0"
 hugr = "^0.10.2"
+guppylang = "^0.16.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
@@ -40,6 +41,7 @@ pytest-icdiff = "^0.9"
 pytest-timeout = "^2.3.1"
 pytest-rerunfailures = "^14.0"
 twine = "^5.1.1"
+#eldarion = { version = "^0.2.0rc1", source = "artifactory" }
 
 
 [tool.poetry.extras]
@@ -48,6 +50,11 @@ qiskit = ["pytket-qiskit"]
 [[tool.poetry.source]]
 name = "PyPI"
 priority = "primary"
+
+#[[tool.poetry.source]]
+#name = "artifactory"
+#url = "https://quantinuumsw.jfrog.io/artifactory/api/pypi/pypi_local/simple/"
+#priority = "supplemental"
 
 [tool.pytest.ini_options]
 addopts = "--doctest-modules"

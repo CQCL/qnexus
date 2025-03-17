@@ -21,9 +21,6 @@ class Config(BaseSettings):
     port: int = 443
     httpx_verify: bool = True
 
-    # scientific - TODO consider options
-    # optimisation_level: int = 1
-
     # auth
     store_tokens: bool = True
     token_path: str = ".qnx/auth"

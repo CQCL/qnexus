@@ -7,7 +7,7 @@ from abc import abstractmethod
 from copy import copy
 from datetime import datetime
 from enum import Enum
-from typing import Annotated, Any, Literal, Optional, Protocol, TypeVar, Union
+from typing import Annotated, Any, Generic, Literal, NewType, Optional, Protocol, TypeVar, Union
 from uuid import UUID
 
 import pandas as pd
@@ -18,6 +18,7 @@ from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
+from quantinuum_schemas.models.backend_config import BackendConfig
 
 import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
@@ -191,6 +192,41 @@ class WasmModuleRef(BaseRef):
             )
         )
 
+class HUGRRef(BaseRef):
+    """Proxy object to a HUGR in Nexus."""
+
+    annotations: Annotations
+    project: ProjectRef
+    id: UUID
+    _contents: Package | None = None
+    type: Literal["HUGRRef"] = "HUGRRef"
+
+    def download_hugr(self) -> Package:
+        """Get the HUGR Package of the original uploaded HUGR."""
+
+        if self._contents:
+            return self._contents
+
+        from qnexus.client.hugr import _fetch_hugr_package
+
+        self._contents = _fetch_hugr_package(self)
+        return self._contents
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
+        )
+
+
+P = TypeVar("P", CircuitRef, HUGRRef)
+QSysResult = NewType("QSysResult", list[Any])
 
 class JobType(str, Enum):
     """Enum for a job's type."""
@@ -210,7 +246,19 @@ class JobRef(BaseRef):
     last_message: str
     project: ProjectRef
     id: UUID
+    backend_config: BackendConfig | None = None
     type: Literal["JobRef", "CompileJobRef", "ExecuteJobRef"] = "JobRef"
+
+    @property
+    def backend_config(self) -> BackendConfig:
+        """Fetch the backend_config for a job."""
+        from qnexus.client.jobs import _fetch_by_id
+
+        if self.backend_config:
+            return self.backend_config
+        job_ref = _fetch_by_id(self.id, None)
+        self.backend_config = job_ref.backend_config
+        return self.backend_config
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -306,28 +354,28 @@ class CompilationResultRef(BaseRef):
         )
 
 
-class ExecutionResultRef(BaseRef):
+class ExecutionResultRef(BaseRef, Generic[P]):
     """Proxy object to the results of a circuit execution through Nexus."""
 
     annotations: Annotations
     project: ProjectRef
-    _input_circuit: CircuitRef | None = None
+    _input_program: P | None = None
     _backend_result: BackendResult | None = None
     _backend_info: BackendInfo | None = None
     id: UUID
     type: Literal["ExecutionResultRef"] = "ExecutionResultRef"
 
-    def get_input(self) -> CircuitRef:
-        """Get the CircuitRef of the input circuit."""
-        if self._input_circuit:
-            return self._input_circuit
+    def get_input(self) -> P:
+        """Get the Program Ref of the input program."""
+        if self._input_program:
+            return self._input_program
 
         (
             self._backend_result,
             self._backend_info,
-            self._input_circuit,
+            self._input_program,
         ) = self._get_execute_results()
-        return copy(self._input_circuit)
+        return copy(self._input_program)
 
     def download_result(self) -> BackendResult:
         """Get a copy of the pytket BackendResult."""
@@ -337,7 +385,7 @@ class ExecutionResultRef(BaseRef):
         (
             self._backend_result,
             self._backend_info,
-            self._input_circuit,
+            self._input_program,
         ) = self._get_execute_results()
         return copy(self._backend_result)
 
@@ -349,15 +397,20 @@ class ExecutionResultRef(BaseRef):
         (
             self._backend_result,
             self._backend_info,
-            self._input_circuit,
+            self._input_program,
         ) = self._get_execute_results()
         return copy(self._backend_info)
 
-    def _get_execute_results(self) -> tuple[BackendResult, BackendInfo, CircuitRef]:
+    def _get_execute_results(self) -> tuple[BackendResult, BackendInfo, P]:
         """Utility method to retrieve the passes and output circuit."""
-        from qnexus.client.jobs._execute import _fetch_execution_result
+        from qnexus.client.jobs._execute import (
+            _fetch_pytket_execution_result,
+            _fetch_qsys_execution_result,
+        )
 
-        return _fetch_execution_result(self)
+        # TODO, discriminate between QSys and pytket results
+
+        return _fetch_pytket_execution_result(self)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -399,39 +452,6 @@ class CompilationPassRef(BaseRef):
                 "id": self.id,
             },
             index=[0],
-        )
-
-
-class HUGRRef(BaseRef):
-    """Proxy object to a HUGR in Nexus."""
-
-    annotations: Annotations
-    project: ProjectRef
-    id: UUID
-    _contents: Package | None = None
-    type: Literal["HUGRRef"] = "HUGRRef"
-
-    def download_hugr(self) -> Package:
-        """Get the HUGR Package of the original uploaded HUGR."""
-
-        if self._contents:
-            return self._contents
-
-        from qnexus.client.hugr import _fetch_hugr_package
-
-        self._contents = _fetch_hugr_package(self)
-        return self._contents
-
-    def df(self) -> pd.DataFrame:
-        """Present in a pandas DataFrame."""
-        return self.annotations.df().join(
-            pd.DataFrame(
-                {
-                    "project": self.project.annotations.name,
-                    "id": self.id,
-                },
-                index=[0],
-            )
         )
 
 

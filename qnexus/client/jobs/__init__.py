@@ -11,6 +11,7 @@ from uuid import UUID
 
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
+from quantinuum_schemas.models.backend_config import config_name_to_class
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosed
@@ -54,6 +55,7 @@ from qnexus.models.references import (
     ExecutionResultRef,
     JobRef,
     JobType,
+    P,
     ProjectRef,
     WasmModuleRef,
 )
@@ -261,6 +263,14 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
             job_type = ExecuteJobRef
         case _:
             assert_never(job_data["attributes"]["job_type"])
+    
+    backend_config_dict = job_data["data"]["attributes"]["definition"]["backend_config"]
+    backend_config_class = config_name_to_class[backend_config_dict["type"]]
+    backend_config: BackendConfig = backend_config_class( # type: ignore
+        **backend_config_dict
+    )
+
+    print(backend_config)
 
     return job_type(
         id=job_data["data"]["id"],
@@ -273,6 +283,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
             job_data["data"]["attributes"]["status"]
         ).message,
         project=project,
+        backend_config=backend_config,
     )
 
 
@@ -319,10 +330,10 @@ async def listen_job_status(
     # If we pass True into the websocket connection, it sets a default SSLContext.
     # See: https://websockets.readthedocs.io/en/stable/reference/client.html
     ssl_reconfigured: Union[bool, ssl.SSLContext] = True
-    # if not nexus_config.verify_session:
-    #     ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    #     ssl_reconfigured.check_hostname = False
-    #     ssl_reconfigured.verify_mode = ssl.CERT_NONE
+    if not get_config().httpx_verify:
+        ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_reconfigured.check_hostname = False
+        ssl_reconfigured.verify_mode = ssl.CERT_NONE
 
     extra_headers = {
         # TODO, this cookie will expire frequently
@@ -478,7 +489,7 @@ def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
 
 @merge_properties_from_context
 def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
-    circuits: Union[CircuitRef, list[CircuitRef]],
+    programs: Union[P, list[P]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -503,7 +514,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     """
 
     execute_job_ref = _execute.start_execute_job(  # pylint: disable=protected-access
-        circuits=circuits,
+        programs=programs,
         n_shots=n_shots,
         backend_config=backend_config,
         name=name,

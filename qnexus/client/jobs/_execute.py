@@ -1,6 +1,7 @@
 """Client API for execution in Nexus."""
 
 from typing import Union, cast
+from uuid import uuid4
 
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
@@ -18,15 +19,18 @@ from qnexus.models.references import (
     DataframableList,
     ExecuteJobRef,
     ExecutionResultRef,
+    HUGRRef,
     JobType,
+    P,
     ProjectRef,
+    QSysResult,
     WasmModuleRef,
 )
 
 
 @merge_properties_from_context
 def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
-    circuits: Union[CircuitRef, list[CircuitRef]],
+    programs: Union[P, list[P]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -50,14 +54,12 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    circuit_ids = (
-        [str(circuits.id)]
-        if isinstance(circuits, CircuitRef)
-        else [str(c.id) for c in circuits]
+    program_ids = (
+        [str(p.id) for p in programs] if isinstance(programs, list) else [str(programs.id)]
     )
 
-    if len(n_shots) != len(circuit_ids):
-        raise ValueError("Number of circuits must equal number of n_shots.")
+    if len(n_shots) != len(program_ids):
+        raise ValueError("Number of programs must equal number of n_shots.")
 
     attributes_dict = CreateAnnotations(
         name=name,
@@ -81,8 +83,8 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
                 "wasm_module_id": str(wasm_module.id) if wasm_module else None,
                 "credential_name": credential_name,
                 "items": [
-                    {"circuit_id": circuit_id, "n_shots": n_shot}
-                    for circuit_id, n_shot in zip(circuit_ids, n_shots)
+                    {"circuit_id": program_id, "n_shots": n_shot}
+                    for program_id, n_shot in zip(program_ids, n_shots)
                 ],
             },
         }
@@ -91,7 +93,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
         "project": {"data": {"id": str(project.id), "type": "project"}},
         "circuits": {
             "data": [
-                {"id": str(circuit_id), "type": "circuit"} for circuit_id in circuit_ids
+                {"id": str(program_id), "type": "circuit"} for program_id in program_ids
             ]
         },
     }
@@ -119,6 +121,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
+        backend_config=backend_config,
     )
 
 
@@ -155,7 +158,7 @@ def _results(
     return execute_results
 
 
-def _fetch_execution_result(
+def _fetch_pytket_execution_result(
     handle: ExecutionResultRef,
 ) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
@@ -186,3 +189,22 @@ def _fetch_execution_result(
     ).to_pytket_backend_info()
 
     return (backend_result, backend_info, input_circuit)
+
+
+def _fetch_qsys_execution_result(
+    _handle: ExecutionResultRef,
+) -> QSysResult:  # tuple[QSysResult, BackendInfo, HUGRRef]:
+    """Get the results of a next-gen Qsys execute job."""
+
+    # return (
+    #     QSysResult([]),
+    #     BackendInfo(
+    #         name="foo",
+    #         device_name="bar",
+    #         version="baz",
+    #         architecture=None,
+    #         gate_set={},
+    #     ),
+    #     HUGRRef(id=uuid4()),
+    # )
+    return QSysResult([])
