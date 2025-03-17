@@ -18,7 +18,7 @@ class Config(BaseSettings):
         validation_alias=AliasChoices("NEXUS_DOMAIN", "NEXUS_HOST"),
         default="nexus.quantinuum.com",
     )
-    port: int = 443
+    port: int = 4443
     httpx_verify: bool = True
 
     # scientific - TODO consider options
