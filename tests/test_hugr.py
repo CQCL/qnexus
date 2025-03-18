@@ -1,6 +1,10 @@
-import qnexus as qnx
+"""Basic checks for HUGR functionality."""
+
 from pathlib import Path
+
 from hugr.package import Package
+
+import qnexus as qnx
 
 
 def test_hugr_encode_decode() -> None:
@@ -16,6 +20,10 @@ def test_hugr_encode_decode() -> None:
         data = fp.read()
         package = Package.from_bytes(data)
 
-    encoded_package = qnx.hugr._encode_hugr(package)
-    decoded_package = qnx.hugr._decode_hugr(encoded_package)
-    assert encoded_package == qnx.hugr._encode_hugr(decoded_package)
+    encoded_package = qnx.hugr._encode_hugr(package)  # pylint: disable=protected-access
+    decoded_package = qnx.hugr._decode_hugr(  # pylint: disable=protected-access
+        encoded_package
+    )
+    assert encoded_package == qnx.hugr._encode_hugr(  # pylint: disable=protected-access
+        decoded_package
+    )
