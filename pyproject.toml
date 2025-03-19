@@ -21,7 +21,7 @@ pytket-qiskit = {version = ">=0.50", optional = true}
 websockets = ">11,<14"
 pydantic-settings = "^2"
 quantinuum-schemas = "^2.0"
-hugr = "^0.10.2"
+hugr = "^0.11.1"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
