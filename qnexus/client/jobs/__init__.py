@@ -270,8 +270,6 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         **backend_config_dict
     )
 
-    print(backend_config)
-
     return job_type(
         id=job_data["data"]["id"],
         annotations=Annotations.from_dict(job_data["data"]["attributes"]),
@@ -283,7 +281,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
             job_data["data"]["attributes"]["status"]
         ).message,
         project=project,
-        backend_config=backend_config,
+        _backend_config=backend_config,
     )
 
 

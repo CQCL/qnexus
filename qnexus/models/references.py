@@ -246,19 +246,19 @@ class JobRef(BaseRef):
     last_message: str
     project: ProjectRef
     id: UUID
-    backend_config: BackendConfig | None = None
+    _backend_config: BackendConfig | None = None
     type: Literal["JobRef", "CompileJobRef", "ExecuteJobRef"] = "JobRef"
 
-    @property
-    def backend_config(self) -> BackendConfig:
+    
+    def get_backend_config(self) -> BackendConfig:
         """Fetch the backend_config for a job."""
         from qnexus.client.jobs import _fetch_by_id
 
-        if self.backend_config:
-            return self.backend_config
-        job_ref = _fetch_by_id(self.id, None)
-        self.backend_config = job_ref.backend_config
-        return self.backend_config
+        if self._backend_config:
+            return self._backend_config
+        self._backend_config = _fetch_by_id(self.id, None).backend_config
+        return self._backend_config
+
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -268,6 +268,7 @@ class JobRef(BaseRef):
                     "job_type": self.job_type,
                     "last_status": self.last_status,
                     "project": self.project.annotations.name,
+                    "backend_config": self.backend_config.__class__.__name__,
                     "id": self.id,
                 },
                 index=[0],
