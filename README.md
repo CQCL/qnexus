@@ -134,4 +134,4 @@ This project is licensed under Apache License, Version 2.0 ([LICENSE][] or http:
   [LICENSE]: ./LICENSE
 
 
-Copyright 2024 Quantinuum Ltd.
+Copyright 2025 Quantinuum Ltd.

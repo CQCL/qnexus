@@ -1,6 +1,6 @@
 """Client API for HUGR in Nexus.
 
-N.B. Nexus support for HUGR is experimental, and any HUGRs programs 
+N.B. Nexus support for HUGR is experimental, and any HUGRs programs
 uploaded to Nexus before stability is achieved might not work in the future.
 """
 
@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
 
+from hugr.envelope import EnvelopeConfig, EnvelopeFormat
 from hugr.package import Package
 
 import qnexus.exceptions as qnx_exc
@@ -48,6 +49,18 @@ class Params(
     ScopeFilter,
 ):
     """Params for filtering HUGRs."""
+
+
+# We can change the format and zstd when HUGR supports more options Since the
+# header in the envelope encodes the config, Package.from_bytes will work
+# without changes. We expect HUGR team to make other formats available during
+# March 2025.
+ENVELOPE_CONFIG = EnvelopeConfig(
+    # As of hugr v0.11.1, the only format available is JSON
+    format=EnvelopeFormat.JSON,
+    # As of hugr v0.11.1, zstd compression is not supported
+    zstd=None,
+)
 
 
 @merge_project_from_context
@@ -174,11 +187,7 @@ def upload(
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    attributes = {
-        "contents": base64.b64encode(bytes(hugr_package.to_json(), "utf-8")).decode(
-            "utf-8"
-        )
-    }
+    attributes = {"contents": _encode_hugr(hugr_package)}
 
     annotations = CreateAnnotations(
         name=name,
@@ -290,6 +299,19 @@ def _fetch_hugr_package(handle: HUGRRef) -> Package:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     contents: str = res.json()["data"]["attributes"]["contents"]
-    decoded_hugr_str = base64.b64decode(contents).decode("utf-8")
+    return _decode_hugr(contents)
 
-    return Package.from_json(decoded_hugr_str)
+
+def _encode_hugr(hugr_package: Package) -> str:
+    """Utility method for encoding a HUGR Package as base64-encoded string"""
+    return base64.b64encode(
+        hugr_package.to_bytes(
+            config=ENVELOPE_CONFIG,
+        )
+    ).decode("utf-8")
+
+
+def _decode_hugr(contents: str) -> Package:
+    """Utility method for decoding a base64-encoded string into a HUGR Package"""
+    hugr_envelope = base64.b64decode(contents)
+    return Package.from_bytes(envelope=hugr_envelope)

@@ -3,6 +3,19 @@
 # `qnexus` Release Notes
 
 
+## 0.12.0 (2025-03-24)
+
+
+### Added
+
+- Use newest hugr release and serialise/deserialise using envelope (#150).
+
+
+### Fixed
+
+- Hugr encoding (#147).
+
+
 ## 0.11.0 (2025-02-28)
 
 

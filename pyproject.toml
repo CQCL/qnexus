@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "qnexus"
-version = "0.11.0"
+version = "0.12.0"
 description = "Quantinuum Nexus python client."
 authors = ["Vanya Eccles <vanya.eccles@quantinuum.com>", "Aidan Keay <aidan.keay@quantinuum.com>", "John Children <john.children@quantinuum.com>"]
 license = "Apache-2.0"
@@ -22,8 +22,8 @@ websockets = ">11,<14"
 pydantic-settings = "^2"
 #quantinuum-schemas = "^2.0"
 quantinuum-schemas = {path="../quantinuum-schemas"}
-hugr = "^0.10.2"
-guppylang = "^0.16.0"
+hugr = "^0.11.1"
+guppylang = "^0.17.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
