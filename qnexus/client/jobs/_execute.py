@@ -18,18 +18,19 @@ from qnexus.models.references import (
     CircuitRef,
     DataframableList,
     ExecuteJobRef,
+    ExecutionProgram,
     ExecutionResultRef,
     HUGRRef,
     JobType,
-    P,
     ProjectRef,
+    ResultType,
     WasmModuleRef,
 )
 
 
 @merge_properties_from_context
 def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
-    circuits: Union[P, list[P]],
+    circuits: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -148,10 +149,24 @@ def _results(
 
     for item in resp_data["attributes"]["definition"]["items"]:
         if item["status"]["status"] == "COMPLETED":
+            # TODO this doesn't exist yet in the response
+
+            # Fake it
+            result_type: ResultType = ResultType.QSYS
+
+            # match item["result_type"]:
+            #     case ResultType.QSYS:
+            #         result_type = ResultType.QSYS
+            #     case ResultType.PYTKET:
+            #         result_type = ResultType.PYTKET
+            #     case _:
+            #         assert_never(item["result_type"])
+
             result_ref = ExecutionResultRef(
                 id=item["result_id"],
                 annotations=execute_job.annotations,
                 project=execute_job.project,
+                result_type=result_type,
             )
 
             execute_results.append(result_ref)
@@ -163,6 +178,8 @@ def _fetch_pytket_execution_result(
     handle: ExecutionResultRef,
 ) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
+    assert handle.result_type == ResultType.PYTKET, "Incorrect result type"
+
     res = get_nexus_client().get(f"/api/results/v1beta/{handle.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
@@ -193,30 +210,34 @@ def _fetch_pytket_execution_result(
 
 
 def _fetch_qsys_execution_result(
-    _handle: ExecutionResultRef,
+    handle: ExecutionResultRef,
 ) -> tuple[QSysResult, BackendInfo, HUGRRef]:
     """Get the results of a next-gen Qsys execute job."""
+
+    assert handle.result_type == ResultType.PYTKET, "Incorrect result type"
 
     # TODO wait for stipe endpoint
 
     from uuid import uuid4  # pylint: disable=import-outside-toplevel
 
-    example_qsys_result = QSysResult(  
-        [
-            [
-                ["test_key_1", 1],
-                ["test_key_2", [1, 2, 3]],
-            ],
-            [
-                ["test_key_3", 1.0],
-                ["test_key_4", [1.121341453, 2.7878993, 334.0000123]],
-            ],
-            [
-                ["test_key_5", 1],
-                ["test_key_6", [True, 0, False, 1]],
-            ],
-        ]
-    )
+    # example_qsys_result = QSysResult(
+    #     [
+    #         [
+    #             ["test_key_1", 1],
+    #             ["test_key_2", [1, 2, 3]],
+    #         ],
+    #         [
+    #             ["test_key_3", 1.0],
+    #             ["test_key_4", [1.121341453, 2.7878993, 334.0000123]],
+    #         ],
+    #         [
+    #             ["test_key_5", 1],
+    #             ["test_key_6", [True, 0, False, 1]],
+    #         ],
+    #     ]
+    # )
+
+    example_qsys_result = QSysResult([])
 
     return (
         example_qsys_result,
@@ -230,6 +251,6 @@ def _fetch_qsys_execution_result(
         HUGRRef(
             id=uuid4(),
             annotations=Annotations(name="foo", description="bar"),
-            project=_handle.project,
+            project=handle.project,
         ),
     )

@@ -52,14 +52,15 @@ from qnexus.models.references import (
     CompileJobRef,
     DataframableList,
     ExecuteJobRef,
+    ExecutionProgram,
+    ExecutionResult,
     ExecutionResultRef,
     JobRef,
     JobType,
-    P,
     ProjectRef,
     WasmModuleRef,
 )
-from qnexus.models.utils import AllowNone, assert_never
+from qnexus.models.utils import assert_never
 
 EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
@@ -487,7 +488,7 @@ def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
 
 @merge_properties_from_context
 def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
-    circuits: Union[P, list[P]],
+    circuits: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -503,7 +504,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     credential_name: str | None = None,
     user_group: str | None = None,
     timeout: float | None = 300.0,
-) -> list[BackendResult]:
+) -> list[ExecutionResult]:
     """
     Utility method to run an execute job and return the results. Blocks until
     the results are available. See ``qnexus.start_execute_job`` for a function

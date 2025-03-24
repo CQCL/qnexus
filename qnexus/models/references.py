@@ -10,10 +10,10 @@ from enum import Enum
 from typing import (
     Annotated,
     Any,
-    Generic,
     Literal,
     Optional,
     Protocol,
+    TypeAlias,
     TypeVar,
     Union,
     cast,
@@ -29,9 +29,11 @@ from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
+from quantinuum_schemas.models.result import QSysResult
 
 import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
+from qnexus.models.utils import assert_never
 
 
 class Dataframable(Protocol):
@@ -371,40 +373,52 @@ class CompilationResultRef(BaseRef):
         )
 
 
-class ExecutionResultRef(BaseRef, Generic[P]):
+class ResultType(str, Enum):
+    """Enum for a results's type."""
+
+    PYTKET = "pytket"
+    QSYS = "qsys"
+
+
+ExecutionProgram: TypeAlias = CircuitRef | HUGRRef
+ExecutionResult: TypeAlias = QSysResult | BackendResult
+
+
+class ExecutionResultRef(BaseRef):
     """Proxy object to the results of a circuit execution through Nexus."""
 
     annotations: Annotations
     project: ProjectRef
-    _input_program: P | None = None
-    _backend_result: BackendResult | None = None
+    result_type: ResultType = ResultType.PYTKET
+    _input_program: ExecutionProgram | None = None
+    _result: ExecutionResult | None = None
     _backend_info: BackendInfo | None = None
     id: UUID
     type: Literal["ExecutionResultRef"] = "ExecutionResultRef"
 
-    def get_input(self) -> P:
+    def get_input(self) -> ExecutionProgram:
         """Get the Program Ref of the input program."""
         if self._input_program:
             return self._input_program
 
         (
-            self._backend_result,
+            self._result,
             self._backend_info,
             self._input_program,
         ) = self._get_execute_results()
         return copy(self._input_program)
 
-    def download_result(self) -> BackendResult:
-        """Get a copy of the pytket BackendResult."""
-        if self._backend_result:
-            return copy(self._backend_result)
+    def download_result(self) -> ExecutionResult:
+        """Get a copy of the result of the program execution."""
+        if self._result:
+            return copy(self._result)
 
         (
-            self._backend_result,
+            self._result,
             self._backend_info,
             self._input_program,
         ) = self._get_execute_results()
-        return copy(self._backend_result)
+        return copy(self._result)
 
     def download_backend_info(self) -> BackendInfo:
         """Get a copy of the pytket BackendInfo."""
@@ -412,22 +426,28 @@ class ExecutionResultRef(BaseRef, Generic[P]):
             return copy(self._backend_info)
 
         (
-            self._backend_result,
+            self._result,
             self._backend_info,
             self._input_program,
         ) = self._get_execute_results()
         return copy(self._backend_info)
 
-    def _get_execute_results(self) -> tuple[BackendResult, BackendInfo, P]:
+    def _get_execute_results(
+        self,
+    ) -> tuple[ExecutionResult, BackendInfo, ExecutionProgram]:
         """Utility method to retrieve the passes and output circuit."""
         from qnexus.client.jobs._execute import (
             _fetch_pytket_execution_result,
             _fetch_qsys_execution_result,
         )
 
-        # TODO, discriminate between QSys and pytket results
-
-        return _fetch_pytket_execution_result(self)
+        match self.result_type:
+            case ResultType.PYTKET:
+                return _fetch_pytket_execution_result(self)
+            case ResultType.QSYS:
+                return _fetch_qsys_execution_result(self)
+            case _:
+                assert_never(self.result_type)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -436,6 +456,7 @@ class ExecutionResultRef(BaseRef, Generic[P]):
                 {
                     "project": self.project.annotations.name,
                     "id": self.id,
+                    "result_type": self.result_type,
                 },
                 index=[0],
             )
