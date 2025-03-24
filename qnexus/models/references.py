@@ -7,7 +7,17 @@ from abc import abstractmethod
 from copy import copy
 from datetime import datetime
 from enum import Enum
-from typing import Annotated, Any, Generic, Literal, NewType, Optional, Protocol, TypeVar, Union
+from typing import (
+    Annotated,
+    Any,
+    Generic,
+    Literal,
+    Optional,
+    Protocol,
+    TypeVar,
+    Union,
+    cast,
+)
 from uuid import UUID
 
 import pandas as pd
@@ -192,6 +202,7 @@ class WasmModuleRef(BaseRef):
             )
         )
 
+
 class HUGRRef(BaseRef):
     """Proxy object to a HUGR in Nexus."""
 
@@ -226,7 +237,7 @@ class HUGRRef(BaseRef):
 
 
 P = TypeVar("P", CircuitRef, HUGRRef)
-QSysResult = NewType("QSysResult", list[Any])
+
 
 class JobType(str, Enum):
     """Enum for a job's type."""
@@ -246,19 +257,20 @@ class JobRef(BaseRef):
     last_message: str
     project: ProjectRef
     id: UUID
-    _backend_config: BackendConfig | None = None
+    backend_config_store: BackendConfig | None = None
     type: Literal["JobRef", "CompileJobRef", "ExecuteJobRef"] = "JobRef"
 
-    
-    def get_backend_config(self) -> BackendConfig:
+    @property
+    def backend_config(self) -> BackendConfig:
         """Fetch the backend_config for a job."""
         from qnexus.client.jobs import _fetch_by_id
 
-        if self._backend_config:
-            return self._backend_config
-        self._backend_config = _fetch_by_id(self.id, None).backend_config
-        return self._backend_config
-
+        if self.backend_config_store:
+            return self.backend_config_store
+        self.backend_config_store = cast(
+            BackendConfig, _fetch_by_id(self.id, None).backend_config_store
+        )
+        return self.backend_config_store
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -279,12 +291,16 @@ class JobRef(BaseRef):
 class CompileJobRef(JobRef, BaseRef):
     """Proxy object to a CompileJob in Nexus."""
 
+    model_config = ConfigDict(frozen=False)
+
     job_type: JobType = JobType.COMPILE
     type: Literal["CompileJobRef"] = "CompileJobRef"
 
 
 class ExecuteJobRef(JobRef, BaseRef):
     """Proxy object to an ExecuteJob in Nexus."""
+
+    model_config = ConfigDict(frozen=False)
 
     job_type: JobType = JobType.EXECUTE
     type: Literal["ExecuteJobRef"] = "ExecuteJobRef"

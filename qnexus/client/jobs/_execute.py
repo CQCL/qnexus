@@ -1,11 +1,11 @@
 """Client API for execution in Nexus."""
 
 from typing import Union, cast
-from uuid import uuid4
 
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
+from quantinuum_schemas.models.result import QSysResult
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -23,14 +23,13 @@ from qnexus.models.references import (
     JobType,
     P,
     ProjectRef,
-    QSysResult,
     WasmModuleRef,
 )
 
 
 @merge_properties_from_context
 def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
-    programs: Union[P, list[P]],
+    circuits: Union[P, list[P]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -55,7 +54,9 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
     project = cast(ProjectRef, project)
 
     program_ids = (
-        [str(p.id) for p in programs] if isinstance(programs, list) else [str(programs.id)]
+        [str(p.id) for p in circuits]
+        if isinstance(circuits, list)
+        else [str(circuits.id)]
     )
 
     if len(n_shots) != len(program_ids):
@@ -121,7 +122,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
-        backend_config=backend_config,
+        backend_config_store=backend_config,
     )
 
 
@@ -193,18 +194,42 @@ def _fetch_pytket_execution_result(
 
 def _fetch_qsys_execution_result(
     _handle: ExecutionResultRef,
-) -> QSysResult:  # tuple[QSysResult, BackendInfo, HUGRRef]:
+) -> tuple[QSysResult, BackendInfo, HUGRRef]:
     """Get the results of a next-gen Qsys execute job."""
 
-    # return (
-    #     QSysResult([]),
-    #     BackendInfo(
-    #         name="foo",
-    #         device_name="bar",
-    #         version="baz",
-    #         architecture=None,
-    #         gate_set={},
-    #     ),
-    #     HUGRRef(id=uuid4()),
-    # )
-    return QSysResult([])
+    # TODO wait for stipe endpoint
+
+    from uuid import uuid4  # pylint: disable=import-outside-toplevel
+
+    example_qsys_result = QSysResult(  
+        [
+            [
+                ["test_key_1", 1],
+                ["test_key_2", [1, 2, 3]],
+            ],
+            [
+                ["test_key_3", 1.0],
+                ["test_key_4", [1.121341453, 2.7878993, 334.0000123]],
+            ],
+            [
+                ["test_key_5", 1],
+                ["test_key_6", [True, 0, False, 1]],
+            ],
+        ]
+    )
+
+    return (
+        example_qsys_result,
+        BackendInfo(
+            name="foo",
+            device_name="bar",
+            version="baz",
+            architecture=None,
+            gate_set=set(),
+        ),
+        HUGRRef(
+            id=uuid4(),
+            annotations=Annotations(name="foo", description="bar"),
+            project=_handle.project,
+        ),
+    )

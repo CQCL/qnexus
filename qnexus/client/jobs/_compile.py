@@ -103,7 +103,7 @@ def start_compile_job(  # pylint: disable=too-many-arguments, too-many-locals, t
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
-        backend_config=backend_config,
+        backend_config_store=backend_config,
     )
 
 

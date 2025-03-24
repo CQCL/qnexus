@@ -9,6 +9,7 @@ import pytest
 from pytket import Circuit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
+from quantinuum_schemas.models.backend_config import BaseBackendConfig
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 
 import qnexus as qnx
@@ -33,7 +34,10 @@ def test_job_get_all(
     assert isinstance(my_job_db_matches.count(), int)
     assert isinstance(my_job_db_matches.summarize(), pd.DataFrame)
 
-    assert isinstance(next(my_job_db_matches), JobRef)
+    for job_ref in my_job_db_matches.list():
+        assert isinstance(job_ref, JobRef)
+        assert job_ref.backend_config is not None
+        assert isinstance(job_ref.backend_config, BaseBackendConfig)
 
 
 def test_job_get_by_id(
@@ -45,12 +49,14 @@ def test_job_get_by_id(
 
     my_compile_job = qnx.jobs.get(name_like=qa_compile_job_name)
     assert isinstance(my_compile_job, CompileJobRef)
+    assert isinstance(my_compile_job.backend_config, BaseBackendConfig)
 
     my_compile_job_2 = qnx.jobs.get(id=my_compile_job.id)
     assert my_compile_job == my_compile_job_2
 
     my_execute_job = qnx.jobs.get(name_like=qa_execute_job_name)
     assert isinstance(my_execute_job, ExecuteJobRef)
+    assert isinstance(my_execute_job.backend_config, BaseBackendConfig)
 
     my_execute_job_2 = qnx.jobs.get(id=my_execute_job.id)
     assert my_execute_job == my_execute_job_2
@@ -99,11 +105,13 @@ def test_submit_compile(
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
+    config = qnx.AerConfig()
+
     compile_job_ref = qnx.start_compile_job(
         circuits=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
-        backend_config=qnx.AerConfig(),
+        backend_config=config,
     )
 
     assert isinstance(compile_job_ref, CompileJobRef)
@@ -124,6 +132,9 @@ def test_submit_compile(
     assert isinstance(first_pass_data.get_input(), CircuitRef)
     assert isinstance(first_pass_data.get_output(), CircuitRef)
     assert isinstance(first_pass_data.pass_name, str)
+
+    cj_ref = qnx.jobs.get(id=compile_job_ref.id)
+    assert cj_ref.backend_config == config
 
 
 def test_compile(
@@ -194,6 +205,8 @@ def test_submit_execute(
     """Test that we can run an execute job in Nexus, wait for the job to complete and
     obtain the results from the execution."""
 
+    config = qnx.AerConfig()
+
     my_proj = qnx.projects.get(name_like=qa_project_name)
     my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
 
@@ -201,7 +214,7 @@ def test_submit_execute(
         circuits=[my_circ],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
-        backend_config=qnx.AerConfig(),
+        backend_config=config,
         n_shots=[10],
     )
 
@@ -218,6 +231,9 @@ def test_submit_execute(
     assert isinstance(execute_results[0].download_result(), BackendResult)
 
     assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
+
+    pj_ref = qnx.jobs.get(id=execute_job_ref.id)
+    assert pj_ref.backend_config == config
 
 
 def test_execute(

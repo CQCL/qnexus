@@ -20,7 +20,8 @@ pytket = "^1.34"
 pytket-qiskit = {version = ">=0.50", optional = true}
 websockets = ">11,<14"
 pydantic-settings = "^2"
-quantinuum-schemas = "^2.0"
+#quantinuum-schemas = "^2.0"
+quantinuum-schemas = {path="../quantinuum-schemas"}
 hugr = "^0.10.2"
 guppylang = "^0.16.0"
 

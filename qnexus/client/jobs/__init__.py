@@ -263,10 +263,10 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
             job_type = ExecuteJobRef
         case _:
             assert_never(job_data["attributes"]["job_type"])
-    
+
     backend_config_dict = job_data["data"]["attributes"]["definition"]["backend_config"]
     backend_config_class = config_name_to_class[backend_config_dict["type"]]
-    backend_config: BackendConfig = backend_config_class( # type: ignore
+    backend_config: BackendConfig = backend_config_class(  # type: ignore
         **backend_config_dict
     )
 
@@ -281,7 +281,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
             job_data["data"]["attributes"]["status"]
         ).message,
         project=project,
-        _backend_config=backend_config,
+        backend_config_store=backend_config,
     )
 
 
@@ -487,7 +487,7 @@ def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
 
 @merge_properties_from_context
 def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
-    programs: Union[P, list[P]],
+    circuits: Union[P, list[P]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -512,7 +512,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     """
 
     execute_job_ref = _execute.start_execute_job(  # pylint: disable=protected-access
-        programs=programs,
+        circuits=circuits,
         n_shots=n_shots,
         backend_config=backend_config,
         name=name,
