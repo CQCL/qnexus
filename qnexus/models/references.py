@@ -376,8 +376,8 @@ class CompilationResultRef(BaseRef):
 class ResultType(str, Enum):
     """Enum for a results's type."""
 
-    PYTKET = "pytket"
-    QSYS = "qsys"
+    PYTKET = "PYTKET"
+    QSYS = "QSYS"
 
 
 ExecutionProgram: TypeAlias = CircuitRef | HUGRRef
