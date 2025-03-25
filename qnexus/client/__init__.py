@@ -3,7 +3,7 @@ import typing
 
 import httpx
 
-from qnexus.client.utils import read_token, write_token, TokenTypes
+from qnexus.client.utils import read_token, write_token, remove_token, TokenTypes
 from qnexus.config import get_config
 from qnexus.exceptions import AuthenticationError
 
