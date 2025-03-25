@@ -3,7 +3,7 @@ import typing
 
 import httpx
 
-from qnexus.client.utils import read_token, write_token
+from qnexus.client.utils import read_token, write_token, TokenTypes
 from qnexus.config import get_config
 from qnexus.exceptions import AuthenticationError
 
@@ -92,6 +92,8 @@ def reload_client() -> None:
     _nexus_client = get_nexus_client()
     _nexus_client.cookies.clear()
     _nexus_client.auth.cookies.clear()  # type:ignore
+    remove_token(TokenTypes['access_token'])
+    remove_token(TokenTypes['refresh_token'])
     _nexus_client = httpx.Client(
         base_url=get_config().url,
         auth=AuthHandler(),
