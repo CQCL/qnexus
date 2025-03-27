@@ -255,6 +255,7 @@ def test_execute(
     )
 
     assert len(backend_results) == 1
+    assert isinstance(backend_results[0], BackendResult)
     assert isinstance(backend_results[0].get_counts(), Counter)
 
 
