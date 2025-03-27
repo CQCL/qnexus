@@ -10,6 +10,7 @@ from quantinuum_schemas.models.result import QSysResult
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
+from qnexus.client import hugr as hugr_api
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -173,12 +174,12 @@ def _results(
 
 
 def _fetch_pytket_execution_result(
-    handle: ExecutionResultRef,
+    result_ref: ExecutionResultRef,
 ) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
-    assert handle.result_type == ResultType.PYTKET, "Incorrect result type"
+    assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/results/v1beta/{handle.id}")
+    res = get_nexus_client().get(f"/api/results/v1beta/{result_ref.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
@@ -211,45 +212,33 @@ def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
 ) -> tuple[QSysResult, BackendInfo, HUGRRef]:
     """Get the results of a next-gen Qsys execute job."""
+    assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
-    assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
+    res = get_nexus_client().get(f"/api/qsys_results/v1beta/{result_ref.id}")
 
-    # TODO wait for stipe endpoint
-    # res = get_nexus_client().get(f"/api/qsys_results/v1beta/{handle.id}")
+    if res.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
-    from uuid import uuid4  # pylint: disable=import-outside-toplevel
+    res_dict = res.json()
 
-    # example_qsys_result = QSysResult(
-    #     [
-    #         [
-    #             ["test_key_1", 1],
-    #             ["test_key_2", [1, 2, 3]],
-    #         ],
-    #         [
-    #             ["test_key_3", 1.0],
-    #             ["test_key_4", [1.121341453, 2.7878993, 334.0000123]],
-    #         ],
-    #         [
-    #             ["test_key_5", 1],
-    #             ["test_key_6", [True, 0, False, 1]],
-    #         ],
-    #     ]
-    # )
+    input_hugr_id = res_dict["data"]["relationships"]["hugr_module"]["data"]["id"]
 
-    example_qsys_result = QSysResult([])
+    input_hugr = hugr_api._fetch_by_id(  # pylint: disable=protected-access
+        input_hugr_id,
+        scope=None,
+    )
+
+    example_qsys_result = QSysResult(res_dict["data"]["attributes"]["results"])
+
+    backend_info_data = next(
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
+    )
+    backend_info = StoredBackendInfo(
+        **backend_info_data["attributes"]
+    ).to_pytket_backend_info()
 
     return (
         example_qsys_result,
-        BackendInfo(
-            name="foo",
-            device_name="bar",
-            version="baz",
-            architecture=None,
-            gate_set=set(),
-        ),
-        HUGRRef(
-            id=uuid4(),
-            annotations=Annotations(name="foo", description="bar"),
-            project=result_ref.project,
-        ),
+        backend_info,
+        input_hugr,
     )

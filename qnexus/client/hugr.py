@@ -56,10 +56,10 @@ class Params(
 # without changes. We expect HUGR team to make other formats available during
 # March 2025.
 ENVELOPE_CONFIG = EnvelopeConfig(
-    # As of hugr v0.11.1, the only format available is JSON
+    # As of hugr v0.11.3, the only format available is JSON
     format=EnvelopeFormat.JSON,
-    # As of hugr v0.11.1, zstd compression is not supported
-    zstd=None,
+    # default zstd compression level
+    zstd=0,
 )
 
 
