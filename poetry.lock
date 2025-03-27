@@ -3272,23 +3272,21 @@ visualization = ["plotly (>=5.23.0)"]
 
 [[package]]
 name = "quantinuum-schemas"
-version = "2.0.0"
+version = "2.1.0"
 description = "Shared data models for Quantinuum."
 optional = false
-python-versions = "^3.10"
-files = []
-develop = false
+python-versions = "<4.0,>=3.10"
+files = [
+    {file = "quantinuum_schemas-2.1.0-py3-none-any.whl", hash = "sha256:b473001fdf91b5729d71d2f56a1b408cf1f5ef6d461118dc80a26002a30cc893"},
+    {file = "quantinuum_schemas-2.1.0.tar.gz", hash = "sha256:30c5d98247331218e73eaa1854dceb588c021659aa7bbba627351dabc33a82e8"},
+]
 
 [package.dependencies]
-pydantic = "^2.6.0"
-pytket = "^1.24.0"
+pydantic = ">=2.6.0,<3.0.0"
+pytket = ">=1.24.0,<2.0.0"
 
 [package.extras]
 qiskit = ["pytket-qiskit (>=0.50)"]
-
-[package.source]
-type = "directory"
-url = "../quantinuum-schemas"
 
 [[package]]
 name = "qwasm"
@@ -4473,4 +4471,4 @@ qiskit = ["pytket-qiskit"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.10,<3.13"
-content-hash = "a738bbdaefd5b26b2959b357aadf90d085ae17d84e7116363bc54a16a9d0dbf2"
+content-hash = "31227f790b483d87e1d81519f1e3f1b00543d542ad2750f473a3b65fb6b9c1ea"
