@@ -28,8 +28,9 @@ jobs:
         pull-requests: write
       steps:
         - name: Comment on Pull Request
-          run: |
-            gh pr comment --create-if-none --edit-last ${{ github.event.pull_request.number }} \
-              --body "Hello and thank you for making a PR to qnexus! :wave:\nA maintainer will review and run integration tests if required."
-          env:
-            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          uses: thollander/actions-comment-pull-request@v3
+          with:
+            comment-tag: hello
+            message: |
+              Hello and thank you for making a PR to qnexus! :wave:
+              A maintainer will review and run integration tests if required.
