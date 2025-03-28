@@ -238,7 +238,7 @@ def _fetch_qsys_execution_result(
     ).to_pytket_backend_info()
 
     return (
-        example_qsys_result,
+        qsys_result,
         backend_info,
         input_hugr,
     )

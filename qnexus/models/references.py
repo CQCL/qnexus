@@ -238,9 +238,6 @@ class HUGRRef(BaseRef):
         )
 
 
-P = TypeVar("P", CircuitRef, HUGRRef)
-
-
 class JobType(str, Enum):
     """Enum for a job's type."""
 
