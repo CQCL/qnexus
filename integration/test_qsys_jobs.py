@@ -3,6 +3,7 @@ import os
 from datetime import datetime
 from typing import cast
 
+import pytest
 from guppylang import guppy
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
@@ -15,6 +16,9 @@ QSYS_QA_DEVICE_NAME = os.environ["NEXUS_QA_QSYS_DEVICE"]
 N_SHOTS = 10
 
 
+@pytest.mark.skip(
+    "Skipping QSys tests until we have a consistent test device to target"
+)
 def prepare_teleportation():
     """Prepares the teleportation circuit."""
 
