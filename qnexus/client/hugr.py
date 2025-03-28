@@ -58,8 +58,7 @@ class Params(
 ENVELOPE_CONFIG = EnvelopeConfig(
     # As of hugr v0.11.3, the only format available is JSON
     format=EnvelopeFormat.JSON,
-    # default zstd compression level
-    # zstd=0,
+    # disable zstd compression for now
     zstd=None,
 )
 
