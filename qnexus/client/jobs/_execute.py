@@ -228,7 +228,7 @@ def _fetch_qsys_execution_result(
         scope=None,
     )
 
-    example_qsys_result = QSysResult(res_dict["data"]["attributes"]["results"])
+    qsys_result = QSysResult(res_dict["data"]["attributes"]["results"])
 
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
