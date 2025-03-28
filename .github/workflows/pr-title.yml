@@ -28,7 +28,7 @@ jobs:
         - name: Comment on Pull Request
           uses: thollander/actions-comment-pull-request@v3
           with:
+            comment_tag: hello
             message: |
               Hello and thank you for making a PR to qnexus! :wave:
               A maintainer will review and run integration tests if required.
-            comment-tag: hello
