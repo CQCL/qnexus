@@ -31,4 +31,4 @@ jobs:
             comment_tag: hello
             message: |
               Hello and thank you for making a PR to qnexus! :wave:
-              Update for test
+              A maintainer will review and run integration tests if required.
