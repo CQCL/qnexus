@@ -5,10 +5,12 @@ from typing import Union, cast
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
+from quantinuum_schemas.models.result import QSysResult
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
+from qnexus.client import hugr as hugr_api
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -17,16 +19,20 @@ from qnexus.models.references import (
     CircuitRef,
     DataframableList,
     ExecuteJobRef,
+    ExecutionProgram,
     ExecutionResultRef,
+    HUGRRef,
     JobType,
     ProjectRef,
+    ResultType,
     WasmModuleRef,
 )
+from qnexus.models.utils import assert_never
 
 
 @merge_properties_from_context
 def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
-    circuits: Union[CircuitRef, list[CircuitRef]],
+    circuits: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -50,14 +56,14 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    circuit_ids = (
-        [str(circuits.id)]
-        if isinstance(circuits, CircuitRef)
-        else [str(c.id) for c in circuits]
+    program_ids = (
+        [str(p.id) for p in circuits]
+        if isinstance(circuits, list)
+        else [str(circuits.id)]
     )
 
-    if len(n_shots) != len(circuit_ids):
-        raise ValueError("Number of circuits must equal number of n_shots.")
+    if len(n_shots) != len(program_ids):
+        raise ValueError("Number of programs must equal number of n_shots.")
 
     attributes_dict = CreateAnnotations(
         name=name,
@@ -81,8 +87,8 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
                 "wasm_module_id": str(wasm_module.id) if wasm_module else None,
                 "credential_name": credential_name,
                 "items": [
-                    {"circuit_id": circuit_id, "n_shots": n_shot}
-                    for circuit_id, n_shot in zip(circuit_ids, n_shots)
+                    {"circuit_id": program_id, "n_shots": n_shot}
+                    for program_id, n_shot in zip(program_ids, n_shots)
                 ],
             },
         }
@@ -91,7 +97,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
         "project": {"data": {"id": str(project.id), "type": "project"}},
         "circuits": {
             "data": [
-                {"id": str(circuit_id), "type": "circuit"} for circuit_id in circuit_ids
+                {"id": str(program_id), "type": "circuit"} for program_id in program_ids
             ]
         },
     }
@@ -119,6 +125,7 @@ def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, t
         last_status=StatusEnum.SUBMITTED,
         last_message="",
         project=project,
+        backend_config_store=backend_config,
     )
 
 
@@ -144,10 +151,21 @@ def _results(
 
     for item in resp_data["attributes"]["definition"]["items"]:
         if item["status"]["status"] == "COMPLETED":
+            result_type: ResultType
+
+            match item["result_type"]:
+                case ResultType.QSYS:
+                    result_type = ResultType.QSYS
+                case ResultType.PYTKET:
+                    result_type = ResultType.PYTKET
+                case _:
+                    assert_never(item["result_type"])
+
             result_ref = ExecutionResultRef(
                 id=item["result_id"],
                 annotations=execute_job.annotations,
                 project=execute_job.project,
+                result_type=result_type,
             )
 
             execute_results.append(result_ref)
@@ -155,11 +173,13 @@ def _results(
     return execute_results
 
 
-def _fetch_execution_result(
-    handle: ExecutionResultRef,
+def _fetch_pytket_execution_result(
+    result_ref: ExecutionResultRef,
 ) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
-    res = get_nexus_client().get(f"/api/results/v1beta/{handle.id}")
+    assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
+
+    res = get_nexus_client().get(f"/api/results/v1beta/{result_ref.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
@@ -186,3 +206,39 @@ def _fetch_execution_result(
     ).to_pytket_backend_info()
 
     return (backend_result, backend_info, input_circuit)
+
+
+def _fetch_qsys_execution_result(
+    result_ref: ExecutionResultRef,
+) -> tuple[QSysResult, BackendInfo, HUGRRef]:
+    """Get the results of a next-gen Qsys execute job."""
+    assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
+
+    res = get_nexus_client().get(f"/api/qsys_results/v1beta/{result_ref.id}")
+
+    if res.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
+
+    res_dict = res.json()
+
+    input_hugr_id = res_dict["data"]["relationships"]["hugr_module"]["data"]["id"]
+
+    input_hugr = hugr_api._fetch_by_id(  # pylint: disable=protected-access
+        input_hugr_id,
+        scope=None,
+    )
+
+    qsys_result = QSysResult(res_dict["data"]["attributes"]["results"])
+
+    backend_info_data = next(
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
+    )
+    backend_info = StoredBackendInfo(
+        **backend_info_data["attributes"]
+    ).to_pytket_backend_info()
+
+    return (
+        qsys_result,
+        backend_info,
+        input_hugr,
+    )

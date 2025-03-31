@@ -11,6 +11,7 @@ from uuid import UUID
 
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
+from quantinuum_schemas.models.backend_config import config_name_to_class
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 from websockets.client import connect
 from websockets.exceptions import ConnectionClosed
@@ -51,13 +52,15 @@ from qnexus.models.references import (
     CompileJobRef,
     DataframableList,
     ExecuteJobRef,
+    ExecutionProgram,
+    ExecutionResult,
     ExecutionResultRef,
     JobRef,
     JobType,
     ProjectRef,
     WasmModuleRef,
 )
-from qnexus.models.utils import AllowNone, assert_never
+from qnexus.models.utils import assert_never
 
 EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
 
@@ -262,6 +265,12 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         case _:
             assert_never(job_data["attributes"]["job_type"])
 
+    backend_config_dict = job_data["data"]["attributes"]["definition"]["backend_config"]
+    backend_config_class = config_name_to_class[backend_config_dict["type"]]
+    backend_config: BackendConfig = backend_config_class(  # type: ignore
+        **backend_config_dict
+    )
+
     return job_type(
         id=job_data["data"]["id"],
         annotations=Annotations.from_dict(job_data["data"]["attributes"]),
@@ -273,6 +282,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
             job_data["data"]["attributes"]["status"]
         ).message,
         project=project,
+        backend_config_store=backend_config,
     )
 
 
@@ -319,10 +329,10 @@ async def listen_job_status(
     # If we pass True into the websocket connection, it sets a default SSLContext.
     # See: https://websockets.readthedocs.io/en/stable/reference/client.html
     ssl_reconfigured: Union[bool, ssl.SSLContext] = True
-    # if not nexus_config.verify_session:
-    #     ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    #     ssl_reconfigured.check_hostname = False
-    #     ssl_reconfigured.verify_mode = ssl.CERT_NONE
+    if not get_config().httpx_verify:
+        ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+        ssl_reconfigured.check_hostname = False
+        ssl_reconfigured.verify_mode = ssl.CERT_NONE
 
     extra_headers = {
         # TODO, this cookie will expire frequently
@@ -478,7 +488,7 @@ def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
 
 @merge_properties_from_context
 def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
-    circuits: Union[CircuitRef, list[CircuitRef]],
+    circuits: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -494,7 +504,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     credential_name: str | None = None,
     user_group: str | None = None,
     timeout: float | None = 300.0,
-) -> list[BackendResult]:
+) -> list[ExecutionResult]:
     """
     Utility method to run an execute job and return the results. Blocks until
     the results are available. See ``qnexus.start_execute_job`` for a function
