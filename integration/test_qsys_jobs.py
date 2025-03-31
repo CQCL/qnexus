@@ -12,9 +12,6 @@ from quantinuum_schemas.models.result import QSysResult
 
 import qnexus as qnx
 
-QSYS_QA_DEVICE_NAME = os.environ["NEXUS_QA_QSYS_DEVICE"]
-N_SHOTS = 10
-
 
 @pytest.mark.skip(
     "Skipping QSys tests until we have a consistent test device to target"
@@ -57,6 +54,9 @@ def test_guppy_execution(
     """Test the execution of a guppy program
     on a next-generation QSys device."""
 
+    qsys_qa_device_name = os.environ["NEXUS_QA_QSYS_DEVICE"]
+    n_shots = 10
+
     # Compile the guppy program
     compiled_module = prepare_teleportation()
     hugr_package = compiled_module.to_executable_package().package
@@ -71,8 +71,8 @@ def test_guppy_execution(
 
     job_ref = qnx.start_execute_job(
         circuits=[hugr_ref],
-        n_shots=[N_SHOTS],
-        backend_config=qnx.QuantinuumConfig(device_name=QSYS_QA_DEVICE_NAME),
+        n_shots=[n_shots],
+        backend_config=qnx.QuantinuumConfig(device_name=qsys_qa_device_name),
         project=project_ref,
         name=f"QA Test QSys job from {datetime.now()}",
     )
@@ -91,6 +91,6 @@ def test_guppy_execution(
     assert result_ref.get_input().id == hugr_ref.id
 
     qsys_result = cast(QSysResult, result_ref.download_result())
-    assert len(qsys_result) == N_SHOTS
+    assert len(qsys_result) == n_shots
     assert qsys_result[0][0][0] == "teleported"
     assert qsys_result[0][0][1] == 0
