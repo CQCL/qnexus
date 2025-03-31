@@ -6,6 +6,7 @@
   packages = [ 
     pkgs.poetry
     pkgs.commitizen
+    pkgs.git
   ];
 
   # https://devenv.sh/scripts/

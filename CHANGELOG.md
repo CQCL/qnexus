@@ -3,7 +3,7 @@
 # `qnexus` Release Notes
 
 
-## 0.13.0 (2025-03-31)
+## v0.13.0 (2025-03-31)
 
 
 ### Added
@@ -11,7 +11,7 @@
 - Experimental workflow for Guppy/HUGR jobs (#152).
 
 
-## 0.12.0 (2025-03-24)
+## v0.12.0 (2025-03-24)
 
 
 ### Added
@@ -24,7 +24,7 @@
 - Hugr encoding (#147).
 
 
-## 0.11.0 (2025-02-28)
+## v0.11.0 (2025-02-28)
 
 
 ### Added
@@ -39,7 +39,7 @@
 - Default postprocess to false for execute jobs. (#145).
 
 
-## 0.10.0 (2025-01-16)
+## v0.10.0 (2025-01-16)
 
 
 ### Added
@@ -55,7 +55,7 @@
 - Device backend_info pydantic schema generation (#127).
 
 
-## 0.9.2 (2024-12-18)
+## v0.9.2 (2024-12-18)
 
 
 ### Fixed
@@ -63,7 +63,7 @@
 - Update quantinuum-schemas to v1.1.0 (#124).
 
 
-## 0.9.1 (2024-12-05)
+## v0.9.1 (2024-12-05)
 
 
 ### Fixed
@@ -71,7 +71,7 @@
 - Enum filter serialisation (#120).
 
 
-## 0.9.0 (2024-11-26)
+## v0.9.0 (2024-11-26)
 
 
 ### Added
@@ -83,14 +83,14 @@
 - Relaxed dependency version constraints.
 
 
-## 0.8.1 (2024-11-13)
+## v0.8.1 (2024-11-13)
 
 
 ### Fixed
 
 - Update pytket version to 1.34.
 
-## 0.8.0 (2024-11-12)
+## v0.8.0 (2024-11-12)
 
 
 ### Added
@@ -103,7 +103,7 @@
 - Update websockets dependency to be compatible with pytket-quantinuum (#109).
 
 
-## 0.7.0 (2024-10-17)
+## v0.7.0 (2024-10-17)
 
 
 ### Added
@@ -116,7 +116,7 @@
 - Get jobs by id (#106).
 
 
-## 0.6.1 (2024-10-01)
+## v0.6.1 (2024-10-01)
 
 
 ### Fixed
@@ -124,7 +124,7 @@
 - Jobs websockets handling.
 
 
-## 0.6.0 (2024-09-19)
+## v0.6.0 (2024-09-19)
 
 
 ### Added
@@ -137,7 +137,7 @@
 - Faster compilation results (#95).
 - Summary obtainable for ProjectRef in context (#95).
 
-## 0.5.0 (2024-08-30)
+## v0.5.0 (2024-08-30)
 
 
 ### Added
@@ -152,14 +152,14 @@
 - Allow p_meas tuples in h series noise (#85).
 
 
-## 0.4.1 (2024-08-09)
+## v0.4.1 (2024-08-09)
 
 
 ### Fixed
 
 - Fix retry_status argument in client.
 
-## 0.4.0 (2024-08-09)
+## v0.4.0 (2024-08-09)
 
 
 ### Added
@@ -173,7 +173,7 @@
 - A bug where job retry would result in a serialization error.
 
 
-## 0.3.0 (2024-08-05)
+## v0.3.0 (2024-08-05)
 
 
 ### Added
@@ -182,7 +182,7 @@
 - Add hypertket support (#71).
 
 
-## 0.2.0 (2024-07-24)
+## v0.2.0 (2024-07-24)
 
 
 ### Added
@@ -190,14 +190,14 @@
 - Add function to get h-series circuit cost (#68).
 
 
-## 0.1.1 (2024-07-19)
+## v0.1.1 (2024-07-19)
 
 
 ### Fixed
 
 - Relax websockets constraint.
 
-## 0.1.0 (2024-07-17)
+## v0.1.0 (2024-07-17)
 
 
 ### Feat
