@@ -3,6 +3,14 @@
 # `qnexus` Release Notes
 
 
+## 0.13.0 (2025-03-31)
+
+
+### Added
+
+- Experimental workflow for Guppy/HUGR jobs (#152).
+
+
 ## 0.12.0 (2025-03-24)
 
 
