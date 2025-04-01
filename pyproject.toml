@@ -22,7 +22,7 @@ websockets = ">11,<14"
 pydantic-settings = "^2"
 quantinuum-schemas = "^2.1"
 hugr = "^0.11.4"
-guppylang = "^0.17.0"
+guppylang = "^0.18.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
