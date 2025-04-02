@@ -69,6 +69,7 @@ def test_wasm_flow(
     circuit = Circuit(1)
     a = circuit.add_c_register("a", 8)
     circuit.add_wasm_to_reg("add_one", wfh, [a], [a])
+    circuit.measure_all()
     qa_wasm_circuit_name_fixture = (
         f"qnexus_integration_test_wasm_circuit_{datetime.now()}"
     )

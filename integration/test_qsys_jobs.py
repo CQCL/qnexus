@@ -14,9 +14,6 @@ from quantinuum_schemas.models.result import QSysResult
 import qnexus as qnx
 
 
-@pytest.mark.skip(
-    "Skipping QSys tests until we have a consistent test device to target"
-)
 def prepare_teleportation() -> Any:
     """Prepares the teleportation circuit."""
 
@@ -46,6 +43,9 @@ def prepare_teleportation() -> Any:
     return main.compile()
 
 
+@pytest.mark.skip(
+    "Skipping QSys tests until we have a consistent test device to target"
+)
 def test_guppy_execution(
     _authenticated_nexus: None,
     qa_project_name: str,
