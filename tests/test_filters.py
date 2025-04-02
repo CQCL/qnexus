@@ -78,7 +78,7 @@ def test_all_filter_serialisation() -> None:
 
     assert params["filter[name]"] == "test_name"
     assert params["filter[creator][email]"] == ["test@email.com"]
-    assert params["filter[project][id]"] == dummy_project_ref.id
+    assert params["filter[project][id]"] == str(dummy_project_ref.id)
     assert sorted(params["filter[properties]"]) == sorted(
         ["(hello,1)", "(goodbye,false)", '(how,"yes")']
     )
