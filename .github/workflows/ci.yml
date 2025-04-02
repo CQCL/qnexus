@@ -39,12 +39,11 @@ jobs:
         if: ${{ matrix.action == 'type' }}
 
       - name: Check formatting with ruff
-        run: uv run ruff format --check .
+        run: uv run ruff format --check
         if: ${{ matrix.action == 'format' }}
 
       - name: Lint with ruff
-        run: |
-          run: uv run ruff check .
+        run: uv run ruff check
         if: ${{ matrix.action == 'lint' }}
 
   test:

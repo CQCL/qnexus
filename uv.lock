@@ -2223,7 +2223,7 @@ wheels = [
 
 [[package]]
 name = "qnexus"
-version = "0.13.0"
+version = "0.14.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -2268,7 +2268,7 @@ dev = [
 requires-dist = [
     { name = "click", specifier = ">=8.1,<9.0" },
     { name = "colorama", specifier = ">=0.4,<1.0" },
-    { name = "guppylang", specifier = ">=0.17.0,<1.0.0" },
+    { name = "guppylang", specifier = ">=0.18.0,<1.0.0" },
     { name = "httpx", specifier = ">=0,<1" },
     { name = "hugr", specifier = ">=0.11.4,<1.0.0" },
     { name = "nest-asyncio", specifier = ">=1.6,<2.0" },

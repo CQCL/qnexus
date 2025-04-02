@@ -19,7 +19,7 @@ in
 
     uv run ruff check --select I --fix 
     uv run ruff format 
-    uv run mypy qnexus/ tests/ integration/ --namespace-packages
+    uv run mypy qnexus/ tests/ integration/
   '';
 
   enterShell = ''
