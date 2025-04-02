@@ -3,6 +3,14 @@
 # `qnexus` Release Notes
 
 
+## v0.14.0 (2025-04-01)
+
+
+### Changed
+
+- Updated the guppylang version to 0.18.0.
+
+
 ## v0.13.0 (2025-03-31)
 
 
