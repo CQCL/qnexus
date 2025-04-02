@@ -84,18 +84,20 @@ qfmt
 
 Most of the test suite are integration tests that require the following environment variables:
 
-NEXUS_HOST = "qa.myqos.com"
+NEXUS_DOMAIN = "qa.myqos.com"
 NEXUS_QA_USER_EMAIL = ...
 NEXUS_QA_USER_PASSWORD = ...
 NEXUS_QA_QSYS_DEVICE = ...
 
-And can be run with:
+And can be run locally (for the above user) with:
 
 ```sh
+uv run python integration/setup_tokens.py
+
 uv run pytest integration/
 ```
 
-These will only be available to internal team members. For external contributions we recommend writing unit tests and/or integration tests and requesting they
+These will only be available to run via Github CI by internal team members. For external contributions we recommend writing unit tests and/or integration tests and requesting they
 be run by an internal reviewer.
 
 Run basic unit tests using

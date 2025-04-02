@@ -8,7 +8,20 @@ QA test user with email: 'qa_nexus_staging_pytket-nexus@mailsac.com'.
 
 Requires the following environment variables to be set:
 
-- NEXUS_USER_EMAIL
-- NEXUS_USER_PASSWORD
-- NEXUS_HOST (to avoid targetting prod by default)
+- NEXUS_QA_USER_EMAIL
+- NEXUS_QA_USER_PASSWORD
+- NEXUS_DOMAIN (to avoid targetting prod by default)
 - NEXUS_QA_QSYS_DEVICE (for executing HUGR programs on a next-gen qsys device)
+
+
+You can then set up the auth tokens for the NEXUS_USER_EMAIL user with:
+
+```sh
+uv run python integration/setup_tokens.py
+```
+
+And run the tests with:
+
+```sh
+uv run pytest integration/
+```
