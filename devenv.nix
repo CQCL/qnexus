@@ -14,12 +14,11 @@ in
   dotenv.enable = true;
 
   # https://devenv.sh/scripts/
-  scripts.fmt.exec = ''
-    # Script to run formatting, liniting and type checking tools
+  scripts.qfmt.exec = ''
+    echo -e "Running formatting, linting and typechecking 🧹 🔧 \n"
 
-    uv run isort qnexus/ tests/ integration/
-    uv run black qnexus/ tests/ integration/
-    uv run pylint qnexus/ tests/ integration/
+    uv run ruff check --select I --fix 
+    uv run ruff format 
     uv run mypy qnexus/ tests/ integration/ --namespace-packages
   '';
 
@@ -28,16 +27,12 @@ in
     echo -e 'Welcome to the qnexus repo! 😊 ➡️ 🖥️ ➡️ ⚛️\n'
   '';
 
-  # https://devenv.sh/tasks/
-  # tasks = {
-  #   "myproj:setup".exec = "mytool build";
-  #   "devenv:enterShell".after = [ "myproj:setup" ];
-  # };
-
   # https://devenv.sh/tests/
   enterTest = ''
-    echo "Running tests"
+    echo -e "Running tests \n"
     git --version | grep --color=auto "${pkgs.git.version}"
+    uv --version | grep --color=auto "${pkgs-unstable.uv.version}"
+    cz version | grep --color=auto "${pkgs.commitizen.version}"
   '';
 
   # https://devenv.sh/pre-commit-hooks/

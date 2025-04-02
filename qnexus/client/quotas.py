@@ -1,4 +1,5 @@
 """Client API for quotas in Nexus."""
+
 from typing import Literal
 
 from qnexus.client import get_nexus_client
@@ -43,7 +44,7 @@ def get_all() -> DataframableList[Quota]:
     return quota_list
 
 
-def get(name: QuotaName):
+def get(name: QuotaName) -> Quota:
     """Get specific quota details by name."""
     res = get_nexus_client().get(
         "/api/quotas/v1beta",

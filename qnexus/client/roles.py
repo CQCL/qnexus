@@ -1,4 +1,5 @@
 """Client API for role-based-access-control roles and assignments in Nexus."""
+
 from typing import Literal
 
 from pydantic import EmailStr
@@ -67,7 +68,7 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
         role_infos.append(
             RoleInfo(
                 assignment_type="user",
-                assignee=user_client._fetch_by_id(  # pylint: disable=protected-access
+                assignee=user_client._fetch_by_id(
                     user_id=user_role_assignment["user_id"]
                 ),
                 role=roles_dict[user_role_assignment["role_id"]],
@@ -77,7 +78,7 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
         role_infos.append(
             RoleInfo(
                 assignment_type="team",
-                assignee=team_client._fetch_by_id(  # pylint: disable=protected-access
+                assignee=team_client._fetch_by_id(
                     team_id=team_role_assignment["team_id"]
                 ),
                 role=roles_dict[team_role_assignment["role_id"]],

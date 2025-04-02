@@ -1,4 +1,5 @@
 """Test the context management system."""
+
 from collections import OrderedDict
 from datetime import datetime
 from uuid import uuid4

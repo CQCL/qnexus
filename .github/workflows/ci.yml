@@ -33,23 +33,18 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache-dependency-glob: uv.lock
 
-      - name: Check formatting with black
-        run: |
-          uv run black --check .
-        if: ${{ matrix.action == 'format' }}
-
       - name: Typecheck with mypy
         run: |
-          uv run mypy qnexus/
-          uv run mypy tests/
-          uv run mypy integration/
+          uv run mypy qnexus/ tests/ integration/
         if: ${{ matrix.action == 'type' }}
 
-      - name: Lint with pylint
+      - name: Check formatting with ruff
+        run: uv run ruff format --check .
+        if: ${{ matrix.action == 'format' }}
+
+      - name: Lint with ruff
         run: |
-          uv run pylint qnexus/
-          uv run pylint tests/
-          uv run pylint integration/
+          run: uv run ruff check .
         if: ${{ matrix.action == 'lint' }}
 
   test:

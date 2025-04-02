@@ -1,4 +1,5 @@
 """Client API for devices in Nexus."""
+
 from enum import Enum
 from typing import Literal
 
@@ -32,7 +33,7 @@ class Params(DevicesFilter):
     """Params for filtering devices."""
 
 
-def get_all(  # pylint: disable=too-many-positional-arguments
+def get_all(
     issuers: list[IssuerEnum] | None = None,
     aws_region: str | None = None,
     ibmq_hub: str | None = None,
@@ -140,9 +141,9 @@ def status(backend_config: QuantinuumConfig) -> DeviceStateEnum:
     Please note this operation is not supported for cloud-hosted emulators,
     which can be assumed to be always online.
     """
-    assert isinstance(
-        backend_config, QuantinuumConfig
-    ), "Operation only supported for QuantinuumConfig."
+    assert isinstance(backend_config, QuantinuumConfig), (
+        "Operation only supported for QuantinuumConfig."
+    )
 
     res = get_nexus_client().get(
         f"/api/machines/v1beta/{backend_config.device_name}/status",

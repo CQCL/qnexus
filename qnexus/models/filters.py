@@ -1,4 +1,5 @@
 """Filter models for use by the client."""
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -31,7 +32,7 @@ class PropertiesFilter(BaseModel):
     )
 
     @field_serializer("properties")
-    def serialize_properties(self, properties: PropertiesDict):
+    def serialize_properties(self, properties: PropertiesDict) -> list[str]:
         """Serialize the id for a ProjectRef."""
         return [_format_property(key, value) for key, value in properties.items()]
 
@@ -130,16 +131,19 @@ sortfilterenum_to_string: dict[SortFilterEnum, SortFilterString] = {
 class SortFilter(BaseModel):
     """Resource sorting model."""
 
-    sort: list[
-        Union[
-            Literal["timestamps.created"],
-            Literal["-timestamps.created"],
-            Literal["timestamps.modified"],
-            Literal["-timestamps.modified"],
-            Literal["name"],
-            Literal["-name"],
+    sort: (
+        list[
+            Union[
+                Literal["timestamps.created"],
+                Literal["-timestamps.created"],
+                Literal["timestamps.modified"],
+                Literal["-timestamps.modified"],
+                Literal["name"],
+                Literal["-name"],
+            ]
         ]
-    ] | None = Field(
+        | None
+    ) = Field(
         default=["-timestamps.created"],  # type: ignore
         serialization_alias="sort",
         description="Sort items.",
@@ -167,9 +171,9 @@ class ProjectRefFilter(BaseModel):
     )
 
     @field_serializer("project")
-    def serialize_project_ref(self, project: ProjectRef):
+    def serialize_project_ref(self, project: ProjectRef) -> str:
         """Serialize the id for a ProjectRef."""
-        return project.id
+        return str(project.id)
 
 
 class ArchivedFilter(BaseModel):

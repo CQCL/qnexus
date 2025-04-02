@@ -1,6 +1,5 @@
 """Client API for jobs in Nexus."""
 
-# pylint: disable=redefined-builtin
 import asyncio
 import json
 import ssl
@@ -106,7 +105,7 @@ class Params(
 
 
 @merge_project_from_context
-def get_all(  # pylint: disable=too-many-positional-arguments
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -192,7 +191,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
     return DataframableList(job_list)
 
 
-def get(  # pylint: disable=too-many-positional-arguments
+def get(
     id: Union[str, UUID, None] = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
@@ -372,15 +371,13 @@ async def listen_job_status(
 @overload
 def results(
     job: CompileJobRef, allow_incomplete: bool = False
-) -> DataframableList[CompilationResultRef]:
-    ...
+) -> DataframableList[CompilationResultRef]: ...
 
 
 @overload
 def results(
     job: ExecuteJobRef, allow_incomplete: bool = False
-) -> DataframableList[ExecutionResultRef]:
-    ...
+) -> DataframableList[ExecutionResultRef]: ...
 
 
 def results(
@@ -392,13 +389,9 @@ def results(
     """
     match job:
         case CompileJobRef():
-            return _compile._results(  # pylint: disable=protected-access
-                job, allow_incomplete
-            )
+            return _compile._results(job, allow_incomplete)
         case ExecuteJobRef():
-            return _execute._results(  # pylint: disable=protected-access
-                job, allow_incomplete
-            )
+            return _execute._results(job, allow_incomplete)
         case _:
             assert_never(job.job_type)
 
@@ -408,7 +401,7 @@ def retry_submission(
     retry_status: list[StatusEnum] | None = None,
     remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.DEFAULT,
     user_group: str | None = None,
-):
+) -> None:
     """Retry a job in Nexus according to status(es) or retry strategy.
 
     By default, jobs with the ERROR status will be retried.
@@ -429,7 +422,7 @@ def retry_submission(
         res.raise_for_status()
 
 
-def cancel(job: JobRef):
+def cancel(job: JobRef) -> None:
     """Attempt cancellation of a job in Nexus.
 
     If the job has been submitted to a backend, Nexus will request cancellation of the job.
@@ -444,7 +437,7 @@ def cancel(job: JobRef):
 
 
 @merge_properties_from_context
-def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
+def compile(
     circuits: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,
@@ -464,7 +457,7 @@ def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    compile_job_ref = _compile.start_compile_job(  # pylint: disable=protected-access
+    compile_job_ref = _compile.start_compile_job(
         circuits=circuits,
         backend_config=backend_config,
         name=name,
@@ -487,7 +480,7 @@ def compile(  # pylint: disable=redefined-builtin, too-many-positional-arguments
 
 
 @merge_properties_from_context
-def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
+def execute(
     circuits: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
@@ -512,7 +505,7 @@ def execute(  # pylint: disable=too-many-locals, too-many-positional-arguments
     results.
     """
 
-    execute_job_ref = _execute.start_execute_job(  # pylint: disable=protected-access
+    execute_job_ref = _execute.start_execute_job(
         circuits=circuits,
         n_shots=n_shots,
         backend_config=backend_config,

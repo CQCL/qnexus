@@ -3,6 +3,7 @@
 from datetime import datetime
 from uuid import uuid4
 
+from qnexus.models.annotations import Annotations, PropertiesDict
 from qnexus.models.filters import (
     ArchivedFilter,
     CreatorFilter,
@@ -11,11 +12,9 @@ from qnexus.models.filters import (
     FuzzyNameFilter,
     JobStatusEnum,
     JobStatusFilter,
-    JobType,
     JobTypeFilter,
     PaginationFilter,
     ProjectRefFilter,
-    PropertiesDict,
     PropertiesFilter,
     ScopeFilter,
     ScopeFilterEnum,
@@ -23,7 +22,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.references import Annotations, ProjectRef
+from qnexus.models.references import JobType, ProjectRef
 
 
 def test_all_filter_serialisation() -> None:
@@ -65,7 +64,7 @@ def test_all_filter_serialisation() -> None:
             if job_status
             else None
         ),
-        job_type=job_type,  # type: ignore
+        job_type=job_type,
         properties=PropertiesDict({"hello": 1, "goodbye": False, "how": "yes"}),
         created_before=test_datetime,
         created_after=test_datetime,

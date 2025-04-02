@@ -1,4 +1,5 @@
 """Test basic functionality relating to the hugr module."""
+
 from datetime import datetime
 from pathlib import Path
 

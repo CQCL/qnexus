@@ -1,4 +1,5 @@
 """The qnexus package."""
+
 from __future__ import annotations
 
 from collections import OrderedDict
@@ -14,7 +15,7 @@ PropertiesDict = OrderedDict[str, bool | int | float | str]
 class AnnotationsDict(TypedDict, total=False):
     """TypedDict for annotations"""
 
-    name: str | None  # type: ignore
+    name: str | None
     description: str | None
     properties: PropertiesDict
     created: datetime | None
@@ -34,19 +35,19 @@ class Annotations(BaseModel):
 
     @field_validator("properties")
     @classmethod
-    def sort_properties(cls, v: dict):
+    def sort_properties(cls, v: PropertiesDict) -> PropertiesDict:
         """Sort the values of the properties dict."""
-        return OrderedDict(sorted(v.items()))
+        return PropertiesDict(OrderedDict(sorted(v.items())))
 
     @field_serializer("created")
-    def serialize_created(self, created: datetime | None, _info) -> str | None:
+    def serialize_created(self, created: datetime | None) -> str | None:
         """Custom serializer for datetimes."""
         if created:
             return str(created)
         return None
 
     @field_serializer("modified")
-    def serialize_modified(self, modified: datetime | None, _info) -> str | None:
+    def serialize_modified(self, modified: datetime | None) -> str | None:
         """Custom serializer for datetimes."""
         if modified:
             return str(modified)
@@ -80,7 +81,7 @@ class Annotations(BaseModel):
 class CreateAnnotations(BaseModel):
     """Pydantic model for annotations when the name is required."""
 
-    name: str  # type: ignore
+    name: str
     description: str | None = None
     properties: PropertiesDict | None = Field(default_factory=PropertiesDict)
 
@@ -88,7 +89,7 @@ class CreateAnnotations(BaseModel):
 
     @field_validator("properties")
     @classmethod
-    def set_properties_default(cls, v):
+    def set_properties_default(cls, v: PropertiesDict | None) -> PropertiesDict:
         """Replace None properties with an empty PropertiesDict on model construction."""
         if v is None:
             return PropertiesDict()

@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pandas as pd
 import pytest
-from pytket import Circuit
+from pytket.circuit import Circuit
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc

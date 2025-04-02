@@ -74,10 +74,10 @@ To run a single command in the shell, just prefix it with `uv run`.
 
 ### Checks
 
-Formatting, linting and type-checking can be done with:
+Formatting, linting and type-checking are added as a devenv script and can be run with:
 
 ```sh
-uv run scripts/fmt.sh
+qfmt
 ```
 
 ### Testing

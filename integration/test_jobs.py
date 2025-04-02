@@ -6,9 +6,9 @@ from time import sleep
 
 import pandas as pd
 import pytest
-from pytket import Circuit
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
+from pytket.circuit import Circuit
 from quantinuum_schemas.models.backend_config import BaseBackendConfig
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 
@@ -392,7 +392,7 @@ def test_submit_under_user_group(
             backend_config=qnx.AerConfig(),
             user_group=fake_group,
         )
-        assert exc.value == f"Not a member of any group with name: {fake_group}"
+        assert exc.value.message == f"Not a member of any group with name: {fake_group}"
 
     qnx.start_compile_job(
         circuits=[_authenticated_nexus_circuit_ref],
@@ -413,7 +413,7 @@ def test_submit_under_user_group(
             n_shots=[10],
             user_group="made_up_group",
         )
-        assert exc.value == f"Not a member of any group with name: {fake_group}"
+        assert exc.value.message == f"Not a member of any group with name: {fake_group}"
 
     qnx.start_execute_job(
         circuits=[my_circ],

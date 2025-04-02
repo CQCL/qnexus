@@ -1,10 +1,11 @@
 """Tests related to running jobs against QSys devices."""
+
 import os
 from datetime import datetime
-from typing import cast
+from typing import Any, cast
 
 import pytest
-from guppylang import guppy
+from guppylang import guppy  # type: ignore
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
 from pytket.backends.backendinfo import BackendInfo
@@ -16,12 +17,11 @@ import qnexus as qnx
 @pytest.mark.skip(
     "Skipping QSys tests until we have a consistent test device to target"
 )
-def prepare_teleportation():
+def prepare_teleportation() -> Any:
     """Prepares the teleportation circuit."""
 
     @guppy
     def bell() -> tuple[qubit, qubit]:
-        # pylint: disable=too-many-function-args
         """Constructs a bell state."""
         q1, q2 = qubit(), qubit()
         h(q1)
@@ -30,7 +30,6 @@ def prepare_teleportation():
 
     @guppy
     def main() -> None:
-        # pylint: disable=too-many-function-args
         src = qubit()
         x(src)
         alice, bob = bell()
@@ -42,7 +41,7 @@ def prepare_teleportation():
         if measure(src):
             z(bob)
 
-        result("teleported", measure(bob))  # type: ignore
+        result("teleported", measure(bob))
 
     return main.compile()
 

@@ -6,10 +6,10 @@ from typing import Any, Callable
 from click import Command, Option
 
 
-def is_documented_by(original: Callable):
+def is_documented_by(original: Callable) -> Callable:  # type: ignore
     """Forward the documentation from the underlying client function."""
 
-    def wrapper(target: Callable):
+    def wrapper(target: Callable) -> Callable:  # type: ignore
         target.__doc__ = original.__doc__
         return target
 
@@ -42,7 +42,7 @@ current_dir = current_path.split(os.sep)[-1]
 #         click.echo(Fore.GREEN + f"Intialized qnexus project: {name}")
 
 
-def add_options_to_command(command: Command, model: Any):
+def add_options_to_command(command: Command, model: Any) -> None:
     """Add click options using fields of a pydantic model."""
     # Annotate command with options from dict
     for field, value in model.model_fields.items():

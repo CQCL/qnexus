@@ -1,4 +1,5 @@
 """Test basic functionality relating to the auth module."""
+
 from io import StringIO
 from typing import Any
 
