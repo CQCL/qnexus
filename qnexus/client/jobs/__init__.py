@@ -8,7 +8,6 @@ from enum import Enum
 from typing import Any, Type, Union, cast, overload
 from uuid import UUID
 
-from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import WAITING_STATUS, StatusEnum
 from quantinuum_schemas.models.backend_config import config_name_to_class
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig

@@ -1,7 +1,5 @@
 """CLI for qnexus."""
 
-from typing import Never
-
 import click
 
 from ..client import auth as _auth

@@ -9,7 +9,6 @@ import qnexus as qnx
 from qnexus.filesystem import load, save
 from qnexus.models.references import (
     BaseRef,
-    CompilationResultRef,
     CompileJobRef,
     ExecuteJobRef,
     JobRef,

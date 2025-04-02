@@ -17,7 +17,8 @@ in
   scripts.qfmt.exec = ''
     echo -e "Running formatting, linting and typechecking 🧹 🔧 \n"
 
-    uv run ruff check --select I --fix 
+    uv run ruff check --select I --fix
+    uv run ruff check 
     uv run ruff format 
     uv run mypy qnexus/ tests/ integration/
   '';
