@@ -1,27 +1,31 @@
 { pkgs, lib, config, inputs, ... }:
-
+let
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+in
 {
 
   # https://devenv.sh/packages/
   packages = [ 
-    pkgs.poetry
+    pkgs-unstable.uv
     pkgs.commitizen
     pkgs.git
   ];
+
+  dotenv.enable = true;
 
   # https://devenv.sh/scripts/
   scripts.fmt.exec = ''
     # Script to run formatting, liniting and type checking tools
 
-    poetry run isort qnexus/ tests/ integration/
-    poetry run black qnexus/ tests/ integration/
-    poetry run pylint qnexus/ tests/ integration/
-    poetry run mypy qnexus/ tests/ integration/ --namespace-packages
+    uv run isort qnexus/ tests/ integration/
+    uv run black qnexus/ tests/ integration/
+    uv run pylint qnexus/ tests/ integration/
+    uv run mypy qnexus/ tests/ integration/ --namespace-packages
   '';
 
   enterShell = ''
     export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
-    echo 'Welcome to the qnexus repo'
+    echo -e 'Welcome to the qnexus repo! 😊 ➡️ 🖥️ ➡️ ⚛️\n'
   '';
 
   # https://devenv.sh/tasks/

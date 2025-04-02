@@ -2,15 +2,15 @@
 
 # Script to run formatting, liniting and type checking tools
 
-poetry run isort qnexus/ 
-poetry run isort tests/
-poetry run isort integration/
-poetry run black .
+uv run isort qnexus/ 
+uv run isort tests/
+uv run isort integration/
+uv run black .
 
-poetry run pylint qnexus/
-poetry run pylint tests/
-poetry run pylint integration/
+uv run pylint qnexus/
+uv run pylint tests/
+uv run pylint integration/
 
-poetry run mypy qnexus/ --namespace-packages
-poetry run mypy tests/ --namespace-packages
-poetry run mypy integration/ --namespace-packages
+uv run mypy qnexus/ --namespace-packages
+uv run mypy tests/ --namespace-packages
+uv run mypy integration/ --namespace-packages
