@@ -26,10 +26,13 @@ from qnexus.models.references import (
 
 def test_job_get_all(
     _authenticated_nexus: None,
+    qa_project_name: str,
 ) -> None:
     """Test that we can get an iterator over all jobs."""
 
-    my_job_db_matches = qnx.jobs.get_all()
+    project_ref = qnx.projects.get(name_like=qa_project_name)
+
+    my_job_db_matches = qnx.jobs.get_all(project=project_ref)
 
     assert isinstance(my_job_db_matches.count(), int)
     assert isinstance(my_job_db_matches.summarize(), pd.DataFrame)

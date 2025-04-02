@@ -2248,6 +2248,7 @@ qiskit = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "ipykernel" },
     { name = "jupyter" },
     { name = "mypy" },
     { name = "pandas-stubs" },
@@ -2285,6 +2286,7 @@ provides-extras = ["qiskit"]
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jupyter", specifier = ">=1.0.0,<2.0.0" },
     { name = "mypy", specifier = ">=1.10.0,<2.0.0" },
     { name = "pandas-stubs", specifier = ">=2.2.1.240316,<3.0.0.0" },
