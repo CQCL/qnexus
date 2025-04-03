@@ -129,7 +129,7 @@ def test_quantinuum_device_status(
     Quantinuum device."""
 
     unsupported_config = qnx.AerConfig()
-    with pytest.raises(ValueError):
+    with pytest.raises(AssertionError):
         qnx.devices.status(unsupported_config)  # type: ignore
 
     backend_config = qnx.QuantinuumConfig(device_name="H1-1")

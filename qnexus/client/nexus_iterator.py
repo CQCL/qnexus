@@ -1,5 +1,6 @@
-""" A class for iterating over paginated API endpoints, collecting any
+"""A class for iterating over paginated API endpoints, collecting any
 iterated type T into a python Iterator."""
+
 from __future__ import annotations
 
 from typing import Any, Callable, Dict, Generic, Iterator, List, TypeVar
@@ -17,7 +18,7 @@ class NexusIterator(Generic[T], Iterator[T]):
     """An object that can be used to summarize or iterate through a filter query made to
     the Nexus database."""
 
-    def __init__(  # pylint: disable=too-many-positional-arguments
+    def __init__(
         self,
         resource_type: str,
         nexus_url: str,
@@ -76,7 +77,7 @@ class NexusIterator(Generic[T], Iterator[T]):
         self._handle_errors(res)
 
         res_dict = res.json()
-        return res_dict["count"]
+        return int(res_dict["count"])
 
     def summarize(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""

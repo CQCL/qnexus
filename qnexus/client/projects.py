@@ -1,11 +1,12 @@
 """Client API for projects in Nexus."""
-# pylint: disable=redefined-builtin
+
 import random
 from datetime import datetime
 from typing import Any, Literal, Union, cast
 from uuid import UUID
 
 import pandas as pd
+from pytket.backends.status import WAITING_STATUS, StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
@@ -44,7 +45,7 @@ class Params(
     """Params for filtering projects"""
 
 
-def get_all(  # pylint: disable=too-many-positional-arguments
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
@@ -291,7 +292,7 @@ def _to_property(data: dict[str, Any]) -> DataframableList[Property]:
 
 def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
     """Summarize the current state of a project."""
-    import qnexus.client.jobs as jobs_client  # pylint: disable=import-outside-toplevel
+    import qnexus.client.jobs as jobs_client
 
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
@@ -303,32 +304,16 @@ def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
             "project": project.annotations.name,
             "total_jobs": len(all_jobs),
             "pending_jobs": len(
-                [
-                    job
-                    for job in all_jobs
-                    if job.last_status in jobs_client.WAITING_STATUS
-                ]
+                [job for job in all_jobs if job.last_status in WAITING_STATUS]
             ),
             "cancelled_jobs": len(
-                [
-                    job
-                    for job in all_jobs
-                    if job.last_status == jobs_client.StatusEnum.CANCELLED
-                ]
+                [job for job in all_jobs if job.last_status == StatusEnum.CANCELLED]
             ),
             "errored_jobs": len(
-                [
-                    job
-                    for job in all_jobs
-                    if job.last_status == jobs_client.StatusEnum.ERROR
-                ]
+                [job for job in all_jobs if job.last_status == StatusEnum.ERROR]
             ),
             "completed_jobs": len(
-                [
-                    job
-                    for job in all_jobs
-                    if job.last_status == jobs_client.StatusEnum.COMPLETED
-                ]
+                [job for job in all_jobs if job.last_status == StatusEnum.COMPLETED]
             ),
         },
         index=[0],

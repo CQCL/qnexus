@@ -1,5 +1,4 @@
 """The qnexus package."""
-# pylint: disable=useless-import-alias, redefined-builtin
 
 import nest_asyncio  # type: ignore
 
@@ -64,4 +63,14 @@ __all__ = [
     "login",
     "login_with_credentials",
     "logout",
+    "AerConfig",
+    "AerStateConfig",
+    "AerUnitaryConfig",
+    "BackendConfig",
+    "BraketConfig",
+    "IBMQConfig",
+    "IBMQEmulatorConfig",
+    "ProjectQConfig",
+    "QuantinuumConfig",
+    "QulacsConfig",
 ]

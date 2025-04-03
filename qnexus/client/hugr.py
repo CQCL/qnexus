@@ -4,7 +4,6 @@ N.B. Nexus support for HUGR is experimental, and any HUGRs programs
 uploaded to Nexus before stability is achieved might not work in the future.
 """
 
-# pylint: disable=redefined-builtin
 import base64
 from datetime import datetime
 from typing import Any, Union, cast
@@ -64,7 +63,7 @@ ENVELOPE_CONFIG = EnvelopeConfig(
 
 
 @merge_project_from_context
-def get_all(  # pylint: disable=too-many-positional-arguments
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,

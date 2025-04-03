@@ -1,4 +1,5 @@
 """Test basic functionality relating to the hugr module."""
+
 from datetime import datetime
 from pathlib import Path
 
@@ -78,5 +79,5 @@ def test_hugr_get_all(
 
     hugrs = qnx.hugr.get_all(project=my_proj)
 
-    assert hugrs.count() == 1
+    assert hugrs.count() > 1
     assert isinstance(hugrs.list()[0], HUGRRef)

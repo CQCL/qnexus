@@ -10,7 +10,7 @@ from .projects import projects
 
 
 @click.group()
-def entrypoint():
+def entrypoint() -> None:
     """Quantinuum Nexus API client."""
 
 

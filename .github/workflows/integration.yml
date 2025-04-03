@@ -10,41 +10,18 @@ on:
   schedule:
     # everyday at 12:00
     - cron: '0 12 * * *'
+env:
+  UV_VERSION: "0.6.6"
 
 jobs:
 
-  version-matrix-integration:
-    runs-on: ubuntu-24.04
-    strategy:
-      matrix:
-        python-version: ['3.10', '3.11']
-    steps:
-      - uses: actions/checkout@v4
-      - name: Cache poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
-      - name: Set up ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-      - name: Setup poetry
-        run: |
-          pip install pip==22.2.1 poetry==1.8.2
-          poetry run pip install --upgrade pip
-      - name: Install dev dependencies
-        run: |
-          poetry install --all-extras
-
   test-integration:
     name: Integration
-    needs: [version-matrix-integration]
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.11']
+        python-version: ['3.12']
     env:
       NEXUS_QA_USER_EMAIL: ${{ secrets.NEXUS_QA_USER_EMAIL }}
       NEXUS_QA_USER_PASSWORD: ${{ secrets.NEXUS_QA_USER_PASSWORD }}
@@ -68,34 +45,25 @@ jobs:
           fetch-depth: '0'
           # Use the pull request merge commit ref if one is provided
           ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || 'main' }}
-   
-      - name: Cache poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Set up uv & venv
+        uses: astral-sh/setup-uv@v5
         with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup poetry
-        run: |
-          pip install pip==22.2.1 poetry==1.6.1
-          poetry run pip install --upgrade pip
-
-      - name: Install dev dependencies
-        run: |
-          poetry install --all-extras
+          cache-dependency-glob: uv.lock
       
       - name: Set up qnexus login tokens
         run: |
-          poetry run python integration/setup_tokens.py
+          uv run python integration/setup_tokens.py
 
       - name: Run integration tests
         run: |
-          poetry run pytest integration/ --html=integration-results.html --timeout=600 -ra --reruns 3
+          uv run pytest integration/ --html=integration-results.html --timeout=600 -ra --reruns 3
 
       - name: Upload integration test results
         uses: actions/upload-artifact@master

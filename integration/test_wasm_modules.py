@@ -1,10 +1,12 @@
 """Test basic functionality relating to the wasm_modules module."""
+
 from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from pytket import Circuit
-from pytket.wasm import WasmFileHandler
+from pytket.backends.status import StatusEnum
+from pytket.circuit import Circuit
+from pytket.wasm.wasm import WasmFileHandler
 
 import qnexus as qnx
 from qnexus.models.references import WasmModuleRef
@@ -67,6 +69,7 @@ def test_wasm_flow(
     circuit = Circuit(1)
     a = circuit.add_c_register("a", 8)
     circuit.add_wasm_to_reg("add_one", wfh, [a], [a])
+    circuit.measure_all()
     qa_wasm_circuit_name_fixture = (
         f"qnexus_integration_test_wasm_circuit_{datetime.now()}"
     )
@@ -90,4 +93,4 @@ def test_wasm_flow(
 
     qnx.jobs.wait_for(execute_job_ref)
 
-    assert qnx.jobs.status(execute_job_ref).status == qnx.jobs.StatusEnum.COMPLETED
+    assert qnx.jobs.status(execute_job_ref).status == StatusEnum.COMPLETED

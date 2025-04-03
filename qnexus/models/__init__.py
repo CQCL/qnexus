@@ -1,9 +1,10 @@
 """Models for use by the client."""
+
 from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Literal, Optional
+from typing import Literal, Optional
 from uuid import UUID
 
 import pandas as pd

@@ -1,4 +1,5 @@
 """Client API for Nexus."""
+
 import typing
 
 import httpx
@@ -75,7 +76,7 @@ class AuthHandler(httpx.Auth):
 
 def get_nexus_client() -> httpx.Client:
     """Getter function for the nexus client."""
-    global _nexus_client  # pylint: disable=global-statement
+    global _nexus_client
     if _nexus_client is None:
         _nexus_client = httpx.Client(
             base_url=config.url,
@@ -88,7 +89,7 @@ def get_nexus_client() -> httpx.Client:
 
 def reload_client() -> None:
     """Reload the nexus client with new tokens."""
-    global _nexus_client  # pylint: disable=global-statement
+    global _nexus_client
     _nexus_client = get_nexus_client()
     _nexus_client.cookies.clear()
     _nexus_client.auth.cookies.clear()  # type:ignore

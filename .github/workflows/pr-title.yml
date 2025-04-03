@@ -21,14 +21,3 @@ jobs:
         uses: CQCL/hugrverse-actions/.github/workflows/pr-title.yml@main
         secrets:
             GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
-
-    comment-on-pr:
-      runs-on: ubuntu-24.04
-      steps:
-        - name: Comment on Pull Request
-          uses: thollander/actions-comment-pull-request@v3
-          with:
-            comment-tag: hello
-            message: |
-              Hello and thank you for making a PR to qnexus! :wave:
-              A maintainer will review and run integration tests if required.

@@ -1,39 +1,39 @@
 { pkgs, lib, config, inputs, ... }:
-
+let
+  pkgs-unstable = import inputs.nixpkgs-unstable { system = pkgs.stdenv.system; };
+in
 {
 
   # https://devenv.sh/packages/
   packages = [ 
-    pkgs.poetry
+    pkgs-unstable.uv
     pkgs.commitizen
     pkgs.git
   ];
 
-  # https://devenv.sh/scripts/
-  scripts.fmt.exec = ''
-    # Script to run formatting, liniting and type checking tools
+  dotenv.enable = true;
 
-    poetry run isort qnexus/ tests/ integration/
-    poetry run black qnexus/ tests/ integration/
-    poetry run pylint qnexus/ tests/ integration/
-    poetry run mypy qnexus/ tests/ integration/ --namespace-packages
+  # https://devenv.sh/scripts/
+  scripts.qfmt.exec = ''
+    echo -e "Running formatting, linting and typechecking 🧹 🔧 \n"
+
+    uv run ruff check --select I --fix
+    uv run ruff check 
+    uv run ruff format 
+    uv run mypy qnexus/ tests/ integration/
   '';
 
   enterShell = ''
     export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"
-    echo 'Welcome to the qnexus repo'
+    echo -e 'Welcome to the qnexus repo! 😊 ➡️ 🖥️ ➡️ ⚛️\n'
   '';
-
-  # https://devenv.sh/tasks/
-  # tasks = {
-  #   "myproj:setup".exec = "mytool build";
-  #   "devenv:enterShell".after = [ "myproj:setup" ];
-  # };
 
   # https://devenv.sh/tests/
   enterTest = ''
-    echo "Running tests"
+    echo -e "Running tests \n"
     git --version | grep --color=auto "${pkgs.git.version}"
+    uv --version | grep --color=auto "${pkgs-unstable.uv.version}"
+    cz version | grep --color=auto "${pkgs.commitizen.version}"
   '';
 
   # https://devenv.sh/pre-commit-hooks/

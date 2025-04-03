@@ -1,5 +1,5 @@
 """Utlity functions for the client."""
-# pylint: disable=protected-access
+
 import http
 import json
 import os

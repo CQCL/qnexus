@@ -1,10 +1,10 @@
 """Status types for Nexus Jobs."""
+
 from datetime import datetime
-from typing import Any, Callable, Dict, NamedTuple, Optional
+from typing import Any, Dict, NamedTuple, Optional
 
 import pandas as pd
-from pytket.backends.status import (  # pylint: disable=unused-import
-    WAITING_STATUS,
+from pytket.backends.status import (
     StatusEnum,
 )
 
@@ -46,9 +46,10 @@ class JobStatus(NamedTuple):
 
         error_detail = dic.get("error_detail", None)
 
-        read_optional_datetime: Callable[[str], Optional[datetime]] = lambda key: (
-            datetime.fromisoformat(x) if (x := dic.get(key)) is not None else None
-        )
+        def read_optional_datetime(key: str) -> datetime | None:
+            x = dic.get(key)
+            return datetime.fromisoformat(x) if x is not None else None
+
         completed_time = read_optional_datetime("completed_time")
         queued_time = read_optional_datetime("queued_time")
         submitted_time = read_optional_datetime("submitted_time")
@@ -74,5 +75,6 @@ class JobStatus(NamedTuple):
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
         return pd.DataFrame.from_dict(
-            self._asdict(), orient="index"  # pylint: disable=no-member
+            self._asdict(),
+            orient="index",
         ).T

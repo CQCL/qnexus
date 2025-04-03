@@ -1,4 +1,5 @@
 """Client API for users in Nexus."""
+
 from uuid import UUID
 
 import qnexus.exceptions as qnx_exc

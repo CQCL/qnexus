@@ -4,7 +4,7 @@ import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
 from functools import wraps
-from typing import Callable, ParamSpec, TypeVar
+from typing import Any, Callable, Generator, ParamSpec, TypeVar
 
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import ProjectRef
@@ -107,7 +107,7 @@ def update_active_properties(
 
 
 @contextmanager
-def using_project(project: ProjectRef):
+def using_project(project: ProjectRef) -> Generator[None, None, None]:
     """Attach a ProjectRef to the current context.
 
     All operations in the context will make use of the project.
@@ -129,11 +129,13 @@ def using_project(project: ProjectRef):
     try:
         yield
     finally:
-        _QNEXUS_PROJECT.reset(token)
+        return _QNEXUS_PROJECT.reset(token)
 
 
 @contextmanager
-def using_properties(**properties: int | float | str | bool):
+def using_properties(
+    **properties: int | float | str | bool,
+) -> Generator[None, None, None]:
     """Attach properties to the current context."""
     token = update_active_properties_token(**properties)
     try:
@@ -151,7 +153,7 @@ def merge_project_from_context(func: Callable[P, T]) -> Callable[P, T]:
     ProjectRef in kwargs takes precedence (will be selected)."""
 
     @wraps(func)
-    def get_project_from_context(*args, **kwargs):
+    def get_project_from_context(*args: Any, **kwargs: Any) -> T:
         kwargs["project"] = kwargs.get("project", None)
         if kwargs["project"] is None:
             kwargs["project"] = get_active_project()
@@ -165,7 +167,7 @@ def merge_properties_from_context(func: Callable[P, T]) -> Callable[P, T]:
     any provided in kwargs. Properties in kwargs take precendence."""
 
     @wraps(func)
-    def _merge_properties_from_context(*args, **kwargs):
+    def _merge_properties_from_context(*args: Any, **kwargs: Any) -> T:
         if kwargs.get("properties") is None:
             kwargs["properties"] = PropertiesDict()
         kwargs["properties"] = get_active_properties() | kwargs["properties"]

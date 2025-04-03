@@ -1,6 +1,5 @@
 """Definitions of reference proxy objects to data in Nexus."""
 
-# pylint: disable=import-outside-toplevel, too-few-public-methods, cyclic-import
 from __future__ import annotations
 
 from abc import abstractmethod
@@ -10,6 +9,7 @@ from enum import Enum
 from typing import (
     Annotated,
     Any,
+    Iterable,
     Literal,
     Optional,
     Protocol,
@@ -52,7 +52,7 @@ T = TypeVar("T", bound=Dataframable)
 class DataframableList(list[T]):
     """A Python list that implements the Dataframable protocol."""
 
-    def __init__(self, iterable):
+    def __init__(self, iterable: Iterable[T]) -> None:
         super().__init__(item for item in iterable)
 
     def df(self) -> pd.DataFrame:
@@ -118,9 +118,7 @@ class ProjectRef(BaseRef):
     type: Literal["ProjectRef"] = "ProjectRef"
 
     @field_serializer("contents_modified")
-    def serialize_modified(
-        self, contents_modified: datetime | None, _info
-    ) -> str | None:
+    def serialize_modified(self, contents_modified: datetime | None) -> str | None:
         """Custom serializer for datetimes."""
         if contents_modified:
             return str(contents_modified)

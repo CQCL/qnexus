@@ -1,4 +1,5 @@
 """CLI for qnexus."""
+
 from typing import Any
 
 import click
@@ -10,7 +11,7 @@ from .utils import add_options_to_command, is_documented_by
 
 @click.command()
 @is_documented_by(get_all)
-def jobs(**kwargs: Any):
+def jobs(**kwargs: Any) -> None:
     """List jobs."""
     click.echo(get_all(**kwargs))
 

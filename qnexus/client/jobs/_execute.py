@@ -31,7 +31,7 @@ from qnexus.models.utils import assert_never
 
 
 @merge_properties_from_context
-def start_execute_job(  # pylint: disable=too-many-arguments, too-many-locals, too-many-positional-arguments
+def start_execute_job(
     circuits: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
@@ -187,7 +187,7 @@ def _fetch_pytket_execution_result(
 
     input_circuit_id = res_dict["data"]["relationships"]["circuit"]["data"]["id"]
 
-    input_circuit = circuit_api._fetch_by_id(  # pylint: disable=protected-access
+    input_circuit = circuit_api._fetch_by_id(
         input_circuit_id,
         scope=None,
     )
@@ -223,7 +223,7 @@ def _fetch_qsys_execution_result(
 
     input_hugr_id = res_dict["data"]["relationships"]["hugr_module"]["data"]["id"]
 
-    input_hugr = hugr_api._fetch_by_id(  # pylint: disable=protected-access
+    input_hugr = hugr_api._fetch_by_id(
         input_hugr_id,
         scope=None,
     )

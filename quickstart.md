@@ -15,4 +15,4 @@ qnx.jobs.get_all(job_status=["SUBMITTED", "QUEUED", "RUNNING"]).df()
 
 Full documentation available at https://docs.quantinuum.com/nexus
 
-Copyright 2024 Quantinuum Ltd.
+Copyright 2025 Quantinuum Ltd.

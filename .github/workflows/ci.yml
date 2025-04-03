@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+env:
+  UV_VERSION: "0.6.6"
 
 jobs:
 
@@ -23,43 +25,25 @@ jobs:
         with:
           fetch-depth: '0'
 
-      - name: Cache poetry
-        uses: actions/cache@v4
+      - name: Set up uv & venv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup poetry
-        run: |
-          pip install pip==22.2.1 poetry==1.6.1
-          poetry run pip install --upgrade pip
-
-      - name: Install dev dependencies
-        run: |
-          poetry install --all-extras
-
-      - name: Check formatting with black
-        run: |
-          poetry run black --check .
-        if: ${{ matrix.action == 'format' }}
+          cache-dependency-glob: uv.lock
 
       - name: Typecheck with mypy
         run: |
-          poetry run mypy qnexus/
-          poetry run mypy tests/
-          poetry run mypy integration/
+          uv run mypy qnexus/ tests/ integration/
         if: ${{ matrix.action == 'type' }}
 
-      - name: Lint with pylint
-        run: |
-          poetry run pylint qnexus/
-          poetry run pylint tests/
-          poetry run pylint integration/
+      - name: Check formatting with ruff
+        run: uv run ruff format --check
+        if: ${{ matrix.action == 'format' }}
+
+      - name: Lint with ruff
+        run: uv run ruff check
         if: ${{ matrix.action == 'lint' }}
 
   test:
@@ -75,29 +59,17 @@ jobs:
         with:
           fetch-depth: '0'
 
-      - name: Cache poetry
-        uses: actions/cache@v4
+      - name: Set up uv & venv
+        uses: astral-sh/setup-uv@v5
         with:
-          path: ~/.cache/pypoetry/virtualenvs
-          key: ${{ runner.os }}-${{ matrix.python-version }}-poetry-${{ hashFiles('**/poetry.lock') }}
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
+          version: ${{ env.UV_VERSION }}
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
-
-      - name: Setup poetry
-        run: |
-          pip install pip==22.2.1 poetry==1.6.1
-          poetry run pip install --upgrade pip
-
-      - name: Install dev dependencies
-        run: |
-          poetry install --all-extras
+          cache-dependency-glob: uv.lock
 
       - name: Test with pytest
         run: |
-          poetry run pytest tests/ --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+          uv run pytest tests/ --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@master

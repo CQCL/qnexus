@@ -1,10 +1,9 @@
 """Test that we can set properties on a project, and use them when creating/filtering resources."""
 
-
 from datetime import datetime
 from typing import OrderedDict
 
-from pytket import Circuit
+from pytket.circuit import Circuit
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict

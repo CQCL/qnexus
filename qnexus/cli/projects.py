@@ -11,7 +11,7 @@ from .utils import add_options_to_command, is_documented_by
 
 @click.command()
 @is_documented_by(get_all)
-def projects(**kwargs: Any):
+def projects(**kwargs: Any) -> None:
     """List all projects"""
     click.echo(get_all(**kwargs))
 

@@ -1,12 +1,11 @@
 """Client API for circuits in Nexus."""
 
-# pylint: disable=redefined-builtin
 from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
 
 from httpx import QueryParams
-from pytket import Circuit
+from pytket.circuit import Circuit
 from quantinuum_schemas.models.backend_config import BackendConfig, QuantinuumConfig
 
 import qnexus.exceptions as qnx_exc
@@ -48,7 +47,7 @@ class Params(
 
 
 @merge_project_from_context
-def get_all(  # pylint: disable=too-many-positional-arguments
+def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,

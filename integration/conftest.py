@@ -7,7 +7,7 @@ from typing import Generator
 
 import pytest
 from hugr.package import Package
-from pytket import Circuit
+from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmFileHandler
 
 import qnexus as qnx
@@ -19,19 +19,17 @@ from qnexus.models.references import CircuitRef
 def make_authenticated_nexus(
     user_email: str = get_config().qa_user_email,
     user_password: str = get_config().qa_user_password,
-) -> Generator:
+) -> Generator[None, None, None]:
     """Authenticate the qnexus client."""
     try:
-        qnx.auth._request_tokens(  # pylint: disable=protected-access
-            user_email, user_password
-        )
+        qnx.auth._request_tokens(user_email, user_password)
         yield
     finally:
         qnx.auth.logout()
 
 
 @pytest.fixture(scope="session")
-def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
+def _authenticated_nexus(
     qa_project_name: str,
     qa_circuit_name: str,
     qa_circuit_name_2: str,
@@ -42,7 +40,7 @@ def _authenticated_nexus(  # pylint: disable=too-many-positional-arguments
     qa_hugr_name: str,
 ) -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
-    # pylint: disable=too-many-locals
+
     with make_authenticated_nexus():
         test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
 

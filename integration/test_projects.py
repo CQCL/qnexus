@@ -81,7 +81,7 @@ def test_project_create(
 
 def test_project_get_or_create(
     _authenticated_nexus: None,
-):
+) -> None:
     """Test that we can get or create a project."""
 
     project_name = f"QA_test_project_get_or_create_{datetime.now()}"

@@ -54,7 +54,7 @@ def get(name: str) -> TeamRef:
     return teams_list[0]
 
 
-def _fetch_by_id(team_id: str) -> TeamRef:  # pylint: disable=redefined-builtin
+def _fetch_by_id(team_id: str) -> TeamRef:
     """
     Get a single team by id.
     """

@@ -43,58 +43,67 @@ These instructions will get you a copy of the project up and running on your loc
 
 ### Prerequisites
 
+The easiest way to setup the development environment is to use the provided devenv.nix file. This will setup a development shell with all the required dependencies.
+
+To use this, you will need to install [devenv](https://devenv.sh/getting-started/). Once you have it running, open a shell with:
+
+```bash
+devenv shell
+```
+
+Specifically the project relies on these tools:
+
 - Python >= 3.10
-- [Poetry](https://python-poetry.org/docs/#installation)
+- [uv](https://docs.astral.sh/uv/)
 - [commitizen](https://commitizen-tools.github.io/commitizen/)
+- [git](https://git-scm.com/)
 
-If you have [Nix](https://zero-to-nix.com/start/install) and [direnv](https://github.com/direnv) available on your system you can reuse the nix shell environment to provide a development environment.
 
-### Installing
+### Installation for development
 
-Run the following to setup your virtual environment and install dependencies:
+By default devenv will set up your `uv` virtual environment. If you aren't using devenv please check the [uv](https://docs.astral.sh/uv/) documentation for creating and using a virtual environment.
 
-```sh
-poetry install
-```
-
-You can then activate the virtual environment and work within it with:
+You can then install all dependencies with:
 
 ```sh
-poetry shell
+uv sync
 ```
 
-To run a single command in the shell, just prefix it with `poetry run`.
+To run a single command in the shell, just prefix it with `uv run`.
 
 
 ### Checks
 
-Formatting, linting and type-checking can be done with:
+Formatting, linting and type-checking are added as a devenv script and can be run with:
 
 ```sh
-poetry run scripts/fmt.sh
+qfmt
 ```
 
 ### Testing
 
 Most of the test suite are integration tests that require the following environment variables:
 
-NEXUS_HOST = "qa.myqos.com"
+NEXUS_DOMAIN = "qa.myqos.com"
 NEXUS_QA_USER_EMAIL = ...
 NEXUS_QA_USER_PASSWORD = ...
+NEXUS_QA_QSYS_DEVICE = ...
 
-And can be run with:
+And can be run locally (for the above user) with:
 
 ```sh
-poetry run pytest integration/
+uv run python integration/setup_tokens.py
+
+uv run pytest integration/
 ```
 
-These will only be available to internal team members. For external contributions we recommend writing unit tests and/or integration tests and requesting they
+These will only be available to run via Github CI by internal team members. For external contributions we recommend writing unit tests and/or integration tests and requesting they
 be run by an internal reviewer.
 
 Run basic unit tests using
 
 ```sh
-poetry run pytest tests/
+uv run pytest tests/
 ```
 
 ### Release

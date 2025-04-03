@@ -7,10 +7,15 @@ from typing import cast
 
 import qnexus as qnx
 from qnexus.filesystem import load, save
-from qnexus.models.references import BaseRef, JobRef
+from qnexus.models.references import (
+    BaseRef,
+    CompileJobRef,
+    ExecuteJobRef,
+    JobRef,
+)
 
 
-def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-arguments
+def test_save_load(
     _authenticated_nexus: None,
     qa_project_name: str,
     qa_circuit_name: str,
@@ -22,25 +27,18 @@ def test_save_load(  # pylint: disable=too-many-locals, too-many-positional-argu
 ) -> None:
     """Test Ref serialization and deserialization roundtrip,
     and check that all Ref types are covered."""
-    # pylint: disable=too-many-statements
 
     user_ref = qnx.users.get_self()
     project_ref = qnx.projects.get(name_like=qa_project_name)
     team_ref = qnx.teams.get(name=qa_team_name)
     circuit_ref = qnx.circuits.get(name_like=qa_circuit_name)
-    execute_job_ref = cast(
-        qnx.jobs.ExecuteJobRef, qnx.jobs.get(name_like=qa_execute_job_name)
-    )
-    compile_job_ref = cast(
-        qnx.jobs.CompileJobRef, qnx.jobs.get(name_like=qa_compile_job_name)
-    )
+    execute_job_ref = cast(ExecuteJobRef, qnx.jobs.get(name_like=qa_execute_job_name))
+    compile_job_ref = cast(CompileJobRef, qnx.jobs.get(name_like=qa_compile_job_name))
     execute_result_ref = qnx.jobs.results(execute_job_ref)[0]
     compile_result_ref = qnx.jobs.results(compile_job_ref)[0]
-    # Cast and copy to avoid adding cached data to the ref which will
+    # Copy to avoid adding cached data to the ref which will
     # affect the equality assertion below
-    compilation_pass_ref = cast(
-        qnx.jobs.CompilationResultRef, compile_result_ref.model_copy()
-    ).get_passes()[0]
+    compilation_pass_ref = compile_result_ref.model_copy().get_passes()[0]
     wasm_module_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name)
     hugr_ref = qnx.hugr.get(name_like=qa_hugr_name)
 
