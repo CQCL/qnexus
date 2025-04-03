@@ -46,9 +46,6 @@ jobs:
           # Use the pull request merge commit ref if one is provided
           ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || 'main' }}
 
-      - name: Set up Python
-        run: uv python install 3.12
-
       - name: Set up uv & venv
         uses: astral-sh/setup-uv@v5
         with:
