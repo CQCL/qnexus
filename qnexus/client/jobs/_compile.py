@@ -88,7 +88,7 @@ def start_compile_job(
     }
 
     resp = get_nexus_client().post(
-        "/api/jobs/v1beta",
+        "/api/jobs/v1beta2",
         json=req_dict,
     )
     if resp.status_code != 202:
@@ -113,7 +113,7 @@ def _results(
 ) -> DataframableList[CompilationResultRef]:
     """Get the results from a compile job."""
 
-    resp = get_nexus_client().get(f"/api/jobs/v1beta/{compile_job.id}")
+    resp = get_nexus_client().get(f"/api/jobs/v1beta2/{compile_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -136,7 +136,7 @@ def _results(
 
     for compilation_id in compilation_ids:
         comp_record_resp = get_nexus_client().get(
-            f"/api/compilations/v1beta/{compilation_id}",
+            f"/api/compilations/v1beta2/{compilation_id}",
         )
 
         if comp_record_resp.status_code != 200:
@@ -174,7 +174,7 @@ def _fetch_compilation_output(
     """Get the input/output compiled circuit from a compilation job."""
 
     resp = get_nexus_client().get(
-        f"/api/compilations/v1beta/{compilation_result_ref.id}"
+        f"/api/compilations/v1beta2/{compilation_result_ref.id}"
     )
 
     if resp.status_code != 200:
@@ -231,7 +231,7 @@ def _fetch_compilation_passes(
 
     params = {"filter[compilation][id]": str(compilation_result_ref.id)}
 
-    resp = get_nexus_client().get("/api/compilation_passes/v1beta", params=params)
+    resp = get_nexus_client().get("/api/compilation_passes/v1beta2", params=params)
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(

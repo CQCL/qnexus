@@ -145,7 +145,7 @@ def get_all(
 
     return NexusIterator(
         resource_type="Job",
-        nexus_url="/api/jobs/v1beta",
+        nexus_url="/api/jobs/v1beta2",
         params=params,
         wrapper_method=_to_jobref,
         nexus_client=get_nexus_client(),
@@ -238,7 +238,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         scope=scope,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    res = get_nexus_client().get(f"/api/jobs/v1beta/{job_id}", params=params)
+    res = get_nexus_client().get(f"/api/jobs/v1beta2/{job_id}", params=params)
 
     handle_fetch_errors(res)
 
@@ -304,7 +304,7 @@ def wait_for(
 
 def status(job: JobRef) -> JobStatus:
     """Get the status of a job."""
-    resp = get_nexus_client().get(f"api/jobs/v1beta/{job.id}/attributes/status")
+    resp = get_nexus_client().get(f"api/jobs/v1beta2/{job.id}/attributes/status")
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
@@ -337,7 +337,7 @@ async def listen_job_status(
         "Cookie": f"myqos_id={get_nexus_client().auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
-        f"{get_config().websockets_url}/api/jobs/v1beta/{job.id}/attributes/status/ws",
+        f"{get_config().websockets_url}/api/jobs/v1beta2/{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
         extra_headers=extra_headers,
         # logger=logger,
@@ -414,7 +414,7 @@ def retry_submission(
         body["retry_status"] = [status.name for status in retry_status]
 
     res = get_nexus_client().post(
-        f"/api/jobs/v1beta/{job.id}/rpc/retry",
+        f"/api/jobs/v1beta2/{job.id}/rpc/retry",
         json=body,
     )
     if res.status_code != 202:
@@ -427,7 +427,7 @@ def cancel(job: JobRef) -> None:
     If the job has been submitted to a backend, Nexus will request cancellation of the job.
     """
     res = get_nexus_client().post(
-        f"/api/jobs/v1beta/{job.id}/rpc/cancel",
+        f"/api/jobs/v1beta2/{job.id}/rpc/cancel",
         json={},
     )
 

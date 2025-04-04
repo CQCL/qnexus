@@ -110,7 +110,7 @@ def start_execute_job(
     }
 
     resp = get_nexus_client().post(
-        "/api/jobs/v1beta",
+        "/api/jobs/v1beta2",
         json=req_dict,
     )
     if resp.status_code != 202:
@@ -135,7 +135,7 @@ def _results(
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
-    resp = get_nexus_client().get(f"/api/jobs/v1beta/{execute_job.id}")
+    resp = get_nexus_client().get(f"/api/jobs/v1beta2/{execute_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -179,7 +179,7 @@ def _fetch_pytket_execution_result(
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/results/v1beta/{result_ref.id}")
+    res = get_nexus_client().get(f"/api/results/v1beta2/{result_ref.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
@@ -214,7 +214,7 @@ def _fetch_qsys_execution_result(
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/qsys_results/v1beta/{result_ref.id}")
+    res = get_nexus_client().get(f"/api/qsys_results/v1beta2/{result_ref.id}")
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
