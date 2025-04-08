@@ -64,7 +64,7 @@ jobs:
                         --html=integration-results.html \
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
-                        -ra --reruns
+                        -ra --reruns 3
 
       - name: Upload integration test results
         uses: actions/upload-artifact@master
