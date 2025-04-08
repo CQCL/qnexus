@@ -2,7 +2,7 @@
 
 from typing import Union, cast
 
-from guppylang.qsys_result import QsysResult, QsysShot
+from guppylang.qsys_result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
@@ -235,7 +235,7 @@ def _fetch_qsys_execution_result(
         scope=None,
     )
 
-    qsys_result = _qsysresult_from_list(res_dict["data"]["attributes"]["results"])
+    qsys_result = QsysResult(res_dict["data"]["attributes"]["results"])
 
     backend_info_data = next(
         iter(
@@ -256,16 +256,3 @@ def _fetch_qsys_execution_result(
         backend_info,
         input_hugr,
     )
-
-
-def _qsysresult_from_list(
-    qys_result_list: list[
-        list[tuple[str, int | bool | float | list[int | bool | float]]]
-    ],
-) -> QsysResult:
-    """Convert QsysResult list data into a QsysResult object."""
-    results = []
-    for shot_list in qys_result_list:
-        entries = [(tag, value) for tag, value in shot_list]
-        results.append(QsysShot(entries=entries))
-    return QsysResult(results=results)
