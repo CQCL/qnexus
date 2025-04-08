@@ -175,7 +175,7 @@ def _results(
 
 def _fetch_pytket_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[BackendResult, BackendInfo | None, CircuitRef]:
+) -> tuple[BackendResult, BackendInfo, CircuitRef]:
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
@@ -199,25 +199,18 @@ def _fetch_pytket_execution_result(
     backend_result = BackendResult.from_dict(results_dict)
 
     backend_info_data = next(
-        iter(
-            data
-            for data in res_dict["included"]
-            if data and data["type"] == "backend_snapshot"
-        ),
-        None,
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
-    backend_info = (
-        StoredBackendInfo(**backend_info_data["attributes"]).to_pytket_backend_info()
-        if backend_info_data
-        else None
-    )
+    backend_info = StoredBackendInfo(
+        **backend_info_data["attributes"]
+    ).to_pytket_backend_info()
 
     return (backend_result, backend_info, input_circuit)
 
 
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[QsysResult, BackendInfo | None, HUGRRef]:
+) -> tuple[QsysResult, BackendInfo, HUGRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
@@ -238,18 +231,11 @@ def _fetch_qsys_execution_result(
     qsys_result = QsysResult(res_dict["data"]["attributes"]["results"])
 
     backend_info_data = next(
-        iter(
-            data
-            for data in res_dict["included"]
-            if data and data["type"] == "backend_snapshot"
-        ),
-        None,
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
-    backend_info = (
-        StoredBackendInfo(**backend_info_data["attributes"]).to_pytket_backend_info()
-        if backend_info_data
-        else None
-    )
+    backend_info = StoredBackendInfo(
+        **backend_info_data["attributes"]
+    ).to_pytket_backend_info()
 
     return (
         qsys_result,

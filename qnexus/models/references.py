@@ -415,8 +415,8 @@ class ExecutionResultRef(BaseRef):
         ) = self._get_execute_results()
         return copy(self._result)
 
-    def download_backend_info(self) -> BackendInfo | None:
-        """Get a copy of the pytket BackendInfo, if available."""
+    def download_backend_info(self) -> BackendInfo:
+        """Get a copy of the pytket BackendInfo."""
         if self._backend_info:
             return copy(self._backend_info)
 
@@ -429,7 +429,7 @@ class ExecutionResultRef(BaseRef):
 
     def _get_execute_results(
         self,
-    ) -> tuple[ExecutionResult, BackendInfo | None, ExecutionProgram]:
+    ) -> tuple[ExecutionResult, BackendInfo, ExecutionProgram]:
         """Utility method to retrieve the passes and output circuit."""
         from qnexus.client.jobs._execute import (
             _fetch_pytket_execution_result,

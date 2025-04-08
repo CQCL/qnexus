@@ -8,6 +8,7 @@ from guppylang import guppy  # type: ignore
 from guppylang.qsys_result import QsysResult
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
+from pytket.backends.backendinfo import BackendInfo
 
 import qnexus as qnx
 from qnexus.models.references import HUGRRef
@@ -79,8 +80,7 @@ def test_guppy_execution(
     assert len(results) == 1
     result_ref = results[0]
 
-    # backend_info is not available for current selene emulator
-    # assert isinstance(result_ref.download_backend_info(), BackendInfo)
+    assert isinstance(result_ref.download_backend_info(), BackendInfo)
     assert isinstance(result_ref.get_input(), HUGRRef)
 
     assert result_ref.get_input().id == hugr_ref.id
