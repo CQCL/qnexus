@@ -21,6 +21,7 @@ from typing import (
 from uuid import UUID
 
 import pandas as pd
+from guppylang.qsys_result import QsysResult
 from hugr.package import Package
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pytket.backends.backendinfo import BackendInfo
@@ -29,7 +30,6 @@ from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
-from quantinuum_schemas.models.result import QSysResult
 
 import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
@@ -376,7 +376,7 @@ class ResultType(str, Enum):
 
 
 ExecutionProgram: TypeAlias = CircuitRef | HUGRRef
-ExecutionResult: TypeAlias = QSysResult | BackendResult
+ExecutionResult: TypeAlias = QsysResult | BackendResult
 
 
 class ExecutionResultRef(BaseRef):

@@ -23,6 +23,7 @@ docs/_build
 # Dev stuff
 dev_notebooks/
 venv
+.venv
 
 # Direnv
 .direnv/

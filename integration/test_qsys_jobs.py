@@ -4,12 +4,11 @@ import os
 from datetime import datetime
 from typing import Any, cast
 
-import pytest
 from guppylang import guppy  # type: ignore
+from guppylang.qsys_result import QsysResult
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
 from pytket.backends.backendinfo import BackendInfo
-from quantinuum_schemas.models.result import QSysResult
 
 import qnexus as qnx
 
@@ -43,9 +42,6 @@ def prepare_teleportation() -> Any:
     return main.compile()
 
 
-@pytest.mark.skip(
-    "Skipping QSys tests until we have a consistent test device to target"
-)
 def test_guppy_execution(
     _authenticated_nexus: None,
     qa_project_name: str,
@@ -89,7 +85,10 @@ def test_guppy_execution(
 
     assert result_ref.get_input().id == hugr_ref.id
 
-    qsys_result = cast(QSysResult, result_ref.download_result())
-    assert len(qsys_result) == n_shots
-    assert qsys_result[0][0][0] == "teleported"
-    assert qsys_result[0][0][1] == 0
+    qsys_result = cast(QsysResult, result_ref.download_result())
+    assert len(qsys_result.results) == n_shots
+    assert qsys_result.results[0].entries[0][0] == "teleported"
+    assert qsys_result.results[0].entries[0][1] == 0
+    
+    # check some QsysResults functionality
+    assert len(qsys_result.collated_counts().items()) > 0

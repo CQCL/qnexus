@@ -2,10 +2,10 @@
 
 from typing import Union, cast
 
+from guppylang.qsys_result import QsysResult, QsysShot
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
-from quantinuum_schemas.models.result import QSysResult
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -217,7 +217,7 @@ def _fetch_pytket_execution_result(
 
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[QSysResult, BackendInfo | None, HUGRRef]:
+) -> tuple[QsysResult, BackendInfo | None, HUGRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
@@ -235,7 +235,7 @@ def _fetch_qsys_execution_result(
         scope=None,
     )
 
-    qsys_result = QSysResult(res_dict["data"]["attributes"]["results"])
+    qsys_result = _qsysresult_from_list(res_dict["data"]["attributes"]["results"])
 
     backend_info_data = next(
         iter(
@@ -256,3 +256,16 @@ def _fetch_qsys_execution_result(
         backend_info,
         input_hugr,
     )
+
+
+def _qsysresult_from_list(
+    qys_result_list: list[
+        list[tuple[str, int | bool | float | list[int | bool | float]]]
+    ],
+) -> QsysResult:
+    """Convert QsysResult list data into a QsysResult object."""
+    results = []
+    for shot_list in qys_result_list:
+        entries = [(tag, value) for tag, value in shot_list]
+        results.append(QsysShot(entries=entries))
+    return QsysResult(results=results)
