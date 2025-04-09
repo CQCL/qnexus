@@ -12,7 +12,7 @@ from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
 from qnexus.client import hugr as hugr_api
 from qnexus.context import get_active_project, merge_properties_from_context
-from qnexus.models import BackendConfig, StoredBackendInfo
+from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.language import Language
 from qnexus.models.references import (
@@ -201,9 +201,9 @@ def _fetch_pytket_execution_result(
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
-    backend_info = StoredBackendInfo(
-        **backend_info_data["attributes"]
-    ).to_pytket_backend_info()
+    backend_info = to_pytket_backend_info(
+        StoredBackendInfo(**backend_info_data["attributes"])
+    )
 
     return (backend_result, backend_info, input_circuit)
 
@@ -233,9 +233,9 @@ def _fetch_qsys_execution_result(
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
-    backend_info = StoredBackendInfo(
-        **backend_info_data["attributes"]
-    ).to_pytket_backend_info()
+    backend_info = to_pytket_backend_info(
+        StoredBackendInfo(**backend_info_data["attributes"])
+    )
 
     return (
         qsys_result,
