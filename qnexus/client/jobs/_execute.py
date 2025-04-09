@@ -9,6 +9,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Node, OpType
+from quantinuum_schemas.models.backend_info import Register
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -176,9 +177,6 @@ def _results(
             execute_results.append(result_ref)
 
     return execute_results
-
-
-Register = NewType("Register", Tuple[str, Tuple[int, ...]])
 
 
 def _register_to_pytket_node(register: Register) -> Node:

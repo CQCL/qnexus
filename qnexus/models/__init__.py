@@ -24,6 +24,7 @@ from quantinuum_schemas.models.backend_config import (
 )
 from quantinuum_schemas.models.backend_info import StoredBackendInfo
 
+from qnexus.client.jobs._execute import _to_pytket_backend_info
 from qnexus.models.annotations import Annotations
 from qnexus.models.references import TeamRef, UserRef
 from qnexus.models.utils import assert_never
@@ -87,7 +88,7 @@ class Device(BaseModel):
     @property
     def backend_info(self) -> BackendInfo:
         """The BackendInfo for the Device."""
-        return self.stored_backend_info.to_pytket_backend_info()
+        return _to_pytket_backend_info(self.stored_backend_info)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -96,7 +97,7 @@ class Device(BaseModel):
                 "backend_name": self.backend_name,
                 "device_name": self.device_name,
                 "nexus_hosted": self.nexus_hosted,
-                "backend_info": self.stored_backend_info.to_pytket_backend_info(),
+                "backend_info": _to_pytket_backend_info(self.stored_backend_info),
             },
             index=[0],
         )
