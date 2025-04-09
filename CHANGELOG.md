@@ -3,6 +3,21 @@
 # `qnexus` Release Notes
 
 
+## 0.15.0 (2025-04-09)
+
+
+### Added
+
+- Use guppylang qsysresults type.
+- Update jobs to v1beta2 api (#163).
+
+
+### Fixed
+
+- Backend_info for results now optional.
+- Correct url paths for results (#164).
+
+
 ## v0.14.0 (2025-04-01)
 
 

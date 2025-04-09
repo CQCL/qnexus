@@ -2,10 +2,10 @@
 
 from typing import Union, cast
 
+from guppylang.qsys_result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
-from quantinuum_schemas.models.result import QSysResult
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -210,7 +210,7 @@ def _fetch_pytket_execution_result(
 
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[QSysResult, BackendInfo, HUGRRef]:
+) -> tuple[QsysResult, BackendInfo, HUGRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
@@ -228,7 +228,7 @@ def _fetch_qsys_execution_result(
         scope=None,
     )
 
-    qsys_result = QSysResult(res_dict["data"]["attributes"]["results"])
+    qsys_result = QsysResult(res_dict["data"]["attributes"]["results"])
 
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
