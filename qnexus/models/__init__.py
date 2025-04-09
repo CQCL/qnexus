@@ -4,12 +4,15 @@ from __future__ import annotations
 
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Optional
+from logging import getLogger
+from typing import Literal, Optional, Union
 from uuid import UUID
 
 import pandas as pd
 from pydantic import BaseModel, ConfigDict, field_validator
+from pytket.architecture import Architecture, FullyConnected
 from pytket.backends.backendinfo import BackendInfo
+from pytket.circuit import Node, OpType
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
     AerStateConfig,
@@ -22,12 +25,13 @@ from quantinuum_schemas.models.backend_config import (
     QuantinuumConfig,
     QulacsConfig,
 )
-from quantinuum_schemas.models.backend_info import StoredBackendInfo
+from quantinuum_schemas.models.backend_info import Register, StoredBackendInfo
 
-from qnexus.client.jobs._execute import _to_pytket_backend_info
 from qnexus.models.annotations import Annotations
 from qnexus.models.references import TeamRef, UserRef
 from qnexus.models.utils import assert_never
+
+logger = getLogger(__name__)
 
 __all__ = [
     "AerConfig",
@@ -88,7 +92,7 @@ class Device(BaseModel):
     @property
     def backend_info(self) -> BackendInfo:
         """The BackendInfo for the Device."""
-        return _to_pytket_backend_info(self.stored_backend_info)
+        return to_pytket_backend_info(self.stored_backend_info)
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
@@ -97,7 +101,7 @@ class Device(BaseModel):
                 "backend_name": self.backend_name,
                 "device_name": self.device_name,
                 "nexus_hosted": self.nexus_hosted,
-                "backend_info": _to_pytket_backend_info(self.stored_backend_info),
+                "backend_info": to_pytket_backend_info(self.stored_backend_info),
             },
             index=[0],
         )
@@ -234,3 +238,135 @@ def issuer_enum_to_config_str(issuer: IssuerEnum) -> list[str]:
             return ["BraketConfig"]
         case _:
             assert_never(issuer)
+
+
+def _register_to_pytket_node(register: Register) -> Node:
+    """Convert a pytket Node object from a nexus-dataclasses Register object."""
+
+    return Node.from_list(list(register))
+
+
+def to_pytket_backend_info(backend: StoredBackendInfo) -> BackendInfo:
+    """Reconstruct a pytket BackendInfo from the StoredBackendInfo instance."""
+
+    stored_nodes = backend.device.nodes
+    stored_edges = backend.device.edges
+    architecture_edge_list = []
+
+    # BackendInfo dictionary attributes are initialised as None,
+    # Then dictionaries are built when they are to be populated.
+    # This is to satisfy type-checking as well as BackendInfo expectations/tests.
+
+    averaged_node_gate_errors = None
+    averaged_readout_errors = None
+    all_node_gate_errors = None
+    all_readout_errors = None
+
+    for stored_node in stored_nodes:
+        # Create node from register
+        new_pytket_node = _register_to_pytket_node(stored_node.unitid)
+
+        # Build average node gate errors
+        if stored_node.average_error is not None:
+            if averaged_node_gate_errors is None:
+                averaged_node_gate_errors = {}
+            averaged_node_gate_errors[new_pytket_node] = stored_node.average_error
+        # Build average readout errors
+        if stored_node.readout_error is not None:
+            if averaged_readout_errors is None:
+                averaged_readout_errors = {}
+            averaged_readout_errors[new_pytket_node] = stored_node.readout_error
+
+        if stored_node.gate_errors:
+            node_gate_errors = {
+                getattr(OpType, optype_name): error
+                for optype_name, error in stored_node.gate_errors.items()
+            }
+            if all_node_gate_errors is None:
+                all_node_gate_errors = {}
+            all_node_gate_errors[new_pytket_node] = node_gate_errors
+
+        # Add stored_node readout errors to all_readout_errors
+        stored_zero_state_readout_error = stored_node.zero_state_readout_error
+        stored_one_state_readout_error = stored_node.one_state_readout_error
+        if (
+            stored_zero_state_readout_error is not None
+            and stored_one_state_readout_error is not None
+        ):
+            if all_readout_errors is None:
+                all_readout_errors = {}
+            readout_errors = [
+                [
+                    1.0 - stored_zero_state_readout_error,
+                    stored_zero_state_readout_error,
+                ],
+                [
+                    stored_one_state_readout_error,
+                    1.0 - stored_one_state_readout_error,
+                ],
+            ]
+            all_readout_errors[new_pytket_node] = readout_errors
+
+    # Build all_edge_gate_errors and averaged_edge_gate_errors from stored_edges
+    all_edge_gate_errors = None
+    averaged_edge_gate_errors = None
+
+    for stored_edge in stored_edges:
+        node_from = _register_to_pytket_node(stored_edge.unitid_from)
+        node_to = _register_to_pytket_node(stored_edge.unitid_to)
+
+        new_edge_tuple = (node_from, node_to)
+        architecture_edge_list.append(new_edge_tuple)
+
+        if stored_edge.average_error is not None:
+            if averaged_edge_gate_errors is None:
+                averaged_edge_gate_errors = {}
+            averaged_edge_gate_errors[(node_from, node_to)] = stored_edge.average_error
+        if stored_edge.gate_errors:
+            edge_gate_errors = {
+                getattr(OpType, optype_name): error
+                for optype_name, error in stored_edge.gate_errors.items()
+            }
+            if all_edge_gate_errors is None:
+                all_edge_gate_errors = {}
+            all_edge_gate_errors[(node_from, node_to)] = edge_gate_errors
+
+    architecture: Union[Architecture, FullyConnected] = (
+        FullyConnected(
+            backend.device.n_nodes
+            if backend.device.n_nodes is not None
+            else len(backend.device.nodes)
+        )
+        if backend.device.fully_connected
+        else Architecture(architecture_edge_list)
+    )
+
+    gate_set = set()
+
+    for gate in backend.gate_set:
+        try:
+            gate_set.add(getattr(OpType, gate))
+        except AttributeError:
+            logger.warning(
+                "Unknown OpType in BackendInfo: `%`, will omit from BackendInfo."
+                " Consider updating your pytket version."
+            )
+
+    return BackendInfo(
+        name=backend.name,
+        device_name=backend.device_name,
+        version=backend.version,
+        architecture=architecture,
+        gate_set=gate_set,
+        n_cl_reg=backend.n_cl_reg,
+        supports_fast_feedforward=backend.supports_fast_feedforward,
+        supports_reset=backend.supports_reset,
+        supports_midcircuit_measurement=backend.supports_midcircuit_measurement,
+        all_node_gate_errors=all_node_gate_errors,
+        all_edge_gate_errors=all_edge_gate_errors,
+        all_readout_errors=all_readout_errors,
+        averaged_node_gate_errors=averaged_node_gate_errors,
+        averaged_edge_gate_errors=averaged_edge_gate_errors,
+        averaged_readout_errors=averaged_readout_errors,
+        misc=backend.misc,
+    )
