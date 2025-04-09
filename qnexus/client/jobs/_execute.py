@@ -34,6 +34,7 @@ from qnexus.models.utils import assert_never
 
 logger = getLogger(__name__)
 
+
 @merge_properties_from_context
 def start_execute_job(
     circuits: Union[ExecutionProgram, list[ExecutionProgram]],
