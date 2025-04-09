@@ -1,7 +1,7 @@
 """Client API for execution in Nexus."""
 
 from logging import getLogger
-from typing import NewType, Tuple, Union, cast
+from typing import Union, cast
 
 from guppylang.qsys_result import QsysResult
 from pytket.architecture import Architecture, FullyConnected
