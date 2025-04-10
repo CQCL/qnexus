@@ -50,9 +50,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: ${{ env.UV_VERSION }}
-          # enable-cache: true
+          enable-cache: false
           python-version: ${{ matrix.python-version }}
-          # cache-dependency-glob: uv.lock
+          cache-dependency-glob: uv.lock
       
       - name: Set up qnexus login tokens
         run: |
