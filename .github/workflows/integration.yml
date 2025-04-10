@@ -64,7 +64,7 @@ jobs:
                         --html=integration-results.html \
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
-                        -ra --reruns 3
+                        -ra --reruns 3 -n 2
 
       - name: Upload integration test results
         if: '!cancelled()'
@@ -93,9 +93,9 @@ jobs:
           files: integration-results.xml
           comment_title: qnexus integration results
 
-      - name: "Post summary in Slack: #nexus-tests"
+      - name: "Post scheduled runs summary in Slack: #nexus-tests"
         uses: sanjaykrishnanrs/slack-notify-junitxml-action@0.1.0-beta
-        if: github.event_name != 'workflow_dispatch'
+        if: github.event_name == 'schedule'
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
