@@ -27,7 +27,6 @@
 
 ### Fixed
 
-- Backend_info for results now optional.
 - Correct url paths for results (#164).
 
 
