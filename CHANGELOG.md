@@ -2,6 +2,13 @@
 
 # `qnexus` Release Notes
 
+## 0.16.1 (2025-04-10)
+
+
+### Fixed
+
+- Readd support for python 3.10 (#169).
+
 ## 0.16.0 (2025-04-09)
 
 
