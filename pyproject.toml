@@ -48,6 +48,7 @@ dev = [
     "pytest-rerunfailures <15.0,>=14.0",
     "twine <6.0.0,>=5.1.1",
     "ipykernel>=6.29.5",
+    "pytest-xdist>=3.6.1",
 ]
 
 
