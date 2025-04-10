@@ -7,7 +7,7 @@
 
 ### Fixed
 
-- Readd support for python 3.10 (#169).
+- Readd support for python 3.10 (#170).
 
 ## 0.16.0 (2025-04-09)
 
