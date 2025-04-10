@@ -67,17 +67,17 @@ jobs:
                         -ra --reruns 3
 
       - name: Upload integration test results
+        if: '!cancelled()'
         uses: actions/upload-artifact@master
         with:
           path: |
             ./integration-results.*
             ./assets/*.css
-            ./
           name: integration-results
 
   publish-result-in-slack:
     needs: test-integration
-    if: ${{ always() }}
+    if: '!cancelled'
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
