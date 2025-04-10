@@ -50,7 +50,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           version: ${{ env.UV_VERSION }}
-          enable-cache: false
+          enable-cache: true
           python-version: ${{ matrix.python-version }}
           cache-dependency-glob: uv.lock
       
@@ -64,7 +64,7 @@ jobs:
                         --html=integration-results.html \
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
-                        -ra --reruns 3 -n 2
+                        -ra --reruns 3
 
       - name: Upload integration test results
         if: '!cancelled()'
