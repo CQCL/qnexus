@@ -435,6 +435,16 @@ def cancel(job: JobRef) -> None:
         res.raise_for_status()
 
 
+def delete(job: JobRef) -> None:
+    """Delete a job in Nexus."""
+    res = get_nexus_client().delete(
+        f"/api/jobs/v1beta/{job.id}",
+    )
+
+    if res.status_code != 204:
+        res.raise_for_status()
+
+
 @merge_properties_from_context
 def compile(
     circuits: Union[CircuitRef, list[CircuitRef]],

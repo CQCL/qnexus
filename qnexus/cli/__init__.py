@@ -3,6 +3,7 @@
 import click
 
 from .auth import login, logout
+
 # from .jobs import jobs
 # from .projects import projects
 # from .utils import init, status
