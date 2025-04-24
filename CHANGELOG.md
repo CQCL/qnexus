@@ -2,6 +2,19 @@
 
 # `qnexus` Release Notes
 
+## 0.17.0 (2025-04-24)
+
+
+### Added
+
+- Added delete job method (#172).
+
+
+### Fixed
+
+- Disable unused and broken jobs and projects cli (#171).
+
+
 ## 0.16.1 (2025-04-10)
 
 

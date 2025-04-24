@@ -1,6 +1,6 @@
 [project]
 name = "qnexus"
-version = "0.16.1"
+version = "0.17.0"
 description = "Quantinuum Nexus python client."
 authors = [
     {name = "Vanya Eccles", email = "vanya.eccles@quantinuum.com"},
@@ -18,7 +18,7 @@ dependencies = [
     "pandas >=2, <3",
     "nest-asyncio >=1.6, <2.0",
     "rich >=13.6, <14.0",
-    "pytket >=2.2, <3.0",
+    "pytket >=2.3, <3.0",
     "websockets >11, <14",
     "pydantic-settings >=2, <3.0",
     "quantinuum-schemas >=3, <4.0",
