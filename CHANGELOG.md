@@ -2,6 +2,12 @@
 
 # `qnexus` Release Notes
 
+## 0.17.2 (2025-04-25)
+
+### Fixed
+
+- Update circuit fetching to use migration utility for compatibility
+
 ## 0.17.1 (2025-04-25)
 
 ### Fixed
@@ -46,7 +52,6 @@
 
 ### Fixed
 
-- Backend_info for results now optional.
 - Correct url paths for results (#164).
 
 
