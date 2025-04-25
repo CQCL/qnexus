@@ -2,6 +2,12 @@
 
 # `qnexus` Release Notes
 
+## 0.17.1 (2025-04-25)
+
+### Fixed
+
+- Update pytket version to 2.3.1
+
 ## 0.17.0 (2025-04-24)
 
 
