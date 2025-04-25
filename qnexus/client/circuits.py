@@ -6,6 +6,7 @@ from uuid import UUID
 
 from httpx import QueryParams
 from pytket.circuit import Circuit
+from pytket.utils.serialization.migration import circuit_dict_from_pytket1_dict
 from quantinuum_schemas.models.backend_config import BackendConfig, QuantinuumConfig
 
 import qnexus.exceptions as qnx_exc
@@ -282,7 +283,7 @@ def _fetch_circuit(handle: CircuitRef) -> Circuit:
     res_data_attributes_dict = res.json()["data"]["attributes"]
     circuit_dict = {k: v for k, v in res_data_attributes_dict.items() if v is not None}
 
-    return Circuit.from_dict(circuit_dict)
+    return Circuit.from_dict(circuit_dict_from_pytket1_dict(circuit_dict))
 
 
 def cost(
