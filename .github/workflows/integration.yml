@@ -4,24 +4,23 @@ on:
   workflow_dispatch:
     inputs:
       pr_number:
-        description: 'Pull request number (for external PRs)'
+        description: "Pull request number (for external PRs)"
         required: false
         type: number
   schedule:
     # everyday at 12:00
-    - cron: '0 12 * * *'
+    - cron: "0 12 * * *"
 env:
   UV_VERSION: "0.6.6"
 
 jobs:
-
   test-integration:
     name: Integration
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['3.12']
+        python-version: ["3.12"]
     env:
       NEXUS_QA_USER_EMAIL: ${{ secrets.NEXUS_QA_USER_EMAIL }}
       NEXUS_QA_USER_PASSWORD: ${{ secrets.NEXUS_QA_USER_PASSWORD }}
@@ -42,7 +41,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: '0'
+          fetch-depth: "0"
           # Use the pull request merge commit ref if one is provided
           ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || 'main' }}
 
@@ -53,7 +52,7 @@ jobs:
           enable-cache: true
           python-version: ${{ matrix.python-version }}
           cache-dependency-glob: uv.lock
-      
+
       - name: Set up qnexus login tokens
         run: |
           uv run python integration/setup_tokens.py
@@ -67,7 +66,7 @@ jobs:
                         -ra --reruns 3
 
       - name: Upload integration test results
-        if: '!cancelled()'
+        if: "!cancelled()"
         uses: actions/upload-artifact@master
         with:
           path: |
@@ -77,7 +76,7 @@ jobs:
 
   publish-result-in-slack:
     needs: test-integration
-    if: '!cancelled()'
+    if: "!cancelled()"
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repository
@@ -90,7 +89,7 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action@v2
         if: ${{ !startsWith(github.ref_name, 'dependabot/') }}
         with:
-          files: integration-results.xml
+          files: integration-results/integration-results.xml
           comment_title: qnexus integration results
 
       - name: "Post scheduled runs summary in Slack: #nexus-tests"
@@ -103,4 +102,4 @@ jobs:
           slackbotid: "U03HPPBH99A"
           slackbottoken: ${{ secrets.NEXUS_TESTS_SLACK_BOT_TOKEN }}
           slackchannel: "C08LQ4ST2JV"
-          junitxml_filepath: integration-results.xml
+          junitxml_filepath: integration-results/integration-results.xml
