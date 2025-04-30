@@ -21,8 +21,8 @@ from typing import (
 from uuid import UUID
 
 import pandas as pd
-from guppylang.qsys_result import QsysResult
 from hugr.package import Package
+from hugr.qsystem.result import QsysResult
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult

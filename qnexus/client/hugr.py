@@ -50,15 +50,13 @@ class Params(
     """Params for filtering HUGRs."""
 
 
-# We can change the format and zstd when HUGR supports more options Since the
+# We can change the format and zstd when HUGR supports more options. Since the
 # header in the envelope encodes the config, Package.from_bytes will work
-# without changes. We expect HUGR team to make other formats available during
-# March 2025.
+# without changes. We expect HUGR team to make other formats available in 2025.
 ENVELOPE_CONFIG = EnvelopeConfig(
     # As of hugr v0.11.3, the only format available is JSON
     format=EnvelopeFormat.JSON,
-    # disable zstd compression for now
-    zstd=None,
+    zstd=0,
 )
 
 

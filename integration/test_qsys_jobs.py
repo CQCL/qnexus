@@ -5,9 +5,9 @@ from datetime import datetime
 from typing import Any, cast
 
 from guppylang import guppy  # type: ignore
-from guppylang.qsys_result import QsysResult
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
+from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 
 import qnexus as qnx
