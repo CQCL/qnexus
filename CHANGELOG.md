@@ -2,7 +2,18 @@
 
 # `qnexus` Release Notes
 
+## 0.18.0 (2025-05-01)
+
+
+### Added
+
+- Add option to store intermediate compilation results in compile job.
+- Enable zstd compression of hugr programs (#179).
+- Return an empty dataframe for an empty nexusiterator. (#180).
+
+
 ## 0.17.2 (2025-04-25)
+
 
 ### Fixed
 
@@ -40,6 +51,7 @@
 ### Added
 
 - Update dependencies (#168).
+
 
 ## 0.15.0 (2025-04-09)
 
