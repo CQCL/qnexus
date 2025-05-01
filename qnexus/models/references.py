@@ -31,7 +31,6 @@ from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
 
-import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import Annotations
 from qnexus.models.utils import assert_never
 
@@ -58,7 +57,7 @@ class DataframableList(list[T]):
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
         if len(self) == 0:
-            raise qnx_exc.ZeroMatches("No data matched provided filters.")
+            return pd.DataFrame()
         return pd.concat([item.df() for item in self], ignore_index=True)
 
 
