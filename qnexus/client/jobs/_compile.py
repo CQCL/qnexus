@@ -34,6 +34,7 @@ def start_compile_job(
     credential_name: str | None = None,
     user_group: str | None = None,
     hypertket_config: HyperTketConfig | None = None,
+    skip_intermediate_circuits: bool = True,
 ) -> CompileJobRef:
     """Submit a compile job to be run in Nexus."""
     project = project or get_active_project(project_required=True)
@@ -68,6 +69,7 @@ def start_compile_job(
                     }
                     for circuit_id in circuit_ids
                 ],
+                "skip_store_intermediate_passes": skip_intermediate_circuits,
             },
         }
     )
