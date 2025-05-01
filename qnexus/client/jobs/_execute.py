@@ -2,7 +2,7 @@
 
 from typing import Union, cast
 
-from guppylang.qsys_result import QsysResult
+from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
