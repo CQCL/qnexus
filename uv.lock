@@ -2245,7 +2245,7 @@ wheels = [
 
 [[package]]
 name = "qnexus"
-version = "0.17.2"
+version = "0.18.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -2257,8 +2257,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pytket" },
-    { name = "quantinuum-schemas", version = "3.0.0", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "quantinuum-schemas", version = "3.0.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "quantinuum-schemas" },
     { name = "rich" },
     { name = "websockets" },
 ]
@@ -2330,33 +2329,14 @@ dev = [
 
 [[package]]
 name = "quantinuum-schemas"
-version = "3.0.0"
+version = "3.1.1"
 source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version >= '3.12'",
-    "python_full_version == '3.11.*'",
-]
 dependencies = [
-    { name = "pydantic", marker = "python_full_version >= '3.11'" },
+    { name = "pydantic" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/d6/b4/3f7c53ee0f7a0fa04f4ab92d3acd7e6d25d7eaa5810c695f6e655d057f66/quantinuum_schemas-3.0.0.tar.gz", hash = "sha256:6791fef0c9e62899ef3ad072875062a60230d5811dae4cf18cdcb77b6171326d", size = 8698 }
+sdist = { url = "https://files.pythonhosted.org/packages/cf/10/458a5953e08fe8a74ee0739557223e80998a9fd5215eba7096f51bd7f725/quantinuum_schemas-3.1.1.tar.gz", hash = "sha256:5ae7b01aa29d68b96bd24e31cc98b3a80bd1557b99873ba188ac84fac22fd7c3", size = 8700 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/e0/e3/6394c41893317b9f6d88572c738bccf2df5f1a6f82dac875691f7a9fe236/quantinuum_schemas-3.0.0-py3-none-any.whl", hash = "sha256:51282c2a3bff81f86867c69e96635b4f35d61130c67aee1426ce88924069eafe", size = 9973 },
-]
-
-[[package]]
-name = "quantinuum-schemas"
-version = "3.0.1"
-source = { registry = "https://pypi.org/simple" }
-resolution-markers = [
-    "python_full_version < '3.11'",
-]
-dependencies = [
-    { name = "pydantic", marker = "python_full_version < '3.11'" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/19/db/11549985a4840938deaf50bcb28f332fe903c17681ac25abc846d6e3aa9b/quantinuum_schemas-3.0.1.tar.gz", hash = "sha256:eefd6cb84291a086d168abec25c5822dc4e400ba4000115c7eda1b98d8c558b7", size = 8694 }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/e4/e7/3d2d3be9cec0fc1e05e9e13b9ce43f364070c1f766bee997f7c7c42367be/quantinuum_schemas-3.0.1-py3-none-any.whl", hash = "sha256:a77a41ba0627250d5a5a62540c35a13daa657146c865675362bc58dad006262f", size = 9974 },
+    { url = "https://files.pythonhosted.org/packages/b1/13/0518d88e5a0c31434595db5b383ece6f83dfdbc8b96a06f646091500366d/quantinuum_schemas-3.1.1-py3-none-any.whl", hash = "sha256:91f8e5109a197c3cafc4766f0fce14b56bf51b25a0d6061878e690bbde28aa07", size = 9976 },
 ]
 
 [[package]]
