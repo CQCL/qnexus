@@ -23,6 +23,7 @@ class AuthHandler(httpx.Auth):
             token = read_token(
                 "refresh_token",
             )
+            print(f"Token: {token}")
             self.cookies.set("myqos_oat", token, domain=get_config().domain)
         except FileNotFoundError:
             pass  # Okay to ignore this as the user may log in later
@@ -43,13 +44,13 @@ class AuthHandler(httpx.Auth):
                     self.cookies.set("myqos_oat", token, domain=get_config().domain)
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
-                        "Not authenticated. Please run `qnx login` in your terminal."
+                        "Not authenticated. Please run qnx.login()."
                     ) from exc
 
             auth_response = yield self.build_refresh_request()
             if auth_response.status_code == 401:
                 raise AuthenticationError(
-                    "Not authenticated. Please run `qnx login` in your terminal."
+                    "Not authenticated. Please run qnx.login()."
                 )
 
             auth_response.raise_for_status()
@@ -67,6 +68,8 @@ class AuthHandler(httpx.Auth):
     def build_refresh_request(self) -> httpx.Request:
         """Build the request for refreshing the id token."""
         self.cookies.delete("myqos_id")  # We need to delete the existing token first
+        print("Building refresh request")
+        print(self.cookies)
         return httpx.Request(
             method="POST",
             url=f"{get_config().url}/auth/tokens/refresh",
@@ -99,3 +102,7 @@ def reload_client() -> None:
         timeout=None,
         verify=get_config().httpx_verify,
     )
+    
+    print("Reloaded client")
+    print(_nexus_client.auth.cookies)
+    print(get_nexus_client().auth.cookies)

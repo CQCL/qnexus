@@ -18,10 +18,11 @@ from qnexus.config import get_config
 
 console = Console()
 
-_auth_client = httpx.Client(
-    base_url=f"{get_config().url}/auth", timeout=None, verify=get_config().httpx_verify
-)
-
+def _load_auth_client() -> httpx.Client:
+    """Get the auth client."""
+    return httpx.Client(
+        base_url=f"{get_config().url}/auth", timeout=None, verify=get_config().httpx_verify
+    )
 
 def login() -> None:
     """
@@ -30,7 +31,7 @@ def login() -> None:
     (if web browser can't be launched, displays the link)
     """
 
-    res = _auth_client.post(
+    res = _load_auth_client().post(
         "/device/device_authorization",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data={"client_id": "scales", "scope": "myqos"},
@@ -72,7 +73,7 @@ def login() -> None:
     while polling_for_seconds < expires_in:
         time.sleep(poll_interval)
         polling_for_seconds += poll_interval
-        resp = _auth_client.post(
+        resp = _load_auth_client().post(
             "/device/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             data=token_request_body,
@@ -139,7 +140,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
     """Method to send login request to Nexus auth api and save tokens."""
     body = {"email": user, "password": pwd}
     try:
-        resp = _auth_client.post(
+        resp = _load_auth_client().post(
             "/login",
             json=body,
         )
@@ -149,7 +150,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
             mfa_code = input("Enter your MFA verification code: ")
             body["code"] = mfa_code
             body.pop("password")
-            resp = _auth_client.post(
+            resp = _load_auth_client().post(
                 "/mfa_challenge",
                 json=body,
             )
