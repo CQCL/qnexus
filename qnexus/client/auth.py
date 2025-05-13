@@ -133,6 +133,7 @@ def logout() -> None:
     """Clear tokens from file system and the client."""
     remove_token("refresh_token")
     remove_token("access_token")
+    get_nexus_client(reload=True)
     print("Successfully logged out.")
 
 

@@ -100,11 +100,19 @@ uv run pytest integration/
 These will only be available to run via Github CI by internal team members. For external contributions we recommend writing unit tests and/or integration tests and requesting they
 be run by an internal reviewer.
 
-Run basic unit tests using
+Unit tests can be run with:
 
 ```sh
-uv run pytest tests/
+uv run scripts/run_unit_tests.sh
 ```
+
+or to run via devenv script:
+
+```sh
+qtest
+```
+
+As some auth tests these manipulate environment variables they are currently run in isolation via the script.
 
 ### Release
 

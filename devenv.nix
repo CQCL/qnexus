@@ -22,6 +22,11 @@ in
     uv run ruff format 
     uv run mypy qnexus/ tests/ integration/
   '';
+  scripts.qtest.exec = ''
+    echo -e "Running unit tests  📏🔍\n"
+
+    uv run scripts/run_unit_tests.sh
+  '';
 
   enterShell = ''
     export LD_LIBRARY_PATH="${pkgs.stdenv.cc.cc.lib}/lib:$LD_LIBRARY_PATH"

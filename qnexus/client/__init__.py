@@ -16,24 +16,18 @@ class AuthHandler(httpx.Auth):
 
     def __init__(self) -> None:
         self.cookies = httpx.Cookies()
-        try:
-            token = read_token(
-                "refresh_token",
-            )
-            self.cookies.set("myqos_oat", token, domain=get_config().domain)
-        except FileNotFoundError:
-            pass  # Okay to ignore this as the user may log in later
+        self.reload_tokens()
 
         super().__init__()
 
     def reload_tokens(self) -> None:
-        """Reload the tokens from the file system."""
+        """Clear tokens and attempt to reload from the file system."""
         try:
             self.cookies.clear()
-            token = read_token(
-                "refresh_token",
-            )
+            token = read_token("refresh_token")
             self.cookies.set("myqos_oat", token, domain=get_config().domain)
+            id_token = read_token("access_token")
+            self.cookies.set("myqos_id", id_token, domain=get_config().domain)
         except FileNotFoundError:
             pass
 
@@ -74,7 +68,7 @@ class AuthHandler(httpx.Auth):
 
     def build_refresh_request(self) -> httpx.Request:
         """Build the request for refreshing the id token."""
-        self.cookies.delete("myqos_id")  # We need to delete the existing token first
+        self.cookies.delete("myqos_id")  # We need to delete any existing id token first
         return httpx.Request(
             method="POST",
             url=f"{get_config().url}/auth/tokens/refresh",
@@ -86,7 +80,12 @@ _nexus_client: httpx.Client | None = None
 
 
 def get_nexus_client(reload: bool = False) -> httpx.Client:
-    """Getter function for the nexus client."""
+    """Getter function for the nexus client.
+    Args:
+        reload: If True, reconstruct the client (and auth tokens).
+    Returns:
+        httpx.Client: The nexus client.
+    """
     global _nexus_client
     if _nexus_client is None or reload:
         _auth_handler = AuthHandler()

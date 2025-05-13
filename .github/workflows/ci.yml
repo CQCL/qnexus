@@ -69,7 +69,12 @@ jobs:
 
       - name: Test with pytest
         run: |
-          uv run pytest tests/ --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+          uv run pytest tests/test_auth.py::test_token_refresh --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+          uv run pytest tests/test_auth.py::test_nexus_client_reloads_tokens --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+          uv run pytest tests/test_auth.py::test_nexus_client_reloads_domain --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+          uv run pytest tests/test_auth.py::test_token_refresh_expired --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
+
+          uv run pytest tests/ -v --ignore=tests/test_auth.py --doctest-modules --cov=qnexus --cov-report=html --cov-report=term
 
       - name: Upload pytest test results
         uses: actions/upload-artifact@master
