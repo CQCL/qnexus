@@ -38,9 +38,9 @@ def prepare_teleportation() -> Any:
         if measure(src):
             z(bob)
 
-        result("teleported", measure(bob)) # type: ignore
+        result("teleported", measure(bob))  # type: ignore
 
-    return main.compile() # type: ignore
+    return main.compile()  # type: ignore
 
 
 def test_guppy_execution(
