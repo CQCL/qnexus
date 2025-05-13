@@ -2,12 +2,20 @@
 
 # `qnexus` Release Notes
 
+## 0.18.1 (2025-05-13)
+
+
+### Fixed
+
+- Bump python (#184).
+- Don't present unused kwarg for quantinuumconfig (#182).
+
 ## 0.18.0 (2025-05-01)
 
 
 ### Added
 
-- Add option to store intermediate compilation results in compile job.
+- Add option to store intermediate compilation results in compile job (#181).
 - Enable zstd compression of hugr programs (#179).
 - Return an empty dataframe for an empty nexusiterator. (#180).
 
@@ -17,13 +25,15 @@
 
 ### Fixed
 
-- Update circuit fetching to use migration utility for compatibility
+- Update circuit fetching to use migration utility for compatibility (#176).
+
 
 ## 0.17.1 (2025-04-25)
 
+
 ### Fixed
 
-- Update pytket version to 2.3.1
+- Update pytket version to 2.3.1 (#175).
 
 ## 0.17.0 (2025-04-24)
 
@@ -40,10 +50,10 @@
 
 ## 0.16.1 (2025-04-10)
 
-
 ### Fixed
 
 - Readd support for python 3.10 (#170).
+
 
 ## 0.16.0 (2025-04-09)
 
@@ -58,7 +68,7 @@
 
 ### Added
 
-- Use guppylang qsysresults type.
+- Use guppylang qsysresult type (#166).
 - Update jobs to v1beta2 api (#163).
 
 
