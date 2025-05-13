@@ -8,9 +8,6 @@ from qnexus.client.utils import read_token, write_token
 from qnexus.config import get_config
 from qnexus.exceptions import AuthenticationError
 
-config = get_config()
-_nexus_client: httpx.Client | None = None
-
 
 class AuthHandler(httpx.Auth):
     """Custom nexus auth handler"""
@@ -28,6 +25,17 @@ class AuthHandler(httpx.Auth):
             pass  # Okay to ignore this as the user may log in later
 
         super().__init__()
+
+    def reload_tokens(self) -> None:
+        """Reload the tokens from the file system."""
+        try:
+            self.cookies.clear()
+            token = read_token(
+                "refresh_token",
+            )
+            self.cookies.set("myqos_oat", token, domain=get_config().domain)
+        except FileNotFoundError:
+            pass
 
     def auth_flow(
         self, request: httpx.Request
@@ -74,28 +82,20 @@ class AuthHandler(httpx.Auth):
         )
 
 
-def get_nexus_client() -> httpx.Client:
+_nexus_client: httpx.Client | None = None
+
+
+def get_nexus_client(reload: bool = False) -> httpx.Client:
     """Getter function for the nexus client."""
     global _nexus_client
-    if _nexus_client is None:
+    if _nexus_client is None or reload:
+        _auth_handler = AuthHandler()
+        _auth_handler.reload_tokens()
+
         _nexus_client = httpx.Client(
-            base_url=config.url,
-            auth=AuthHandler(),
+            base_url=get_config().url,
+            auth=_auth_handler,
             timeout=None,
-            verify=config.httpx_verify,
+            verify=get_config().httpx_verify,
         )
     return _nexus_client
-
-
-def reload_client() -> None:
-    """Reload the nexus client with new tokens."""
-    global _nexus_client
-    _nexus_client = get_nexus_client()
-    _nexus_client.cookies.clear()
-    _nexus_client.auth.cookies.clear()  # type:ignore
-    _nexus_client = httpx.Client(
-        base_url=get_config().url,
-        auth=AuthHandler(),
-        timeout=None,
-        verify=get_config().httpx_verify,
-    )
