@@ -43,9 +43,7 @@ def remove_token(token_type: TokenTypes) -> None:
     # Don't try to delete refresh token in Jupyterhub
     if is_jupyterhub_environment() and token_type == "refresh_token":
         return
-    token_file_path = (
-        Path.home() / CONFIG.token_path / token_file_from_type[token_type]
-    )
+    token_file_path = Path.home() / CONFIG.token_path / token_file_from_type[token_type]
     if token_file_path.exists():
         token_file_path.unlink()
 

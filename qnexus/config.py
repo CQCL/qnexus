@@ -9,11 +9,6 @@ class Config(BaseSettings):
 
     Uses pydantic-settings to read environment variables for qnexus configuration."""
 
-    def __init__(self, *args, **kwargs):
-        """Initialize the config object."""
-        print("Initializing qnexus config")
-        super().__init__(*args, **kwargs)
-
     model_config = SettingsConfigDict(env_prefix="NEXUS_")
 
     # web
@@ -47,5 +42,6 @@ class Config(BaseSettings):
     def websockets_url(self) -> str:
         """Current websockets API URL"""
         return f"{self.websockets_protocol}://{self.domain}"
+
 
 CONFIG = Config()

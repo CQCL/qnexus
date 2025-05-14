@@ -2,6 +2,7 @@
 
 N.B. these manipulate environment variables so currently run in isolation via scripts/run_unit_test.sh.
 """
+
 from typing import Any, Generator
 from uuid import uuid4
 
@@ -10,9 +11,9 @@ import pytest
 import respx
 
 import qnexus as qnx
-from qnexus.config import CONFIG
 from qnexus.client import _nexus_client, get_nexus_client
 from qnexus.client.utils import read_token, remove_token, write_token
+from qnexus.config import CONFIG
 from qnexus.exceptions import AuthenticationError
 
 
@@ -87,11 +88,9 @@ def test_token_refresh() -> None:
     assert get_nexus_client().auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
 
     # confirm that the request headers were updated
-    print(list_project_route.calls[0].request.headers)
     first_cookie_header = list_project_route.calls[0].request.headers["cookie"]
     assert f"myqos_id={old_id_token}" in first_cookie_header
 
-    print(list_project_route.calls[-1].request.headers)
     last_cookie_header = list_project_route.calls[-1].request.headers["cookie"]
     assert f"myqos_id={refreshed_access_token}" in last_cookie_header
 
