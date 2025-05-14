@@ -551,7 +551,7 @@ wheels = [
 
 [[package]]
 name = "guppylang"
-version = "0.18.0"
+version = "0.18.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "graphviz" },
@@ -561,9 +561,9 @@ dependencies = [
     { name = "tket2-exts" },
     { name = "typing-extensions" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b6/04/187e2aa22617bc65f5f710461836005aa4f6dd93bc6ee83405020353f679/guppylang-0.18.0.tar.gz", hash = "sha256:171a2e09d8761d777953b59ffe80800bf19284698ca852beaeec26442dbf7ac5", size = 416282 }
+sdist = { url = "https://files.pythonhosted.org/packages/00/15/686a4793f05914e2fbf072e4b7bfe2700f18abd06c277c6229185012f4d2/guppylang-0.18.1.tar.gz", hash = "sha256:d79fedaf80205dff5a696a08b14a1c36c6b6a0325d299c9559558fd775b678be", size = 419603 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/cc/9c/ec67bf62292ae13a26d21e96c337f8bb65f73364188dad967202143bb7a6/guppylang-0.18.0-py3-none-any.whl", hash = "sha256:f8d9426e4cb728e02afb47f2911f0b6fffba2b5346b80f05a775de8a1b808d21", size = 214947 },
+    { url = "https://files.pythonhosted.org/packages/ac/86/e92e9fc0c71b46c484dec7b495fc27c077ff5b5321f18292c95c899b31f3/guppylang-0.18.1-py3-none-any.whl", hash = "sha256:73eea23f204f7c7137725f34857ee595c9060128dec1014c75197a88f41e6c9e", size = 213102 },
 ]
 
 [[package]]
@@ -2446,7 +2446,7 @@ wheels = [
 
 [[package]]
 name = "qnexus"
-version = "0.18.0"
+version = "0.18.1"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -2509,7 +2509,7 @@ provides-extras = ["qiskit"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "guppylang", specifier = ">=0.18.0,<1.0.0" },
+    { name = "guppylang", specifier = ">=0.18.1,<1.0.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jupyter", specifier = ">=1.0.0,<2.0.0" },
     { name = "mypy", specifier = ">=1.10.0,<2.0.0" },
