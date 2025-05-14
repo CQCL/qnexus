@@ -22,7 +22,7 @@ class Config(BaseSettings):
     httpx_verify: bool = True
 
     # auth
-    store_tokens: bool = True
+    store_tokens: bool = True  # Not implemented
     token_path: str = ".qnx/auth"
 
     # testing
@@ -44,6 +44,4 @@ class Config(BaseSettings):
         return f"{self.websockets_protocol}://{self.domain}"
 
 
-def get_config() -> Config:
-    """Get config"""
-    return Config()
+CONFIG = Config()

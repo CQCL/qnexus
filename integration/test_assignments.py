@@ -5,7 +5,7 @@ from datetime import datetime
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.config import get_config
+from qnexus.config import CONFIG
 from qnexus.models import Role
 from qnexus.models.references import TeamRef, UserRef
 
@@ -67,7 +67,7 @@ def test_user_assignment(
 
     qnx.roles.assign_user(
         resource_ref=new_project_ref,
-        user_email=get_config().qa_user_email,
+        user_email=CONFIG.qa_user_email,
         role="Contributor",
     )
 

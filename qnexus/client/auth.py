@@ -12,15 +12,20 @@ from rich.console import Console
 from rich.panel import Panel
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import reload_client
+from qnexus.client import get_nexus_client
 from qnexus.client.utils import consolidate_error, remove_token, write_token
-from qnexus.config import get_config
+from qnexus.config import CONFIG
 
 console = Console()
 
-_auth_client = httpx.Client(
-    base_url=f"{get_config().url}/auth", timeout=None, verify=get_config().httpx_verify
-)
+
+def _get_auth_client() -> httpx.Client:
+    """Getter function for the Nexus auth client."""
+    return httpx.Client(
+        base_url=f"{CONFIG.url}/auth",
+        timeout=None,
+        verify=CONFIG.httpx_verify,
+    )
 
 
 def login() -> None:
@@ -30,7 +35,7 @@ def login() -> None:
     (if web browser can't be launched, displays the link)
     """
 
-    res = _auth_client.post(
+    res = _get_auth_client().post(
         "/device/device_authorization",
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         data={"client_id": "scales", "scope": "myqos"},
@@ -72,7 +77,7 @@ def login() -> None:
     while polling_for_seconds < expires_in:
         time.sleep(poll_interval)
         polling_for_seconds += poll_interval
-        resp = _auth_client.post(
+        resp = _get_auth_client().post(
             "/device/token",
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             data=token_request_body,
@@ -91,6 +96,7 @@ def login() -> None:
                 "access_token",
                 resp_json["access_token"],
             )
+            get_nexus_client(reload=True)
             # spinner.stop()
             print(
                 f"✅ Successfully logged in as {resp_json['email']} using the browser."
@@ -99,8 +105,6 @@ def login() -> None:
         # Fail for all other statuses
         consolidate_error(res=resp, description="Browser Login")
         # spinner.stop()
-
-        reload_client()
 
         return
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
@@ -113,7 +117,6 @@ def login_with_credentials() -> None:
 
     _request_tokens(user=user_name, pwd=pwd)
 
-    reload_client()
     print(f"✅ Successfully logged in as {user_name}.")
 
 
@@ -123,7 +126,6 @@ def login_no_interaction(user: EmailStr, pwd: str) -> None:
     """
     _request_tokens(user=user, pwd=pwd)
 
-    reload_client()
     print(f"✅ Successfully logged in as {user}.")
 
 
@@ -131,7 +133,7 @@ def logout() -> None:
     """Clear tokens from file system and the client."""
     remove_token("refresh_token")
     remove_token("access_token")
-    reload_client()
+    get_nexus_client(reload=True)
     print("Successfully logged out.")
 
 
@@ -139,7 +141,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
     """Method to send login request to Nexus auth api and save tokens."""
     body = {"email": user, "password": pwd}
     try:
-        resp = _auth_client.post(
+        resp = _get_auth_client().post(
             "/login",
             json=body,
         )
@@ -149,7 +151,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
             mfa_code = input("Enter your MFA verification code: ")
             body["code"] = mfa_code
             body.pop("password")
-            resp = _auth_client.post(
+            resp = _get_auth_client().post(
                 "/mfa_challenge",
                 json=body,
             )
@@ -175,6 +177,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
 
         write_token("refresh_token", myqos_oat)
         write_token("access_token", myqos_id)
+        get_nexus_client(reload=True)
 
     finally:
         del user
