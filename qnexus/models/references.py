@@ -334,25 +334,21 @@ class CompilationResultRef(BaseRef):
         return self._output_circuit
 
     def get_passes(self) -> DataframableList[CompilationPassRef]:
-        """Get information on the compilation passes and the output circuits."""
+        """Get information on the compilation passes and the output circuits (if available)."""
         if self._compilation_passes:
             return copy(self._compilation_passes)
 
-        (
-            self._compilation_passes,
-            self._input_circuit,
-            self._output_circuit,
-        ) = self._get_compile_results()
+        self._compilation_passes = self._get_compile_results()
         return copy(self._compilation_passes)
 
     def _get_compile_results(
         self,
-    ) -> tuple[DataframableList[CompilationPassRef], CircuitRef, CircuitRef]:
+    ) -> DataframableList[CompilationPassRef]:
         """Utility method to retrieve the passes and output circuit."""
         from qnexus.client.jobs._compile import _fetch_compilation_passes
 
         passes = _fetch_compilation_passes(self)
-        return (passes, passes[0].input_circuit, passes[-1].output_circuit)
+        return passes
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""

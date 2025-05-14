@@ -75,6 +75,7 @@ def _authenticated_nexus(
             description=test_desc,
             project=my_proj,
             backend_config=qnx.AerConfig(),
+            skip_intermediate_circuits=False,
         )
 
         execute_job_ref = qnx.start_execute_job(
