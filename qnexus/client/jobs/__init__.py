@@ -19,7 +19,7 @@ from qnexus.client import get_nexus_client
 from qnexus.client.jobs import _compile, _execute
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.config import get_config
+from qnexus.config import CONFIG
 from qnexus.context import (
     get_active_project,
     merge_project_from_context,
@@ -327,7 +327,7 @@ async def listen_job_status(
     # If we pass True into the websocket connection, it sets a default SSLContext.
     # See: https://websockets.readthedocs.io/en/stable/reference/client.html
     ssl_reconfigured: Union[bool, ssl.SSLContext] = True
-    if not get_config().httpx_verify:
+    if not CONFIG.httpx_verify:
         ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
         ssl_reconfigured.check_hostname = False
         ssl_reconfigured.verify_mode = ssl.CERT_NONE
@@ -337,7 +337,7 @@ async def listen_job_status(
         "Cookie": f"myqos_id={get_nexus_client().auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
-        f"{get_config().websockets_url}/api/jobs/v1beta2/{job.id}/attributes/status/ws",
+        f"{CONFIG.websockets_url}/api/jobs/v1beta2/{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
         extra_headers=extra_headers,
         # logger=logger,

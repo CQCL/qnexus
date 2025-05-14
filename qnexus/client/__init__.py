@@ -5,7 +5,7 @@ import typing
 import httpx
 
 from qnexus.client.utils import read_token, write_token
-from qnexus.config import get_config
+from qnexus.config import CONFIG
 from qnexus.exceptions import AuthenticationError
 
 
@@ -25,9 +25,9 @@ class AuthHandler(httpx.Auth):
         try:
             self.cookies.clear()
             token = read_token("refresh_token")
-            self.cookies.set("myqos_oat", token, domain=get_config().domain)
+            self.cookies.set("myqos_oat", token, domain=CONFIG.domain)
             id_token = read_token("access_token")
-            self.cookies.set("myqos_id", id_token, domain=get_config().domain)
+            self.cookies.set("myqos_id", id_token, domain=CONFIG.domain)
         except FileNotFoundError:
             pass
 
@@ -42,7 +42,7 @@ class AuthHandler(httpx.Auth):
                     token = read_token(
                         "refresh_token",
                     )
-                    self.cookies.set("myqos_oat", token, domain=get_config().domain)
+                    self.cookies.set("myqos_oat", token, domain=CONFIG.domain)
                 except FileNotFoundError as exc:
                     raise AuthenticationError(
                         "Not authenticated. Please run `qnx login` in your terminal."
@@ -59,7 +59,7 @@ class AuthHandler(httpx.Auth):
 
             write_token(
                 "access_token",
-                self.cookies.get("myqos_id", domain=get_config().domain) or "",
+                self.cookies.get("myqos_id", domain=CONFIG.domain) or "",
             )
             if request.headers.get("cookie"):
                 request.headers.pop("cookie")
@@ -71,7 +71,7 @@ class AuthHandler(httpx.Auth):
         self.cookies.delete("myqos_id")  # We need to delete any existing id token first
         return httpx.Request(
             method="POST",
-            url=f"{get_config().url}/auth/tokens/refresh",
+            url=f"{CONFIG.url}/auth/tokens/refresh",
             cookies=self.cookies,
         )
 
@@ -92,9 +92,9 @@ def get_nexus_client(reload: bool = False) -> httpx.Client:
         _auth_handler.reload_tokens()
 
         _nexus_client = httpx.Client(
-            base_url=get_config().url,
+            base_url=CONFIG.url,
             auth=_auth_handler,
             timeout=None,
-            verify=get_config().httpx_verify,
+            verify=CONFIG.httpx_verify,
         )
     return _nexus_client

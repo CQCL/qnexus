@@ -2,14 +2,15 @@
 
 N.B. these manipulate environment variables so currently run in isolation via scripts/run_unit_test.sh.
 """
-
 from typing import Any, Generator
+from uuid import uuid4
 
 import httpx
 import pytest
 import respx
 
 import qnexus as qnx
+from qnexus.config import CONFIG
 from qnexus.client import _nexus_client, get_nexus_client
 from qnexus.client.utils import read_token, remove_token, write_token
 from qnexus.exceptions import AuthenticationError
@@ -26,14 +27,17 @@ def clean_token_state() -> Generator[Any, Any, Any]:
         _nexus_client.close()
         _nexus_client = None
 
+    # Store tokens in a temporary location
+    old_token_path = CONFIG.token_path
+    CONFIG.token_path = f"/tmp/qnexus_tests/{str(uuid4())}"
+
     yield  # Run the test
 
     # Teardown - clean up after test
     remove_token("refresh_token")
     remove_token("access_token")
-    if _nexus_client is not None:
-        _nexus_client.close()
-        _nexus_client = None
+    get_nexus_client(reload=True)
+    CONFIG.token_path = old_token_path
 
 
 @respx.mock
@@ -83,9 +87,11 @@ def test_token_refresh() -> None:
     assert get_nexus_client().auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
 
     # confirm that the request headers were updated
+    print(list_project_route.calls[0].request.headers)
     first_cookie_header = list_project_route.calls[0].request.headers["cookie"]
     assert f"myqos_id={old_id_token}" in first_cookie_header
 
+    print(list_project_route.calls[-1].request.headers)
     last_cookie_header = list_project_route.calls[-1].request.headers["cookie"]
     assert f"myqos_id={refreshed_access_token}" in last_cookie_header
 
@@ -137,7 +143,7 @@ def test_nexus_client_reloads_tokens() -> None:
 
 def test_nexus_client_reloads_domain(monkeypatch: Any) -> None:
     """Test the reload functionality of the nexus client.
-    We should be able to change the domain in the environment
+    We should be able to change the domain in the config
     and have the client reload with the new domain obtainable
     via a getter function.
     """
@@ -145,7 +151,7 @@ def test_nexus_client_reloads_domain(monkeypatch: Any) -> None:
     domain_one = "dummy_domain_one.com"
     domain_two = "dummy_domain_two.com"
 
-    monkeypatch.setenv("NEXUS_DOMAIN", domain_one)
+    CONFIG.domain = domain_one
     # mock login
     write_token("refresh_token", "dummy_oat")
     write_token("access_token", "dummy_id")
@@ -156,7 +162,7 @@ def test_nexus_client_reloads_domain(monkeypatch: Any) -> None:
     assert domain_one in str(client_one.base_url)
     assert domain_one in str(client_two.base_url)
 
-    monkeypatch.setenv("NEXUS_DOMAIN", domain_two)
+    CONFIG.domain = domain_two
 
     assert domain_two not in str(client_one.base_url)
     assert domain_two not in str(client_two.base_url)

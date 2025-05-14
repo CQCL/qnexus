@@ -10,7 +10,7 @@ import qnexus as qnx
 from qnexus.client import get_nexus_client
 from qnexus.client.auth import login_no_interaction
 from qnexus.client.utils import read_token
-from qnexus.config import get_config
+from qnexus.config import CONFIG
 from qnexus.exceptions import AuthenticationError
 
 
@@ -19,8 +19,8 @@ def test_credential_login_full_flow(
 ) -> None:
     """Test that we can delete access tokens, login using credentials and
     delete tokens once again."""
-    username = get_config().qa_user_email
-    pwd = get_config().qa_user_password
+    username = CONFIG.qa_user_email
+    pwd = CONFIG.qa_user_password
 
     qnx.logout()
     with pytest.raises(FileNotFoundError):
@@ -67,14 +67,14 @@ def test_domain_switch(
     """Set that we can reset the domain, login and not
     for tokens/URL to be dynamically loaded."""
 
-    username = get_config().qa_user_email
-    pwd = get_config().qa_user_password
+    username = CONFIG.qa_user_email
+    pwd = CONFIG.qa_user_password
 
     login_no_interaction(username, pwd)
 
     qnx.users.get_self()
 
-    original_domain = get_config().domain
+    original_domain = CONFIG.domain
 
     # fake domain will reset the client value
     qnx.logout()

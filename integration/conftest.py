@@ -11,14 +11,14 @@ from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmFileHandler
 
 import qnexus as qnx
-from qnexus.config import get_config
+from qnexus.config import CONFIG
 from qnexus.models.references import CircuitRef
 
 
 @contextmanager
 def make_authenticated_nexus(
-    user_email: str = get_config().qa_user_email,
-    user_password: str = get_config().qa_user_password,
+    user_email: str = CONFIG.qa_user_email,
+    user_password: str = CONFIG.qa_user_password,
 ) -> Generator[None, None, None]:
     """Authenticate the qnexus client."""
     try:
