@@ -30,7 +30,11 @@ def get_all() -> DataframableList[Quota]:
 
     quota_list: DataframableList[Quota] = DataframableList([])
     for quota in res.json():
-        quota_key = _quota_map[quota["quota"]["name"]]
+        try:
+            quota_key = _quota_map[quota["quota"]["name"]]
+        except KeyError:
+            # If the quota name is not in the map, skip it
+            continue
         quota_value = quota["quota"]["details"].get(quota_key, None)
         quota_list.append(
             Quota(

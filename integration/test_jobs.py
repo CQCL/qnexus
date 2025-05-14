@@ -115,6 +115,7 @@ def test_submit_compile(
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=config,
+        skip_intermediate_circuits=False,
     )
 
     assert isinstance(compile_job_ref, CompileJobRef)
