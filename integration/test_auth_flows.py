@@ -61,9 +61,7 @@ def test_device_code_flow_login_full_flow() -> None:
     """Test the flow for logging in with the browser."""
 
 
-def test_domain_switch(
-    monkeypatch: Any,
-) -> None:
+def test_domain_switch() -> None:
     """Set that we can reset the domain, login and not
     for tokens/URL to be dynamically loaded."""
 
@@ -79,14 +77,14 @@ def test_domain_switch(
     # fake domain will reset the client value
     qnx.logout()
     fake_domain = "fake_nexus.com"
-    monkeypatch.setenv("NEXUS_DOMAIN", fake_domain)
+    CONFIG.domain = fake_domain
     assert fake_domain in str(get_nexus_client(reload=True).base_url)
 
     with pytest.raises(ConnectError):
         qnx.users.get_self()
 
     # setting it again will update the client without any restart required
-    monkeypatch.setenv("NEXUS_DOMAIN", original_domain)
+    CONFIG.domain = original_domain
     login_no_interaction(username, pwd)
     assert original_domain in str(get_nexus_client().base_url)
 
