@@ -140,7 +140,7 @@ def test_nexus_client_reloads_tokens() -> None:
     assert client_two.auth.cookies.get("myqos_oat") == oat_two  # type: ignore
 
 
-def test_nexus_client_reloads_domain(monkeypatch: Any) -> None:
+def test_nexus_client_reloads_domain() -> None:
     """Test the reload functionality of the nexus client.
     We should be able to change the domain in the config
     and have the client reload with the new domain obtainable
