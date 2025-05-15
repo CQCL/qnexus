@@ -2,6 +2,15 @@
 
 # `qnexus` Release Notes
 
+## 0.18.2 (2025-05-15)
+
+
+### Fixed
+
+- Handle the case when get_passes is called on a compilationresultref without any passes. (#187).
+- Change domain (via CONFIG), reload tokens dynamically (#185).
+
+
 ## 0.18.1 (2025-05-13)
 
 
