@@ -81,7 +81,7 @@ def test_wasm_flow(
     )
 
     execute_job_ref = qnx.start_execute_job(
-        circuits=[wasm_circuit_ref],
+        programs=[wasm_circuit_ref],
         name=f"qnexus_integration_test_wasm_execute_job_{datetime.now()}",
         n_shots=[100],
         backend_config=qnx.QuantinuumConfig(

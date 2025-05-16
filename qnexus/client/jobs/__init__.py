@@ -145,7 +145,7 @@ def get_all(
 
     return NexusIterator(
         resource_type="Job",
-        nexus_url="/api/jobs/v1beta2",
+        nexus_url="/api/jobs/v1beta3",
         params=params,
         wrapper_method=_to_jobref,
         nexus_client=get_nexus_client(),
@@ -238,7 +238,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         scope=scope,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    res = get_nexus_client().get(f"/api/jobs/v1beta2/{job_id}", params=params)
+    res = get_nexus_client().get(f"/api/jobs/v1beta3/{job_id}", params=params)
 
     handle_fetch_errors(res)
 
@@ -304,7 +304,7 @@ def wait_for(
 
 def status(job: JobRef) -> JobStatus:
     """Get the status of a job."""
-    resp = get_nexus_client().get(f"api/jobs/v1beta2/{job.id}/attributes/status")
+    resp = get_nexus_client().get(f"api/jobs/v1beta3/{job.id}/attributes/status")
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
@@ -337,7 +337,7 @@ async def listen_job_status(
         "Cookie": f"myqos_id={get_nexus_client().auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
-        f"{CONFIG.websockets_url}/api/jobs/v1beta2/{job.id}/attributes/status/ws",
+        f"{CONFIG.websockets_url}/api/jobs/v1beta3/{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
         extra_headers=extra_headers,
         # logger=logger,
@@ -414,7 +414,7 @@ def retry_submission(
         body["retry_status"] = [status.name for status in retry_status]
 
     res = get_nexus_client().post(
-        f"/api/jobs/v1beta2/{job.id}/rpc/retry",
+        f"/api/jobs/v1beta3/{job.id}/rpc/retry",
         json=body,
     )
     if res.status_code != 202:
@@ -427,7 +427,7 @@ def cancel(job: JobRef) -> None:
     If the job has been submitted to a backend, Nexus will request cancellation of the job.
     """
     res = get_nexus_client().post(
-        f"/api/jobs/v1beta2/{job.id}/rpc/cancel",
+        f"/api/jobs/v1beta3/{job.id}/rpc/cancel",
         json={},
     )
 
@@ -438,7 +438,7 @@ def cancel(job: JobRef) -> None:
 def delete(job: JobRef) -> None:
     """Delete a job in Nexus."""
     res = get_nexus_client().delete(
-        f"/api/jobs/v1beta/{job.id}",
+        f"/api/jobs/v1beta3/{job.id}",
     )
 
     if res.status_code != 204:
@@ -447,7 +447,7 @@ def delete(job: JobRef) -> None:
 
 @merge_properties_from_context
 def compile(
-    circuits: Union[CircuitRef, list[CircuitRef]],
+    programs: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,
     description: str = "",
@@ -460,14 +460,14 @@ def compile(
     timeout: float | None = 300.0,
 ) -> DataframableList[CircuitRef]:
     """
-    Utility method to run a compile job on a circuit or circuits and return a
-    DataframableList of the compiled circuits.
+    Utility method to run a compile job on a program or programs and return a
+    DataframableList of the compiled programs.
     """
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
     compile_job_ref = _compile.start_compile_job(
-        circuits=circuits,
+        programs=programs,
         backend_config=backend_config,
         name=name,
         description=description,
@@ -490,7 +490,7 @@ def compile(
 
 @merge_properties_from_context
 def execute(
-    circuits: Union[ExecutionProgram, list[ExecutionProgram]],
+    programs: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -515,7 +515,7 @@ def execute(
     """
 
     execute_job_ref = _execute.start_execute_job(
-        circuits=circuits,
+        programs=programs,
         n_shots=n_shots,
         backend_config=backend_config,
         name=name,

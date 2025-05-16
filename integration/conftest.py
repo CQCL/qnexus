@@ -70,7 +70,7 @@ def _authenticated_nexus(
         )
 
         compile_job_ref = qnx.start_compile_job(
-            circuits=[my_other_circuit],
+            programs=[my_other_circuit],
             name=qa_compile_job_name,
             description=test_desc,
             project=my_proj,
@@ -79,7 +79,7 @@ def _authenticated_nexus(
         )
 
         execute_job_ref = qnx.start_execute_job(
-            circuits=[my_new_circuit],
+            programs=[my_new_circuit],
             name=qa_execute_job_name,
             description=test_desc,
             project=my_proj,
