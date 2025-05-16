@@ -111,7 +111,7 @@ def test_submit_compile(
     config = qnx.AerConfig()
 
     compile_job_ref = qnx.start_compile_job(
-        circuits=[_authenticated_nexus_circuit_ref],
+        programs=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=config,
@@ -150,7 +150,7 @@ def test_compile(
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
     compiled_circuits = qnx.compile(
-        circuits=[_authenticated_nexus_circuit_ref],
+        programs=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),
@@ -170,7 +170,7 @@ def test_get_results_for_incomplete_compile(
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
     compile_job_ref = qnx.start_compile_job(
-        circuits=[_authenticated_nexus_circuit_ref],
+        programs=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),
@@ -190,7 +190,7 @@ def test_compile_hypertket(
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
     compiled_circuits = qnx.compile(
-        circuits=[_authenticated_nexus_circuit_ref],
+        programs=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
@@ -215,7 +215,7 @@ def test_submit_execute(
     my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
 
     execute_job_ref = qnx.start_execute_job(
-        circuits=[my_circ],
+        programs=[my_circ],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         backend_config=config,
@@ -251,7 +251,7 @@ def test_execute(
     my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
 
     backend_results = qnx.execute(
-        circuits=[my_circ],
+        programs=[my_circ],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),
@@ -281,7 +281,7 @@ def test_get_results_for_incomplete_execute(
     )
 
     execute_job_ref = qnx.start_execute_job(
-        circuits=[my_circ, my_q_systems_circuit],
+        programs=[my_circ, my_q_systems_circuit],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
@@ -323,7 +323,7 @@ def test_wait_for_raises_on_job_error(
     my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
 
     failing_job_ref = qnx.start_execute_job(
-        circuits=[my_circ],
+        programs=[my_circ],
         name=f"qnexus_integration_test_failing_job_{datetime.now()}",
         project=my_proj,
         n_shots=[10],
@@ -347,7 +347,7 @@ def test_results_not_available_error(
     my_proj = qnx.projects.get(name_like=qa_project_name)
     my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
     execute_job_ref = qnx.start_execute_job(
-        circuits=[my_circ],
+        programs=[my_circ],
         name=f"qnexus_integration_test_waiting_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),
@@ -390,7 +390,7 @@ def test_submit_under_user_group(
 
     with pytest.raises(qnx_exc.ResourceCreateFailed) as exc:
         qnx.start_compile_job(
-            circuits=[_authenticated_nexus_circuit_ref],
+            programs=[_authenticated_nexus_circuit_ref],
             name=f"qnexus_integration_test_compile_job_{datetime.now()}",
             project=my_proj,
             backend_config=qnx.AerConfig(),
@@ -399,7 +399,7 @@ def test_submit_under_user_group(
         assert exc.value.message == f"Not a member of any group with name: {fake_group}"
 
     qnx.start_compile_job(
-        circuits=[_authenticated_nexus_circuit_ref],
+        programs=[_authenticated_nexus_circuit_ref],
         name=f"qnexus_integration_test_compile_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),
@@ -410,7 +410,7 @@ def test_submit_under_user_group(
 
     with pytest.raises(qnx_exc.ResourceCreateFailed):
         qnx.start_execute_job(
-            circuits=[my_circ],
+            programs=[my_circ],
             name=f"qnexus_integration_test_execute_job_{datetime.now()}",
             project=my_proj,
             backend_config=qnx.AerConfig(),
@@ -420,7 +420,7 @@ def test_submit_under_user_group(
         assert exc.value.message == f"Not a member of any group with name: {fake_group}"
 
     qnx.start_execute_job(
-        circuits=[my_circ],
+        programs=[my_circ],
         name=f"qnexus_integration_test_execute_job_{datetime.now()}",
         project=my_proj,
         backend_config=qnx.AerConfig(),

@@ -24,7 +24,7 @@ from qnexus.models.references import (
 
 @merge_properties_from_context
 def start_compile_job(
-    circuits: Union[CircuitRef, list[CircuitRef]],
+    programs: Union[CircuitRef, list[CircuitRef]],
     backend_config: BackendConfig,
     name: str,
     description: str = "",
@@ -40,10 +40,10 @@ def start_compile_job(
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    circuit_ids = (
-        [str(circuits.id)]
-        if isinstance(circuits, CircuitRef)
-        else [str(c.id) for c in circuits]
+    program_ids = (
+        [str(programs.id)]
+        if isinstance(programs, CircuitRef)
+        else [str(p.id) for p in programs]
     )
 
     attributes_dict = CreateAnnotations(
@@ -65,9 +65,9 @@ def start_compile_job(
                 "credential_name": credential_name,
                 "items": [
                     {
-                        "circuit_id": circuit_id,
+                        "program_id": program_id,
                     }
-                    for circuit_id in circuit_ids
+                    for program_id in program_ids
                 ],
                 "skip_store_intermediate_passes": skip_intermediate_circuits,
             },
@@ -75,11 +75,6 @@ def start_compile_job(
     )
     relationships = {
         "project": {"data": {"id": str(project.id), "type": "project"}},
-        "circuits": {
-            "data": [
-                {"id": str(circuit_id), "type": "circuit"} for circuit_id in circuit_ids
-            ]
-        },
     }
     req_dict = {
         "data": {
@@ -90,7 +85,7 @@ def start_compile_job(
     }
 
     resp = get_nexus_client().post(
-        "/api/jobs/v1beta2",
+        "/api/jobs/v1beta3",
         json=req_dict,
     )
     if resp.status_code != 202:
@@ -115,7 +110,7 @@ def _results(
 ) -> DataframableList[CompilationResultRef]:
     """Get the results from a compile job."""
 
-    resp = get_nexus_client().get(f"/api/jobs/v1beta2/{compile_job.id}")
+    resp = get_nexus_client().get(f"/api/jobs/v1beta3/{compile_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(

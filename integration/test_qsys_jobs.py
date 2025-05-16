@@ -66,7 +66,7 @@ def test_guppy_execution(
     )
 
     job_ref = qnx.start_execute_job(
-        circuits=[hugr_ref],
+        programs=[hugr_ref],
         n_shots=[n_shots],
         backend_config=qnx.QuantinuumConfig(device_name=qsys_qa_device_name),
         project=project_ref,
