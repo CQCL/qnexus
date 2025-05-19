@@ -146,12 +146,11 @@ def is_jupyterhub_environment() -> bool:
 
 
 ParamsWithProgramsOrCircuits = ParamSpec("ParamsWithProgramsOrCircuits")
-ParamsWithPrograms = ParamSpec("ParamsWithPrograms")
 ReturnType = TypeVar("ReturnType")
 
 
 def accept_circuits_for_programs(
-    fn: Callable[ParamsWithPrograms, ReturnType],
+    fn: Callable[ParamsWithProgramsOrCircuits, ReturnType],
 ) -> Callable[ParamsWithProgramsOrCircuits, ReturnType]:
     """
     Nexus's /api/jobs/v1beta3 introduces the concept of programs for compilation
@@ -174,6 +173,6 @@ def accept_circuits_for_programs(
                 category=DeprecationWarning,
             )
             del kwargs["circuits"]
-        return fn(*args, **kwargs)  # type: ignore
+        return fn(*args, **kwargs)
 
     return wrapper

@@ -40,7 +40,7 @@ def test_wrapper() -> None:
         assert len(captured) == 0
 
     with warnings.catch_warnings(record=True) as captured:
-        inner_fn("hello", circuits=[CIRCUIT_REF])
+        inner_fn("hello", circuits=[CIRCUIT_REF])  # type: ignore
         assert len(captured) == 1
         assert captured[0].category == DeprecationWarning
 
@@ -82,7 +82,7 @@ def test_compile_circuit_with_wrapper() -> None:
             start_compile_job(
                 name="foo",
                 backend_config=QuantinuumConfig(device_name="whatever"),
-                circuits=[CIRCUIT_REF],
+                circuits=[CIRCUIT_REF],  # type: ignore
                 project=PROJECT_REF,
             )
             assert captured[0].category == DeprecationWarning
