@@ -8,6 +8,7 @@ from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
+from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -22,6 +23,7 @@ from qnexus.models.references import (
 )
 
 
+@accept_circuits_for_programs
 @merge_properties_from_context
 def start_compile_job(
     programs: Union[CircuitRef, list[CircuitRef]],
