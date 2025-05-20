@@ -42,11 +42,17 @@ def start_compile_job(
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    program_ids = (
-        [str(programs.id)]
-        if isinstance(programs, CircuitRef)
-        else [str(p.id) for p in programs]
-    )
+    match programs:
+        case CircuitRef():
+            program_ids = [str(programs.id)]
+        case list():
+            if not all(isinstance(p, CircuitRef) for p in programs):
+                raise TypeError("Compile jobs only accept circuits")
+            program_ids = [str(p.id) for p in programs]
+        case _:
+            raise TypeError(
+                "Expected programs to be either a CircuitRef or a list of CircuitRefs"
+            )
 
     attributes_dict = CreateAnnotations(
         name=name,
