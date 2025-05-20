@@ -7,6 +7,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
+from qnexus.client.utils import accept_circuits_for_programs
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
@@ -30,9 +31,10 @@ from qnexus.models.references import (
 from qnexus.models.utils import assert_never
 
 
+@accept_circuits_for_programs
 @merge_properties_from_context
 def start_execute_job(
-    circuits: Union[ExecutionProgram, list[ExecutionProgram]],
+    programs: Union[ExecutionProgram, list[ExecutionProgram]],
     n_shots: list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
@@ -57,9 +59,9 @@ def start_execute_job(
     project = cast(ProjectRef, project)
 
     program_ids = (
-        [str(p.id) for p in circuits]
-        if isinstance(circuits, list)
-        else [str(circuits.id)]
+        [str(p.id) for p in programs]
+        if isinstance(programs, list)
+        else [str(programs.id)]
     )
 
     if len(n_shots) != len(program_ids):
@@ -87,7 +89,7 @@ def start_execute_job(
                 "wasm_module_id": str(wasm_module.id) if wasm_module else None,
                 "credential_name": credential_name,
                 "items": [
-                    {"circuit_id": program_id, "n_shots": n_shot}
+                    {"program_id": program_id, "n_shots": n_shot}
                     for program_id, n_shot in zip(program_ids, n_shots)
                 ],
             },
@@ -95,11 +97,6 @@ def start_execute_job(
     )
     relationships = {
         "project": {"data": {"id": str(project.id), "type": "project"}},
-        "circuits": {
-            "data": [
-                {"id": str(program_id), "type": "circuit"} for program_id in program_ids
-            ]
-        },
     }
     req_dict = {
         "data": {
@@ -110,7 +107,7 @@ def start_execute_job(
     }
 
     resp = get_nexus_client().post(
-        "/api/jobs/v1beta2",
+        "/api/jobs/v1beta3",
         json=req_dict,
     )
     if resp.status_code != 202:
@@ -135,7 +132,7 @@ def _results(
 ) -> DataframableList[ExecutionResultRef]:
     """Get the results from an execute job."""
 
-    resp = get_nexus_client().get(f"/api/jobs/v1beta2/{execute_job.id}")
+    resp = get_nexus_client().get(f"/api/jobs/v1beta3/{execute_job.id}")
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(

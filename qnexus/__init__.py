@@ -1,5 +1,7 @@
 """The qnexus package."""
 
+import warnings
+
 import nest_asyncio  # type: ignore
 
 from qnexus import context, filesystem
@@ -33,6 +35,8 @@ from qnexus.models import (
     QuantinuumConfig,
     QulacsConfig,
 )
+
+warnings.filterwarnings("default", category=DeprecationWarning, module=__name__)
 
 # This is necessary for use in Jupyter notebooks to allow for nested asyncio loops
 try:

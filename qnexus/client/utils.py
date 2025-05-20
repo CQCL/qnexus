@@ -1,10 +1,12 @@
 """Utlity functions for the client."""
 
+from functools import wraps
 import http
 import json
 import os
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Callable, Literal, ParamSpec, TypeVar
+import warnings
 
 from httpx import Response
 from pydantic import BaseModel
@@ -141,3 +143,36 @@ def is_jupyterhub_environment() -> bool:
     if os.environ.get("JUPYTERHUB_USER"):
         return True
     return False
+
+
+ParamsWithProgramsOrCircuits = ParamSpec("ParamsWithProgramsOrCircuits")
+ReturnType = TypeVar("ReturnType")
+
+
+def accept_circuits_for_programs(
+    fn: Callable[ParamsWithProgramsOrCircuits, ReturnType],
+) -> Callable[ParamsWithProgramsOrCircuits, ReturnType]:
+    """
+    Nexus's /api/jobs/v1beta3 introduces the concept of programs for compilation
+    and execution. This decorator shims from an argument called "circuits" to an
+    argument called "programs", emitting a deprecation warning if necessary, so
+    that the pre-existing qnexus python API can support both methods for a
+    while.
+    """
+
+    @wraps(fn)
+    def wrapper(
+        *args: ParamsWithProgramsOrCircuits.args,
+        **kwargs: ParamsWithProgramsOrCircuits.kwargs,
+    ) -> ReturnType:
+        if "circuits" in kwargs:
+            kwargs["programs"] = kwargs["circuits"]
+            warnings.warn(
+                "The `circuits` argument is deprecated and will be removed in a "
+                "future version. Please use `programs`.",
+                category=DeprecationWarning,
+            )
+            del kwargs["circuits"]
+        return fn(*args, **kwargs)
+
+    return wrapper
