@@ -18,7 +18,7 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.jobs import _compile, _execute
 from qnexus.client.nexus_iterator import NexusIterator
-from qnexus.client.utils import handle_fetch_errors
+from qnexus.client.utils import accept_circuits_for_programs, handle_fetch_errors
 from qnexus.config import CONFIG
 from qnexus.context import (
     get_active_project,
@@ -445,6 +445,7 @@ def delete(job: JobRef) -> None:
         res.raise_for_status()
 
 
+@accept_circuits_for_programs
 @merge_properties_from_context
 def compile(
     programs: Union[CircuitRef, list[CircuitRef]],
@@ -488,6 +489,7 @@ def compile(
     )
 
 
+@accept_circuits_for_programs
 @merge_properties_from_context
 def execute(
     programs: Union[ExecutionProgram, list[ExecutionProgram]],

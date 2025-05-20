@@ -7,6 +7,7 @@ from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 
+from qnexus.client.utils import accept_circuits_for_programs
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
@@ -30,6 +31,7 @@ from qnexus.models.references import (
 from qnexus.models.utils import assert_never
 
 
+@accept_circuits_for_programs
 @merge_properties_from_context
 def start_execute_job(
     programs: Union[ExecutionProgram, list[ExecutionProgram]],
