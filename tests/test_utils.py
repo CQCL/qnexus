@@ -4,8 +4,6 @@ from unittest import mock
 from uuid import uuid4
 import warnings
 
-import pytest
-
 from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.models.references import CircuitRef, ProjectRef
 from qnexus.client.jobs._compile import start_compile_job
@@ -42,7 +40,7 @@ def test_wrapper() -> None:
     with warnings.catch_warnings(record=True) as captured:
         inner_fn("hello", circuits=[CIRCUIT_REF])  # type: ignore
         assert len(captured) == 1
-        assert captured[0].category == DeprecationWarning
+        assert captured[0].category is DeprecationWarning
 
     with warnings.catch_warnings(record=True) as captured:
         inner_fn("hello", programs=[CIRCUIT_REF])
@@ -85,7 +83,7 @@ def test_compile_circuit_with_wrapper() -> None:
                 circuits=[CIRCUIT_REF],  # type: ignore
                 project=PROJECT_REF,
             )
-            assert captured[0].category == DeprecationWarning
+            assert captured[0].category is DeprecationWarning
 
         assert mock_client.post.call_count == 1
         assert (
