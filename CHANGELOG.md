@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## 0.19.0 (2025-05-21)
+
+
+### Added
+
+- Move to the latest jobs api in nexus (#190).
+
+
 ## 0.18.2 (2025-05-15)
 
 
