@@ -11,6 +11,7 @@ from uuid import UUID
 
 from hugr.envelope import EnvelopeConfig, EnvelopeFormat
 from hugr.hugr import Hugr
+from hugr.ops import Module
 from hugr.package import Package, PackagePointer
 
 import qnexus.exceptions as qnx_exc
@@ -171,7 +172,7 @@ def get(
 
 @merge_properties_from_context
 def upload(
-    hugr_package: Package | PackagePointer | Hugr,
+    hugr_package: Package | PackagePointer | Hugr[Module],
     name: str,
     project: ProjectRef | None = None,
     description: str | None = None,
