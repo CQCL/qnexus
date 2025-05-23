@@ -1,13 +1,13 @@
 import datetime as dt
+import warnings
 from typing import Union
 from unittest import mock
 from uuid import uuid4
-import warnings
 
+from qnexus import QuantinuumConfig
+from qnexus.client.jobs._compile import start_compile_job
 from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.models.references import CircuitRef, ProjectRef
-from qnexus.client.jobs._compile import start_compile_job
-from qnexus import QuantinuumConfig
 
 PROJECT_REF = ProjectRef(
     annotations={}, id=uuid4(), contents_modified=dt.datetime.now()

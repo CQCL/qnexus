@@ -53,14 +53,10 @@ def test_guppy_execution(
     qsys_qa_device_name = os.environ["NEXUS_QA_QSYS_DEVICE"]
     n_shots = 10
 
-    # Compile the guppy program
-    compiled_module = prepare_teleportation()
-    hugr_package = compiled_module.to_executable_package().package
-
     project_ref = qnx.projects.get_or_create(name=qa_project_name)
 
     hugr_ref = qnx.hugr.upload(
-        hugr_package=hugr_package,
+        hugr_package=prepare_teleportation(),
         name="QA testing teleportation program",
         project=project_ref,
     )
