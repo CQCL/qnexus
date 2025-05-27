@@ -193,6 +193,8 @@ def upload(
             package = Package([hugr_package])
         case Package():
             package = hugr_package
+        case _:
+            raise ValueError(f"Unsupported type for HUGR upload: {type(hugr_package)}.")
     attributes = {"contents": _encode_hugr(package)}
 
     annotations = CreateAnnotations(
