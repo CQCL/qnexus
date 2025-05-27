@@ -10,7 +10,9 @@ from typing import Any, Union, cast
 from uuid import UUID
 
 from hugr.envelope import EnvelopeConfig, EnvelopeFormat
-from hugr.package import Package
+from hugr.hugr import Hugr
+from hugr.ops import Module
+from hugr.package import Package, PackagePointer
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
@@ -170,7 +172,7 @@ def get(
 
 @merge_properties_from_context
 def upload(
-    hugr_package: Package,
+    hugr_package: Package | PackagePointer | Hugr[Module],
     name: str,
     project: ProjectRef | None = None,
     description: str | None = None,
@@ -184,7 +186,14 @@ def upload(
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
-    attributes = {"contents": _encode_hugr(hugr_package)}
+    match hugr_package:
+        case PackagePointer():
+            package = hugr_package.package
+        case Hugr():
+            package = Package([hugr_package])
+        case Package():
+            package = hugr_package
+    attributes = {"contents": _encode_hugr(package)}
 
     annotations = CreateAnnotations(
         name=name,

@@ -96,8 +96,8 @@ def _authenticated_nexus(
             project=my_proj,
         )
 
-        hugr_path = Path("integration/data/hugr_example.json").resolve()
-        hugr_package = Package.from_json(hugr_path.read_text(encoding="utf-8"))
+        hugr_path = Path("integration/data/hugr_example.hugr").resolve()
+        hugr_package = Package.from_bytes(hugr_path.read_bytes())
 
         qnx.hugr.upload(
             hugr_package=hugr_package,

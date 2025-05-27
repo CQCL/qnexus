@@ -20,8 +20,8 @@ def test_hugr_create_and_update(
 
     hugr_name = f"QA_test_hugr_{datetime.now()}"
 
-    hugr_path = Path("integration/data/hugr_example.json").resolve()
-    hugr_package = Package.from_json(hugr_path.read_text(encoding="utf-8"))
+    hugr_path = Path("integration/data/hugr_example.hugr").resolve()
+    hugr_package = Package.from_bytes(hugr_path.read_bytes())
 
     my_new_hugr = qnx.hugr.upload(
         hugr_package=hugr_package, name=hugr_name, project=my_proj

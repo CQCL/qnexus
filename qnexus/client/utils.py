@@ -1,12 +1,12 @@
 """Utlity functions for the client."""
 
-from functools import wraps
 import http
 import json
 import os
+import warnings
+from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, Literal, ParamSpec, TypeVar
-import warnings
 
 from httpx import Response
 from pydantic import BaseModel
