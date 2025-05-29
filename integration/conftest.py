@@ -3,12 +3,13 @@
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Generator
+from typing import Generator, cast
 
 import pytest
 from hugr.package import Package
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmFileHandler
+from quantinuum_schemas.models.backend_config import BackendConfig
 
 import qnexus as qnx
 from qnexus.config import CONFIG
@@ -184,3 +185,35 @@ def qa_wasm_module_name_fixture() -> str:
 def qa_hugr_name_fixture() -> str:
     """A name for uniquely identifying a HUGR owned by the Nexus QA user."""
     return f"qnexus_integration_test_hugr_{datetime.now()}"
+
+
+@pytest.fixture(
+    scope="session",
+    params=[
+        # Nexus-hosted
+        qnx.AerConfig(),
+        qnx.AerStateConfig(),
+        qnx.AerUnitaryConfig(),
+        qnx.BraketConfig(local=True),
+        qnx.QuantinuumConfig(device_name="H1-1LE"),
+        qnx.ProjectQConfig(),
+        qnx.QulacsConfig(),
+        # Non Nexus-hosted
+        qnx.IBMQConfig(
+            backend_name="ibm_sherbrooke",
+            hub="ibm-q",
+            group="open",
+            project="main",
+        ),
+        qnx.IBMQEmulatorConfig(
+            backend_name="ibm_sherbrooke",
+            hub="ibm-q",
+            group="open",
+            project="main",
+        ),
+        qnx.QuantinuumConfig(device_name="H1-1SC"),  # Cluster-hosted
+    ],
+)
+def backend_config(request: pytest.FixtureRequest) -> BackendConfig:
+    """Fixture to provide an instance of all BackendConfigs for testing."""
+    return cast(BackendConfig, request.param)
