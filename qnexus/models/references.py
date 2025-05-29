@@ -235,7 +235,7 @@ class HUGRRef(BaseRef):
         )
 
 class QIRRef(BaseRef):
-    """Proxy object to a HUGR in Nexus."""
+    """Proxy object to a QIR program in Nexus."""
 
     annotations: Annotations
     project: ProjectRef
@@ -243,8 +243,8 @@ class QIRRef(BaseRef):
     _contents: str | None = None
     type: Literal["QIRRef"] = "QIRRef"
 
-    def download_hugr(self) -> Package:
-        """Get the HUGR Package of the original uploaded HUGR."""
+    def download_qir(self) -> Package:
+        """Get the QIR program."""
 
         if self._contents:
             return self._contents
