@@ -1,8 +1,4 @@
-"""Client API for QIR in Nexus.
-
-N.B. Nexus support for QIR is experimental, and any QIRs programs
-uploaded to Nexus before stability is achieved might not work in the future.
-"""
+"""Client API for QIR in Nexus."""
 
 import base64
 from datetime import datetime
@@ -162,11 +158,7 @@ def upload(
     description: str | None = None,
     properties: PropertiesDict | None = None,
 ) -> QIRRef:
-    """Upload a QIR to Nexus.
-
-    N.B. QIR support in Nexus is subject to change. Until full support is achieved any
-    programs uploaded may not work in the future.
-    """
+    """Upload a QIR to Nexus."""
     project = project or get_active_project(project_required=True)
     project = cast(ProjectRef, project)
 
