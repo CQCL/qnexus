@@ -3,6 +3,7 @@
 from datetime import datetime
 
 from pytket.backends.backendresult import BackendResult
+from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 
 import qnexus as qnx
@@ -38,7 +39,7 @@ def test_basic_backend_config_usage(
     compile_job_ref = qnx.start_compile_job(
         programs=[my_circ],
         name=f"QA BackendConfig compile job {backend_config.__class__.__name__}_{datetime.now()}",
-        optimisation_level=0,
+        optimisation_level=2,
         backend_config=backend_config,
         project=project_ref,
     )
@@ -48,9 +49,6 @@ def test_basic_backend_config_usage(
     # Check the backend config as stored in Nexus matches the one specified
     assert qnx.jobs.get(id=compile_job_ref.id).backend_config == backend_config
 
-    if backend_config.__class__ in CONFIGS_NOT_TO_EXECUTE:
-        return
-
     execute_job_ref = qnx.start_execute_job(
         programs=[item.get_output() for item in qnx.jobs.results(compile_job_ref)],
         name=f"Execute {backend_config.__class__.__name__}_{datetime.now()}",
@@ -58,6 +56,12 @@ def test_basic_backend_config_usage(
         backend_config=backend_config,
         project=project_ref,
     )
+
+    if backend_config.__class__ in CONFIGS_NOT_TO_EXECUTE:
+        qnx.jobs.wait_for(execute_job_ref, wait_for_status=StatusEnum.QUEUED)
+        qnx.jobs.cancel(execute_job_ref)
+        qnx.jobs.wait_for(execute_job_ref, wait_for_status=StatusEnum.CANCELLED)
+        return
 
     qnx.jobs.wait_for(execute_job_ref)
 
