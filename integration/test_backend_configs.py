@@ -26,7 +26,7 @@ def test_basic_backend_config_usage(
 
     my_circ = Circuit(2, 2).H(0).CX(0, 1)
 
-    if backend_config.__class__ in CONFIGS_REQUIRE_NO_MEASURE:
+    if backend_config.__class__ not in CONFIGS_REQUIRE_NO_MEASURE:
         my_circ.measure_all()
 
     my_circ = qnx.circuits.upload(
