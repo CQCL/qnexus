@@ -524,6 +524,7 @@ Ref = Annotated[
         CircuitRef,
         WasmModuleRef,
         HUGRRef,
+        QIRRef,
         JobRef,
         CompileJobRef,
         ExecuteJobRef,
