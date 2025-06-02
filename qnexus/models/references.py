@@ -241,10 +241,10 @@ class QIRRef(BaseRef):
     annotations: Annotations
     project: ProjectRef
     id: UUID
-    _contents: str | None = None
+    _contents: bytes | None = None
     type: Literal["QIRRef"] = "QIRRef"
 
-    def download_qir(self) -> Package:
+    def download_qir(self) -> bytes:
         """Get the QIR program."""
 
         if self._contents:
