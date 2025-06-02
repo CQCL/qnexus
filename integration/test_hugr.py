@@ -4,7 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 from hugr.package import Package
-import base64
+
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import HUGRRef

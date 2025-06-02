@@ -234,6 +234,7 @@ class HUGRRef(BaseRef):
             )
         )
 
+
 class QIRRef(BaseRef):
     """Proxy object to a QIR program in Nexus."""
 
@@ -265,7 +266,6 @@ class QIRRef(BaseRef):
                 index=[0],
             )
         )
-
 
 
 class JobType(str, Enum):
