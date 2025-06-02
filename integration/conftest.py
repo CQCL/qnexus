@@ -187,6 +187,15 @@ def qa_hugr_name_fixture() -> str:
     return f"qnexus_integration_test_hugr_{datetime.now()}"
 
 
+def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
+    name = backend_config.__class__.__name__
+    if hasattr(backend_config, "backend_name"):
+        name += f"({backend_config.backend_name})"
+    if hasattr(backend_config, "device_name"):
+        name += f"({backend_config.device_name})"
+    return name
+
+
 @pytest.fixture(
     scope="session",
     params=[
@@ -213,6 +222,7 @@ def qa_hugr_name_fixture() -> str:
         ),
         qnx.QuantinuumConfig(device_name="H1-1SC"),  # Cluster-hosted
     ],
+    ids=get_backend_config_name,
 )
 def backend_config(request: pytest.FixtureRequest) -> BackendConfig:
     """Fixture to provide an instance of all BackendConfigs for testing."""
