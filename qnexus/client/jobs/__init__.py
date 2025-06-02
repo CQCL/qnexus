@@ -287,7 +287,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
 def wait_for(
     job: JobRef,
     wait_for_status: StatusEnum = StatusEnum.COMPLETED,
-    timeout: float | None = 300.0,
+    timeout: float | None = 900.0,
 ) -> JobStatus:
     """Check job status until the job is complete (or a specified status)."""
     job_status = asyncio.run(

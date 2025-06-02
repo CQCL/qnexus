@@ -41,7 +41,7 @@ class Config(BaseSettings):
     @property
     def websockets_url(self) -> str:
         """Current websockets API URL"""
-        return f"{self.websockets_protocol}://{self.domain}"
+        return f"{self.websockets_protocol}://{self.domain}:{self.port}"
 
 
 CONFIG = Config()
