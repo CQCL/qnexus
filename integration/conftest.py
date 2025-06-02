@@ -213,6 +213,7 @@ def qa_hugr_name_fixture() -> str:
         ),
         qnx.QuantinuumConfig(device_name="H1-1SC"),  # Cluster-hosted
     ],
+    ids=lambda config: config.__class__.__name__,
 )
 def backend_config(request: pytest.FixtureRequest) -> BackendConfig:
     """Fixture to provide an instance of all BackendConfigs for testing."""
