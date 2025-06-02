@@ -4,6 +4,7 @@ import base64
 from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
+
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
@@ -26,7 +27,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.references import DataframableList, QIRRef, ProjectRef
+from qnexus.models.references import DataframableList, ProjectRef, QIRRef
 
 
 class Params(
@@ -279,9 +280,7 @@ def _fetch_qir(handle: QIRRef) -> bytes:
 
 def _encode_qir(qir: bytes) -> str:
     """Utility method for encoding QIR bytes as base64-encoded string"""
-    return base64.b64encode(
-        qir
-    ).decode("utf-8")
+    return base64.b64encode(qir).decode("utf-8")
 
 
 def _decode_qir(contents: str) -> bytes:
