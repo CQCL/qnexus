@@ -1899,6 +1899,17 @@ wheels = [
 ]
 
 [[package]]
+name = "pyqir"
+version = "0.10.9"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/61/f5/28d72e7fe3f7d9b24ad69f3b63b2dd76b8572d3ec7ca61cf9d91b0de384b/pyqir-0.10.9-cp38-abi3-macosx_10_12_x86_64.macosx_11_0_arm64.macosx_10_12_universal2.whl", hash = "sha256:fc8a468dbab8c8ca5d6b87a834d390665e2978ffa23f847987603f4a5a57ce87", size = 3513219 },
+    { url = "https://files.pythonhosted.org/packages/0b/08/f08a8e292f7fd1c4d7d6267166e2ee943b1d92f611f7d7aec6ca3cdd78d4/pyqir-0.10.9-cp38-abi3-manylinux_2_31_x86_64.whl", hash = "sha256:2ab9c9fe9804e4794be8a1fa5afb085adef581599ef755864535615e82b89b91", size = 2340015 },
+    { url = "https://files.pythonhosted.org/packages/1c/6f/2c32811234e81fccbc7fc8636cda77bc5cfcd4ea5b7934814660dedef15c/pyqir-0.10.9-cp38-abi3-manylinux_2_34_aarch64.whl", hash = "sha256:c0fdf06f7a0d38ca1f4587ef98f5b59591875a26a28ea345e7bf7cccebf144cd", size = 2258550 },
+    { url = "https://files.pythonhosted.org/packages/ce/8a/1a1a6b1f5d95be2ad1de81188fee3aad304494b87d063a34f116e953c165/pyqir-0.10.9-cp38-abi3-win_amd64.whl", hash = "sha256:4e7d3953d6b993bbd2066219c66748669dc55457b5a42b8f65ec1c708a2b7eb3", size = 1737741 },
+]
+
+[[package]]
 name = "pyspnego"
 version = "0.11.2"
 source = { registry = "https://pypi.org/simple" }
@@ -2097,6 +2108,18 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/79/91/84bfb8a02186c20a56c3a6f5f69832633088437138dff056a6bce6596867/pytket-2.3.1-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:98e34a891755fdf0bc8a02f95c65bacfe2282431be1580ea3d51727908461316", size = 7494276 },
     { url = "https://files.pythonhosted.org/packages/66/f4/969efdfdd09f6e7dc998ba5436c6c56dba29637a41b75cb899166b82145f/pytket-2.3.1-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:94e43ae7d2e5199b4574993f3e6938f0454143d3c839c96021e1413714cd4885", size = 8157764 },
     { url = "https://files.pythonhosted.org/packages/0e/99/efe9542e471e87ac55d74931c0efd951de2edc39371ed31f5709163f84de/pytket-2.3.1-cp313-cp313-win_amd64.whl", hash = "sha256:cf140e99a6bbf327e11d7b95930a55bddc3e2ee18b34ae476e83b69d47c9fc92", size = 9673112 },
+]
+
+[[package]]
+name = "pytket-qir"
+version = "0.22.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pyqir" },
+    { name = "pytket" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e1/4e/6087a8737e08850d7fdccd9f4dc44950208a2ea8768ddee88b4dd2826471/pytket_qir-0.22.0-py3-none-any.whl", hash = "sha256:280b8b9b814a1bf7c43cd95618beaa5d0850334d3b38e5bf05e44479d614ad66", size = 31025 },
 ]
 
 [[package]]
@@ -2458,6 +2481,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "pytket" },
+    { name = "pytket-qir" },
     { name = "quantinuum-schemas" },
     { name = "rich" },
     { name = "websockets" },
@@ -2500,6 +2524,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.4,<3.0" },
     { name = "pydantic-settings", specifier = ">=2,<3.0" },
     { name = "pytket", specifier = ">=2.3.1,<3.0" },
+    { name = "pytket-qir", specifier = ">=0.22.0" },
     { name = "pytket-qiskit", marker = "extra == 'qiskit'", specifier = ">=0.50" },
     { name = "quantinuum-schemas", specifier = ">=3.2.3,<4.0" },
     { name = "rich", specifier = ">=13.6,<14.0" },
