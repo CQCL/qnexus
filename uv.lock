@@ -2446,7 +2446,7 @@ wheels = [
 
 [[package]]
 name = "qnexus"
-version = "0.19.0"
+version = "0.20.0"
 source = { editable = "." }
 dependencies = [
     { name = "click" },
@@ -2509,7 +2509,7 @@ provides-extras = ["qiskit"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "guppylang", specifier = ">=0.19.0,<1.0.0" },
+    { name = "guppylang", specifier = ">=0.19.1,<1.0.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jupyter", specifier = ">=1.0.0,<2.0.0" },
     { name = "mypy", specifier = ">=1.10.0,<2.0.0" },

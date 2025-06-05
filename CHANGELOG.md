@@ -2,6 +2,19 @@
 
 # `qnexus` Release Notes
 
+## 0.20.0 (2025-06-05)
+
+
+### Added
+
+- Accept guppy compiled types in upload (#193).
+
+
+### Fixed
+
+- Broken job polling when running with nexus_port override (#201).
+
+
 ## 0.19.0 (2025-05-21)
 
 
