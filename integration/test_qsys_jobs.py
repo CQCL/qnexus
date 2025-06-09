@@ -1,6 +1,5 @@
 """Tests related to running jobs against QSys devices."""
 
-import os
 from datetime import datetime
 from typing import Any, cast
 
@@ -9,6 +8,7 @@ from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
 from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
+from quantinuum_schemas.models.backend_config import SeleneQuestConfig
 
 import qnexus as qnx
 from qnexus.models.references import HUGRRef
@@ -50,7 +50,7 @@ def test_guppy_execution(
     """Test the execution of a guppy program
     on a next-generation QSys device."""
 
-    qsys_qa_device_name = os.environ["NEXUS_QA_QSYS_DEVICE"]
+    n_qubits = 3
     n_shots = 10
 
     project_ref = qnx.projects.get_or_create(name=qa_project_name)
@@ -64,7 +64,7 @@ def test_guppy_execution(
     job_ref = qnx.start_execute_job(
         programs=[hugr_ref],
         n_shots=[n_shots],
-        backend_config=qnx.QuantinuumConfig(device_name=qsys_qa_device_name),
+        backend_config=SeleneQuestConfig(n_qubits=n_qubits),
         project=project_ref,
         name=f"QA Test QSys job from {datetime.now()}",
     )
