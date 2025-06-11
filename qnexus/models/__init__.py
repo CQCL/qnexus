@@ -24,8 +24,19 @@ from quantinuum_schemas.models.backend_config import (
     ProjectQConfig,
     QuantinuumConfig,
     QulacsConfig,
+    SeleneClassicalReplayConfig,
+    SeleneCoinflipConfig,
+    SeleneLeanConfig,
+    SeleneQuestConfig,
+    SeleneStimConfig,
 )
 from quantinuum_schemas.models.backend_info import Register, StoredBackendInfo
+from quantinuum_schemas.models.selene_config import (
+    DepolarizingErrorModel,
+    HeliosRuntime,
+    NoErrorModel,
+    SimpleRuntime,
+)
 
 from qnexus.models.annotations import Annotations
 from qnexus.models.references import TeamRef, UserRef
@@ -45,6 +56,15 @@ __all__ = [
     "QuantinuumConfig",
     "QulacsConfig",
     "StoredBackendInfo",
+    "SeleneCoinflipConfig",
+    "SeleneClassicalReplayConfig",
+    "SeleneLeanConfig",
+    "SeleneStimConfig",
+    "SeleneQuestConfig",
+    "HeliosRuntime",
+    "SimpleRuntime",
+    "NoErrorModel",
+    "DepolarizingErrorModel",
 ]
 
 
