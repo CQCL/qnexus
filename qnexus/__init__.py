@@ -3,7 +3,25 @@
 import warnings
 
 import nest_asyncio  # type: ignore
+from quantinuum_schemas.models.backend_config import (
+    AerConfig,
+    AerStateConfig,
+    AerUnitaryConfig,
+    BackendConfig,
+    BraketConfig,
+    IBMQConfig,
+    IBMQEmulatorConfig,
+    ProjectQConfig,
+    QuantinuumConfig,
+    QulacsConfig,
+    SeleneClassicalReplayConfig,
+    SeleneCoinflipConfig,
+    SeleneLeanConfig,
+    SeleneQuestConfig,
+    SeleneStimConfig,
+)
 
+import qnexus.models as models
 from qnexus import context, filesystem
 from qnexus.client import (
     auth,
@@ -23,18 +41,6 @@ from qnexus.client.auth import login, login_with_credentials, logout
 from qnexus.client.jobs import compile, execute
 from qnexus.client.jobs._compile import start_compile_job
 from qnexus.client.jobs._execute import start_execute_job
-from qnexus.models import (
-    AerConfig,
-    AerStateConfig,
-    AerUnitaryConfig,
-    BackendConfig,
-    BraketConfig,
-    IBMQConfig,
-    IBMQEmulatorConfig,
-    ProjectQConfig,
-    QuantinuumConfig,
-    QulacsConfig,
-)
 
 warnings.filterwarnings("default", category=DeprecationWarning, module=__name__)
 
@@ -77,4 +83,10 @@ __all__ = [
     "ProjectQConfig",
     "QuantinuumConfig",
     "QulacsConfig",
+    "SeleneCoinflipConfig",
+    "SeleneClassicalReplayConfig",
+    "SeleneLeanConfig",
+    "SeleneStimConfig",
+    "SeleneQuestConfig",
+    "models",
 ]

@@ -77,7 +77,7 @@ def start_execute_job(
             "job_type": "execute",
             "definition": {
                 "job_definition_type": "execute_job_definition",
-                "backend_config": backend_config.model_dump(),
+                "backend_config": backend_config.model_dump(exclude_none=True),
                 "user_group": user_group,
                 "valid_check": valid_check,
                 "postprocess": postprocess,
