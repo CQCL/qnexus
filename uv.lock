@@ -2533,7 +2533,6 @@ provides-extras = ["qiskit"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "guppylang", specifier = ">=0.19.0,<1.0.0" },
     { name = "guppylang", specifier = ">=0.19.1,<1.0.0" },
     { name = "ipykernel", specifier = ">=6.29.5" },
     { name = "jupyter", specifier = ">=1.0.0,<2.0.0" },
