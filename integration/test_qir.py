@@ -5,6 +5,7 @@ from datetime import datetime
 import pytest
 from pytket.circuit import Circuit
 from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
+from pytket.backends.backendinfo import BackendInfo
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
@@ -30,7 +31,7 @@ def qir_name() -> str:
 
 
 @pytest.fixture(scope="session")
-def uploaded_qir(
+def qir_program_ref(
     project: None, qa_project_name: str, circuit: Circuit, qir_name: str
 ) -> QIRRef:
     """An uploaded QIR program"""
@@ -70,7 +71,7 @@ def test_qir_create_and_update(
 
 
 def test_qir_download(
-    uploaded_qir: None,
+    qir_program_ref: QIRRef,
     qa_project_name: str,
     qir_name: str,
 ) -> None:
@@ -84,7 +85,7 @@ def test_qir_download(
 
 
 def test_qir_get_by_id(
-    uploaded_qir: None,
+    qir_program_ref: QIRRef,
     qa_project_name: str,
     qir_name: str,
 ) -> None:
@@ -99,7 +100,7 @@ def test_qir_get_by_id(
 
 
 def test_qir_get_all(
-    uploaded_qir: None,
+    qir_program_ref: QIRRef,
     qa_project_name: str,
     qir_name: str,
 ) -> None:
@@ -111,3 +112,42 @@ def test_qir_get_all(
 
     assert qirs.count() >= 1
     assert isinstance(qirs.list()[0], QIRRef)
+
+
+def test_execution(
+    qir_program_ref: QIRRef,
+    project: str,
+    qir_name: str,
+) -> None:
+    """Test the execution of a QIR program."""
+
+    device_name = "H1-1SC"  # Syntax checker - no results
+
+    job_ref = qnx.start_execute_job(
+        programs=[qir_program_ref],
+        n_shots=[10],
+        backend_config=qnx.QuantinuumConfig(device_name=device_name),
+        name=f"QA Test QIR job from {datetime.now()}",
+    )
+
+    qnx.jobs.wait_for(job_ref)
+
+    results = qnx.jobs.results(job_ref)
+
+    assert len(results) == 1
+    result_ref = results[0]
+
+    assert isinstance(result_ref.download_backend_info(), BackendInfo)
+    assert isinstance(result_ref.get_input(), QIRRef)
+
+    assert result_ref.get_input().id == qir_program_ref.id
+
+    # TODO
+    # qir_result = cast(QsysResult, result_ref.download_result())
+    # assert len(qir_result.results) == n_shots
+
+    # # assert qir_result.results[0].entries[0][0] == "teleported"
+    # # assert qir_result.results[0].entries[0][1] == 1
+
+    # # # check some QsysResults functionality
+    # # assert len(qir_result.collated_counts().items()) > 0
