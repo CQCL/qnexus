@@ -50,7 +50,7 @@ def test_qir_create_and_update(
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    qir_name = f"QA_test_hugr_{datetime.now()}"
+    qir_name = f"QA_test_qir_{datetime.now()}"
 
     qir_bitcode = pytket_to_qir(circuit, name=qir_name)
     assert isinstance(qir_bitcode, bytes)
