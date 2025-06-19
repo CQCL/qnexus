@@ -30,6 +30,29 @@ def make_authenticated_nexus(
 
 
 @pytest.fixture(scope="session")
+def project(
+    qa_project_name: str,
+) -> Generator[None, None, None]:
+    """Authenticated nexus instance with a project fixture."""
+
+    with make_authenticated_nexus():
+        test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
+
+        my_proj = qnx.projects.create(name=qa_project_name, description=test_desc)
+
+        qnx.projects.add_property(
+            name="QA_test_prop",
+            property_type="string",
+            project=my_proj,
+        )
+
+        yield
+
+        qnx.projects.update(my_proj, archive=True)
+        qnx.projects.delete(my_proj)
+
+
+@pytest.fixture(scope="session")
 def _authenticated_nexus(
     qa_project_name: str,
     qa_circuit_name: str,
