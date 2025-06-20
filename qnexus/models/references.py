@@ -235,6 +235,39 @@ class HUGRRef(BaseRef):
         )
 
 
+class QIRRef(BaseRef):
+    """Proxy object to a QIR program in Nexus."""
+
+    annotations: Annotations
+    project: ProjectRef
+    id: UUID
+    _contents: bytes | None = None
+    type: Literal["QIRRef"] = "QIRRef"
+
+    def download_qir(self) -> bytes:
+        """Get the QIR program."""
+
+        if self._contents:
+            return self._contents
+
+        from qnexus.client.qir import _fetch_qir
+
+        self._contents = _fetch_qir(self)
+        return self._contents
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
+        )
+
+
 class JobType(str, Enum):
     """Enum for a job's type."""
 
@@ -370,7 +403,7 @@ class ResultType(str, Enum):
     QSYS = "QSYS"
 
 
-ExecutionProgram: TypeAlias = CircuitRef | HUGRRef
+ExecutionProgram: TypeAlias = CircuitRef | HUGRRef | QIRRef
 ExecutionResult: TypeAlias = QsysResult | BackendResult
 
 
@@ -491,6 +524,7 @@ Ref = Annotated[
         CircuitRef,
         WasmModuleRef,
         HUGRRef,
+        QIRRef,
         JobRef,
         CompileJobRef,
         ExecuteJobRef,

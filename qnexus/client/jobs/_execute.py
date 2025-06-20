@@ -11,6 +11,7 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
 from qnexus.client import hugr as hugr_api
+from qnexus.client import qir as qir_api
 from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
@@ -25,6 +26,7 @@ from qnexus.models.references import (
     HUGRRef,
     JobType,
     ProjectRef,
+    QIRRef,
     ResultType,
     WasmModuleRef,
 )
@@ -82,9 +84,9 @@ def start_execute_job(
                 "valid_check": valid_check,
                 "postprocess": postprocess,
                 "noisy_simulator": noisy_simulator,
-                "language": language.value
-                if isinstance(language, Language)
-                else language,
+                "language": (
+                    language.value if isinstance(language, Language) else language
+                ),
                 "seed": seed,
                 "wasm_module_id": str(wasm_module.id) if wasm_module else None,
                 "credential_name": credential_name,
@@ -172,7 +174,7 @@ def _results(
 
 def _fetch_pytket_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[BackendResult, BackendInfo, CircuitRef]:
+) -> tuple[BackendResult, BackendInfo, Union[CircuitRef, QIRRef]]:
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
@@ -182,12 +184,18 @@ def _fetch_pytket_execution_result(
 
     res_dict = res.json()
 
-    input_circuit_id = res_dict["data"]["relationships"]["circuit"]["data"]["id"]
+    program_data = res_dict["data"]["relationships"]["program"]["data"]
+    program_id = program_data["id"]
+    program_type = program_data["type"]
 
-    input_circuit = circuit_api._fetch_by_id(
-        input_circuit_id,
-        scope=None,
-    )
+    input_program: Union[CircuitRef | QIRRef]
+    match program_type:
+        case "circuit":
+            input_program = circuit_api._fetch_by_id(program_id, scope=None)
+        case "qir":
+            input_program = qir_api._fetch_by_id(program_id, scope=None)
+        case _:
+            raise ValueError(f"Unknown program type {type}")
 
     results_data = res_dict["data"]["attributes"]
 
@@ -202,7 +210,7 @@ def _fetch_pytket_execution_result(
         StoredBackendInfo(**backend_info_data["attributes"])
     )
 
-    return (backend_result, backend_info, input_circuit)
+    return (backend_result, backend_info, input_program)
 
 
 def _fetch_qsys_execution_result(
