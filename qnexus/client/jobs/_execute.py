@@ -174,7 +174,7 @@ def _results(
 
 def _fetch_pytket_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[BackendResult, BackendInfo, Union[CircuitRef | QIRRef]]:
+) -> tuple[BackendResult, BackendInfo, Union[CircuitRef, QIRRef]]:
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
