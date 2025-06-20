@@ -1,11 +1,13 @@
 """Test basic functionality relating to the qir module."""
 
+from collections import Counter
 from datetime import datetime
 
 import pytest
-from pytket.circuit import Circuit
-from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 from pytket.backends.backendinfo import BackendInfo
+from pytket.backends.backendresult import BackendResult
+from pytket.circuit import Bit, Circuit
+from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
@@ -142,12 +144,7 @@ def test_execution(
 
     assert result_ref.get_input().id == qir_program_ref.id
 
-    # TODO
-    # qir_result = cast(QsysResult, result_ref.download_result())
-    # assert len(qir_result.results) == n_shots
-
-    # # assert qir_result.results[0].entries[0][0] == "teleported"
-    # # assert qir_result.results[0].entries[0][1] == 1
-
-    # # # check some QsysResults functionality
-    # # assert len(qir_result.collated_counts().items()) > 0
+    qir_result = qnx.jobs.results(job_ref)[0].download_result()
+    assert isinstance(qir_result, BackendResult)
+    assert qir_result.get_counts() == Counter({(0, 0, 0): 10})
+    assert qir_result.get_bitlist() == [Bit("c", 2), Bit("c", 1), Bit("c", 0)]

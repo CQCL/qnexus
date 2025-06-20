@@ -38,18 +38,19 @@ def project(
     with make_authenticated_nexus():
         test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
 
-        my_proj = qnx.projects.create(name=qa_project_name, description=test_desc)
+        project = qnx.projects.create(name=qa_project_name, description=test_desc)
+        qnx.context.set_active_project(project)
 
         qnx.projects.add_property(
             name="QA_test_prop",
             property_type="string",
-            project=my_proj,
+            project=project,
         )
 
         yield
 
-        qnx.projects.update(my_proj, archive=True)
-        qnx.projects.delete(my_proj)
+        qnx.projects.update(project, archive=True)
+        qnx.projects.delete(project)
 
 
 @pytest.fixture(scope="session")

@@ -403,7 +403,7 @@ class ResultType(str, Enum):
     QSYS = "QSYS"
 
 
-ExecutionProgram: TypeAlias = CircuitRef | HUGRRef
+ExecutionProgram: TypeAlias = CircuitRef | HUGRRef | QIRRef
 ExecutionResult: TypeAlias = QsysResult | BackendResult
 
 
