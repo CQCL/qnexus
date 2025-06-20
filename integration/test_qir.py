@@ -3,7 +3,6 @@
 from collections import Counter
 from datetime import datetime
 
-import pytest
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Bit, Circuit
@@ -14,38 +13,8 @@ from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import QIRRef
 
 
-@pytest.fixture(scope="session")
-def circuit() -> Circuit:
-    """A pytket circuit"""
-
-    circuit = Circuit(3)
-    circuit.H(0)
-    for i, j in zip(circuit.qubits[:-1], circuit.qubits[1:]):
-        circuit.CX(i, j)
-    circuit.measure_all()
-    return circuit
-
-
-@pytest.fixture(scope="session")
-def qir_name() -> str:
-    """A name for uniquely identifying a QIR program owned by the Nexus QA user"""
-    return f"qnexus_integration_test_qir_{datetime.now()}"
-
-
-@pytest.fixture(scope="session")
-def qir_program_ref(
-    project: None, qa_project_name: str, circuit: Circuit, qir_name: str
-) -> QIRRef:
-    """An uploaded QIR program"""
-
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    qir_bitcode = pytket_to_qir(circuit, name=qir_name)
-    assert isinstance(qir_bitcode, bytes)
-    return qnx.qir.upload(qir=qir_bitcode, name=qir_name, project=my_proj)
-
-
 def test_qir_create_and_update(
-    project: None,
+    _authenticated_nexus: None,
     qa_project_name: str,
     circuit: Circuit,
 ) -> None:
@@ -53,11 +22,11 @@ def test_qir_create_and_update(
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
 
-    qir_name = f"QA_test_qir_{datetime.now()}"
+    qa_qir_name = f"QA_test_qir_{datetime.now()}"
 
-    qir_bitcode = pytket_to_qir(circuit, name=qir_name)
+    qir_bitcode = pytket_to_qir(circuit, name=qa_qir_name)
     assert isinstance(qir_bitcode, bytes)
-    my_new_qir = qnx.qir.upload(qir=qir_bitcode, name=qir_name, project=my_proj)
+    my_new_qir = qnx.qir.upload(qir=qir_bitcode, name=qa_qir_name, project=my_proj)
 
     assert isinstance(my_new_qir, QIRRef)
 
@@ -73,28 +42,28 @@ def test_qir_create_and_update(
 
 
 def test_qir_download(
-    qir_program_ref: QIRRef,
+    _authenticated_nexus: None,
     qa_project_name: str,
-    qir_name: str,
+    qa_qir_name: str,
 ) -> None:
     """Test that valid QIR can be extracted from an uploaded QIR module."""
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
+    my_qir_ref = qnx.qir.get(name_like=qa_qir_name, project=my_proj)
 
     qir_bytes = my_qir_ref.download_qir()
     assert isinstance(qir_bytes, bytes)
 
 
 def test_qir_get_by_id(
-    qir_program_ref: QIRRef,
+    _authenticated_nexus: None,
     qa_project_name: str,
-    qir_name: str,
+    qa_qir_name: str,
 ) -> None:
     """Test that we can get a QIRRef by its ID."""
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
+    my_qir_ref = qnx.qir.get(name_like=qa_qir_name, project=my_proj)
 
     qir_ref_by_id = qnx.qir.get(id=my_qir_ref.id)
 
@@ -102,9 +71,9 @@ def test_qir_get_by_id(
 
 
 def test_qir_get_all(
-    qir_program_ref: QIRRef,
+    _authenticated_nexus: None,
     qa_project_name: str,
-    qir_name: str,
+    qa_qir_name: str,
 ) -> None:
     """Test that we can get all qirRefs in a project."""
 
@@ -117,18 +86,25 @@ def test_qir_get_all(
 
 
 def test_execution(
-    qir_program_ref: QIRRef,
-    project: str,
-    qir_name: str,
+    _authenticated_nexus: None,
+    qa_project_name: str,
+    qa_qir_name: str,
 ) -> None:
     """Test the execution of a QIR program."""
 
     device_name = "H1-1SC"  # Syntax checker - no results
 
+    project_ref = qnx.projects.get_or_create(name=qa_project_name)
+
+    qir_program_ref = qnx.qir.get(name_like=qa_qir_name)
+
+    project_ref = qnx.projects.get_or_create(name=qa_project_name)
+
     job_ref = qnx.start_execute_job(
         programs=[qir_program_ref],
         n_shots=[10],
         backend_config=qnx.QuantinuumConfig(device_name=device_name),
+        project=project_ref,
         name=f"QA Test QIR job from {datetime.now()}",
     )
 

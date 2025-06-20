@@ -8,6 +8,7 @@ from typing import Generator, cast
 import pytest
 from hugr.package import Package
 from pytket.circuit import Circuit
+from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 from pytket.wasm.wasm import WasmFileHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
 
@@ -30,30 +31,6 @@ def make_authenticated_nexus(
 
 
 @pytest.fixture(scope="session")
-def project(
-    qa_project_name: str,
-) -> Generator[None, None, None]:
-    """Authenticated nexus instance with a project fixture."""
-
-    with make_authenticated_nexus():
-        test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
-
-        project = qnx.projects.create(name=qa_project_name, description=test_desc)
-        qnx.context.set_active_project(project)
-
-        qnx.projects.add_property(
-            name="QA_test_prop",
-            property_type="string",
-            project=project,
-        )
-
-        yield
-
-        qnx.projects.update(project, archive=True)
-        qnx.projects.delete(project)
-
-
-@pytest.fixture(scope="session")
 def _authenticated_nexus(
     qa_project_name: str,
     qa_circuit_name: str,
@@ -63,6 +40,8 @@ def _authenticated_nexus(
     qa_execute_job_name: str,
     qa_wasm_module_name: str,
     qa_hugr_name: str,
+    qa_qir_name: str,
+    circuit: Circuit,
 ) -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
 
@@ -132,6 +111,10 @@ def _authenticated_nexus(
 
         qnx.jobs.wait_for(compile_job_ref)
         qnx.jobs.wait_for(execute_job_ref)
+
+        qir_bitcode = pytket_to_qir(circuit, name=qa_qir_name)
+        assert isinstance(qir_bitcode, bytes)
+        qnx.qir.upload(qir=qir_bitcode, name=qa_qir_name, project=my_proj)
 
         yield
 
@@ -211,6 +194,12 @@ def qa_hugr_name_fixture() -> str:
     return f"qnexus_integration_test_hugr_{datetime.now()}"
 
 
+@pytest.fixture(scope="session", name="qa_qir_name")
+def qa_qir_name_fixture() -> str:
+    """A name for uniquely identifying a QIR owned by the Nexus QA user."""
+    return f"qnexus_integration_test_qir_{datetime.now()}"
+
+
 def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
     name = backend_config.__class__.__name__
     if hasattr(backend_config, "backend_name"):
@@ -251,3 +240,15 @@ def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
 def backend_config(request: pytest.FixtureRequest) -> BackendConfig:
     """Fixture to provide an instance of all BackendConfigs for testing."""
     return cast(BackendConfig, request.param)
+
+
+@pytest.fixture(scope="session")
+def circuit() -> Circuit:
+    """A pytket circuit"""
+
+    circuit = Circuit(3)
+    circuit.H(0)
+    for i, j in zip(circuit.qubits[:-1], circuit.qubits[1:]):
+        circuit.CX(i, j)
+    circuit.measure_all()
+    return circuit
