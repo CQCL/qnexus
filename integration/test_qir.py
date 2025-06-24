@@ -45,7 +45,7 @@ def test_qir_download(
     qa_project_name: str,
     qa_qir_name: str,
 ) -> None:
-    """Test that valid QIR can be extracted from an uploaded QIR module."""
+    """Test that QIR bytes can be downloaded from an uploaded QIR module."""
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
     my_qir_ref = qnx.qir.get(name_like=qa_qir_name, project=my_proj)
