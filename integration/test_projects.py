@@ -11,7 +11,7 @@ from qnexus.models.references import ProjectRef
 
 
 def test_project_get(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
     qa_project_name: str,
 ) -> None:
     """Test that we can get a specific unique project
@@ -31,7 +31,7 @@ def test_project_get(
 
 
 def test_project_get_all(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
 ) -> None:
     """Test that we can get an iterator over all projects."""
 
@@ -44,7 +44,7 @@ def test_project_get_all(
 
 
 def test_project_create(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
 ) -> None:
     """Test that we can create a project and add a property definition."""
 
@@ -57,7 +57,7 @@ def test_project_create(
     test_property_name = "QA_test_prop"
 
     qnx.projects.add_property(
-        name="QA_test_prop",
+        name=test_property_name,
         property_type="bool",
         project=my_new_project,
         description="A test property for my QA test project",
@@ -80,7 +80,7 @@ def test_project_create(
 
 
 def test_project_get_or_create(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
 ) -> None:
     """Test that we can get or create a project."""
 

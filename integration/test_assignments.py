@@ -8,84 +8,83 @@ import qnexus as qnx
 from qnexus.config import CONFIG
 from qnexus.models import Role
 from qnexus.models.references import TeamRef, UserRef
+from conftest import make_authenticated_nexus
 
 
-def test_role_get(
-    _authenticated_nexus: None,
-) -> None:
+def test_role_get() -> None:
     """Test that we can get a specific Role."""
 
-    role = qnx.roles.get(name="Administrator")
-    assert isinstance(role, Role)
+    with make_authenticated_nexus():
+        role = qnx.roles.get(name="Administrator")
+        assert isinstance(role, Role)
 
 
-def test_role_get_all(
-    _authenticated_nexus: None,
-) -> None:
+def test_role_get_all() -> None:
     """Test that we can get all assignment role definitions."""
 
-    all_roles = qnx.roles.get_all()
+    with make_authenticated_nexus():
+        all_roles = qnx.roles.get_all()
 
-    assert len(all_roles) == 4
-    assert isinstance(all_roles.df(), pd.DataFrame)
-    assert isinstance(all_roles[0], Role)
+        assert len(all_roles) == 4
+        assert isinstance(all_roles.df(), pd.DataFrame)
+        assert isinstance(all_roles[0], Role)
 
 
-def test_team_assignment(
-    _authenticated_nexus: None,
-    qa_team_name: str,
-) -> None:
+def test_team_assignment(test_name: str) -> None:
+    """Test that we can assign a team to a project."""
+
+    with make_authenticated_nexus():
+        # Set up
+        team_name = f"team for {test_name}"
+        team = qnx.teams.create(
+            name=team_name,
+            description=f"Description of {team_name}",
+        )
+        new_project_ref = qnx.projects.create(name=f"project for {test_name}")
+
+        qnx.roles.assign_team(
+            resource_ref=new_project_ref, team=team, role="Administrator"
+        )
+        assignments = qnx.roles.assignments(resource_ref=new_project_ref)
+        assert len(assignments) == 2
+
+        team_assignment = next(
+            assign for assign in assignments if assign.assignment_type == "team"
+        )
+        assert team_assignment.assignment_type == "team"
+        assert isinstance(team_assignment.assignee, TeamRef)
+        assert team_assignment.assignee.id == team.id
+
+        qnx.projects.update(new_project_ref, archive=True)
+        qnx.projects.delete(new_project_ref)
+
+
+def test_user_assignment(test_name: str) -> None:
     """Test that we can get all assignment role definitions."""
+    with make_authenticated_nexus():
+        new_project_ref = qnx.projects.create(name=f"project for {test_name}")
 
-    new_project_ref = qnx.projects.create(name=f"QA_test_project_{datetime.now()}_0")
+        qnx.roles.assign_user(
+            resource_ref=new_project_ref,
+            user_email=CONFIG.qa_user_email,
+            role="Contributor",
+        )
 
-    team = qnx.teams.get(name=qa_team_name)
+        assignments = qnx.roles.assignments(resource_ref=new_project_ref)
 
-    qnx.roles.assign_team(resource_ref=new_project_ref, team=team, role="Administrator")
+        assert len(assignments) == 2
 
-    assignments = qnx.roles.assignments(resource_ref=new_project_ref)
+        contrib_assignment = next(
+            assign for assign in assignments if assign.role.name == "Contributor"
+        )
+        assert contrib_assignment.assignment_type == "user"
+        assert isinstance(contrib_assignment.assignee, UserRef)
 
-    assert len(assignments) == 2
+        admin_assignment = next(
+            assign for assign in assignments if assign.role.name == "Administrator"
+        )
+        assert admin_assignment.assignment_type == "user"
+        assert isinstance(admin_assignment.assignee, UserRef)
 
-    team_assignment = next(
-        assign for assign in assignments if assign.assignment_type == "team"
-    )
-    assert team_assignment.assignment_type == "team"
-    assert isinstance(team_assignment.assignee, TeamRef)
-    assert team_assignment.assignee.id == team.id
-
-    qnx.projects.update(new_project_ref, archive=True)
-    qnx.projects.delete(new_project_ref)
-
-
-def test_user_assignment(
-    _authenticated_nexus: None,
-) -> None:
-    """Test that we can get all assignment role definitions."""
-
-    new_project_ref = qnx.projects.create(name=f"QA_test_project_{datetime.now()}_1")
-
-    qnx.roles.assign_user(
-        resource_ref=new_project_ref,
-        user_email=CONFIG.qa_user_email,
-        role="Contributor",
-    )
-
-    assignments = qnx.roles.assignments(resource_ref=new_project_ref)
-
-    assert len(assignments) == 2
-
-    contrib_assignment = next(
-        assign for assign in assignments if assign.role.name == "Contributor"
-    )
-    assert contrib_assignment.assignment_type == "user"
-    assert isinstance(contrib_assignment.assignee, UserRef)
-
-    admin_assignment = next(
-        assign for assign in assignments if assign.role.name == "Administrator"
-    )
-    assert admin_assignment.assignment_type == "user"
-    assert isinstance(admin_assignment.assignee, UserRef)
-
-    qnx.projects.update(new_project_ref, archive=True)
-    qnx.projects.delete(new_project_ref)
+        qnx.projects.update(new_project_ref, archive=True)
+        qnx.projects.delete(new_project_ref)

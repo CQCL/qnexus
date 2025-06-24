@@ -44,7 +44,7 @@ def prepare_teleportation() -> Any:
 
 
 def test_guppy_execution(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
     qa_project_name: str,
 ) -> None:
     """Test the execution of a guppy program

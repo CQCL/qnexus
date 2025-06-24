@@ -11,8 +11,9 @@ from qnexus.models.references import HUGRRef
 
 
 def test_hugr_create_and_update(
-    _authenticated_nexus: None,
+    _authenticated_nexus_hugr: None,
     qa_project_name: str,
+    qa_property_name: str,
 ) -> None:
     """Test that we can create a hugr and add a property value."""
 
@@ -29,21 +30,17 @@ def test_hugr_create_and_update(
 
     assert isinstance(my_new_hugr, HUGRRef)
 
-    test_property_name = "QA_test_prop"
     test_prop_value = "foo"
-
     updated_hugr_ref = qnx.hugr.update(
         ref=my_new_hugr,
-        properties=PropertiesDict({test_property_name: test_prop_value}),
+        properties=PropertiesDict({qa_property_name: test_prop_value}),
     )
 
-    assert (
-        updated_hugr_ref.annotations.properties[test_property_name] == test_prop_value
-    )
+    assert updated_hugr_ref.annotations.properties[qa_property_name] == test_prop_value
 
 
 def test_hugr_download(
-    _authenticated_nexus: None,
+    _authenticated_nexus_hugr: None,
     qa_project_name: str,
     qa_hugr_name: str,
 ) -> None:
@@ -57,7 +54,7 @@ def test_hugr_download(
 
 
 def test_hugr_get_by_id(
-    _authenticated_nexus: None,
+    _authenticated_nexus_hugr: None,
     qa_project_name: str,
     qa_hugr_name: str,
 ) -> None:
@@ -71,7 +68,7 @@ def test_hugr_get_by_id(
 
 
 def test_hugr_get_all(
-    _authenticated_nexus: None,
+    _authenticated_nexus_hugr: None,
     qa_project_name: str,
 ) -> None:
     """Test that we can get all HUGRRefs in a project."""

@@ -13,7 +13,7 @@ from qnexus.models.references import WasmModuleRef
 
 
 def test_wasm_download(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
     qa_project_name: str,
 ) -> None:
     """Test that valid WASM can be extracted from an uploaded WASM module."""
@@ -39,7 +39,7 @@ def test_wasm_download(
 
 
 def test_wasm_flow(
-    _authenticated_nexus: None,
+    _authenticated_nexus_empty_project: None,
     qa_project_name: str,
 ) -> None:
     """Test the flow for executing a simple WASM circuit on H1-1LE."""

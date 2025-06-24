@@ -10,10 +10,17 @@ from hugr.package import Package
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmFileHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
+from qnexus.client.auth import login_no_interaction
+from qnexus.models.references import ProjectRef, CircuitRef
 
 import qnexus as qnx
 from qnexus.config import CONFIG
-from qnexus.models.references import CircuitRef
+
+
+@pytest.fixture(name="test_name")
+def fixture_test_name(request: pytest.FixtureRequest, testrun_uid) -> str:
+    test_name = f"{request.node.module.__name__}::{request.node.name}"
+    return f"qnexus.{test_name}, run:{request.node.execution_count}, id:{testrun_uid}"
 
 
 @contextmanager
@@ -23,15 +30,98 @@ def make_authenticated_nexus(
 ) -> Generator[None, None, None]:
     """Authenticate the qnexus client."""
     try:
-        qnx.auth._request_tokens(user_email, user_password)
+        login_no_interaction(user_email, user_password)
+        # qnx.auth._request_tokens(user_email, user_password)
         yield
     finally:
         qnx.auth.logout()
 
 
+@contextmanager
+def make_temp_project(
+    project_name: str,
+    purge: bool = True,
+) -> Generator[ProjectRef, None, None]:
+    with make_authenticated_nexus():
+        my_proj = qnx.projects.get_or_create(
+            name=project_name, description="description for {project_name}"
+        )
+        yield my_proj
+
+        if purge:
+            qnx.projects.update(my_proj, archive=True)
+            qnx.projects.delete(my_proj)
+
+
+@contextmanager
+def make_temp_circuit(
+    circuit: Circuit,
+    project_name: str,
+    circuit_name: str,
+    purge_project: bool = True,
+) -> Generator[CircuitRef, None, None]:
+    with make_temp_project(project_name, purge_project) as proj_ref:
+
+        my_proj = qnx.projects.get_or_create(
+            name=project_name, description="description for {project_name}"
+        )
+        yield my_proj
+
+        if purge:
+            qnx.projects.update(my_proj, archive=True)
+            qnx.projects.delete(my_proj)
+
+
+@pytest.fixture(scope="session")
+def _authenticated_nexus_hugr(
+    qa_project_name: str,
+    qa_hugr_name: str,
+    qa_property_name: str,
+) -> Generator[None, None, None]:
+    """Authenticated nexus instance fixture with a project and
+    a hugr (with properties)."""
+    with make_authenticated_nexus():
+        test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
+        my_proj = qnx.projects.get_or_create(
+            name=qa_project_name, description=test_desc
+        )
+
+        qnx.projects.add_property(
+            name=qa_property_name,
+            property_type="string",
+            project=my_proj,
+        )
+
+        hugr_path = Path("integration/data/hugr_example.hugr").resolve()
+        hugr_package = Package.from_bytes(hugr_path.read_bytes())
+        qnx.hugr.upload(
+            hugr_package=hugr_package,
+            name=qa_hugr_name,
+            project=my_proj,
+        )
+
+        yield
+
+
+@pytest.fixture(scope="session")
+def _authenticated_nexus_empty_project(
+    qa_project_name: str,
+) -> Generator[None, None, None]:
+    """Authenticated nexus instance fixture with a project and
+    no resources created."""
+    with make_authenticated_nexus():
+        test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
+        my_proj = qnx.projects.get_or_create(
+            name=qa_project_name, description=test_desc
+        )
+
+        yield
+
+
 @pytest.fixture(scope="session")
 def _authenticated_nexus(
     qa_project_name: str,
+    qa_property_name: str,
     qa_circuit_name: str,
     qa_circuit_name_2: str,
     qa_team_name: str,
@@ -45,10 +135,12 @@ def _authenticated_nexus(
     with make_authenticated_nexus():
         test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
 
-        my_proj = qnx.projects.create(name=qa_project_name, description=test_desc)
+        my_proj = qnx.projects.get_or_create(
+            name=qa_project_name, description=test_desc
+        )
 
         qnx.projects.add_property(
-            name="QA_test_prop",
+            name=qa_property_name,
             property_type="string",
             project=my_proj,
         )
@@ -139,6 +231,12 @@ def _authenticated_nexus_circuit_ref(
 def qa_project_name_fixture() -> str:
     """A name for uniquely identifying a project owned by the Nexus QA user."""
     return f"qnexus_integration_test_project_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_property_name")
+def qa_property_name_fixture() -> str:
+    """A name for uniquely identifying a property created by the Nexus QA user."""
+    return f"qnexus_integration_test_property_{datetime.now()}"
 
 
 @pytest.fixture(scope="session", name="qa_team_name")
