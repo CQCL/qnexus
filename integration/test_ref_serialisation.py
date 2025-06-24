@@ -24,6 +24,7 @@ def test_save_load(
     qa_execute_job_name: str,
     qa_wasm_module_name: str,
     qa_hugr_name: str,
+    qa_qir_name: str,
 ) -> None:
     """Test Ref serialization and deserialization roundtrip,
     and check that all Ref types are covered."""
@@ -41,6 +42,7 @@ def test_save_load(
     compilation_pass_ref = compile_result_ref.model_copy().get_passes()[0]
     wasm_module_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name)
     hugr_ref = qnx.hugr.get(name_like=qa_hugr_name)
+    qir_ref = qnx.qir.get(name_like=qa_qir_name)
 
     test_refs = [
         user_ref,
@@ -54,6 +56,7 @@ def test_save_load(
         compilation_pass_ref,
         wasm_module_ref,
         hugr_ref,
+        qir_ref,
     ]
     test_ref_types = set(type(test_ref) for test_ref in test_refs)
     all_refs = set(BaseRef.__subclasses__())

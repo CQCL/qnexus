@@ -49,6 +49,7 @@ dev = [
     "ipykernel>=6.29.5",
     "pytest-xdist>=3.6.1",
     "guppylang >=0.19.1, <1.0.0",
+    "pytket-qir>=0.22.0",
 ]
 
 
