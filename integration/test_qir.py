@@ -98,8 +98,6 @@ def test_execution(
 
     qir_program_ref = qnx.qir.get(name_like=qa_qir_name)
 
-    project_ref = qnx.projects.get_or_create(name=qa_project_name)
-
     job_ref = qnx.start_execute_job(
         programs=[qir_program_ref],
         n_shots=[10],
