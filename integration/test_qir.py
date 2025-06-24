@@ -16,13 +16,12 @@ from qnexus.models.references import QIRRef
 def test_qir_create_and_update(
     _authenticated_nexus: None,
     qa_project_name: str,
+    qa_qir_name: str,
     circuit: Circuit,
 ) -> None:
     """Test that we can create a qir and add a property value."""
 
     my_proj = qnx.projects.get(name_like=qa_project_name)
-
-    qa_qir_name = f"QA_test_qir_{datetime.now()}"
 
     qir_bitcode = pytket_to_qir(circuit, name=qa_qir_name)
     assert isinstance(qir_bitcode, bytes)
