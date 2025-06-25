@@ -21,7 +21,7 @@ dependencies = [
     "pytket >=2.3.1, <3.0",
     "websockets >11, <14",
     "pydantic-settings >=2, <3.0",
-    "quantinuum-schemas >=3.2.3, <4.0",
+    "quantinuum-schemas >=3.2.5, <4.0",
     "hugr >=0.11.5, <1.0.0",
 ]
 
