@@ -3,7 +3,7 @@
 from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
-from typing import Generator, cast
+from typing import Generator, cast, Callable
 
 import pytest
 from hugr.package import Package
@@ -24,6 +24,19 @@ def fixture_test_name(request: pytest.FixtureRequest, testrun_uid) -> str:
     return f"qnexus.{test_name}, run:{request.node.execution_count}, id:{testrun_uid}"
 
 
+@pytest.fixture(scope="session", autouse=True)
+def authenticated_nexus(
+    user_email: str = CONFIG.qa_user_email,
+    user_password: str = CONFIG.qa_user_password,
+) -> Generator[None, None, None]:
+    """Authenticated nexus instance fixture."""
+    try:
+        login_no_interaction(user_email, user_password)
+        yield
+    finally:
+        qnx.auth.logout()
+
+
 @contextmanager
 def make_authenticated_nexus(
     user_email: str = CONFIG.qa_user_email,
@@ -38,6 +51,26 @@ def make_authenticated_nexus(
         qnx.auth.logout()
 
 
+@pytest.fixture(name="temp_project")
+def fixture_temp_project() -> Callable:
+
+    @contextmanager
+    def make_temp_project(
+        project_name: str,
+        purge: bool = True,
+    ) -> Generator[ProjectRef, None, None]:
+        my_proj = qnx.projects.get_or_create(
+            name=project_name, description=f"description for {project_name}"
+        )
+        yield my_proj
+
+        if purge:
+            qnx.projects.update(my_proj, archive=True)
+            qnx.projects.delete(my_proj)
+
+    return make_temp_project
+
+
 @contextmanager
 def make_temp_project(
     project_name: str,
@@ -45,7 +78,7 @@ def make_temp_project(
 ) -> Generator[ProjectRef, None, None]:
     with make_authenticated_nexus():
         my_proj = qnx.projects.get_or_create(
-            name=project_name, description="description for {project_name}"
+            name=project_name, description=f"description for {project_name}"
         )
         yield my_proj
 
@@ -63,14 +96,14 @@ def make_temp_circuit(
 ) -> Generator[CircuitRef, None, None]:
     with make_temp_project(project_name, purge_project) as proj_ref:
 
-        my_proj = qnx.projects.get_or_create(
-            name=project_name, description="description for {project_name}"
+        circuit_ref = qnx.circuits.upload(
+            circuit=circuit,
+            name=circuit_name,
+            description=f"description for {circuit_name}",
+            project=proj_ref,
         )
-        yield my_proj
 
-        if purge:
-            qnx.projects.update(my_proj, archive=True)
-            qnx.projects.delete(my_proj)
+        yield circuit_ref
 
 
 @pytest.fixture(scope="session")

@@ -1,9 +1,7 @@
 """Tests that we can use all available backend configs."""
 
-from datetime import datetime
+from typing import Callable
 
-from _pytest.fixtures import SubRequest
-from conftest import make_authenticated_nexus
 from pytket.backends.backendresult import BackendResult
 from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
@@ -19,14 +17,12 @@ CONFIGS_NOT_TO_EXECUTE = [
 
 def test_basic_backend_config_usage(
     backend_config: qnx.BackendConfig,
+    temp_project: Callable,
     test_name: str,
 ) -> None:
     """Test basic functionality of supported BackendConfigs."""
 
-    with make_authenticated_nexus():
-        # project_name = get_resource_name("project", request, test_run_id)
-        project_name = f"project for {test_name}"
-        project_ref = qnx.projects.get_or_create(name=project_name)
+    with temp_project(f"project for {test_name}") as project_ref:
 
         my_circ = Circuit(2, 2).H(0).CX(0, 1)
 
