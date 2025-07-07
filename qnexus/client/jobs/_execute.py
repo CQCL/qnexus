@@ -215,7 +215,7 @@ def _fetch_pytket_execution_result(
 
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[QsysResult, BackendInfo, HUGRRef]:
+) -> tuple[QsysResult, BackendInfo, HUGRRef | QIRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
@@ -226,12 +226,20 @@ def _fetch_qsys_execution_result(
 
     res_dict = res.json()
 
-    input_hugr_id = res_dict["data"]["relationships"]["hugr_module"]["data"]["id"]
+    input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
-    input_hugr = hugr_api._fetch_by_id(
-        input_hugr_id,
-        scope=None,
-    )
+    input_program: HUGRRef | QIRRef
+    match res_dict["data"]["relationships"]["program"]["data"]["type"]:
+        case "hugr":
+            input_program = hugr_api._fetch_by_id(
+                input_program_id,
+                scope=None,
+            )
+        case "qir":
+            input_program = qir_api._fetch_by_id(
+                input_program_id,
+                scope=None,
+            )
 
     qsys_result = QsysResult(res_dict["data"]["attributes"]["results"])
 
@@ -245,5 +253,5 @@ def _fetch_qsys_execution_result(
     return (
         qsys_result,
         backend_info,
-        input_hugr,
+        input_program,
     )
