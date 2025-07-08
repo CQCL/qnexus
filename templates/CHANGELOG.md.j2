@@ -6,7 +6,7 @@
 #}
 {% for entry in tree %}
 
-## {{ entry.version|replace("v","") }}{% if entry.date %} ({{ entry.date }}){% endif %}
+## {{ entry.version }}{% if entry.date %} ({{ entry.date }}){% endif %}
 
 {% for change_key, changes in entry.changes.items() %}
 

@@ -2,7 +2,7 @@
 
 # `qnexus` Release Notes
 
-## 0.20.0 (2025-06-05)
+## v0.20.0 (2025-06-05)
 
 
 ### Added
@@ -15,7 +15,7 @@
 - Broken job polling when running with nexus_port override (#201).
 
 
-## 0.19.0 (2025-05-21)
+## v0.19.0 (2025-05-21)
 
 
 ### Added
@@ -23,7 +23,7 @@
 - Move to the latest jobs api in nexus (#190).
 
 
-## 0.18.2 (2025-05-15)
+## v0.18.2 (2025-05-15)
 
 
 ### Fixed
@@ -32,7 +32,7 @@
 - Change domain (via CONFIG), reload tokens dynamically (#185).
 
 
-## 0.18.1 (2025-05-13)
+## v0.18.1 (2025-05-13)
 
 
 ### Fixed
@@ -40,7 +40,7 @@
 - Bump python (#184).
 - Don't present unused kwarg for quantinuumconfig (#182).
 
-## 0.18.0 (2025-05-01)
+## v0.18.0 (2025-05-01)
 
 
 ### Added
@@ -50,7 +50,7 @@
 - Return an empty dataframe for an empty nexusiterator. (#180).
 
 
-## 0.17.2 (2025-04-25)
+## v0.17.2 (2025-04-25)
 
 
 ### Fixed
@@ -58,14 +58,14 @@
 - Update circuit fetching to use migration utility for compatibility (#176).
 
 
-## 0.17.1 (2025-04-25)
+## v0.17.1 (2025-04-25)
 
 
 ### Fixed
 
 - Update pytket version to 2.3.1 (#175).
 
-## 0.17.0 (2025-04-24)
+## v0.17.0 (2025-04-24)
 
 
 ### Added
@@ -78,14 +78,14 @@
 - Disable unused and broken jobs and projects cli (#171).
 
 
-## 0.16.1 (2025-04-10)
+## v0.16.1 (2025-04-10)
 
 ### Fixed
 
 - Readd support for python 3.10 (#170).
 
 
-## 0.16.0 (2025-04-09)
+## v0.16.0 (2025-04-09)
 
 
 ### Added
@@ -93,7 +93,7 @@
 - Update dependencies (#168).
 
 
-## 0.15.0 (2025-04-09)
+## v0.15.0 (2025-04-09)
 
 
 ### Added
