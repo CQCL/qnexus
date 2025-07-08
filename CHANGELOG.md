@@ -2,6 +2,22 @@
 
 # `qnexus` Release Notes
 
+## v0.21.0 (2025-07-08)
+
+
+### Added
+
+- Can now fetch qir results from devices with the newer qsys result format (#208).
+- Add qir crud. (#196).
+
+
+### Fixed
+
+- Cz config and faulty changelog entries.
+- Selene integration test now needs new config (#204).
+- Update wasm_examples.ipynb to add measures to circuit (#203).
+
+
 ## v0.20.0 (2025-06-05)
 
 
