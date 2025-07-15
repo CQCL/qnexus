@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.23.0 (2025-07-15)
+
+
+### Added
+
+- Bump dependencies.
+
+
 ## v0.21.0 (2025-07-08)
 
 
