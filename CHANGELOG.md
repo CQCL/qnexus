@@ -7,6 +7,7 @@
 
 ### Added
 
+- Update to support IBMQ changes: `ibm_instance` and `ibm_region` are now used instead of hub, group, and project.
 - Bump dependencies.
 
 
