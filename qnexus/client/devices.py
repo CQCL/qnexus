@@ -36,9 +36,8 @@ class Params(DevicesFilter):
 def get_all(
     issuers: list[IssuerEnum] | None = None,
     aws_region: str | None = None,
-    ibmq_hub: str | None = None,
-    ibmq_group: str | None = None,
-    ibmq_project: str | None = None,
+    ibm_instance: str | None = None,
+    ibm_region: str | None = None,
     credentials: list[Credential] | None = None,
     credential_names: list[str] | None = None,
     nexus_hosted: bool | None = None,
@@ -58,9 +57,8 @@ def get_all(
     params = Params(
         backend=issuer_config_names if issuer_config_names else None,
         region=aws_region,
-        ibmq_hub=ibmq_hub,
-        ibmq_group=ibmq_group,
-        ibmq_project=ibmq_project,
+        ibm_instance=ibm_instance,
+        ibm_region=ibm_region,
         credential_ids=[cred.id for cred in credentials] if credentials else None,
         credential_names=credential_names,
         is_local=nexus_hosted,

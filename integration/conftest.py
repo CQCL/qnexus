@@ -223,15 +223,19 @@ def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
         # Non Nexus-hosted
         qnx.IBMQConfig(
             backend_name="ibm_sherbrooke",
-            hub="ibm-q",
-            group="open",
-            project="main",
+            instance=(
+                "crn:v1:bluemix:public:quantum-computing:us-east:"
+                "a/18f63f4565ef4a40851959792418cbf2:"
+                "37bf946a-6349-47df-a092-3fbd5b92dbf2::"
+            ),
         ),
         qnx.IBMQEmulatorConfig(
             backend_name="ibm_sherbrooke",
-            hub="ibm-q",
-            group="open",
-            project="main",
+            instance=(
+                "crn:v1:bluemix:public:quantum-computing:us-east:"
+                "a/18f63f4565ef4a40851959792418cbf2:"
+                "37bf946a-6349-47df-a092-3fbd5b92dbf2::"
+            ),
         ),
         qnx.QuantinuumConfig(device_name="H1-1SC"),  # Cluster-hosted
     ],

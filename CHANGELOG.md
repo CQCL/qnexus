@@ -2,6 +2,15 @@
 
 # `qnexus` Release Notes
 
+## v0.23.0 (2025-07-15)
+
+
+### Added
+
+- Update to support IBMQ changes: `ibm_instance` and `ibm_region` are now used instead of hub, group, and project.
+- Bump dependencies.
+
+
 ## v0.21.0 (2025-07-08)
 
 

@@ -84,10 +84,12 @@ qfmt
 
 Most of the test suite are integration tests that require the following environment variables:
 
+```sh
 NEXUS_DOMAIN = "qa.myqos.com"
-NEXUS_QA_USER_EMAIL = ...
-NEXUS_QA_USER_PASSWORD = ...
-NEXUS_QA_QSYS_DEVICE = ...
+NEXUS_QA_USER_EMAIL = "qa_nexus_staging_pytket-nexus@mailsac.com"
+NEXUS_QA_USER_PASSWORD = <copy from Bitwarden 'qnexus integration tests user'>
+NEXUS_QA_QSYS_DEVICE = "H1-1E"
+```
 
 And can be run locally (for the above user) with:
 
