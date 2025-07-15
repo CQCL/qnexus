@@ -259,9 +259,8 @@ class DevicesFilter(BaseModel):
 
     backend: list[str] | None = None
     region: str | None = None
-    ibmq_hub: str | None = None
-    ibmq_group: str | None = None
-    ibmq_project: str | None = None
+    ibm_instance: str | None = None
+    ibm_region: str | None = None
     credential_ids: list[str] | None = None
     credential_names: list[str] | None = None
     is_local: bool | None = None

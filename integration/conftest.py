@@ -222,16 +222,10 @@ def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
         qnx.QulacsConfig(),
         # Non Nexus-hosted
         qnx.IBMQConfig(
-            backend_name="ibm_sherbrooke",
-            hub="ibm-q",
-            group="open",
-            project="main",
+            backend_name="ibm_sherbrooke", instance="default-us", region="us-east"
         ),
         qnx.IBMQEmulatorConfig(
-            backend_name="ibm_sherbrooke",
-            hub="ibm-q",
-            group="open",
-            project="main",
+            backend_name="ibm_sherbrooke", instance="default-us", region="us-east"
         ),
         qnx.QuantinuumConfig(device_name="H1-1SC"),  # Cluster-hosted
     ],
