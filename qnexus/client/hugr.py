@@ -312,14 +312,11 @@ def _fetch_hugr_package(handle: HUGRRef) -> Package:
 
 def _encode_hugr(hugr_package: Package) -> str:
     """Utility method for encoding a HUGR Package as base64-encoded string"""
-    payload = base64.b64encode(
+    return base64.b64encode(
         hugr_package.to_bytes(
             config=ENVELOPE_CONFIG,
         )
     ).decode("utf-8")
-    with open("oof.txt", "a") as f:
-        f.write(payload)
-    return payload
 
 
 def _decode_hugr(contents: str) -> Package:
