@@ -1,13 +1,13 @@
 """Client API for Nexus."""
 
 import typing
-
+from logging import getLogger
 import httpx
 
 from qnexus.client.utils import read_token, write_token
 from qnexus.config import CONFIG
 from qnexus.exceptions import AuthenticationError
-
+logger = getLogger()
 
 class AuthHandler(httpx.Auth):
     """Custom nexus auth handler"""
@@ -35,7 +35,13 @@ class AuthHandler(httpx.Auth):
         self, request: httpx.Request
     ) -> typing.Generator[httpx.Request, httpx.Response, None]:
         self.cookies.set_cookie_header(request)
+
         response = yield request
+
+        sunset_header = response.headers.get("sunset") or response.headers.get("Sunset")
+        if (sunset_header):
+            logger.warning(f"Your version of qnexus is using a deprecated API endpoint ({request.url}) that will be deleted on {sunset_header}. Please upgrade your version of qnexus.")
+
         if response.status_code == 401:
             if self.cookies.get("myqos_oat") is None:
                 try:
@@ -94,6 +100,7 @@ def get_nexus_client(reload: bool = False) -> httpx.Client:
         _nexus_client = httpx.Client(
             base_url=CONFIG.url,
             auth=_auth_handler,
+
             timeout=None,
             verify=CONFIG.httpx_verify,
         )
