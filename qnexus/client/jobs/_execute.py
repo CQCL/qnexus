@@ -149,7 +149,14 @@ def _results(
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
     for item in resp_data["attributes"]["definition"]["items"]:
-        if item["status"]["status"] == "COMPLETED":
+        # Check if item is in a "final" state and append to results
+        if item["status"]["status"] in (
+            "CANCELLED",
+            "ERROR",
+            "DEPLETED",
+            "TERMINATED",
+            "COMPLETED",
+        ):
             result_type: ResultType
 
             match item["result_type"]:
