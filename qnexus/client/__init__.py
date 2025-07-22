@@ -105,6 +105,5 @@ def get_nexus_client(reload: bool = False) -> httpx.Client:
             auth=_auth_handler,
             timeout=None,
             verify=CONFIG.httpx_verify,
-            follow_redirects=False,
         )
     return _nexus_client
