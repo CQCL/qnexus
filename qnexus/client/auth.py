@@ -200,5 +200,3 @@ def _response_check(res: httpx.Response, description: str) -> None:
         raise qnx_exc.AuthenticationError(
             f"HTTP error attempting: {description}.\n\nServer Response: {resp_json}"
         )
-
-

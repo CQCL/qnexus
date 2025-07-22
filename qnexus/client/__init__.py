@@ -106,7 +106,9 @@ def get_nexus_client(reload: bool = False) -> httpx.Client:
     return _nexus_client
 
 
-def _print_sunset_header_warning(request: httpx.Request, response: httpx.Response) -> None:
+def _print_sunset_header_warning(
+    request: httpx.Request, response: httpx.Response
+) -> None:
     sunset_header = response.headers.get("sunset") or response.headers.get("Sunset")
     if sunset_header:
         logger.warning(
