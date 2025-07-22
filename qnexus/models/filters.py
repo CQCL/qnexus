@@ -195,6 +195,8 @@ class JobStatusEnum(str, Enum):
     RUNNING = "RUNNING"
     CANCELLED = "CANCELLED"
     ERROR = "ERROR"
+    DEPLETED = "DEPLETED"
+    TERMINATED = "TERMINATED"
 
 
 JobStatusString = Union[
@@ -204,6 +206,8 @@ JobStatusString = Union[
     Literal["RUNNING"],
     Literal["CANCELLED"],
     Literal["ERROR"],
+    Literal["DEPLETED"],
+    Literal["TERMINATED"],
 ]
 
 jobstatusenum_to_string: dict[JobStatusEnum, JobStatusString] = {
@@ -213,6 +217,8 @@ jobstatusenum_to_string: dict[JobStatusEnum, JobStatusString] = {
     JobStatusEnum.RUNNING: "RUNNING",
     JobStatusEnum.CANCELLED: "CANCELLED",
     JobStatusEnum.ERROR: "ERROR",
+    JobStatusEnum.DEPLETED: "DEPLETED",
+    JobStatusEnum.TERMINATED: "TERMINATED",
 }
 
 
@@ -227,6 +233,8 @@ class JobStatusFilter(BaseModel):
             "RUNNING",
             "CANCELLED",
             "ERROR",
+            "DEPLETED",
+            "TERMINATED",
         ],
         serialization_alias="filter[status][status]",
         description="Filter by job status",
