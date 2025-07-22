@@ -39,11 +39,8 @@ class AuthHandler(httpx.Auth):
         self.cookies.set_cookie_header(request)
 
         response = yield request
-        sunset_header = response.headers.get("sunset") or response.headers.get("Sunset")
-        if sunset_header:
-            logger.warning(
-                f"Your are currently using a deprecated API endpoint ({request.url}) that will be deleted on {sunset_header}. After this date your current qnexus version may stop functioning. Please update to a later qnexus version to resolve the issue."
-            )
+
+        _print_sunset_header_warning(request, response)
 
         if response.status_code == 401:
             if self.cookies.get("myqos_oat") is None:
@@ -107,3 +104,11 @@ def get_nexus_client(reload: bool = False) -> httpx.Client:
             verify=CONFIG.httpx_verify,
         )
     return _nexus_client
+
+
+def _print_sunset_header_warning(request: httpx.Request, response: httpx.Response) -> None:
+    sunset_header = response.headers.get("sunset") or response.headers.get("Sunset")
+    if sunset_header:
+        logger.warning(
+            f"Your are currently using a deprecated API endpoint ({request.url}) that will be deleted on {sunset_header}. After this date your current qnexus version may stop functioning. Please update to a later qnexus version to resolve the issue."
+        )
