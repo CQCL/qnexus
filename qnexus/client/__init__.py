@@ -109,7 +109,7 @@ def get_nexus_client(reload: bool = False) -> httpx.Client:
 def _print_sunset_header_warning(
     request: httpx.Request, response: httpx.Response
 ) -> None:
-    sunset_header = response.headers.get("sunset") or response.headers.get("Sunset")
+    sunset_header = response.headers.get("sunset")
     if sunset_header:
         logger.warning(
             f"Your are currently using a deprecated API endpoint ({request.url}) that will be deleted on {sunset_header}. After this date your current qnexus version may stop functioning. Please update to a later qnexus version to resolve the issue."
