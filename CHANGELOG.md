@@ -7,7 +7,8 @@
 
 ### Added
 
-- Add depleted and terminated statuses to jobstatusenum and related filters.
+- Add depleted and terminated statuses to JobStatusEnum and related filters.
+- Update results fetching to allow incomplete results for different statuses.
 
 
 ## v0.22.0 (2025-07-15)
