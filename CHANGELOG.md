@@ -2,7 +2,15 @@
 
 # `qnexus` Release Notes
 
-## v0.23.0 (2025-07-15)
+## v0.23.0 (2025-07-22)
+
+
+### Added
+
+- Add depleted and terminated statuses to jobstatusenum and related filters.
+
+
+## v0.22.0 (2025-07-15)
 
 
 ### Added
