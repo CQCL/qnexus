@@ -2,7 +2,6 @@
 
 from typing import Union, cast
 
-from pytket.backends.status import StatusEnum
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 
 import qnexus.exceptions as qnx_exc
@@ -10,7 +9,7 @@ from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
 from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
-from qnexus.models import BackendConfig
+from qnexus.models import BackendConfig, JobStatusEnum
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.references import (
     CircuitRef,
@@ -105,7 +104,7 @@ def start_compile_job(
         id=res_data_dict["id"],
         annotations=Annotations.from_dict(res_data_dict["attributes"]),
         job_type=JobType.COMPILE,
-        last_status=StatusEnum.SUBMITTED,
+        last_status=JobStatusEnum.SUBMITTED,
         last_message="",
         project=project,
         backend_config_store=backend_config,

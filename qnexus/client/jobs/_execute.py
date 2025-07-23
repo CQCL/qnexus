@@ -5,7 +5,6 @@ from typing import Union, cast
 from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
-from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -16,6 +15,7 @@ from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
@@ -121,7 +121,7 @@ def start_execute_job(
         id=resp.json()["data"]["id"],
         annotations=Annotations.from_dict(resp.json()["data"]["attributes"]),
         job_type=JobType.EXECUTE,
-        last_status=StatusEnum.SUBMITTED,
+        last_status=JobStatusEnum.SUBMITTED,
         last_message="",
         project=project,
         backend_config_store=backend_config,

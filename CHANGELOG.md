@@ -2,6 +2,22 @@
 
 # `qnexus` Release Notes
 
+## v0.24.1 (2025-07-23)
+
+
+### Fixed
+
+- Replace `StatusEnum` with `JobStatusEnum` in `JobStatus` class to ensure correct status handling in job management.
+
+
+## v0.24.0 (2025-07-23)
+
+
+### Added
+
+- Log sunset warning if API response header contains a sunset date.
+
+
 ## v0.23.0 (2025-07-22)
 
 

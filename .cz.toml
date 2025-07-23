@@ -2,7 +2,7 @@
 name = "cz_customize"
 tag_format = "v$version"
 version_scheme = "semver"
-version = "0.23.0"
+version = "0.24.1"
 version_files = ["pyproject.toml"]
 update_changelog_on_bump = true
 major_version_zero = true

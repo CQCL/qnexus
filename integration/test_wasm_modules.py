@@ -4,11 +4,11 @@ from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
-from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmFileHandler
 
 import qnexus as qnx
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.references import WasmModuleRef
 
 
@@ -92,5 +92,4 @@ def test_wasm_flow(
     )
 
     qnx.jobs.wait_for(execute_job_ref)
-
-    assert qnx.jobs.status(execute_job_ref).status == StatusEnum.COMPLETED
+    assert qnx.jobs.status(execute_job_ref).status == JobStatusEnum.COMPLETED
