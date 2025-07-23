@@ -1,14 +1,23 @@
 """Status types for Nexus Jobs."""
 
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, NamedTuple, Optional
 
 import pandas as pd
 
-from .filters import (
-    JobStatusEnum,
-)
 
+class JobStatusEnum(str, Enum):
+    """Possible job statuses"""
+
+    COMPLETED = "COMPLETED"
+    QUEUED = "QUEUED"
+    SUBMITTED = "SUBMITTED"
+    RUNNING = "RUNNING"
+    CANCELLED = "CANCELLED"
+    ERROR = "ERROR"
+    DEPLETED = "DEPLETED"
+    TERMINATED = "TERMINATED"
 
 class JobStatus(NamedTuple):
     """The status of a job along with an optional description.
@@ -79,3 +88,6 @@ class JobStatus(NamedTuple):
             self._asdict(),
             orient="index",
         ).T
+
+
+WAITING_STATUS = {JobStatusEnum.QUEUED, JobStatusEnum.SUBMITTED, JobStatusEnum.RUNNING}

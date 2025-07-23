@@ -8,7 +8,7 @@ from typing import Annotated, Literal, OrderedDict, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from qnexus.models import CredentialIssuer
+from qnexus.models import CredentialIssuer, JobStatusEnum
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import JobType, ProjectRef
 from qnexus.models.utils import AllowNone
@@ -184,19 +184,6 @@ class ArchivedFilter(BaseModel):
         serialization_alias="filter[archived]",
         description="Include or omit archived projects",
     )
-
-
-class JobStatusEnum(str, Enum):
-    """Possible job statuses"""
-
-    COMPLETED = "COMPLETED"
-    QUEUED = "QUEUED"
-    SUBMITTED = "SUBMITTED"
-    RUNNING = "RUNNING"
-    CANCELLED = "CANCELLED"
-    ERROR = "ERROR"
-    DEPLETED = "DEPLETED"
-    TERMINATED = "TERMINATED"
 
 
 JobStatusString = Union[

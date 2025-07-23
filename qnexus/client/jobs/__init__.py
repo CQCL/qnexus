@@ -8,7 +8,6 @@ from enum import Enum
 from typing import Any, Type, Union, cast, overload
 from uuid import UUID
 
-from pytket.backends.status import WAITING_STATUS, StatusEnum
 from quantinuum_schemas.models.backend_config import config_name_to_class
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 from websockets.client import connect
@@ -42,7 +41,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.job_status import JobStatus
+from qnexus.models.job_status import WAITING_STATUS, JobStatus
 from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
@@ -286,7 +285,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
 
 def wait_for(
     job: JobRef,
-    wait_for_status: StatusEnum = StatusEnum.COMPLETED,
+    wait_for_status: JobStatusEnum = JobStatusEnum.COMPLETED,
     timeout: float | None = 900.0,
 ) -> JobStatus:
     """Check job status until the job is complete (or a specified status)."""
@@ -297,8 +296,15 @@ def wait_for(
         )
     )
 
-    if job_status.status == StatusEnum.ERROR:
+    if job_status.status == JobStatusEnum.ERROR:
         raise qnx_exc.JobError(f"Job errored with detail: {job_status.error_detail}")
+    if job_status.status == JobStatusEnum.CANCELLED:
+        raise qnx_exc.JobError("Job was cancelled")
+    if job_status.status == JobStatusEnum.DEPLETED:
+        raise qnx_exc.JobError("Job has run out of account credits")
+    if job_status.status == JobStatusEnum.TERMINATED:
+        raise qnx_exc.JobError("Job has been terminated")
+
     return job_status
 
 
@@ -315,7 +321,7 @@ def status(job: JobRef) -> JobStatus:
 
 
 async def listen_job_status(
-    job: JobRef, wait_for_status: StatusEnum = StatusEnum.COMPLETED
+    job: JobRef, wait_for_status: JobStatusEnum = JobStatusEnum.COMPLETED
 ) -> JobStatus:
     """Check the Status of a Job via a websocket connection.
     Will use SSO tokens."""
@@ -397,7 +403,7 @@ def results(
 
 def retry_submission(
     job: JobRef,
-    retry_status: list[StatusEnum] | None = None,
+    retry_status: list[JobStatusEnum] | None = None,
     remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.DEFAULT,
     user_group: str | None = None,
 ) -> None:
