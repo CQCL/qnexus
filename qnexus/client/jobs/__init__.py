@@ -29,7 +29,6 @@ from qnexus.models.annotations import Annotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
     FuzzyNameFilter,
-    JobStatusEnum,
     JobStatusFilter,
     JobTypeFilter,
     PaginationFilter,
@@ -41,7 +40,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.job_status import WAITING_STATUS, JobStatus
+from qnexus.models.job_status import WAITING_STATUS, JobStatus, JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,

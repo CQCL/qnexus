@@ -8,6 +8,7 @@ from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmFileHandler
 
 import qnexus as qnx
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.references import WasmModuleRef
 
 
@@ -91,5 +92,4 @@ def test_wasm_flow(
     )
 
     qnx.jobs.wait_for(execute_job_ref)
-
-    assert qnx.jobs.status(execute_job_ref).status == qnx.jobs.JobStatusEnum.COMPLETED
+    assert qnx.jobs.status(execute_job_ref).status == JobStatusEnum.COMPLETED

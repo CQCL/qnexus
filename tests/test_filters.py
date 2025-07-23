@@ -10,7 +10,6 @@ from qnexus.models.filters import (
     CredentialsFilter,
     DevicesFilter,
     FuzzyNameFilter,
-    JobStatusEnum,
     JobStatusFilter,
     JobTypeFilter,
     PaginationFilter,
@@ -22,6 +21,7 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.references import JobType, ProjectRef
 
 
