@@ -4,8 +4,9 @@ from datetime import datetime
 from typing import Any, Dict, NamedTuple, Optional
 
 import pandas as pd
-from pytket.backends.status import (
-    StatusEnum,
+
+from .filters import (
+    JobStatusEnum,
 )
 
 
@@ -18,7 +19,7 @@ class JobStatus(NamedTuple):
     * Queue position.
     """
 
-    status: StatusEnum
+    status: JobStatusEnum
     message: str = ""
     error_detail: Optional[str] = None
 
@@ -40,7 +41,7 @@ class JobStatus(NamedTuple):
             raise invalid
 
         try:
-            status = next(s for s in StatusEnum if dic["status"] == s.name)
+            status = next(s for s in JobStatusEnum if dic["status"] == s.name)
         except StopIteration as err:
             raise invalid from err
 
