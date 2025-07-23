@@ -61,9 +61,13 @@ def test_basic_backend_config_usage(
     )
 
     if backend_config.__class__ in CONFIGS_NOT_TO_EXECUTE:
-        qnx.jobs.wait_for(execute_job_ref, wait_for_status=qnx.jobs.JobStatusEnum.QUEUED)
+        qnx.jobs.wait_for(
+            execute_job_ref, wait_for_status=qnx.jobs.JobStatusEnum.QUEUED
+        )
         qnx.jobs.cancel(execute_job_ref)
-        qnx.jobs.wait_for(execute_job_ref, wait_for_status=qnx.jobs.JobStatusEnum.CANCELLED)
+        qnx.jobs.wait_for(
+            execute_job_ref, wait_for_status=qnx.jobs.JobStatusEnum.CANCELLED
+        )
         return
 
     qnx.jobs.wait_for(execute_job_ref)

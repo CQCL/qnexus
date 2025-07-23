@@ -19,6 +19,7 @@ class JobStatusEnum(str, Enum):
     DEPLETED = "DEPLETED"
     TERMINATED = "TERMINATED"
 
+
 class JobStatus(NamedTuple):
     """The status of a job along with an optional description.
 
