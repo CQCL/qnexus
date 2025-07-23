@@ -295,13 +295,13 @@ def wait_for(
         )
     )
 
-    if job_status.status == JobStatusEnum.ERROR:
+    if job_status.status == JobStatusEnum.ERROR and wait_for_status != JobStatusEnum.ERROR:
         raise qnx_exc.JobError(f"Job errored with detail: {job_status.error_detail}")
-    if job_status.status == JobStatusEnum.CANCELLED:
+    if job_status.status == JobStatusEnum.CANCELLED and wait_for_status != JobStatusEnum.CANCELLED:
         raise qnx_exc.JobError("Job was cancelled")
-    if job_status.status == JobStatusEnum.DEPLETED:
+    if job_status.status == JobStatusEnum.DEPLETED and wait_for_status != JobStatusEnum.DEPLETED:
         raise qnx_exc.JobError("Job has run out of account credits")
-    if job_status.status == JobStatusEnum.TERMINATED:
+    if job_status.status == JobStatusEnum.TERMINATED and wait_for_status != JobStatusEnum.TERMINATED:
         raise qnx_exc.JobError("Job has been terminated")
 
     return job_status
