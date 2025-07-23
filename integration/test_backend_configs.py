@@ -6,7 +6,6 @@ from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Circuit
 
 import qnexus as qnx
-from qnexus.models.filters import JobStatusEnum
 
 CONFIGS_REQUIRE_NO_MEASURE = [qnx.AerUnitaryConfig]
 CONFIGS_NOT_TO_EXECUTE = [

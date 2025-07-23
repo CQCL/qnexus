@@ -66,6 +66,8 @@ __all__ = [
     "SimpleRuntime",
     "NoErrorModel",
     "DepolarizingErrorModel",
+    "JobStatusEnum",
+    "WAITING_STATUS",
 ]
 
 
