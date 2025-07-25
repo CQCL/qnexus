@@ -33,6 +33,3 @@ venv
 .devenv*
 devenv.local.nix
 .pre-commit-config.yaml
-
-# Just me, don't push
-/scratch_files/*
