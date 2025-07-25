@@ -2,7 +2,9 @@
 
 from collections import Counter
 from datetime import datetime
+from pathlib import Path
 
+import pyqir
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Bit, Circuit
@@ -10,7 +12,8 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import QIRRef
+from qnexus.models.references import QIRRef, QIRResult, ResultVersions
+from hugr.qsystem.result import QsysResult
 
 
 def test_qir_create_and_update(
@@ -122,3 +125,51 @@ def test_execution(
     assert isinstance(qir_result, BackendResult)
     assert qir_result.get_counts() == Counter({(0, 0, 0): 10})
     assert qir_result.get_bitlist() == [Bit("c", 2), Bit("c", 1), Bit("c", 0)]
+
+
+def test_execution_on_NG_devices(
+    _authenticated_nexus: None,
+    qa_project_name: str,
+) -> None:
+    """Test execution on NG devices, specifically to focus on getting the results"""
+    project_ref = qnx.projects.get_or_create(name=qa_project_name)
+
+    qir_ref = qnx.qir.upload(
+        qir=make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
+        name="ng_qir_module_name",
+        project=project_ref,
+    )
+
+    qir_program_ref = qnx.qir.get(id=qir_ref.id)
+
+    job_ref = qnx.start_execute_job(
+        programs=[qir_program_ref],
+        n_shots=[10],
+        backend_config=qnx.QuantinuumConfig(device_name="Helios-1E", max_cost=10),
+        project=project_ref,
+        name=f"QA Test QIR job from {datetime.now()}",
+    )
+
+    qnx.jobs.wait_for(job_ref)
+
+    results = qnx.jobs.results(job_ref)[0].download_result()
+    # Assert this is a QIR compliant result
+    assert isinstance(results, QIRResult)
+    assert results.results.startswith("HEADER\tschema_id\tlabeled")
+    # Can't assert the value is the same, so just check the output is there
+    assert "OUTPUT\tDOUBLE" in results.results
+
+    v4_results = qnx.jobs.results(job_ref)[0].download_result(
+        version=ResultVersions.RAW
+    )
+    # Assert this is in v4 format
+    assert isinstance(v4_results, QsysResult)
+    assert v4_results.results[0].entries[0][0] == "USER:FLOAT:d0"
+
+
+def make_qir_bitcode_from_file(filename: str) -> bytes:
+    with open(
+        Path(__file__).parent.resolve() / "data" / filename,
+        "r",
+    ) as file:
+        return pyqir.Module.from_ir(pyqir.Context(), file.read()).bitcode
