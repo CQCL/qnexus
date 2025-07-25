@@ -410,9 +410,14 @@ class ResultVersions(int, Enum):
     DEFAULT = 3
     RAW = 4
 
+class QIRResult():
+    results: str
+
+    def __init__(self, results: str):
+        self.results = results
 
 ExecutionProgram: TypeAlias = CircuitRef | HUGRRef | QIRRef
-ExecutionResult: TypeAlias = QsysResult | BackendResult
+ExecutionResult: TypeAlias = QsysResult | BackendResult | QIRResult
 
 
 class ExecutionResultRef(BaseRef):

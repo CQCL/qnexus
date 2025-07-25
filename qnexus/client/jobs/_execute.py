@@ -27,6 +27,7 @@ from qnexus.models.references import (
     JobType,
     ProjectRef,
     QIRRef,
+    QIRResult,
     ResultType,
     ResultVersions,
     WasmModuleRef,
@@ -224,7 +225,7 @@ def _fetch_pytket_execution_result(
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
     version: ResultVersions,
-) -> tuple[QsysResult, BackendInfo, HUGRRef | QIRRef]:
+) -> tuple[QsysResult | QIRResult, BackendInfo, HUGRRef | QIRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
@@ -239,19 +240,23 @@ def _fetch_qsys_execution_result(
     input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
     input_program: HUGRRef | QIRRef
+    result = QsysResult | str
     match res_dict["data"]["relationships"]["program"]["data"]["type"]:
         case "hugr":
             input_program = hugr_api._fetch_by_id(
                 input_program_id,
                 scope=None,
             )
+            result = QsysResult(res_dict["data"]["attributes"]["results"])
         case "qir":
             input_program = qir_api._fetch_by_id(
                 input_program_id,
                 scope=None,
             )
-
-    qsys_result = QsysResult(res_dict["data"]["attributes"]["results"])
+            if version == ResultVersions.DEFAULT:
+                result = QIRResult(res_dict["data"]["attributes"]["results"])
+            else:
+                result = QsysResult(res_dict["data"]["attributes"]["results"])
 
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
@@ -261,7 +266,7 @@ def _fetch_qsys_execution_result(
     )
 
     return (
-        qsys_result,
+        result,
         backend_info,
         input_program,
     )
