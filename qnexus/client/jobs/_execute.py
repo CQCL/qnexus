@@ -28,6 +28,7 @@ from qnexus.models.references import (
     ProjectRef,
     QIRRef,
     ResultType,
+    ResultVersions,
     WasmModuleRef,
 )
 from qnexus.models.utils import assert_never
@@ -222,11 +223,13 @@ def _fetch_pytket_execution_result(
 
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
+    version: ResultVersions,
 ) -> tuple[QsysResult, BackendInfo, HUGRRef | QIRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/qsys_results/v1beta/{result_ref.id}")
+    params = {"version": version.value}
+    res = get_nexus_client().get(f"/api/qsys_results/v1beta/{result_ref.id}", params=params)
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)

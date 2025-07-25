@@ -403,6 +403,13 @@ class ResultType(str, Enum):
     QSYS = "QSYS"
 
 
+class ResultVersions(int, Enum):
+    """Enumerate the valid values for requesting results in a specific format"""
+
+    DEFAULT = 3
+    RAW = 4
+
+
 ExecutionProgram: TypeAlias = CircuitRef | HUGRRef | QIRRef
 ExecutionResult: TypeAlias = QsysResult | BackendResult
 
@@ -415,6 +422,7 @@ class ExecutionResultRef(BaseRef):
     result_type: ResultType = ResultType.PYTKET
     _input_program: ExecutionProgram | None = None
     _result: ExecutionResult | None = None
+    _result_version: ResultVersions | None = None
     _backend_info: BackendInfo | None = None
     id: UUID
     type: Literal["ExecutionResultRef"] = "ExecutionResultRef"
@@ -428,19 +436,21 @@ class ExecutionResultRef(BaseRef):
             self._result,
             self._backend_info,
             self._input_program,
-        ) = self._get_execute_results()
+        ) = self._get_execute_results(ResultVersions.DEFAULT)
+        self._result_version = ResultVersions.DEFAULT
         return copy(self._input_program)
 
-    def download_result(self) -> ExecutionResult:
+    def download_result(self, version: ResultVersions = ResultVersions.DEFAULT) -> ExecutionResult:
         """Get a copy of the result of the program execution."""
-        if self._result:
+        if self._result and self._result_version == version:
             return copy(self._result)
 
         (
             self._result,
             self._backend_info,
             self._input_program,
-        ) = self._get_execute_results()
+        ) = self._get_execute_results(version=version)
+        self._result_version = version
         return copy(self._result)
 
     def download_backend_info(self) -> BackendInfo:
@@ -452,13 +462,21 @@ class ExecutionResultRef(BaseRef):
             self._result,
             self._backend_info,
             self._input_program,
-        ) = self._get_execute_results()
+        ) = self._get_execute_results(ResultVersions.DEFAULT)
+        self._result_version = ResultVersions.DEFAULT
         return copy(self._backend_info)
 
     def _get_execute_results(
         self,
+        version: ResultVersions
     ) -> tuple[ExecutionResult, BackendInfo, ExecutionProgram]:
-        """Utility method to retrieve the passes and output circuit."""
+        """Utility method to retrieve the passes and output circuit.
+        result_version can be passed to request v4 results for qsys results only.
+
+        Default results for any program type on H series devices is pytket style results
+        Default result for QIR programs on NG devices is QIR standard compliant results.
+        Default result for HUGR programs is NG results.
+        """
         from qnexus.client.jobs._execute import (
             _fetch_pytket_execution_result,
             _fetch_qsys_execution_result,
@@ -468,7 +486,7 @@ class ExecutionResultRef(BaseRef):
             case ResultType.PYTKET:
                 return _fetch_pytket_execution_result(self)
             case ResultType.QSYS:
-                return _fetch_qsys_execution_result(self)
+                return _fetch_qsys_execution_result(self, version)
             case _:
                 assert_never(self.result_type)
 
