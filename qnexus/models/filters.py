@@ -8,7 +8,7 @@ from typing import Annotated, Literal, OrderedDict, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 
-from qnexus.models import CredentialIssuer
+from qnexus.models import CredentialIssuer, JobStatusEnum
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import JobType, ProjectRef
 from qnexus.models.utils import AllowNone
@@ -186,17 +186,6 @@ class ArchivedFilter(BaseModel):
     )
 
 
-class JobStatusEnum(str, Enum):
-    """Possible job statuses"""
-
-    COMPLETED = "COMPLETED"
-    QUEUED = "QUEUED"
-    SUBMITTED = "SUBMITTED"
-    RUNNING = "RUNNING"
-    CANCELLED = "CANCELLED"
-    ERROR = "ERROR"
-
-
 JobStatusString = Union[
     Literal["COMPLETED"],
     Literal["QUEUED"],
@@ -204,6 +193,8 @@ JobStatusString = Union[
     Literal["RUNNING"],
     Literal["CANCELLED"],
     Literal["ERROR"],
+    Literal["DEPLETED"],
+    Literal["TERMINATED"],
 ]
 
 jobstatusenum_to_string: dict[JobStatusEnum, JobStatusString] = {
@@ -213,6 +204,8 @@ jobstatusenum_to_string: dict[JobStatusEnum, JobStatusString] = {
     JobStatusEnum.RUNNING: "RUNNING",
     JobStatusEnum.CANCELLED: "CANCELLED",
     JobStatusEnum.ERROR: "ERROR",
+    JobStatusEnum.DEPLETED: "DEPLETED",
+    JobStatusEnum.TERMINATED: "TERMINATED",
 }
 
 
@@ -227,6 +220,8 @@ class JobStatusFilter(BaseModel):
             "RUNNING",
             "CANCELLED",
             "ERROR",
+            "DEPLETED",
+            "TERMINATED",
         ],
         serialization_alias="filter[status][status]",
         description="Filter by job status",
@@ -259,9 +254,8 @@ class DevicesFilter(BaseModel):
 
     backend: list[str] | None = None
     region: str | None = None
-    ibmq_hub: str | None = None
-    ibmq_group: str | None = None
-    ibmq_project: str | None = None
+    ibm_instance: str | None = None
+    ibm_region: str | None = None
     credential_ids: list[str] | None = None
     credential_names: list[str] | None = None
     is_local: bool | None = None

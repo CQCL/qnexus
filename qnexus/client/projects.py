@@ -6,7 +6,6 @@ from typing import Any, Literal, Union, cast
 from uuid import UUID
 
 import pandas as pd
-from pytket.backends.status import WAITING_STATUS, StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
@@ -26,6 +25,7 @@ from qnexus.models.filters import (  # PropertiesFilter, # Not yet implemented
     SortFilterEnum,
     TimeFilter,
 )
+from qnexus.models.job_status import WAITING_STATUS, JobStatusEnum
 from qnexus.models.references import DataframableList, ProjectRef
 
 # Colour-blind friendly colours from https://www.nature.com/articles/nmeth.1618
@@ -307,13 +307,13 @@ def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
                 [job for job in all_jobs if job.last_status in WAITING_STATUS]
             ),
             "cancelled_jobs": len(
-                [job for job in all_jobs if job.last_status == StatusEnum.CANCELLED]
+                [job for job in all_jobs if job.last_status == JobStatusEnum.CANCELLED]
             ),
             "errored_jobs": len(
-                [job for job in all_jobs if job.last_status == StatusEnum.ERROR]
+                [job for job in all_jobs if job.last_status == JobStatusEnum.ERROR]
             ),
             "completed_jobs": len(
-                [job for job in all_jobs if job.last_status == StatusEnum.COMPLETED]
+                [job for job in all_jobs if job.last_status == JobStatusEnum.COMPLETED]
             ),
         },
         index=[0],

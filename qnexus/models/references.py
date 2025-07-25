@@ -26,12 +26,12 @@ from hugr.qsystem.result import QsysResult
 from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
-from pytket.backends.status import StatusEnum
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
 
 from qnexus.models.annotations import Annotations
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.utils import assert_never
 
 
@@ -282,7 +282,7 @@ class JobRef(BaseRef):
 
     annotations: Annotations
     job_type: JobType
-    last_status: StatusEnum
+    last_status: JobStatusEnum
     last_message: str
     project: ProjectRef
     id: UUID

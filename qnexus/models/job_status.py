@@ -1,12 +1,23 @@
 """Status types for Nexus Jobs."""
 
 from datetime import datetime
+from enum import Enum
 from typing import Any, Dict, NamedTuple, Optional
 
 import pandas as pd
-from pytket.backends.status import (
-    StatusEnum,
-)
+
+
+class JobStatusEnum(str, Enum):
+    """Possible job statuses"""
+
+    COMPLETED = "COMPLETED"
+    QUEUED = "QUEUED"
+    SUBMITTED = "SUBMITTED"
+    RUNNING = "RUNNING"
+    CANCELLED = "CANCELLED"
+    ERROR = "ERROR"
+    DEPLETED = "DEPLETED"
+    TERMINATED = "TERMINATED"
 
 
 class JobStatus(NamedTuple):
@@ -18,7 +29,7 @@ class JobStatus(NamedTuple):
     * Queue position.
     """
 
-    status: StatusEnum
+    status: JobStatusEnum
     message: str = ""
     error_detail: Optional[str] = None
 
@@ -40,7 +51,7 @@ class JobStatus(NamedTuple):
             raise invalid
 
         try:
-            status = next(s for s in StatusEnum if dic["status"] == s.name)
+            status = next(s for s in JobStatusEnum if dic["status"] == s.name)
         except StopIteration as err:
             raise invalid from err
 
@@ -78,3 +89,6 @@ class JobStatus(NamedTuple):
             self._asdict(),
             orient="index",
         ).T
+
+
+WAITING_STATUS = {JobStatusEnum.QUEUED, JobStatusEnum.SUBMITTED, JobStatusEnum.RUNNING}

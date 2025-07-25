@@ -39,6 +39,7 @@ from quantinuum_schemas.models.selene_config import (
 )
 
 from qnexus.models.annotations import Annotations
+from qnexus.models.job_status import WAITING_STATUS, JobStatusEnum
 from qnexus.models.references import TeamRef, UserRef
 from qnexus.models.utils import assert_never
 
@@ -65,6 +66,8 @@ __all__ = [
     "SimpleRuntime",
     "NoErrorModel",
     "DepolarizingErrorModel",
+    "JobStatusEnum",
+    "WAITING_STATUS",
 ]
 
 

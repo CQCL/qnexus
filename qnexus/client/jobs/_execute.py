@@ -5,7 +5,6 @@ from typing import Union, cast
 from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
-from pytket.backends.status import StatusEnum
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
@@ -16,6 +15,7 @@ from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
@@ -121,7 +121,7 @@ def start_execute_job(
         id=resp.json()["data"]["id"],
         annotations=Annotations.from_dict(resp.json()["data"]["attributes"]),
         job_type=JobType.EXECUTE,
-        last_status=StatusEnum.SUBMITTED,
+        last_status=JobStatusEnum.SUBMITTED,
         last_message="",
         project=project,
         backend_config_store=backend_config,
@@ -149,7 +149,14 @@ def _results(
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
     for item in resp_data["attributes"]["definition"]["items"]:
-        if item["status"]["status"] == "COMPLETED":
+        # Check if item is in a "final" state and append to results
+        if item["status"]["status"] in (
+            "CANCELLED",
+            "ERROR",
+            "DEPLETED",
+            "TERMINATED",
+            "COMPLETED",
+        ):
             result_type: ResultType
 
             match item["result_type"]:
@@ -215,7 +222,7 @@ def _fetch_pytket_execution_result(
 
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
-) -> tuple[QsysResult, BackendInfo, HUGRRef]:
+) -> tuple[QsysResult, BackendInfo, HUGRRef | QIRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
@@ -226,12 +233,20 @@ def _fetch_qsys_execution_result(
 
     res_dict = res.json()
 
-    input_hugr_id = res_dict["data"]["relationships"]["hugr_module"]["data"]["id"]
+    input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
-    input_hugr = hugr_api._fetch_by_id(
-        input_hugr_id,
-        scope=None,
-    )
+    input_program: HUGRRef | QIRRef
+    match res_dict["data"]["relationships"]["program"]["data"]["type"]:
+        case "hugr":
+            input_program = hugr_api._fetch_by_id(
+                input_program_id,
+                scope=None,
+            )
+        case "qir":
+            input_program = qir_api._fetch_by_id(
+                input_program_id,
+                scope=None,
+            )
 
     qsys_result = QsysResult(res_dict["data"]["attributes"]["results"])
 
@@ -245,5 +260,5 @@ def _fetch_qsys_execution_result(
     return (
         qsys_result,
         backend_info,
-        input_hugr,
+        input_program,
     )
