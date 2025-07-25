@@ -30,6 +30,7 @@ from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
 
+from qnexus.exceptions import IncompatibleResultVersion
 from qnexus.models.annotations import Annotations
 from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.utils import assert_never
@@ -484,6 +485,8 @@ class ExecutionResultRef(BaseRef):
 
         match self.result_type:
             case ResultType.PYTKET:
+                if version != ResultVersions.DEFAULT:
+                    raise IncompatibleResultVersion("pytket results can only be fetched in the default version")
                 return _fetch_pytket_execution_result(self)
             case ResultType.QSYS:
                 return _fetch_qsys_execution_result(self, version)

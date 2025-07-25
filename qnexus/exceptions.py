@@ -72,3 +72,7 @@ class ResourceUpdateFailed(Exception):
             f"{self.status_code}, message: {self.message}"
         )
         super().__init__(self.err)
+
+
+class IncompatibleResultVersion(Exception):
+    """Raised when the user tries to get results in a version that's not possible"""
