@@ -230,7 +230,9 @@ def _fetch_qsys_execution_result(
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
     params = {"version": version.value}
-    res = get_nexus_client().get(f"/api/qsys_results/v1beta/{result_ref.id}", params=params)
+    res = get_nexus_client().get(
+        f"/api/qsys_results/v1beta/{result_ref.id}", params=params
+    )
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
@@ -240,7 +242,7 @@ def _fetch_qsys_execution_result(
     input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
     input_program: HUGRRef | QIRRef
-    result = QsysResult | str
+    result: QsysResult | QIRResult
     match res_dict["data"]["relationships"]["program"]["data"]["type"]:
         case "hugr":
             input_program = hugr_api._fetch_by_id(

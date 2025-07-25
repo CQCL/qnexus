@@ -410,11 +410,13 @@ class ResultVersions(int, Enum):
     DEFAULT = 3
     RAW = 4
 
-class QIRResult():
+
+class QIRResult:
     results: str
 
     def __init__(self, results: str):
         self.results = results
+
 
 ExecutionProgram: TypeAlias = CircuitRef | HUGRRef | QIRRef
 ExecutionResult: TypeAlias = QsysResult | BackendResult | QIRResult
@@ -446,7 +448,9 @@ class ExecutionResultRef(BaseRef):
         self._result_version = ResultVersions.DEFAULT
         return copy(self._input_program)
 
-    def download_result(self, version: ResultVersions = ResultVersions.DEFAULT) -> ExecutionResult:
+    def download_result(
+        self, version: ResultVersions = ResultVersions.DEFAULT
+    ) -> ExecutionResult:
         """Get a copy of the result of the program execution."""
         if self._result and self._result_version == version:
             return copy(self._result)
@@ -473,8 +477,7 @@ class ExecutionResultRef(BaseRef):
         return copy(self._backend_info)
 
     def _get_execute_results(
-        self,
-        version: ResultVersions
+        self, version: ResultVersions
     ) -> tuple[ExecutionResult, BackendInfo, ExecutionProgram]:
         """Utility method to retrieve the passes and output circuit.
         result_version can be passed to request v4 results for qsys results only.
@@ -491,7 +494,9 @@ class ExecutionResultRef(BaseRef):
         match self.result_type:
             case ResultType.PYTKET:
                 if version != ResultVersions.DEFAULT:
-                    raise IncompatibleResultVersion("pytket results can only be fetched in the default version")
+                    raise IncompatibleResultVersion(
+                        "pytket results can only be fetched in the default version"
+                    )
                 return _fetch_pytket_execution_result(self)
             case ResultType.QSYS:
                 return _fetch_qsys_execution_result(self, version)

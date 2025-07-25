@@ -12,7 +12,8 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import QIRRef, ResultVersions
+from qnexus.models.references import QIRRef, QIRResult, ResultVersions
+from hugr.qsystem.result import QsysResult
 
 
 def test_qir_create_and_update(
@@ -136,7 +137,7 @@ def test_execution_on_NG_devices(
     qir_ref = qnx.qir.upload(
         qir=make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
         name="ng_qir_module_name",
-        project=project_ref
+        project=project_ref,
     )
 
     qir_program_ref = qnx.qir.get(id=qir_ref.id)
@@ -153,14 +154,16 @@ def test_execution_on_NG_devices(
 
     results = qnx.jobs.results(job_ref)[0].download_result()
     # Assert this is a QIR compliant result
-    assert isinstance(results.results, str)
+    assert isinstance(results, QIRResult)
     assert results.results.startswith("HEADER\tschema_id\tlabeled")
     # Can't assert the value is the same, so just check the output is there
     assert "OUTPUT\tDOUBLE" in results.results
 
-    v4_results = qnx.jobs.results(job_ref)[0].download_result(version=ResultVersions.RAW)
+    v4_results = qnx.jobs.results(job_ref)[0].download_result(
+        version=ResultVersions.RAW
+    )
     # Assert this is in v4 format
-    assert isinstance(v4_results.results, list)
+    assert isinstance(v4_results, QsysResult)
     assert v4_results.results[0].entries[0][0] == "USER:FLOAT:d0"
 
 

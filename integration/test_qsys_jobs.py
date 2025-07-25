@@ -90,7 +90,9 @@ def test_guppy_execution(
     assert len(qsys_result.collated_counts().items()) > 0
 
     # Assert we can get the same result for v4 results
-    v4_qsys_result = cast(QsysResult, result_ref.download_result(version=ResultVersions.RAW))
+    v4_qsys_result = cast(
+        QsysResult, result_ref.download_result(version=ResultVersions.RAW)
+    )
     assert len(v4_qsys_result.results) == n_shots
     assert v4_qsys_result.results[0].entries[0][0] == "USER:BOOL:teleported"
     assert v4_qsys_result.results[0].entries[0][1] == 1
