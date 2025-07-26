@@ -10,7 +10,7 @@ from uuid import UUID
 
 from quantinuum_schemas.models.backend_config import config_name_to_class
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
-from websockets.client import connect
+from websockets.asyncio.client import connect, process_exception
 from websockets.exceptions import ConnectionClosed
 
 import qnexus.exceptions as qnx_exc
@@ -349,14 +349,26 @@ async def listen_job_status(
         ssl_reconfigured.check_hostname = False
         ssl_reconfigured.verify_mode = ssl.CERT_NONE
 
-    extra_headers = {
+    def _process_exception(exc: Exception) -> Exception | None:
+        """Utility wrapper around process_exception that tells the websockets
+        library not to auto-retry SSLErrors as they are usually not recoverable.
+
+        Unfortunately SSLError inherits from OSError which websockets will always
+        retried when `connect` is used in an async for loop.
+        """
+        if isinstance(exc, ssl.SSLError):
+            return exc
+        return process_exception(exc)
+
+    additional_headers = {
         # TODO, this cookie will expire frequently
         "Cookie": f"myqos_id={get_nexus_client().auth.cookies.get('myqos_id')}"  # type: ignore
     }
     async for websocket in connect(
         f"{CONFIG.websockets_url}/api/jobs/v1beta3/{job.id}/attributes/status/ws",
         ssl=ssl_reconfigured,
-        extra_headers=extra_headers,
+        additional_headers=additional_headers,
+        process_exception=_process_exception,
         # logger=logger,
     ):
         try:
