@@ -2530,9 +2530,10 @@ wheels = [
 
 [[package]]
 name = "qnexus"
-version = "0.24.1"
+version = "0.25.0"
 source = { editable = "." }
 dependencies = [
+    { name = "certifi" },
     { name = "click" },
     { name = "colorama" },
     { name = "httpx" },
@@ -2576,6 +2577,7 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "certifi", specifier = ">=2025.1.31" },
     { name = "click", specifier = ">=8.1,<9.0" },
     { name = "colorama", specifier = ">=0.4,<1.0" },
     { name = "httpx", specifier = ">=0,<1" },
