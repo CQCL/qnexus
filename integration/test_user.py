@@ -4,7 +4,7 @@ import qnexus as qnx
 from qnexus.models.references import UserRef
 
 
-def test_user_get(_authenticated_nexus: None) -> None:
+def test_user_get(authenticated_nexus: None) -> None:
     """Test that we can get a specific unique UserRef."""
 
     my_user = qnx.users.get_self()

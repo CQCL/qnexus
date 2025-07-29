@@ -2,6 +2,7 @@
 
 from collections import Counter
 from datetime import datetime
+from typing import Callable
 
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
@@ -14,111 +15,154 @@ from qnexus.models.references import QIRRef
 
 
 def test_qir_create_and_update(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    circuit: Circuit,
+    test_case_name: str,
+    create_property_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can create a qir and add a property value."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    project_name = f"project for {test_case_name}"
+    property_name = f"property for {test_case_name}"
 
-    qir_name = f"QA_test_qir_{datetime.now()}"
+    with create_property_in_project(
+        project_name=project_name,
+        property_name=property_name,
+        property_type="string",
+        required=False,
+    ):
 
-    qir_bitcode = pytket_to_qir(circuit, name=qir_name)
-    assert isinstance(qir_bitcode, bytes)
-    my_new_qir = qnx.qir.upload(qir=qir_bitcode, name=qir_name, project=my_proj)
+        proj_ref = qnx.projects.get_or_create(project_name)
+        qir_name = f"qir for {test_case_name}"
 
-    assert isinstance(my_new_qir, QIRRef)
+        qir_bitcode = pytket_to_qir(test_circuit, name=qir_name)
+        assert isinstance(qir_bitcode, bytes)
+        my_new_qir = qnx.qir.upload(qir=qir_bitcode, name=qir_name, project=proj_ref)
 
-    test_property_name = "QA_test_prop"
-    test_prop_value = "foo"
+        assert isinstance(my_new_qir, QIRRef)
 
-    updated_qir_ref = qnx.qir.update(
-        ref=my_new_qir,
-        properties=PropertiesDict({test_property_name: test_prop_value}),
-    )
+        test_prop_value = "foo"
 
-    assert updated_qir_ref.annotations.properties[test_property_name] == test_prop_value
+        updated_qir_ref = qnx.qir.update(
+            ref=my_new_qir,
+            properties=PropertiesDict({property_name: test_prop_value}),
+        )
+
+        assert updated_qir_ref.annotations.properties[property_name] == test_prop_value
 
 
 def test_qir_download(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_qir_name: str,
+    test_case_name: str,
+    create_qir_in_project: Callable,
+    qa_qir_bitcode: bytes,
 ) -> None:
     """Test that QIR bytes can be downloaded from an uploaded QIR module."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_qir_ref = qnx.qir.get(name_like=qa_qir_name, project=my_proj)
+    project_name = f"project for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
 
-    qir_bytes = my_qir_ref.download_qir()
-    assert isinstance(qir_bytes, bytes)
+    with create_qir_in_project(
+        project_name=project_name,
+        qir_name=qir_name,
+        qir=qa_qir_bitcode,
+    ) as qir_ref:
+        my_proj = qnx.projects.get(name_like=project_name)
+        my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
+
+        qir_bytes = my_qir_ref.download_qir()
+        assert isinstance(qir_bytes, bytes)
+        assert qir_bytes == qa_qir_bitcode
 
 
 def test_qir_get_by_id(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_qir_name: str,
+    test_case_name: str,
+    create_qir_in_project: Callable,
+    qa_qir_bitcode: bytes,
 ) -> None:
     """Test that we can get a QIRRef by its ID."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_qir_ref = qnx.qir.get(name_like=qa_qir_name, project=my_proj)
+    project_name = f"project for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
 
-    qir_ref_by_id = qnx.qir.get(id=my_qir_ref.id)
+    with create_qir_in_project(
+        project_name=project_name,
+        qir_name=qir_name,
+        qir=qa_qir_bitcode,
+    ):
 
-    assert qir_ref_by_id == my_qir_ref
+        my_proj = qnx.projects.get(name_like=project_name)
+        my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
+
+        qir_ref_by_id = qnx.qir.get(id=my_qir_ref.id)
+
+        assert qir_ref_by_id == my_qir_ref
 
 
 def test_qir_get_all(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_qir_name: str,
+    test_case_name: str,
+    create_qir_in_project: Callable,
+    qa_qir_bitcode: bytes,
 ) -> None:
     """Test that we can get all qirRefs in a project."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    project_name = f"project for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
 
-    qirs = qnx.qir.get_all(project=my_proj)
+    with create_qir_in_project(
+        project_name=project_name,
+        qir_name=qir_name,
+        qir=qa_qir_bitcode,
+    ):
+        my_proj = qnx.projects.get(name_like=project_name)
 
-    assert qirs.count() >= 1
-    assert isinstance(qirs.list()[0], QIRRef)
+        qirs = qnx.qir.get_all(project=my_proj)
+
+        assert qirs.count() >= 1
+        assert isinstance(qirs.list()[0], QIRRef)
 
 
 def test_execution(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_qir_name: str,
+    test_case_name: str,
+    create_qir_in_project: Callable,
+    qa_qir_bitcode: bytes,
 ) -> None:
     """Test the execution of a QIR program."""
 
-    device_name = "H1-1SC"  # Syntax checker - no results
+    project_name = f"project for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
 
-    project_ref = qnx.projects.get_or_create(name=qa_project_name)
+    with create_qir_in_project(
+        project_name=project_name,
+        qir_name=qir_name,
+        qir=qa_qir_bitcode,
+    ) as qir_program_ref:
 
-    qir_program_ref = qnx.qir.get(name_like=qa_qir_name)
+        device_name = "H1-1SC"  # Syntax checker - no results
 
-    job_ref = qnx.start_execute_job(
-        programs=[qir_program_ref],
-        n_shots=[10],
-        backend_config=qnx.QuantinuumConfig(device_name=device_name),
-        project=project_ref,
-        name=f"QA Test QIR job from {datetime.now()}",
-    )
+        project_ref = qnx.projects.get_or_create(name=project_name)
 
-    qnx.jobs.wait_for(job_ref)
+        qir_program_ref = qnx.qir.get(name_like=qir_name)
 
-    results = qnx.jobs.results(job_ref)
+        job_ref = qnx.start_execute_job(
+            programs=[qir_program_ref],
+            n_shots=[10],
+            backend_config=qnx.QuantinuumConfig(device_name=device_name),
+            project=project_ref,
+            name=f"qir job for {test_case_name}",
+        )
 
-    assert len(results) == 1
-    result_ref = results[0]
+        qnx.jobs.wait_for(job_ref)
 
-    assert isinstance(result_ref.download_backend_info(), BackendInfo)
-    assert isinstance(result_ref.get_input(), QIRRef)
+        results = qnx.jobs.results(job_ref)
 
-    assert result_ref.get_input().id == qir_program_ref.id
+        assert len(results) == 1
+        result_ref = results[0]
 
-    qir_result = qnx.jobs.results(job_ref)[0].download_result()
-    assert isinstance(qir_result, BackendResult)
-    assert qir_result.get_counts() == Counter({(0, 0, 0): 10})
-    assert qir_result.get_bitlist() == [Bit("c", 2), Bit("c", 1), Bit("c", 0)]
+        assert isinstance(result_ref.download_backend_info(), BackendInfo)
+        assert isinstance(result_ref.get_input(), QIRRef)
+
+        assert result_ref.get_input().id == qir_program_ref.id
+
+        qir_result = qnx.jobs.results(job_ref)[0].download_result()
+        assert isinstance(qir_result, BackendResult)
+        assert qir_result.get_counts() == Counter({(0, 0, 0): 10})
+        assert qir_result.get_bitlist() == [Bit("c", 2), Bit("c", 1), Bit("c", 0)]

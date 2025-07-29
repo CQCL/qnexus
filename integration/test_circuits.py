@@ -1,10 +1,11 @@
 """Test basic functionality relating to the circuit module."""
 
 from datetime import datetime
+from typing import Callable
 
 import pandas as pd
 import pytest
-from conftest import make_authenticated_nexus, make_temp_circuit
+from conftest import make_authenticated_nexus
 from pytket.circuit import Circuit
 
 import qnexus as qnx
@@ -16,20 +17,21 @@ from qnexus.models.references import CircuitRef
 test_circuit = Circuit(2, 2).H(0).CX(0, 1).measure_all()
 
 
-def test_circuit_get(test_name: str) -> None:
+def test_circuit_get(test_case_name: str, create_circuit_in_project: Callable) -> None:
     """Test that we can create a circuit, add a property value,
     get a specific unique CircuitRef by name or id, or get an iterator over all circuits.
     """
 
-    with make_temp_circuit(
+    with create_circuit_in_project(
         circuit=test_circuit,
-        project_name=f"project for {test_name}",
-        circuit_name=f"circuit for {test_name}",
+        project_name=f"project for {test_case_name}",
+        circuit_name=f"circuit for {test_case_name}",
     ) as my_circ:
         assert isinstance(my_circ, CircuitRef)
         assert isinstance(my_circ.download_circuit(), Circuit)
 
         my_circ_2 = qnx.circuits.get(id=my_circ.id)
+
         # For some reason direct equality check fails
         assert my_circ.id == my_circ_2.id
         assert my_circ.annotations == my_circ_2.annotations
@@ -39,83 +41,85 @@ def test_circuit_get(test_name: str) -> None:
             qnx.circuits.get()
 
         with pytest.raises(qnx_exc.ZeroMatches):
-            qnx.circuits.get(name_like=f"{test_name}-wrong")
+            qnx.circuits.get(name_like=f"{test_case_name}-wrong")
 
 
-def test_circuit_get_all(test_name: str) -> None:
+def test_circuit_get_all(test_case_name: str, create_circuit_in_project: Callable) -> None:
     """Test that we can get an iterator over all circuits."""
-    project_name = f"project for {test_name}"
+    project_name = f"project for {test_case_name}"
 
-    with make_temp_circuit(
+    with create_circuit_in_project(
         circuit=test_circuit,
         project_name=project_name,
-        circuit_name=f"circuit1 for {test_name}",
-        purge_project=False,
+        circuit_name=f"circuit1 for {test_case_name}",
     ):
-        with make_temp_circuit(
+        with create_circuit_in_project(
             circuit=test_circuit,
             project_name=project_name,
-            circuit_name=f"circuit2 for {test_name}",
-            purge_project=True,
+            circuit_name=f"circuit2 for {test_case_name}",
         ):
 
-            my_circ_db_matches = qnx.circuits.get_all(name_like=test_name)
+            my_circ_db_matches = qnx.circuits.get_all(name_like=test_case_name)
 
             assert my_circ_db_matches.count() == 2
             assert isinstance(my_circ_db_matches.summarize(), pd.DataFrame)
             assert isinstance(next(my_circ_db_matches), CircuitRef)
 
 
-def test_circuit_create(_authenticated_nexus: None, qa_project_name: str, qa_) -> None:
+def test_circuit_create(
+    test_case_name: str, create_project: Callable, create_property_in_project: Callable
+) -> None:
     """Test that we can create a circuit and add a property value."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    project_name = f"project for {test_case_name}"
+    property_name = f"property for {test_case_name}"
+    with create_project(project_name=f"project for {test_case_name}") as my_proj:
 
-    circuit_name = f"QA_test_circuit_{datetime.now()}"
+        with create_property_in_project(
+            project_name=project_name,
+            property_name=property_name,
+            property_type="string",
+            required=False,
+        ):
+            circuit_name = f"QA_test_circuit_{datetime.now()}"
+            my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
+            my_new_circuit = qnx.circuits.upload(
+                circuit=my_circ, name=circuit_name, project=my_proj
+            )
 
-    my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
+            assert isinstance(my_new_circuit, CircuitRef)
 
-    my_new_circuit = qnx.circuits.upload(
-        circuit=my_circ, name=circuit_name, project=my_proj
-    )
+            test_prop_value = "foo"
 
-    assert isinstance(my_new_circuit, CircuitRef)
+            updated_circuit_ref = qnx.circuits.update(
+                ref=my_new_circuit,
+                properties=PropertiesDict({property_name: test_prop_value}),
+            )
 
-    test_property_name = "QA_test_prop"
-    test_prop_value = "foo"
-
-    updated_circuit_ref = qnx.circuits.update(
-        ref=my_new_circuit,
-        properties=PropertiesDict({test_property_name: test_prop_value}),
-    )
-
-    assert (
-        updated_circuit_ref.annotations.properties[test_property_name]
-        == test_prop_value
-    )
+            assert (
+                updated_circuit_ref.annotations.properties[property_name]
+                == test_prop_value
+            )
 
 
-def test_circuit_get_cost(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-) -> None:
+def test_circuit_get_cost(test_case_name: str, create_project: Callable) -> None:
     """Test that we can get the cost to run a CircuitRef,
     on a particular Quantinuum Systems device."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    with create_project(project_name=f"project for {test_case_name}") as my_proj:
 
-    my_q_systems_circuit = qnx.circuits.upload(
-        circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
-        name="qa_q_systems_circuit",
-        project=my_proj,
-    )
+        my_q_systems_circuit = qnx.circuits.upload(
+            circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
+            name="qa_q_systems_circuit",
+            project=my_proj,
+        )
 
-    cost = qnx.circuits.cost(
-        circuit_ref=my_q_systems_circuit,
-        n_shots=10,
-        backend_config=qnx.QuantinuumConfig(device_name="H1-1E"),
-        syntax_checker="H1-1SC",
-    )
+        cost = qnx.circuits.cost(
+            circuit_ref=my_q_systems_circuit,
+            n_shots=10,
+            backend_config=qnx.QuantinuumConfig(device_name="H1-1E"),
+            syntax_checker="H1-1SC",
+        )
 
-    assert isinstance(cost, float)
-    assert cost > 0.0
+        assert isinstance(cost, float)
+        assert cost > 0.0

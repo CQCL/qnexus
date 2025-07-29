@@ -10,12 +10,13 @@ from qnexus.models.annotations import PropertiesDict
 
 
 def test_property_creation_and_filtering(
-    _authenticated_nexus: None,
+    test_case_name: str,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can create resources with property values
     and filter resources by their property values."""
 
-    project_name = f"QA_test_project_properties_{datetime.now()}"
+    project_name = f"project for {test_case_name}"
 
     my_new_project = qnx.projects.create(name=project_name)
 

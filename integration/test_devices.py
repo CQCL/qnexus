@@ -11,7 +11,7 @@ from qnexus.models.references import DataframableList
 
 
 def test_device_get_all(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can get a list of devices."""
     devices = qnx.devices.get_all()
@@ -24,7 +24,7 @@ def test_device_get_all(
 
 
 def test_supports_shots(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports shots."""
@@ -34,7 +34,7 @@ def test_supports_shots(
 
 
 def test_supports_counts(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports counts."""
@@ -44,7 +44,7 @@ def test_supports_counts(
 
 
 def test_supports_state(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports state."""
@@ -54,7 +54,7 @@ def test_supports_state(
 
 
 def test_supports_unitary(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports unitary."""
@@ -64,7 +64,7 @@ def test_supports_unitary(
 
 
 def test_supports_density_matrix(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports density matrix."""
@@ -74,7 +74,7 @@ def test_supports_density_matrix(
 
 
 def test_supports_expectation(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports expectation."""
@@ -84,7 +84,7 @@ def test_supports_expectation(
 
 
 def test_expectation_allows_nonhermitian(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports expectation_allows_nonhermitian."""
@@ -96,7 +96,7 @@ def test_expectation_allows_nonhermitian(
 
 
 def test_supports_contextual_optimisation(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
     backend_config: BackendConfig,
 ) -> None:
     """Test whether a BackendConfig supports contextual optimisation."""
@@ -107,7 +107,7 @@ def test_supports_contextual_optimisation(
 
 
 def test_quantinuum_device_status(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Check that we can get the status of a hardware-hosted
     Quantinuum device."""

@@ -3,7 +3,9 @@
 from collections import Counter
 from datetime import datetime
 from time import sleep
+from typing import Callable
 
+from integration import test_circuits
 import pandas as pd
 import pytest
 from pytket.backends.backendinfo import BackendInfo
@@ -22,358 +24,477 @@ from qnexus.models.references import (
     ExecuteJobRef,
     JobRef,
 )
+from qnexus.models.job_status import JobStatusEnum
+
+
+# The following global variables and autoused fixture are a
+# bit of a hack to have global identifiers for the resources
+# used by the `*job_get` tests in this suite. Using the same name for the
+# resources means they will be reused if they exist,
+# as the "create_*_in_project" fixtures do precisely that.
+project_name = "project for {test_suite_name}"
+circuit_name = "circuit for {test_suite_name}"
+compile_job_name = "compile job for {test_suite_name}"
+execute_job_name = "execute job for {test_suite_name}"
+
+
+@pytest.fixture(autouse=True)
+def set_resource_names(test_suite_name: str) -> None:
+    global project_name
+    global circuit_name
+    global compile_job_name
+    global execute_job_name
+
+    project_name = project_name.replace("{test_suite_name}", test_suite_name)
+    circuit_name = circuit_name.replace("{test_suite_name}", test_suite_name)
+    compile_job_name = compile_job_name.replace("{test_suite_name}", test_suite_name)
+    execute_job_name = execute_job_name.replace("{test_suite_name}", test_suite_name)
 
 
 def test_job_get_all(
-    _authenticated_nexus: None,
-    qa_project_name: str,
+    create_compile_job_in_project: Callable,
+    create_execute_job_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can get an iterator over all jobs."""
 
-    project_ref = qnx.projects.get(name_like=qa_project_name)
+    with create_compile_job_in_project(
+        project_name=project_name,
+        job_name=compile_job_name,
+        circuit=test_circuit,
+        circuit_name=circuit_name,
+    ):
+        with create_execute_job_in_project(
+            project_name=project_name,
+            job_name=execute_job_name,
+            circuit=test_circuit,
+            circuit_name=circuit_name,
+        ):
+            proj_ref = qnx.projects.get(name_like=project_name)
+            my_job_db_matches = qnx.jobs.get_all(project=proj_ref)
 
-    my_job_db_matches = qnx.jobs.get_all(project=project_ref)
+            assert isinstance(my_job_db_matches.count(), int)
+            assert isinstance(my_job_db_matches.summarize(), pd.DataFrame)
 
-    assert isinstance(my_job_db_matches.count(), int)
-    assert isinstance(my_job_db_matches.summarize(), pd.DataFrame)
-
-    for job_ref in my_job_db_matches.list():
-        assert isinstance(job_ref, JobRef)
-        assert job_ref.backend_config is not None
-        assert isinstance(job_ref.backend_config, BaseBackendConfig)
+            for job_ref in my_job_db_matches.list():
+                assert isinstance(job_ref, JobRef)
+                assert job_ref.backend_config is not None
+                assert isinstance(job_ref.backend_config, BaseBackendConfig)
 
 
 def test_job_get_by_id(
-    _authenticated_nexus: None,
-    qa_compile_job_name: str,
-    qa_execute_job_name: str,
+    create_compile_job_in_project: Callable,
+    create_execute_job_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can get JobRefs by id."""
 
-    my_compile_job = qnx.jobs.get(name_like=qa_compile_job_name)
-    assert isinstance(my_compile_job, CompileJobRef)
-    assert isinstance(my_compile_job.backend_config, BaseBackendConfig)
+    with create_compile_job_in_project(
+        project_name=project_name,
+        job_name=compile_job_name,
+        circuit=test_circuit,
+        circuit_name=circuit_name,
+    ) as compile_job_ref:
+        with create_execute_job_in_project(
+            project_name=project_name,
+            job_name=execute_job_name,
+            circuit=test_circuit,
+            circuit_name=circuit_name,
+        ) as execute_job_ref:
+            assert isinstance(compile_job_ref, CompileJobRef)
+            assert isinstance(compile_job_ref.backend_config, BaseBackendConfig)
 
-    my_compile_job_2 = qnx.jobs.get(id=my_compile_job.id)
-    assert my_compile_job == my_compile_job_2
+            my_compile_job_by_id = qnx.jobs.get(id=compile_job_ref.id)
+            assert compile_job_ref == my_compile_job_by_id
 
-    my_execute_job = qnx.jobs.get(name_like=qa_execute_job_name)
-    assert isinstance(my_execute_job, ExecuteJobRef)
-    assert isinstance(my_execute_job.backend_config, BaseBackendConfig)
+            assert isinstance(execute_job_ref, ExecuteJobRef)
+            assert isinstance(execute_job_ref.backend_config, BaseBackendConfig)
 
-    my_execute_job_2 = qnx.jobs.get(id=my_execute_job.id)
-    assert my_execute_job == my_execute_job_2
+            my_execute_job_by_id = qnx.jobs.get(id=execute_job_ref.id)
+            assert execute_job_ref == my_execute_job_by_id
 
 
 def test_compile_job_get(
-    _authenticated_nexus: None,
-    qa_compile_job_name: str,
+    create_compile_job_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can get a specific unique CompileJobRef,
     or get an appropriate exception."""
 
-    my_job = qnx.jobs.get(name_like=qa_compile_job_name)
-    assert isinstance(my_job, CompileJobRef)
+    with create_compile_job_in_project(
+        project_name=project_name,
+        job_name=compile_job_name,
+        circuit=test_circuit,
+        circuit_name=circuit_name,
+    ) as compile_job_ref:
 
-    with pytest.raises(qnx_exc.NoUniqueMatch):
-        qnx.jobs.get()
+        assert isinstance(compile_job_ref, CompileJobRef)
 
-    with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.jobs.get(name_like=f"{datetime.now()}_{datetime.now()}")
+        with pytest.raises(qnx_exc.NoUniqueMatch):
+            qnx.jobs.get()
+
+        with pytest.raises(qnx_exc.ZeroMatches):
+            qnx.jobs.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_execute_job_get(
-    _authenticated_nexus: None,
-    qa_execute_job_name: str,
+    create_execute_job_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can get a specific unique ExecuteJobRef,
     or get an appropriate exception."""
+    with create_execute_job_in_project(
+        project_name=project_name,
+        job_name=execute_job_name,
+        circuit=test_circuit,
+        circuit_name=circuit_name,
+    ) as execute_job_ref:
 
-    my_job = qnx.jobs.get(name_like=qa_execute_job_name)
-    assert isinstance(my_job, ExecuteJobRef)
+        assert isinstance(execute_job_ref, ExecuteJobRef)
 
-    with pytest.raises(qnx_exc.NoUniqueMatch):
-        qnx.jobs.get()
+        with pytest.raises(qnx_exc.NoUniqueMatch):
+            qnx.jobs.get()
 
-    with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.jobs.get(name_like=f"{datetime.now()}_{datetime.now()}")
+        with pytest.raises(qnx_exc.ZeroMatches):
+            qnx.jobs.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_submit_compile(
-    _authenticated_nexus_circuit_ref: CircuitRef,
-    qa_project_name: str,
+    create_compile_job_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
-
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-
     config = qnx.AerConfig()
 
-    compile_job_ref = qnx.start_compile_job(
-        programs=[_authenticated_nexus_circuit_ref],
-        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
-        project=my_proj,
+    with create_compile_job_in_project(
+        project_name=project_name,
+        job_name=compile_job_name,
+        circuit=test_circuit,
+        circuit_name=circuit_name,
         backend_config=config,
-        skip_intermediate_circuits=False,
-    )
+    ) as compile_job_ref:
 
-    assert isinstance(compile_job_ref, CompileJobRef)
+        assert isinstance(compile_job_ref, CompileJobRef)
 
-    qnx.jobs.wait_for(compile_job_ref)
+        qnx.jobs.wait_for(compile_job_ref)
 
-    compile_results = qnx.jobs.results(compile_job_ref)
+        compile_results = qnx.jobs.results(compile_job_ref)
 
-    assert len(compile_results) == 1
-    assert isinstance(compile_results[0], CompilationResultRef)
+        assert len(compile_results) == 1
+        assert isinstance(compile_results[0], CompilationResultRef)
 
-    assert isinstance(compile_results[0].get_input(), CircuitRef)
-    assert isinstance(compile_results[0].get_output(), CircuitRef)
+        assert isinstance(compile_results[0].get_input(), CircuitRef)
+        assert isinstance(compile_results[0].get_output(), CircuitRef)
 
-    first_pass_data = compile_results[0].get_passes()[0]
+        first_pass_data = compile_results[0].get_passes()[0]
 
-    assert isinstance(first_pass_data, CompilationPassRef)
-    assert isinstance(first_pass_data.get_input(), CircuitRef)
-    assert isinstance(first_pass_data.get_output(), CircuitRef)
-    assert isinstance(first_pass_data.pass_name, str)
+        assert isinstance(first_pass_data, CompilationPassRef)
+        assert isinstance(first_pass_data.get_input(), CircuitRef)
+        assert isinstance(first_pass_data.get_output(), CircuitRef)
+        assert isinstance(first_pass_data.pass_name, str)
 
-    cj_ref = qnx.jobs.get(id=compile_job_ref.id)
-    assert cj_ref.backend_config == config
+        cj_ref = qnx.jobs.get(id=compile_job_ref.id)
+        assert cj_ref.backend_config == config
 
 
 def test_compile(
-    _authenticated_nexus_circuit_ref: CircuitRef,
-    qa_project_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run the utility compile function and get compiled circuits."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    local_compile_job_name = f"compile job for {test_case_name}"
 
-    compiled_circuits = qnx.compile(
-        programs=[_authenticated_nexus_circuit_ref],
-        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.AerConfig(),
-    )
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
+        my_proj = qnx.projects.get(name_like=local_project_name)
 
-    assert len(compiled_circuits) == 1
-    assert isinstance(compiled_circuits[0], CircuitRef)
+        compiled_circuits = qnx.compile(
+            programs=[circ_ref],
+            name=local_compile_job_name,
+            project=my_proj,
+            backend_config=qnx.AerConfig(),
+        )
+
+        assert len(compiled_circuits) == 1
+        assert isinstance(compiled_circuits[0], CircuitRef)
 
 
 def test_get_results_for_incomplete_compile(
-    _authenticated_nexus_circuit_ref: CircuitRef,
-    qa_project_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run a compile job in Nexus, and fetch complete results for
     an otherwise errored/incomplete job."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
 
-    compile_job_ref = qnx.start_compile_job(
-        programs=[_authenticated_nexus_circuit_ref],
-        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.AerConfig(),
-    )
-    # Unsure how to guarantee that the job will be incomplete
-    # This check may fail if the compilation completes quickly
-    compile_results = qnx.jobs.results(compile_job_ref, allow_incomplete=True)
-    assert len(compile_results) == 0
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
+        proj_ref = qnx.projects.get_or_create(local_project_name)
+
+        # Will create `n_jobs` compile jobs to guarantee that the last job
+        # has not completed before checking the incomplete results
+        n_jobs = 10
+        compile_job_ref = None
+        for job_num in range(n_jobs):
+            compile_job_name = f"compile job {job_num} for {test_case_name}"
+
+            compile_job_ref = qnx.start_compile_job(
+                programs=[circ_ref],
+                name=compile_job_name,
+                project=proj_ref,
+                backend_config=qnx.AerConfig(),
+            )
+
+        assert isinstance(compile_job_ref, CompileJobRef)
+        assert qnx.jobs.status(compile_job_ref).status != JobStatusEnum.COMPLETED
+        compile_results = qnx.jobs.results(compile_job_ref, allow_incomplete=True)
+        assert len(compile_results) == 0
 
 
 def test_compile_hypertket(
-    _authenticated_nexus_circuit_ref: CircuitRef,
-    qa_project_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run compile circuits for hypertket."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    local_job_name = f"hypertket job for {test_case_name}"
 
-    compiled_circuits = qnx.compile(
-        programs=[_authenticated_nexus_circuit_ref],
-        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
-        hypertket_config=HyperTketConfig(),
-    )
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
+        my_proj = qnx.projects.get(name_like=local_project_name)
 
-    assert len(compiled_circuits) == 1
-    assert isinstance(compiled_circuits[0], CircuitRef)
+        compiled_circuits = qnx.compile(
+            programs=[circ_ref],
+            name=local_job_name,
+            project=my_proj,
+            backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
+            hypertket_config=HyperTketConfig(),
+        )
+
+        assert len(compiled_circuits) == 1
+        assert isinstance(compiled_circuits[0], CircuitRef)
 
 
 def test_submit_execute(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_circuit_name: str,
+    create_execute_job_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run an execute job in Nexus, wait for the job to complete and
     obtain the results from the execution."""
-
     config = qnx.AerConfig()
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
+    with create_execute_job_in_project(
+        project_name=project_name,
+        job_name=execute_job_name,
+        circuit=test_circuit,
+        circuit_name=circuit_name,
+    ) as execute_job_ref:
 
-    execute_job_ref = qnx.start_execute_job(
-        programs=[my_circ],
-        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=config,
-        n_shots=[10],
-    )
+        qnx.jobs.wait_for(execute_job_ref)
 
-    assert isinstance(execute_job_ref, ExecuteJobRef)
+        execute_results = qnx.jobs.results(execute_job_ref)
 
-    qnx.jobs.wait_for(execute_job_ref)
+        assert len(execute_results) == 1
 
-    execute_results = qnx.jobs.results(execute_job_ref)
+        assert isinstance(execute_results[0].get_input(), CircuitRef)
 
-    assert len(execute_results) == 1
+        assert isinstance(execute_results[0].download_result(), BackendResult)
 
-    assert isinstance(execute_results[0].get_input(), CircuitRef)
+        assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
 
-    assert isinstance(execute_results[0].download_result(), BackendResult)
-
-    assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
-
-    pj_ref = qnx.jobs.get(id=execute_job_ref.id)
-    assert pj_ref.backend_config == config
+        pj_ref = qnx.jobs.get(id=execute_job_ref.id)
+        assert pj_ref.backend_config == config
 
 
 def test_execute(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_circuit_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run the utility execute function and get the results of the execution."""
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    local_execute_job_name = f"execute job for {test_case_name}"
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
 
-    backend_results = qnx.execute(
-        programs=[my_circ],
-        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.AerConfig(),
-        n_shots=[10],
-    )
+        my_proj = qnx.projects.get_or_create(local_project_name)
 
-    assert len(backend_results) == 1
-    assert isinstance(backend_results[0], BackendResult)
-    assert isinstance(backend_results[0].get_counts(), Counter)
+        backend_results = qnx.execute(
+            programs=[circ_ref],
+            name=local_execute_job_name,
+            project=my_proj,
+            backend_config=qnx.AerConfig(),
+            n_shots=[10],
+        )
+
+        assert len(backend_results) == 1
+        assert isinstance(backend_results[0], BackendResult)
+        assert isinstance(backend_results[0].get_counts(), Counter)
 
 
 def test_get_results_for_incomplete_execute(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_circuit_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can run an execute job in Nexus, and fetch complete results for
     an otherwise errored/incomplete job."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    job_name = f"execute job for {test_case_name}"
 
-    my_q_systems_circuit = qnx.circuits.upload(
-        circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
-        name="qa_q_systems_circuit",
-        project=my_proj,
-    )
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
+        proj_ref = qnx.projects.get_or_create(local_project_name)
 
-    execute_job_ref = qnx.start_execute_job(
-        programs=[my_circ, my_q_systems_circuit],
-        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
-        n_shots=[10, 10],
-    )
+        my_q_systems_circuit = qnx.circuits.upload(
+            circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
+            name="qa_q_systems_circuit",
+            project=proj_ref,
+        )
 
-    assert isinstance(execute_job_ref, ExecuteJobRef)
+        execute_job_ref = qnx.start_execute_job(
+            programs=[circ_ref, my_q_systems_circuit],
+            name=job_name,
+            project=proj_ref,
+            backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
+            n_shots=[10, 10],
+        )
 
-    with pytest.raises(qnx_exc.JobError):
-        qnx.jobs.wait_for(execute_job_ref)
+        assert isinstance(execute_job_ref, ExecuteJobRef)
 
-    incomplete_results = qnx.jobs.results(execute_job_ref, allow_incomplete=True)
+        with pytest.raises(qnx_exc.JobError):
+            qnx.jobs.wait_for(execute_job_ref)
 
-    # wait for the ZZPhase circuit execution to complete
-    for _ in range(10):
         incomplete_results = qnx.jobs.results(execute_job_ref, allow_incomplete=True)
-        if len(incomplete_results) > 0:
-            break
-        sleep(10)
 
-    # we expect the CX circuit to fail on H1-1LE, but the ZZPhase circuit should succeed
-    assert len(incomplete_results) == 1
+        # wait for the ZZPhase circuit execution to complete
+        for _ in range(10):
+            incomplete_results = qnx.jobs.results(
+                execute_job_ref, allow_incomplete=True
+            )
+            if len(incomplete_results) > 0:
+                break
+            sleep(10)
 
-    assert isinstance(incomplete_results[0].get_input(), CircuitRef)
-    assert isinstance(incomplete_results[0].download_result(), BackendResult)
-    assert isinstance(incomplete_results[0].download_backend_info(), BackendInfo)
+        # we expect the CX circuit to fail on H1-1LE, but the ZZPhase circuit should succeed
+        assert len(incomplete_results) == 1
+
+        assert isinstance(incomplete_results[0].get_input(), CircuitRef)
+        assert isinstance(incomplete_results[0].download_result(), BackendResult)
+        assert isinstance(incomplete_results[0].download_backend_info(), BackendInfo)
 
 
 def test_wait_for_raises_on_job_error(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_circuit_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that if a job errors, the wait_for function raises an Exception."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    job_name = f"execute job for {test_case_name}"
 
-    # Circuit not compiled for H1-1LE, so we expect it to error when executed
-    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
 
-    failing_job_ref = qnx.start_execute_job(
-        programs=[my_circ],
-        name=f"qnexus_integration_test_failing_job_{datetime.now()}",
-        project=my_proj,
-        n_shots=[10],
-        backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
-    )
+        proj_ref = qnx.projects.get_or_create(local_project_name)
 
-    with pytest.raises(qnx_exc.ResourceFetchFailed):
-        qnx.jobs.results(failing_job_ref)
+        # Circuit not compiled for H1-1LE, so we expect it to error when executed
+        failing_job_ref = qnx.start_execute_job(
+            programs=[circ_ref],
+            name=job_name,
+            project=proj_ref,
+            n_shots=[10],
+            backend_config=qnx.QuantinuumConfig(device_name="H1-1LE"),
+        )
 
-    with pytest.raises(qnx_exc.JobError):
-        qnx.jobs.wait_for(failing_job_ref)
+        with pytest.raises(qnx_exc.ResourceFetchFailed):
+            qnx.jobs.results(failing_job_ref)
+
+        with pytest.raises(qnx_exc.JobError):
+            qnx.jobs.wait_for(failing_job_ref)
 
 
 def test_results_not_available_error(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_circuit_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that we can't get the results of a job until it is complete."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
-    execute_job_ref = qnx.start_execute_job(
-        programs=[my_circ],
-        name=f"qnexus_integration_test_waiting_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.AerConfig(),
-        n_shots=[10],
-    )
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    job_name = f"execute job for {test_case_name}"
 
-    with pytest.raises(qnx_exc.ResourceFetchFailed):
-        qnx.jobs.results(execute_job_ref)
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
+        proj_ref = qnx.projects.get_or_create(local_project_name)
 
-    qnx.jobs.wait_for(execute_job_ref)
+        execute_job_ref = qnx.start_execute_job(
+            programs=[circ_ref],
+            name=job_name,
+            project=proj_ref,
+            backend_config=qnx.AerConfig(),
+            n_shots=[10],
+        )
 
-    execute_results = qnx.jobs.results(execute_job_ref)
+        with pytest.raises(qnx_exc.ResourceFetchFailed):
+            qnx.jobs.results(execute_job_ref)
 
-    assert len(execute_results) == 1
+        qnx.jobs.wait_for(execute_job_ref)
 
-    assert isinstance(execute_results[0].get_input(), CircuitRef)
+        execute_results = qnx.jobs.results(execute_job_ref)
 
-    assert isinstance(execute_results[0].download_result(), BackendResult)
+        assert len(execute_results) == 1
 
-    assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
+        assert isinstance(execute_results[0].get_input(), CircuitRef)
+
+        assert isinstance(execute_results[0].download_result(), BackendResult)
+
+        assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
 
 
 def test_submit_under_user_group(
-    _authenticated_nexus_circuit_ref: CircuitRef,
-    qa_project_name: str,
-    qa_circuit_name: str,
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_circuit: Circuit,
 ) -> None:
     """Test that a user can submit jobs under a user_group that
     they belong to.
@@ -384,46 +505,59 @@ def test_submit_under_user_group(
     'made_up_group'.
     """
 
+    local_project_name = f"project for {test_case_name}"
+    local_circuit_name = f"circuit for {test_case_name}"
+    correct_group = "QA_IntegrationTestGroup"
     fake_group = "made_up_group"
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    with create_circuit_in_project(
+        circuit=test_circuit,
+        project_name=local_project_name,
+        circuit_name=local_circuit_name,
+    ) as circ_ref:
 
-    with pytest.raises(qnx_exc.ResourceCreateFailed) as exc:
+        my_proj = qnx.projects.get_or_create(local_project_name)
+
+        with pytest.raises(qnx_exc.ResourceCreateFailed) as exc:
+            qnx.start_compile_job(
+                programs=[circ_ref],
+                name=f"compile job xfail for {test_case_name}",
+                project=my_proj,
+                backend_config=qnx.AerConfig(),
+                user_group=fake_group,
+            )
+            assert (
+                exc.value.message
+                == f"Not a member of any group with name: {fake_group}"
+            )
+
         qnx.start_compile_job(
-            programs=[_authenticated_nexus_circuit_ref],
-            name=f"qnexus_integration_test_compile_job_{datetime.now()}",
+            programs=[circ_ref],
+            name=f"compile job for {test_case_name}",
             project=my_proj,
             backend_config=qnx.AerConfig(),
-            user_group=fake_group,
+            user_group=correct_group,
         )
-        assert exc.value.message == f"Not a member of any group with name: {fake_group}"
 
-    qnx.start_compile_job(
-        programs=[_authenticated_nexus_circuit_ref],
-        name=f"qnexus_integration_test_compile_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.AerConfig(),
-        user_group="QA_IntegrationTestGroup",
-    )
+        with pytest.raises(qnx_exc.ResourceCreateFailed):
+            qnx.start_execute_job(
+                programs=[circ_ref],
+                name=f"execute job xfail for {test_case_name}",
+                project=my_proj,
+                backend_config=qnx.AerConfig(),
+                n_shots=[10],
+                user_group=fake_group,
+            )
+            assert (
+                exc.value.message
+                == f"Not a member of any group with name: {fake_group}"
+            )
 
-    my_circ = qnx.circuits.get(name_like=qa_circuit_name, project=my_proj)
-
-    with pytest.raises(qnx_exc.ResourceCreateFailed):
         qnx.start_execute_job(
-            programs=[my_circ],
-            name=f"qnexus_integration_test_execute_job_{datetime.now()}",
+            programs=[circ_ref],
+            name=f"execute job for {test_case_name}",
             project=my_proj,
             backend_config=qnx.AerConfig(),
             n_shots=[10],
-            user_group="made_up_group",
+            user_group=correct_group,
         )
-        assert exc.value.message == f"Not a member of any group with name: {fake_group}"
-
-    qnx.start_execute_job(
-        programs=[my_circ],
-        name=f"qnexus_integration_test_execute_job_{datetime.now()}",
-        project=my_proj,
-        backend_config=qnx.AerConfig(),
-        n_shots=[10],
-        user_group="QA_IntegrationTestGroup",
-    )
