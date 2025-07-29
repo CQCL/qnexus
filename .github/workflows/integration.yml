@@ -60,6 +60,7 @@ jobs:
       - name: Run integration tests
         run: |
           uv run pytest integration/ \
+                        --cache-clear \
                         --html=integration-results.html \
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
