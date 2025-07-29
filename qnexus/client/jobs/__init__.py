@@ -8,6 +8,7 @@ from enum import Enum
 from typing import Any, Type, Union, cast, overload
 from uuid import UUID
 
+import certifi
 from quantinuum_schemas.models.backend_config import config_name_to_class
 from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 from websockets.asyncio.client import connect, process_exception
@@ -343,11 +344,12 @@ async def listen_job_status(
 
     # If we pass True into the websocket connection, it sets a default SSLContext.
     # See: https://websockets.readthedocs.io/en/stable/reference/client.html
-    ssl_reconfigured: Union[bool, ssl.SSLContext] = True
+    ssl_context: ssl.SSLContext = ssl.create_default_context(
+        ssl.Purpose.SERVER_AUTH, cafile=certifi.where()
+    )
     if not CONFIG.httpx_verify:
-        ssl_reconfigured = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-        ssl_reconfigured.check_hostname = False
-        ssl_reconfigured.verify_mode = ssl.CERT_NONE
+        ssl_context.check_hostname = False
+        ssl_context.verify_mode = ssl.CERT_NONE
 
     def _process_exception(exc: Exception) -> Exception | None:
         """Utility wrapper around process_exception that tells the websockets
@@ -366,7 +368,7 @@ async def listen_job_status(
     }
     async for websocket in connect(
         f"{CONFIG.websockets_url}/api/jobs/v1beta3/{job.id}/attributes/status/ws",
-        ssl=ssl_reconfigured,
+        ssl=ssl_context,
         additional_headers=additional_headers,
         process_exception=_process_exception,
         # logger=logger,
