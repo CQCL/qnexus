@@ -5,7 +5,6 @@ from typing import Callable
 
 import pandas as pd
 import pytest
-from conftest import make_authenticated_nexus
 from pytket.circuit import Circuit
 
 import qnexus as qnx
