@@ -61,10 +61,12 @@ jobs:
         run: |
           uv run pytest integration/ \
                         --run-id=${{ github.run_id }}-${{ github.run_attempt }} \
+                        --purge-projects \
                         --html=integration-results.html \
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
                         -ra --reruns=3 \
+                        -vvv
 
       - name: Upload integration test results
         if: "!cancelled()"
