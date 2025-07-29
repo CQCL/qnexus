@@ -1,6 +1,5 @@
 """Tests related to running jobs against QSys devices."""
 
-from datetime import datetime
 from typing import Any, cast, Callable
 
 from guppylang import guppy  # type: ignore

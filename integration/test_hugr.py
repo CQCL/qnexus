@@ -25,7 +25,7 @@ def test_hugr_create_and_update(
         property_type="string",
         required=False,
     ) as my_proj:
-        # hugr_name = f"QA_test_hugr_{datetime.now()}"
+
         hugr_name = f"hugr for {test_case_name}"
         my_new_hugr = qnx.hugr.upload(
             hugr_package=qa_hugr_package, name=hugr_name, project=my_proj

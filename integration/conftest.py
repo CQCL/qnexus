@@ -1,7 +1,6 @@
 """Pytest fixtures and settings used in the qnexus integration tests."""
 
 from contextlib import contextmanager
-from datetime import datetime
 from pathlib import Path
 from typing import Callable, Generator, Literal, cast
 import pandas as pd

@@ -1,6 +1,5 @@
 """Test basic functionality relating to the team module."""
 
-from datetime import datetime
 from typing import Callable
 
 import pandas as pd

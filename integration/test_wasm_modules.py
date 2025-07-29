@@ -1,7 +1,5 @@
 """Test basic functionality relating to the wasm_modules module."""
 
-from datetime import datetime
-from pathlib import Path
 from typing import Callable
 
 import pandas as pd

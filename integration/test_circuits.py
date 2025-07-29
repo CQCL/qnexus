@@ -1,6 +1,5 @@
 """Test basic functionality relating to the circuit module."""
 
-from datetime import datetime
 from typing import Callable
 
 import pandas as pd
@@ -76,39 +75,40 @@ def test_circuit_get_all(
 
 
 def test_circuit_create(
-    test_case_name: str, create_project: Callable, create_property_in_project: Callable
+    test_case_name: str, create_property_in_project: Callable
 ) -> None:
     """Test that we can create a circuit and add a property value."""
 
     project_name = f"project for {test_case_name}"
     property_name = f"property for {test_case_name}"
-    with create_project(project_name=f"project for {test_case_name}") as my_proj:
 
-        with create_property_in_project(
-            project_name=project_name,
-            property_name=property_name,
-            property_type="string",
-            required=False,
-        ):
-            circuit_name = f"QA_test_circuit_{datetime.now()}"
-            my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
-            my_new_circuit = qnx.circuits.upload(
-                circuit=my_circ, name=circuit_name, project=my_proj
-            )
+    with create_property_in_project(
+        project_name=project_name,
+        property_name=property_name,
+        property_type="string",
+        required=False,
+    ):
+        my_proj = qnx.projects.get(name_like=project_name)
 
-            assert isinstance(my_new_circuit, CircuitRef)
+        circuit_name = f"circuit for {test_case_name}}"
+        my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
+        my_new_circuit = qnx.circuits.upload(
+            circuit=my_circ, name=circuit_name, project=my_proj
+        )
 
-            test_prop_value = "foo"
+        assert isinstance(my_new_circuit, CircuitRef)
 
-            updated_circuit_ref = qnx.circuits.update(
-                ref=my_new_circuit,
-                properties=PropertiesDict({property_name: test_prop_value}),
-            )
+        test_prop_value = "foo"
 
-            assert (
-                updated_circuit_ref.annotations.properties[property_name]
-                == test_prop_value
-            )
+        updated_circuit_ref = qnx.circuits.update(
+            ref=my_new_circuit,
+            properties=PropertiesDict({property_name: test_prop_value}),
+        )
+
+        assert (
+            updated_circuit_ref.annotations.properties[property_name]
+            == test_prop_value
+        )
 
 
 def test_circuit_get_cost(test_case_name: str, create_project: Callable) -> None:

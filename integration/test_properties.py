@@ -1,6 +1,5 @@
 """Test that we can set properties on a project, and use them when creating/filtering resources."""
 
-from datetime import datetime
 from typing import OrderedDict, Callable
 
 from pytket.circuit import Circuit
@@ -57,7 +56,7 @@ def test_property_creation_and_filtering(
 
         assert len(test_props) == 4
 
-        circuit_name = f"QA_test_circuit_with_props_{datetime.now()}"
+        circuit_name = f"circuit for {test_case_name}"
 
         my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
 
