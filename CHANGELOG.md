@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.25.0 (2025-07-25)
+
+
+### Added
+
+- Support qir result types (#218).
+
+
 ## v0.24.1 (2025-07-23)
 
 

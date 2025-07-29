@@ -11,7 +11,7 @@ from pytket.backends.backendinfo import BackendInfo
 from quantinuum_schemas.models.backend_config import SeleneQuestConfig
 
 import qnexus as qnx
-from qnexus.models.references import HUGRRef
+from qnexus.models.references import HUGRRef, ResultVersions
 
 
 def prepare_teleportation() -> Any:
@@ -88,3 +88,14 @@ def test_guppy_execution(
 
         # check some QsysResults functionality
         assert len(qsys_result.collated_counts().items()) > 0
+
+        # Assert we can get the same result for v4 results
+        v4_qsys_result = cast(
+            QsysResult, result_ref.download_result(version=ResultVersions.RAW)
+        )
+        assert len(v4_qsys_result.results) == n_shots
+        assert v4_qsys_result.results[0].entries[0][0] == "USER:BOOL:teleported"
+        assert v4_qsys_result.results[0].entries[0][1] == 1
+
+        # This doesn't seem to work with v4 results, thinks everything is going to be a bit.
+        # assert len(qsys_result.collated_counts().items()) > 0

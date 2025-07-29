@@ -4,6 +4,7 @@ from collections import Counter
 from datetime import datetime
 from typing import Callable
 
+import pyqir
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Bit, Circuit
@@ -11,7 +12,8 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import QIRRef
+from qnexus.models.references import QIRRef, QIRResult, ResultVersions
+from hugr.qsystem.result import QsysResult
 
 
 def test_qir_create_and_update(
@@ -166,3 +168,44 @@ def test_execution(
         assert isinstance(qir_result, BackendResult)
         assert qir_result.get_counts() == Counter({(0, 0, 0): 10})
         assert qir_result.get_bitlist() == [Bit("c", 2), Bit("c", 1), Bit("c", 0)]
+
+
+def test_execution_on_NG_devices(
+    test_case_name: str,
+    create_qir_in_project: Callable,
+    qa_qir_bitcode: bytes,
+) -> None:
+    """Test execution on NG devices, specifically to focus on getting the results"""
+
+    project_name = f"project for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
+
+    with create_qir_in_project(
+        project_name=project_name,
+        qir_name=qir_name,
+        qir=qa_qir_bitcode,
+    ) as qir_ref:
+
+        job_ref = qnx.start_execute_job(
+            programs=[qir_ref],
+            n_shots=[10],
+            backend_config=qnx.QuantinuumConfig(device_name="Helios-1E", max_cost=10),
+            project=project_ref,
+            name=f"qir job for {test_case_name}",
+        )
+
+        qnx.jobs.wait_for(job_ref)
+
+        results = qnx.jobs.results(job_ref)[0].download_result()
+        # Assert this is a QIR compliant result
+        assert isinstance(results, QIRResult)
+        assert results.results.startswith("HEADER\tschema_id\tlabeled")
+        # Can't assert the value is the same, so just check the output is there
+        assert "OUTPUT\tDOUBLE" in results.results
+
+        v4_results = qnx.jobs.results(job_ref)[0].download_result(
+            version=ResultVersions.RAW
+        )
+        # Assert this is in v4 format
+        assert isinstance(v4_results, QsysResult)
+        assert v4_results.results[0].entries[0][0] == "USER:FLOAT:d0"
