@@ -15,9 +15,11 @@ from quantinuum_schemas.models.backend_config import BackendConfig, BaseBackendC
 
 import qnexus as qnx
 from qnexus.client.auth import login_no_interaction
+from qnexus.filesystem import load, save
 from qnexus.config import CONFIG
 from qnexus.exceptions import NoUniqueMatch, ZeroMatches
 from qnexus.models.references import (
+    BaseRef,
     CircuitRef,
     CompileJobRef,
     ExecuteJobRef,
@@ -367,53 +369,24 @@ def fixture_create_wasm_in_project(create_project: Callable) -> Callable:
     return upload_wasm
 
 
-@pytest.fixture(scope="session")
-def _authenticated_nexus_hugr(
-    qa_project_name: str,
-    qa_hugr_name: str,
-    qa_property_name: str,
-) -> Generator[None, None, None]:
-    """Authenticated nexus instance fixture with a project and
-    a hugr (with properties)."""
-    with make_authenticated_nexus():
-        test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
-        my_proj = qnx.projects.get_or_create(
-            name=qa_project_name, description=test_desc
-        )
+@pytest.fixture(name="test_ref_serialisation")
+def fixture_test_ref_serialisation(tmpdir) -> Callable:
+    """Returns a function that tests the serialisation (save/load) of
+    a reference."""
 
-        qnx.projects.add_property(
-            name=qa_property_name,
-            property_type="string",
-            project=my_proj,
-        )
+    def test_ref_serialisation(
+        ref_type: str,
+        ref: BaseRef,
+    ) -> None:
+        ref_path = tmpdir / ref_type
+        save(ref=ref, path=ref_path)
+        ref_loaded = load(path=ref_path)
+        assert ref == ref_loaded
 
-        hugr_path = Path("integration/data/hugr_example.hugr").resolve()
-        hugr_package = Package.from_bytes(hugr_path.read_bytes())
-        qnx.hugr.upload(
-            hugr_package=hugr_package,
-            name=qa_hugr_name,
-            project=my_proj,
-        )
-
-        yield
+    return test_ref_serialisation
 
 
-@pytest.fixture(scope="session")
-def _authenticated_nexus_empty_project(
-    qa_project_name: str,
-) -> Generator[None, None, None]:
-    """Authenticated nexus instance fixture with a project and
-    no resources created."""
-    with make_authenticated_nexus():
-        test_desc = f"This can be safely deleted. Test Run: {datetime.now()}"
-        my_proj = qnx.projects.get_or_create(
-            name=qa_project_name, description=test_desc
-        )
-
-        yield
-
-
-@pytest.fixture(scope="session")
+@pytest.fixture()
 def _authenticated_nexus(
     qa_project_name: str,
     qa_property_name: str,
@@ -508,97 +481,77 @@ def _authenticated_nexus(
         qnx.projects.delete(my_proj)
 
 
-@pytest.fixture(scope="session")
-def _authenticated_nexus_circuit_ref(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-) -> Generator[CircuitRef, None, None]:
-    """Starting with authenticated nexus instance, yield a CircuitRef
-    for use in tests."""
-
-    my_proj = qnx.projects.get(name_like=qa_project_name)
-
-    my_new_circuit = qnx.circuits.upload(
-        circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
-        name=f"qnexus_integration_additional_test_circuit_{datetime.now()}",
-        description=f"This can be safely deleted. Test Run: {datetime.now()}",
-        project=my_proj,
-    )
-
-    yield my_new_circuit
-
-
-@pytest.fixture(scope="session", name="qa_project_name")
+@pytest.fixture(name="qa_project_name")
 def qa_project_name_fixture() -> str:
     """A name for uniquely identifying a project owned by the Nexus QA user."""
     return f"qnexus_integration_test_project_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_property_name")
+@pytest.fixture(name="qa_property_name")
 def qa_property_name_fixture() -> str:
     """A name for uniquely identifying a property created by the Nexus QA user."""
     return f"qnexus_integration_test_property_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_team_name")
+@pytest.fixture(name="qa_team_name")
 def qa_team_name_fixture() -> str:
     """A name for uniquely identifying a team for the Nexus QA user."""
     return f"qnexus_integration_test_team_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_circuit_name")
+@pytest.fixture(name="qa_circuit_name")
 def qa_circuit_name_fixture() -> str:
     """A name for uniquely identifying a circuit owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_circuit_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_circuit_name_2")
+@pytest.fixture(name="qa_circuit_name_2")
 def qa_circuit_name2_fixture() -> str:
     """A name for uniquely identifying a circuit owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_circuit2_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_compile_job_name")
+@pytest.fixture(name="qa_compile_job_name")
 def qa_compile_job_name_fixture() -> str:
     """A name for uniquely identifying a compile job owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_compile_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_execute_job_name")
+@pytest.fixture(name="qa_execute_job_name")
 def qa_execute_job_name_fixture() -> str:
     """A name for uniquely identifying an execute job owned by the Nexus QA user,
     in the project specified by qa_project_name."""
     return f"qnexus_integration_test_execute_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_wasm_module_name")
+@pytest.fixture(name="qa_wasm_module_name")
 def qa_wasm_module_name_fixture() -> str:
     """A name for uniquely identifying a WASM module owned by the Nexus QA user."""
     return f"qnexus_integration_test_wasm_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_hugr_name")
+@pytest.fixture(name="qa_hugr_name")
 def qa_hugr_name_fixture() -> str:
     """A name for uniquely identifying a HUGR owned by the Nexus QA user."""
     return f"qnexus_integration_test_hugr_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_qir_name")
+@pytest.fixture(name="qa_qir_name")
 def qa_qir_name_fixture() -> str:
     """A name for uniquely identifying a QIR owned by the Nexus QA user."""
     return f"qnexus_integration_test_qir_{datetime.now()}"
 
 
-@pytest.fixture(scope="session", name="qa_hugr_package")
+@pytest.fixture(name="qa_hugr_package")
 def qa_hugr_package_fixture() -> Package:
     hugr_path = Path("integration/data/hugr_example.hugr").resolve()
     return Package.from_bytes(hugr_path.read_bytes())
 
 
-@pytest.fixture(scope="session", name="qa_wasm_module")
+@pytest.fixture(name="qa_wasm_module")
 def qa_wasm_module_fixture() -> WasmFileHandler:
     wasm_path = Path("examples/basics/data/add_one.wasm").resolve()
     return WasmFileHandler(filepath=str(wasm_path))

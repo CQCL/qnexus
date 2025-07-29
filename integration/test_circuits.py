@@ -17,25 +17,30 @@ from qnexus.models.references import CircuitRef
 test_circuit = Circuit(2, 2).H(0).CX(0, 1).measure_all()
 
 
-def test_circuit_get(test_case_name: str, create_circuit_in_project: Callable) -> None:
+def test_circuit_get(
+    test_case_name: str,
+    create_circuit_in_project: Callable,
+    test_ref_serialisation: Callable,
+) -> None:
     """Test that we can create a circuit, add a property value,
-    get a specific unique CircuitRef by name or id, or get an iterator over all circuits.
+    get a specific unique CircuitRef by name or id,  get an iterator over all circuits,
+    and the serialisation round trip of a CircuitRef.
     """
 
     with create_circuit_in_project(
         circuit=test_circuit,
         project_name=f"project for {test_case_name}",
         circuit_name=f"circuit for {test_case_name}",
-    ) as my_circ:
-        assert isinstance(my_circ, CircuitRef)
-        assert isinstance(my_circ.download_circuit(), Circuit)
+    ) as my_circ_ref:
+        assert isinstance(my_circ_ref, CircuitRef)
+        assert isinstance(my_circ_ref.download_circuit(), Circuit)
 
-        my_circ_2 = qnx.circuits.get(id=my_circ.id)
+        my_circ_2 = qnx.circuits.get(id=my_circ_ref.id)
 
         # For some reason direct equality check fails
-        assert my_circ.id == my_circ_2.id
-        assert my_circ.annotations == my_circ_2.annotations
-        assert my_circ.project.id == my_circ_2.project.id
+        assert my_circ_ref.id == my_circ_2.id
+        assert my_circ_ref.annotations == my_circ_2.annotations
+        assert my_circ_ref.project.id == my_circ_2.project.id
 
         with pytest.raises(qnx_exc.NoUniqueMatch):
             qnx.circuits.get()
@@ -43,9 +48,14 @@ def test_circuit_get(test_case_name: str, create_circuit_in_project: Callable) -
         with pytest.raises(qnx_exc.ZeroMatches):
             qnx.circuits.get(name_like=f"{test_case_name}-wrong")
 
+        test_ref_serialisation(ref_type="circuit", ref=my_circ_2)
 
-def test_circuit_get_all(test_case_name: str, create_circuit_in_project: Callable) -> None:
+
+def test_circuit_get_all(
+    test_case_name: str, create_circuit_in_project: Callable
+) -> None:
     """Test that we can get an iterator over all circuits."""
+
     project_name = f"project for {test_case_name}"
 
     with create_circuit_in_project(

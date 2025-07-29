@@ -9,7 +9,7 @@ from qnexus.models import Role
 from qnexus.models.references import TeamRef, UserRef
 
 
-def test_role_get(auhenticated_nexus: None) -> None:
+def test_role_get(authenticated_nexus: None) -> None:
     """Test that we can get a specific Role."""
 
     role = qnx.roles.get(name="Administrator")

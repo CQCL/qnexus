@@ -1,10 +1,11 @@
 """Test basic functionality relating to the qir module."""
 
 from collections import Counter
-from datetime import datetime
+from pathlib import Path
 from typing import Callable
 
 import pyqir
+from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Bit, Circuit
@@ -13,7 +14,6 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import QIRRef, QIRResult, ResultVersions
-from hugr.qsystem.result import QsysResult
 
 
 def test_qir_create_and_update(
@@ -79,8 +79,9 @@ def test_qir_get_by_id(
     test_case_name: str,
     create_qir_in_project: Callable,
     qa_qir_bitcode: bytes,
+    test_ref_serialisation: Callable,
 ) -> None:
-    """Test that we can get a QIRRef by its ID."""
+    """Test that we can get a QIRRef by its ID and its round trip serialisation."""
 
     project_name = f"project for {test_case_name}"
     qir_name = f"qir for {test_case_name}"
@@ -97,6 +98,8 @@ def test_qir_get_by_id(
         qir_ref_by_id = qnx.qir.get(id=my_qir_ref.id)
 
         assert qir_ref_by_id == my_qir_ref
+
+        test_ref_serialisation(ref_type="qir", ref=qir_ref_by_id)
 
 
 def test_qir_get_all(
@@ -173,7 +176,6 @@ def test_execution(
 def test_execution_on_NG_devices(
     test_case_name: str,
     create_qir_in_project: Callable,
-    qa_qir_bitcode: bytes,
 ) -> None:
     """Test execution on NG devices, specifically to focus on getting the results"""
 
@@ -183,8 +185,10 @@ def test_execution_on_NG_devices(
     with create_qir_in_project(
         project_name=project_name,
         qir_name=qir_name,
-        qir=qa_qir_bitcode,
+        qir=make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
     ) as qir_ref:
+
+        project_ref = qnx.projects.get(name_like=project_name)
 
         job_ref = qnx.start_execute_job(
             programs=[qir_ref],
@@ -209,3 +213,11 @@ def test_execution_on_NG_devices(
         # Assert this is in v4 format
         assert isinstance(v4_results, QsysResult)
         assert v4_results.results[0].entries[0][0] == "USER:FLOAT:d0"
+
+
+def make_qir_bitcode_from_file(filename: str) -> bytes:
+    with open(
+        Path(__file__).parent.resolve() / "data" / filename,
+        "r",
+    ) as file:
+        return pyqir.Module.from_ir(pyqir.Context(), file.read()).bitcode

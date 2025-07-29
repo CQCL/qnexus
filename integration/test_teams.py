@@ -12,14 +12,18 @@ from qnexus.models.references import TeamRef
 def test_team_get(
     test_case_name: str,
     create_team: Callable,
+    test_ref_serialisation: Callable,
 ) -> None:
-    """Test that we can get a specific unique TeamRef."""
+    """Test that we can get a specific unique TeamRef and its
+    serialisation round trip."""
 
     team_name = f"{test_case_name[-86:]}"  # TODO: use full name once bug is fixed
 
     with create_team(team_name):
         my_team = qnx.teams.get(name=team_name)
         assert isinstance(my_team, TeamRef)
+
+        test_ref_serialisation(ref_type="team", ref=my_team)
 
 
 def test_team_get_all(

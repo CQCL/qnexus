@@ -1,12 +1,11 @@
 """Test basic functionality relating to the hugr module."""
 
 from typing import Callable
-from datetime import datetime
-from pathlib import Path
 
 from hugr.package import Package
 
 import qnexus as qnx
+from qnexus.filesystem import load, save
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import HUGRRef
 
@@ -65,8 +64,10 @@ def test_hugr_get_by_id(
     test_case_name: str,
     qa_hugr_package: Package,
     create_hugr_in_project: Callable,
+    test_ref_serialisation: Callable,
 ) -> None:
-    """Test that we can get a HUGRRef by its ID."""
+    """Test that we can get a HUGRRef by its ID and the HUGRRef
+    serialisation round trip."""
     project_name = f"project for {test_case_name}"
     hugr_name = f"hugr for {test_case_name}"
 
@@ -81,6 +82,8 @@ def test_hugr_get_by_id(
         hugr_ref_by_id = qnx.hugr.get(id=my_hugr_ref.id)
 
         assert hugr_ref_by_id == my_hugr_ref
+
+        test_ref_serialisation(ref_type="hugr", ref=hugr_ref_by_id)
 
 
 def test_hugr_get_all(

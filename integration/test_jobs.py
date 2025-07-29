@@ -3,7 +3,7 @@
 from collections import Counter
 from datetime import datetime
 from time import sleep
-from typing import Callable
+from typing import Callable, Any
 
 from integration import test_circuits
 import pandas as pd
@@ -86,8 +86,20 @@ def test_job_get_by_id(
     create_compile_job_in_project: Callable,
     create_execute_job_in_project: Callable,
     test_circuit: Circuit,
+    test_ref_serialisation: Callable,
 ) -> None:
-    """Test that we can get JobRefs by id."""
+    """Test that we can get JobRefs by id and their serialisation."""
+
+    def get_sanitised_job_ref(job_ref: CompileJobRef | ExecuteJobRef) -> dict[str, Any]:
+        """Return the model_dump of a JobRef but excluding the fields that is ok if they
+        have changed."""
+        return job_ref.model_dump(
+            exclude={
+                "last_message": True,
+                "last_status": True,
+                "__all__": {"contents_modified": True, "modified": True},
+            }
+        )
 
     with create_compile_job_in_project(
         project_name=project_name,
@@ -105,13 +117,21 @@ def test_job_get_by_id(
             assert isinstance(compile_job_ref.backend_config, BaseBackendConfig)
 
             my_compile_job_by_id = qnx.jobs.get(id=compile_job_ref.id)
-            assert compile_job_ref == my_compile_job_by_id
+            # Some attributes might have changed, so need to mask them out while comparing
+            assert get_sanitised_job_ref(compile_job_ref) == get_sanitised_job_ref(
+                my_compile_job_by_id
+            )
+            test_ref_serialisation(ref_type="compile", ref=my_compile_job_by_id)
 
             assert isinstance(execute_job_ref, ExecuteJobRef)
             assert isinstance(execute_job_ref.backend_config, BaseBackendConfig)
 
             my_execute_job_by_id = qnx.jobs.get(id=execute_job_ref.id)
-            assert execute_job_ref == my_execute_job_by_id
+            # Some attributes might have changed, so need to mask them out while comparing
+            assert get_sanitised_job_ref(execute_job_ref) == get_sanitised_job_ref(
+                my_execute_job_by_id
+            )
+            test_ref_serialisation(ref_type="execute", ref=my_execute_job_by_id)
 
 
 def test_compile_job_get(
@@ -162,6 +182,7 @@ def test_execute_job_get(
 def test_submit_compile(
     create_compile_job_in_project: Callable,
     test_circuit: Circuit,
+    test_ref_serialisation: Callable,
 ) -> None:
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
@@ -183,6 +204,7 @@ def test_submit_compile(
 
         assert len(compile_results) == 1
         assert isinstance(compile_results[0], CompilationResultRef)
+        test_ref_serialisation(ref_type="compile_result", ref=compile_results[0])
 
         assert isinstance(compile_results[0].get_input(), CircuitRef)
         assert isinstance(compile_results[0].get_output(), CircuitRef)
@@ -193,6 +215,7 @@ def test_submit_compile(
         assert isinstance(first_pass_data.get_input(), CircuitRef)
         assert isinstance(first_pass_data.get_output(), CircuitRef)
         assert isinstance(first_pass_data.pass_name, str)
+        test_ref_serialisation(ref_type="compilation_pass", ref=first_pass_data)
 
         cj_ref = qnx.jobs.get(id=compile_job_ref.id)
         assert cj_ref.backend_config == config
@@ -298,6 +321,7 @@ def test_compile_hypertket(
 def test_submit_execute(
     create_execute_job_in_project: Callable,
     test_circuit: Circuit,
+    test_ref_serialisation: Callable,
 ) -> None:
     """Test that we can run an execute job in Nexus, wait for the job to complete and
     obtain the results from the execution."""
@@ -316,14 +340,17 @@ def test_submit_execute(
 
         assert len(execute_results) == 1
 
-        assert isinstance(execute_results[0].get_input(), CircuitRef)
-
-        assert isinstance(execute_results[0].download_result(), BackendResult)
-
-        assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
+        first_result = execute_results[0]
+        assert isinstance(first_result.get_input(), CircuitRef)
+        assert isinstance(first_result.download_result(), BackendResult)
+        assert isinstance(first_result.download_backend_info(), BackendInfo)
 
         pj_ref = qnx.jobs.get(id=execute_job_ref.id)
         assert pj_ref.backend_config == config
+
+        # TODO: check why the serialisation round trip fails even when the
+        # objects are the same
+        # test_ref_serialisation(ref_type="execute_result", ref=first_result)
 
 
 def test_execute(

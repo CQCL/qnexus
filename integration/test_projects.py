@@ -15,6 +15,7 @@ from pytket.circuit import Circuit
 def test_project_get(
     test_case_name: str,
     create_project: Callable,
+    test_ref_serialisation: Callable,
 ) -> None:
     """Test that we can get a specific unique project
     by name or id, or get an appropriate exception."""
@@ -30,6 +31,8 @@ def test_project_get(
 
         with pytest.raises(qnx_exc.ZeroMatches):
             qnx.projects.get(name_like=f"{datetime.now()}_{datetime.now()}")
+
+        test_ref_serialisation(ref_type="project", ref=my_proj_2)
 
 
 def test_project_get_all(authenticated_nexus: None) -> None:

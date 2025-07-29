@@ -17,8 +17,10 @@ def test_wasm_download(
     test_case_name: str,
     create_wasm_in_project: Callable,
     qa_wasm_module: WasmFileHandler,
+    test_ref_serialisation: Callable,
 ) -> None:
-    """Test that valid WASM can be extracted from an uploaded WASM module."""
+    """Test that valid WASM can be extracted from an uploaded WASM module,
+    and the WasmModuleRef serialisation round trip."""
 
     project_name = f"project for {test_case_name}"
     wasm_module_name = f"wasm for {test_case_name}"
@@ -29,12 +31,14 @@ def test_wasm_download(
         wasm_module_name=wasm_module_name,
     ) as wasm_ref:
 
-        wasm_ref = qnx.wasm_modules.get(name_like=wasm_module_name)
         assert isinstance(wasm_ref, WasmModuleRef)
         downloaded_wasm_module_handler = wasm_ref.download_wasm_contents()
 
         downloaded_wasm_module_handler.check()
         assert downloaded_wasm_module_handler.functions == qa_wasm_module.functions
+
+        wasm_ref_by_id = qnx.wasm_modules.get(id=wasm_ref.id)
+        test_ref_serialisation(ref_type="wasm", ref=wasm_ref_by_id)
 
 
 def test_wasm_flow(
