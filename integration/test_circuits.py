@@ -90,7 +90,7 @@ def test_circuit_create(
     ):
         my_proj = qnx.projects.get(name_like=project_name)
 
-        circuit_name = f"circuit for {test_case_name}}"
+        circuit_name = f"circuit for {test_case_name}"
         my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
         my_new_circuit = qnx.circuits.upload(
             circuit=my_circ, name=circuit_name, project=my_proj
@@ -106,8 +106,7 @@ def test_circuit_create(
         )
 
         assert (
-            updated_circuit_ref.annotations.properties[property_name]
-            == test_prop_value
+            updated_circuit_ref.annotations.properties[property_name] == test_prop_value
         )
 
 
