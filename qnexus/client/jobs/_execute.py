@@ -161,11 +161,13 @@ def _results(
         ):
             result_type: ResultType
 
-            match item["result_type"]:
+            match item.get("result_type", None):
                 case ResultType.QSYS:
                     result_type = ResultType.QSYS
                 case ResultType.PYTKET:
                     result_type = ResultType.PYTKET
+                case None:
+                    continue
                 case _:
                     assert_never(item["result_type"])
 
