@@ -63,7 +63,8 @@ jobs:
                         --html=integration-results.html \
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
-                        -ra --reruns 3
+                        -ra --reruns 3 \
+                        --run-id ${{ github.runid }}(${{ github.run_attempt }})
 
       - name: Upload integration test results
         if: "!cancelled()"
