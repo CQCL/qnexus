@@ -18,7 +18,6 @@ def test_property_creation_and_filtering(
     project_name = f"project for {test_case_name}"
 
     with create_project(project_name) as my_new_project:
-
         test_property_name_1 = "QA_test_prop_1"
         test_property_name_2 = "QA_test_prop_2"
         test_property_name_3 = "QA_test_prop_3"

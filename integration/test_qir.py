@@ -32,7 +32,6 @@ def test_qir_create_and_update(
         property_type="string",
         required=False,
     ):
-
         proj_ref = qnx.projects.get_or_create(project_name)
         qir_name = f"qir for {test_case_name}"
 
@@ -67,7 +66,6 @@ def test_qir_download(
         qir_name=qir_name,
         qir=qa_qir_bitcode,
     ) as qir_ref:
-
         qir_bytes = qir_ref.download_qir()
         assert isinstance(qir_bytes, bytes)
         assert qir_bytes == qa_qir_bitcode
@@ -89,7 +87,6 @@ def test_qir_get_by_id(
         qir_name=qir_name,
         qir=qa_qir_bitcode,
     ):
-
         my_proj = qnx.projects.get(name_like=project_name)
         my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
 
@@ -138,7 +135,6 @@ def test_execution(
         qir_name=qir_name,
         qir=qa_qir_bitcode,
     ) as qir_program_ref:
-
         device_name = "H1-1SC"  # Syntax checker - no results
 
         project_ref = qnx.projects.get_or_create(name=project_name)
@@ -185,7 +181,6 @@ def test_execution_on_NG_devices(
         qir_name=qir_name,
         qir=make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
     ) as qir_ref:
-
         project_ref = qnx.projects.get(name_like=project_name)
 
         job_ref = qnx.start_execute_job(

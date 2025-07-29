@@ -66,7 +66,6 @@ def test_circuit_get_all(
             project_name=project_name,
             circuit_name=f"circuit2 for {test_case_name}",
         ):
-
             my_circ_db_matches = qnx.circuits.get_all(name_like=test_case_name)
 
             assert my_circ_db_matches.count() == 2
@@ -115,7 +114,6 @@ def test_circuit_get_cost(test_case_name: str, create_project: Callable) -> None
     on a particular Quantinuum Systems device."""
 
     with create_project(project_name=f"project for {test_case_name}") as my_proj:
-
         my_q_systems_circuit = qnx.circuits.upload(
             circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
             name="qa_q_systems_circuit",

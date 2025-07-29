@@ -54,7 +54,6 @@ def test_team_assignment(
 def test_user_assignment(test_case_name: str, create_project: Callable) -> None:
     """Test that we can assign a role to a user."""
     with create_project(f"project for {test_case_name}") as new_project_ref:
-
         qnx.roles.assign_user(
             resource_ref=new_project_ref,
             user_email=CONFIG.qa_user_email,

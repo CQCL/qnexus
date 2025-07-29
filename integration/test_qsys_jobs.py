@@ -50,7 +50,6 @@ def test_guppy_execution(
     on a next-generation QSys device."""
 
     with create_project(f"project for {test_case_name}") as project_ref:
-
         n_qubits = 3
         n_shots = 10
 

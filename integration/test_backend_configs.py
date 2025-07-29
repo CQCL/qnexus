@@ -23,7 +23,6 @@ def test_basic_backend_config_usage(
     """Test basic functionality of supported BackendConfigs."""
 
     with create_project(f"project for {test_case_name}") as project_ref:
-
         my_circ = Circuit(2, 2).H(0).CX(0, 1)
 
         if backend_config.__class__ not in CONFIGS_REQUIRE_NO_MEASURE:

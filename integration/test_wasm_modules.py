@@ -28,7 +28,6 @@ def test_wasm_download(
         wasm_module_handler=qa_wasm_module,
         wasm_module_name=wasm_module_name,
     ) as wasm_ref:
-
         assert isinstance(wasm_ref, WasmModuleRef)
         downloaded_wasm_module_handler = wasm_ref.download_wasm_contents()
 
@@ -54,7 +53,6 @@ def test_wasm_flow(
         wasm_module_handler=qa_wasm_module,
         wasm_module_name=wasm_module_name,
     ) as wasm_ref:
-
         proj_ref = qnx.projects.get(name_like=project_name)
 
         my_wasm_db_matches = qnx.wasm_modules.get_all()

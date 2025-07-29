@@ -190,13 +190,11 @@ def fixture_create_compile_job_in_project(
             project_name,
             circuit_name,
         ) as circuit_ref:
-
             config = backend_config if backend_config is not None else qnx.AerConfig()
 
             try:
                 compile_job_ref = qnx.jobs.get(name_like=job_name)
             except ZeroMatches:
-
                 proj_ref = qnx.projects.get(name_like=project_name)
 
                 compile_job_ref = qnx.start_compile_job(
@@ -247,13 +245,11 @@ def fixture_create_execute_job_in_project(
             project_name,
             circuit_name,
         ) as circuit_ref:
-
             config = backend_config if backend_config is not None else qnx.AerConfig()
 
             try:
                 execute_job_ref = qnx.jobs.get(name_like=job_name)
             except (ZeroMatches, NoUniqueMatch):
-
                 proj_ref = qnx.projects.get(name_like=project_name)
 
                 execute_job_ref = qnx.start_execute_job(
@@ -405,7 +401,6 @@ def qa_qir_bitcode_fixture(test_circuit: Circuit, test_case_name: str) -> bytes:
 
 
 def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
-
     name = backend_config.__class__.__name__
 
     if hasattr(backend_config, "backend_name"):

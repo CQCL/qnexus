@@ -121,7 +121,6 @@ def test_project_summarize(
         circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
         circuit_name=circuit_name,
     ):
-
         my_proj = qnx.projects.get(name_like=project_name)
         assert isinstance(my_proj, ProjectRef)
 

@@ -146,7 +146,6 @@ def test_compile_job_get(
         circuit=test_circuit,
         circuit_name=circuit_name,
     ) as compile_job_ref:
-
         assert isinstance(compile_job_ref, CompileJobRef)
 
         with pytest.raises(qnx_exc.NoUniqueMatch):
@@ -168,7 +167,6 @@ def test_execute_job_get(
         circuit=test_circuit,
         circuit_name=circuit_name,
     ) as execute_job_ref:
-
         assert isinstance(execute_job_ref, ExecuteJobRef)
 
         with pytest.raises(qnx_exc.NoUniqueMatch):
@@ -194,7 +192,6 @@ def test_submit_compile(
         circuit_name=circuit_name,
         backend_config=config,
     ) as compile_job_ref:
-
         assert isinstance(compile_job_ref, CompileJobRef)
 
         qnx.jobs.wait_for(compile_job_ref)
@@ -332,7 +329,6 @@ def test_submit_execute(
         circuit=test_circuit,
         circuit_name=circuit_name,
     ) as execute_job_ref:
-
         qnx.jobs.wait_for(execute_job_ref)
 
         execute_results = qnx.jobs.results(execute_job_ref)
@@ -367,7 +363,6 @@ def test_execute(
         project_name=local_project_name,
         circuit_name=local_circuit_name,
     ) as circ_ref:
-
         my_proj = qnx.projects.get_or_create(local_project_name)
 
         backend_results = qnx.execute(
@@ -456,7 +451,6 @@ def test_wait_for_raises_on_job_error(
         project_name=local_project_name,
         circuit_name=local_circuit_name,
     ) as circ_ref:
-
         proj_ref = qnx.projects.get_or_create(local_project_name)
 
         # Circuit not compiled for H1-1LE, so we expect it to error when executed
@@ -541,7 +535,6 @@ def test_submit_under_user_group(
         project_name=local_project_name,
         circuit_name=local_circuit_name,
     ) as circ_ref:
-
         my_proj = qnx.projects.get_or_create(local_project_name)
 
         with pytest.raises(qnx_exc.ResourceCreateFailed) as exc:
