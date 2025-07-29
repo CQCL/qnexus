@@ -23,6 +23,7 @@ def test_save_load(
     qa_compile_job_name: str,
     qa_execute_job_name: str,
     qa_wasm_module_name: str,
+    qa_gpu_decoder_config_name: str,
     qa_hugr_name: str,
     qa_qir_name: str,
 ) -> None:
@@ -41,6 +42,9 @@ def test_save_load(
     # affect the equality assertion below
     compilation_pass_ref = compile_result_ref.model_copy().get_passes()[0]
     wasm_module_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name)
+    gpu_decoder_config_ref = qnx.gpu_decoder_configs.get(
+        name_like=qa_gpu_decoder_config_name
+    )
     hugr_ref = qnx.hugr.get(name_like=qa_hugr_name)
     qir_ref = qnx.qir.get(name_like=qa_qir_name)
 
@@ -55,6 +59,7 @@ def test_save_load(
         compile_result_ref,
         compilation_pass_ref,
         wasm_module_ref,
+        gpu_decoder_config_ref,
         hugr_ref,
         qir_ref,
     ]
@@ -76,6 +81,11 @@ def test_save_load(
     save(ref=compilation_pass_ref, path=test_ref_path / "compilation_pass", mkdir=True)
     save(ref=user_ref, path=test_ref_path / "user", mkdir=True)
     save(ref=wasm_module_ref, path=test_ref_path / "wasm_module", mkdir=True)
+    save(
+        ref=gpu_decoder_config_ref,
+        path=test_ref_path / "gpu_decoder_config",
+        mkdir=True,
+    )
     save(ref=hugr_ref, path=test_ref_path / "hugr_ref", mkdir=True)
 
     project_ref_2 = load(path=test_ref_path / "project")
@@ -88,6 +98,7 @@ def test_save_load(
     compilation_pass_ref_2 = load(path=test_ref_path / "compilation_pass")
     user_ref_2 = load(path=test_ref_path / "user")
     wasm_module_ref_2 = load(path=test_ref_path / "wasm_module")
+    gpu_decoder_config_ref_2 = load(path=test_ref_path / "gpu_decoder_config")
     hugr_ref_2 = load(path=test_ref_path / "hugr_ref")
 
     assert project_ref == project_ref_2
@@ -100,6 +111,7 @@ def test_save_load(
     assert compilation_pass_ref == compilation_pass_ref_2
     assert user_ref == user_ref_2
     assert wasm_module_ref == wasm_module_ref_2
+    assert gpu_decoder_config_ref == gpu_decoder_config_ref_2
     assert hugr_ref == hugr_ref_2
 
     # Clean up the saved ref files

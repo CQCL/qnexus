@@ -23,6 +23,7 @@ from qnexus.models.references import (
     ExecuteJobRef,
     ExecutionProgram,
     ExecutionResultRef,
+    GpuDecoderConfigRef,
     HUGRRef,
     JobType,
     ProjectRef,
@@ -52,6 +53,7 @@ def start_execute_job(
     seed: int | None = None,
     credential_name: str | None = None,
     wasm_module: WasmModuleRef | None = None,
+    gpu_decoder_config: GpuDecoderConfigRef | None = None,
     user_group: str | None = None,
 ) -> ExecuteJobRef:
     """
@@ -91,6 +93,9 @@ def start_execute_job(
                 ),
                 "seed": seed,
                 "wasm_module_id": str(wasm_module.id) if wasm_module else None,
+                "gpu_decoder_config_id": (
+                    str(gpu_decoder_config.id) if gpu_decoder_config else None
+                ),
                 "credential_name": credential_name,
                 "items": [
                     {"program_id": program_id, "n_shots": n_shot}

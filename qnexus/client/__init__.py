@@ -2,6 +2,7 @@
 
 import typing
 from logging import getLogger
+
 import httpx
 
 from qnexus.client.utils import read_token, write_token

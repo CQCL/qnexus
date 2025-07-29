@@ -203,6 +203,40 @@ class WasmModuleRef(BaseRef):
         )
 
 
+class GpuDecoderConfigRef(BaseRef):
+    """Proxy object to a GpuDecoderConfig in Nexus."""
+
+    annotations: Annotations
+    project: ProjectRef
+    id: UUID
+    _contents: str | None = None
+    type: Literal["GpuDecoderConfigRef"] = "GpuDecoderConfigRef"
+
+    def download_gpu_decoder_config_contents(self) -> str:
+        """Get the contents of the original uploaded gpu decoder config."""
+        if self._contents:
+            return self._contents
+
+        from qnexus.client.gpu_decoder_configs import (
+            _fetch_gpu_decoder_config,
+        )
+
+        self._contents = _fetch_gpu_decoder_config(self)
+        return self._contents
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                },
+                index=[0],
+            )
+        )
+
+
 class HUGRRef(BaseRef):
     """Proxy object to a HUGR in Nexus."""
 
@@ -554,6 +588,7 @@ Ref = Annotated[
         ProjectRef,
         CircuitRef,
         WasmModuleRef,
+        GpuDecoderConfigRef,
         HUGRRef,
         QIRRef,
         JobRef,

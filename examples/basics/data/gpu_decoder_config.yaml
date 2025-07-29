@@ -1,0 +1,12 @@
+# A test GPU decoder config
+
+---
+decoders:
+  - id:   0
+    type: test-type1
+    foo:  1
+    bar:  2
+  - id:   1
+    type: test-type2
+    foo:  3
+    bar:  4

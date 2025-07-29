@@ -39,6 +39,7 @@ def _authenticated_nexus(
     qa_compile_job_name: str,
     qa_execute_job_name: str,
     qa_wasm_module_name: str,
+    qa_gpu_decoder_config_name: str,
     qa_hugr_name: str,
     qa_qir_name: str,
     circuit: Circuit,
@@ -97,6 +98,18 @@ def _authenticated_nexus(
         qnx.wasm_modules.upload(
             wasm_module_handler=wfh,
             name=qa_wasm_module_name,
+            project=my_proj,
+        )
+
+        gpu_decoder_config_path = Path(
+            "examples/basics/data/gpu_decoder_config.yaml"
+        ).resolve()
+        with open(gpu_decoder_config_path) as fp:
+            gpu_decoder_config = fp.read()
+
+        qnx.gpu_decoder_configs.upload(
+            gpu_decoder_config=gpu_decoder_config,
+            name=qa_gpu_decoder_config_name,
             project=my_proj,
         )
 
@@ -186,6 +199,12 @@ def qa_execute_job_name_fixture() -> str:
 def qa_wasm_module_name_fixture() -> str:
     """A name for uniquely identifying a WASM module owned by the Nexus QA user."""
     return f"qnexus_integration_test_wasm_{datetime.now()}"
+
+
+@pytest.fixture(scope="session", name="qa_gpu_decoder_config_name")
+def qa_gpu_decoder_config_name_fixture() -> str:
+    """A name for uniquely identifying a gpu decoder config owned by the Nexus QA user."""
+    return f"qnexus_integration_test_gpu_decoder_config_{datetime.now()}"
 
 
 @pytest.fixture(scope="session", name="qa_hugr_name")

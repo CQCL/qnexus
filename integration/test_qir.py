@@ -5,6 +5,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pyqir
+from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Bit, Circuit
@@ -13,7 +14,6 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import QIRRef, QIRResult, ResultVersions
-from hugr.qsystem.result import QsysResult
 
 
 def test_qir_create_and_update(

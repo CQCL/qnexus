@@ -1,11 +1,11 @@
 """Basic checks for HUGR functionality."""
 
+import uuid
 from datetime import datetime
 from pathlib import Path
-import uuid
 
-from hugr.package import Package
 import pytest
+from hugr.package import Package
 
 import qnexus as qnx
 from qnexus.exceptions import IncompatibleResultVersion
