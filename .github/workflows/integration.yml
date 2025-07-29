@@ -64,7 +64,7 @@ jobs:
                         --junit-xml=integration-results.xml \
                         --timeout=600 \
                         -ra --reruns 3 \
-                        --run-id ${{ github.runid }}(${{ github.run_attempt }})
+                        --run-id "${{ github.run_id }}(${{ github.run_attempt }})"
 
       - name: Upload integration test results
         if: "!cancelled()"
