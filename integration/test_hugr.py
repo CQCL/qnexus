@@ -5,7 +5,6 @@ from typing import Callable
 from hugr.package import Package
 
 import qnexus as qnx
-from qnexus.filesystem import load, save
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import HUGRRef
 

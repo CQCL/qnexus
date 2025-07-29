@@ -5,7 +5,6 @@ from datetime import datetime
 from time import sleep
 from typing import Callable, Any
 
-from integration import test_circuits
 import pandas as pd
 import pytest
 from pytket.backends.backendinfo import BackendInfo

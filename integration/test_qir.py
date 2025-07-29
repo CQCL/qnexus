@@ -67,10 +67,8 @@ def test_qir_download(
         qir_name=qir_name,
         qir=qa_qir_bitcode,
     ) as qir_ref:
-        my_proj = qnx.projects.get(name_like=project_name)
-        my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
 
-        qir_bytes = my_qir_ref.download_qir()
+        qir_bytes = qir_ref.download_qir()
         assert isinstance(qir_bytes, bytes)
         assert qir_bytes == qa_qir_bitcode
 
