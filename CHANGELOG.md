@@ -2,6 +2,16 @@
 
 # `qnexus` Release Notes
 
+## v0.25.1 (2025-07-29)
+
+
+### Fixed
+
+- Getting incomplete results for error'd jobs (#223).
+- Improve certificate resolution for websockets (#221).
+- Don't auto retry sslerror (#220).
+
+
 ## v0.25.0 (2025-07-25)
 
 
