@@ -1,18 +1,18 @@
 """Test basic functionality relating to the hugr module."""
 
-from typing import Callable
+from typing import Callable, ContextManager
 
 from hugr.package import Package
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import HUGRRef
+from qnexus.models.references import HUGRRef, ProjectRef, Ref
 
 
 def test_hugr_create_and_update(
     test_case_name: str,
     qa_hugr_package: Package,
-    create_property_in_project: Callable,
+    create_property_in_project: Callable[..., ContextManager[ProjectRef]],
 ) -> None:
     """Test that we can create a hugr and add a property value."""
     project_name = f"project for {test_case_name}"
@@ -43,16 +43,16 @@ def test_hugr_create_and_update(
 def test_hugr_download(
     test_case_name: str,
     qa_hugr_package: Package,
-    create_hugr_in_project: Callable,
+    create_hugr_in_project: Callable[[str, str, Package], ContextManager[HUGRRef]],
 ) -> None:
     """Test that valid HUGR can be extracted from an uploaded HUGR module."""
     project_name = f"project for {test_case_name}"
     hugr_name = f"hugr for {test_case_name}"
 
     with create_hugr_in_project(
-        project_name=project_name,
-        hugr_name=hugr_name,
-        hugr_package=qa_hugr_package,
+        project_name,
+        hugr_name,
+        qa_hugr_package,
     ) as hugr_ref:
         downloaded_hugr_package = hugr_ref.download_hugr()
         assert isinstance(downloaded_hugr_package, Package)
@@ -61,8 +61,8 @@ def test_hugr_download(
 def test_hugr_get_by_id(
     test_case_name: str,
     qa_hugr_package: Package,
-    create_hugr_in_project: Callable,
-    test_ref_serialisation: Callable,
+    create_hugr_in_project: Callable[[str, str, Package], ContextManager[HUGRRef]],
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can get a HUGRRef by its ID and the HUGRRef
     serialisation round trip."""
@@ -70,9 +70,9 @@ def test_hugr_get_by_id(
     hugr_name = f"hugr for {test_case_name}"
 
     with create_hugr_in_project(
-        project_name=project_name,
-        hugr_name=hugr_name,
-        hugr_package=qa_hugr_package,
+        project_name,
+        hugr_name,
+        qa_hugr_package,
     ):
         my_proj = qnx.projects.get(name_like=project_name)
         my_hugr_ref = qnx.hugr.get(name_like=hugr_name, project=my_proj)
@@ -81,22 +81,22 @@ def test_hugr_get_by_id(
 
         assert hugr_ref_by_id == my_hugr_ref
 
-        test_ref_serialisation(ref_type="hugr", ref=hugr_ref_by_id)
+        test_ref_serialisation("hugr", hugr_ref_by_id)
 
 
 def test_hugr_get_all(
     test_case_name: str,
     qa_hugr_package: Package,
-    create_hugr_in_project: Callable,
+    create_hugr_in_project: Callable[[str, str, Package], ContextManager[HUGRRef]],
 ) -> None:
     """Test that we can get all HUGRRefs in a project."""
     project_name = f"project for {test_case_name}"
     hugr_name = f"hugr for {test_case_name}"
 
     with create_hugr_in_project(
-        project_name=project_name,
-        hugr_name=hugr_name,
-        hugr_package=qa_hugr_package,
+        project_name,
+        hugr_name,
+        qa_hugr_package,
     ):
         my_proj = qnx.projects.get(name_like=project_name)
 

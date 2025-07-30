@@ -3,7 +3,7 @@
 from collections import Counter
 from datetime import datetime
 from time import sleep
-from typing import Callable, Any
+from typing import Callable, Any, ContextManager
 
 import pandas as pd
 import pytest
@@ -16,6 +16,7 @@ from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
 from qnexus.models.references import (
+    Ref,
     CircuitRef,
     CompilationPassRef,
     CompilationResultRef,
@@ -51,8 +52,8 @@ def set_resource_names(test_suite_name: str) -> None:
 
 
 def test_job_get_all(
-    create_compile_job_in_project: Callable,
-    create_execute_job_in_project: Callable,
+    create_compile_job_in_project: Callable[..., ContextManager[CompileJobRef]],
+    create_execute_job_in_project: Callable[..., ContextManager[ExecuteJobRef]],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can get an iterator over all jobs."""
@@ -82,10 +83,10 @@ def test_job_get_all(
 
 
 def test_job_get_by_id(
-    create_compile_job_in_project: Callable,
-    create_execute_job_in_project: Callable,
+    create_compile_job_in_project: Callable[..., ContextManager[CompileJobRef]],
+    create_execute_job_in_project: Callable[..., ContextManager[ExecuteJobRef]],
     test_circuit: Circuit,
-    test_ref_serialisation: Callable,
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can get JobRefs by id and their serialisation."""
 
@@ -116,25 +117,30 @@ def test_job_get_by_id(
             assert isinstance(compile_job_ref.backend_config, BaseBackendConfig)
 
             my_compile_job_by_id = qnx.jobs.get(id=compile_job_ref.id)
+            assert isinstance(my_compile_job_by_id, CompileJobRef)
+
             # Some attributes might have changed, so need to mask them out while comparing
             assert get_sanitised_job_ref(compile_job_ref) == get_sanitised_job_ref(
                 my_compile_job_by_id
             )
-            test_ref_serialisation(ref_type="compile", ref=my_compile_job_by_id)
+            test_ref_serialisation("compile", my_compile_job_by_id)
 
             assert isinstance(execute_job_ref, ExecuteJobRef)
             assert isinstance(execute_job_ref.backend_config, BaseBackendConfig)
 
             my_execute_job_by_id = qnx.jobs.get(id=execute_job_ref.id)
+            assert isinstance(my_execute_job_by_id, ExecuteJobRef)
+
             # Some attributes might have changed, so need to mask them out while comparing
             assert get_sanitised_job_ref(execute_job_ref) == get_sanitised_job_ref(
                 my_execute_job_by_id
             )
-            test_ref_serialisation(ref_type="execute", ref=my_execute_job_by_id)
+
+            test_ref_serialisation("execute", my_execute_job_by_id)
 
 
 def test_compile_job_get(
-    create_compile_job_in_project: Callable,
+    create_compile_job_in_project: Callable[..., ContextManager[CompileJobRef]],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can get a specific unique CompileJobRef,
@@ -156,7 +162,7 @@ def test_compile_job_get(
 
 
 def test_execute_job_get(
-    create_execute_job_in_project: Callable,
+    create_execute_job_in_project: Callable[..., ContextManager[ExecuteJobRef]],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can get a specific unique ExecuteJobRef,
@@ -177,9 +183,9 @@ def test_execute_job_get(
 
 
 def test_submit_compile(
-    create_compile_job_in_project: Callable,
+    create_compile_job_in_project: Callable[..., ContextManager[CompileJobRef]],
     test_circuit: Circuit,
-    test_ref_serialisation: Callable,
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can run a compile job in Nexus, wait for the job to complete and
     obtain the results from the compilation."""
@@ -200,7 +206,7 @@ def test_submit_compile(
 
         assert len(compile_results) == 1
         assert isinstance(compile_results[0], CompilationResultRef)
-        test_ref_serialisation(ref_type="compile_result", ref=compile_results[0])
+        test_ref_serialisation("compile_result", compile_results[0])
 
         assert isinstance(compile_results[0].get_input(), CircuitRef)
         assert isinstance(compile_results[0].get_output(), CircuitRef)
@@ -211,7 +217,7 @@ def test_submit_compile(
         assert isinstance(first_pass_data.get_input(), CircuitRef)
         assert isinstance(first_pass_data.get_output(), CircuitRef)
         assert isinstance(first_pass_data.pass_name, str)
-        test_ref_serialisation(ref_type="compilation_pass", ref=first_pass_data)
+        test_ref_serialisation("compilation_pass", first_pass_data)
 
         cj_ref = qnx.jobs.get(id=compile_job_ref.id)
         assert cj_ref.backend_config == config
@@ -219,7 +225,9 @@ def test_submit_compile(
 
 def test_compile(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can run the utility compile function and get compiled circuits."""
@@ -229,9 +237,9 @@ def test_compile(
     local_compile_job_name = f"compile job for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         my_proj = qnx.projects.get(name_like=local_project_name)
 
@@ -248,7 +256,9 @@ def test_compile(
 
 def test_get_results_for_incomplete_compile(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can run a compile job in Nexus, and fetch complete results for
@@ -258,9 +268,9 @@ def test_get_results_for_incomplete_compile(
     local_circuit_name = f"circuit for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         proj_ref = qnx.projects.get_or_create(local_project_name)
 
@@ -286,7 +296,9 @@ def test_get_results_for_incomplete_compile(
 
 def test_compile_hypertket(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can run compile circuits for hypertket."""
@@ -296,9 +308,9 @@ def test_compile_hypertket(
     local_job_name = f"hypertket job for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         my_proj = qnx.projects.get(name_like=local_project_name)
 
@@ -315,9 +327,9 @@ def test_compile_hypertket(
 
 
 def test_submit_execute(
-    create_execute_job_in_project: Callable,
+    create_execute_job_in_project: Callable[..., ContextManager[ExecuteJobRef]],
     test_circuit: Circuit,
-    test_ref_serialisation: Callable,
+    # test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can run an execute job in Nexus, wait for the job to complete and
     obtain the results from the execution."""
@@ -350,7 +362,9 @@ def test_submit_execute(
 
 def test_execute(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can run the utility execute function and get the results of the execution."""
@@ -359,9 +373,9 @@ def test_execute(
     local_execute_job_name = f"execute job for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         my_proj = qnx.projects.get_or_create(local_project_name)
 
@@ -380,7 +394,9 @@ def test_execute(
 
 def test_get_results_for_incomplete_execute(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can run an execute job in Nexus, and fetch complete results for
@@ -391,9 +407,9 @@ def test_get_results_for_incomplete_execute(
     job_name = f"execute job for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         proj_ref = qnx.projects.get_or_create(local_project_name)
 
@@ -437,7 +453,9 @@ def test_get_results_for_incomplete_execute(
 
 def test_wait_for_raises_on_job_error(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that if a job errors, the wait_for function raises an Exception."""
@@ -447,9 +465,9 @@ def test_wait_for_raises_on_job_error(
     job_name = f"execute job for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         proj_ref = qnx.projects.get_or_create(local_project_name)
 
@@ -471,7 +489,9 @@ def test_wait_for_raises_on_job_error(
 
 def test_results_not_available_error(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can't get the results of a job until it is complete."""
@@ -481,9 +501,9 @@ def test_results_not_available_error(
     job_name = f"execute job for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         proj_ref = qnx.projects.get_or_create(local_project_name)
 
@@ -513,7 +533,9 @@ def test_results_not_available_error(
 
 def test_submit_under_user_group(
     test_case_name: str,
-    create_circuit_in_project: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
     test_circuit: Circuit,
 ) -> None:
     """Test that a user can submit jobs under a user_group that
@@ -531,9 +553,9 @@ def test_submit_under_user_group(
     fake_group = "made_up_group"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=local_project_name,
-        circuit_name=local_circuit_name,
+        test_circuit,
+        local_project_name,
+        local_circuit_name,
     ) as circ_ref:
         my_proj = qnx.projects.get_or_create(local_project_name)
 

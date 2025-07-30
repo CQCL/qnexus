@@ -1,12 +1,13 @@
 """Tests that we can use all available backend configs."""
 
-from typing import Callable
+from typing import Callable, ContextManager
 
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Circuit
 
 import qnexus as qnx
 from qnexus.models.job_status import JobStatusEnum
+from qnexus.models.references import ProjectRef
 
 CONFIGS_REQUIRE_NO_MEASURE = [qnx.AerUnitaryConfig]
 CONFIGS_NOT_TO_EXECUTE = [
@@ -17,7 +18,7 @@ CONFIGS_NOT_TO_EXECUTE = [
 
 def test_basic_backend_config_usage(
     backend_config: qnx.BackendConfig,
-    create_project: Callable,
+    create_project: Callable[[str], ContextManager[ProjectRef]],
     test_case_name: str,
 ) -> None:
     """Test basic functionality of supported BackendConfigs."""

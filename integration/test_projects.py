@@ -1,21 +1,21 @@
 """Test basic functionality relating to the project module."""
 
 from datetime import datetime
-from typing import Callable
+from typing import Callable, ContextManager
 
 import pandas as pd
 import pytest
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from qnexus.models.references import ProjectRef
+from qnexus.models.references import ProjectRef, CompileJobRef, Ref
 from pytket.circuit import Circuit
 
 
 def test_project_get(
     test_case_name: str,
-    create_project: Callable,
-    test_ref_serialisation: Callable,
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can get a specific unique project
     by name or id, or get an appropriate exception."""
@@ -32,7 +32,7 @@ def test_project_get(
         with pytest.raises(qnx_exc.ZeroMatches):
             qnx.projects.get(name_like=f"{datetime.now()}_{datetime.now()}")
 
-        test_ref_serialisation(ref_type="project", ref=my_proj_2)
+        test_ref_serialisation("project", my_proj_2)
 
 
 def test_project_get_all(authenticated_nexus: None) -> None:
@@ -108,7 +108,7 @@ def test_project_get_or_create(
 
 def test_project_summarize(
     test_case_name: str,
-    create_compile_job_in_project: Callable,
+    create_compile_job_in_project: Callable[..., ContextManager[CompileJobRef]],
 ) -> None:
     """Test that we can get summary information on the state of a project."""
     project_name = f"project for {test_case_name}"

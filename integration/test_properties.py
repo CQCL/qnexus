@@ -1,16 +1,17 @@
 """Test that we can set properties on a project, and use them when creating/filtering resources."""
 
-from typing import OrderedDict, Callable
+from typing import OrderedDict, Callable, ContextManager
 
 from pytket.circuit import Circuit
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
+from qnexus.models.references import ProjectRef
 
 
 def test_property_creation_and_filtering(
     test_case_name: str,
-    create_project: Callable,
+    create_project: Callable[[str], ContextManager[ProjectRef]],
 ) -> None:
     """Test that we can create resources with property values
     and filter resources by their property values."""

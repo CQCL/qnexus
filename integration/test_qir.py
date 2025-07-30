@@ -2,7 +2,7 @@
 
 from collections import Counter
 from pathlib import Path
-from typing import Callable
+from typing import Callable, ContextManager
 
 import pyqir
 from hugr.qsystem.result import QsysResult
@@ -13,12 +13,12 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import QIRRef, QIRResult, ResultVersions
+from qnexus.models.references import QIRRef, QIRResult, ResultVersions, ProjectRef, Ref
 
 
 def test_qir_create_and_update(
     test_case_name: str,
-    create_property_in_project: Callable,
+    create_property_in_project: Callable[..., ContextManager[ProjectRef]],
     test_circuit: Circuit,
 ) -> None:
     """Test that we can create a qir and add a property value."""
@@ -53,7 +53,7 @@ def test_qir_create_and_update(
 
 def test_qir_download(
     test_case_name: str,
-    create_qir_in_project: Callable,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
     qa_qir_bitcode: bytes,
 ) -> None:
     """Test that QIR bytes can be downloaded from an uploaded QIR module."""
@@ -62,9 +62,9 @@ def test_qir_download(
     qir_name = f"qir for {test_case_name}"
 
     with create_qir_in_project(
-        project_name=project_name,
-        qir_name=qir_name,
-        qir=qa_qir_bitcode,
+        project_name,
+        qir_name,
+        qa_qir_bitcode,
     ) as qir_ref:
         qir_bytes = qir_ref.download_qir()
         assert isinstance(qir_bytes, bytes)
@@ -73,9 +73,9 @@ def test_qir_download(
 
 def test_qir_get_by_id(
     test_case_name: str,
-    create_qir_in_project: Callable,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
     qa_qir_bitcode: bytes,
-    test_ref_serialisation: Callable,
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can get a QIRRef by its ID and its round trip serialisation."""
 
@@ -83,9 +83,9 @@ def test_qir_get_by_id(
     qir_name = f"qir for {test_case_name}"
 
     with create_qir_in_project(
-        project_name=project_name,
-        qir_name=qir_name,
-        qir=qa_qir_bitcode,
+        project_name,
+        qir_name,
+        qa_qir_bitcode,
     ):
         my_proj = qnx.projects.get(name_like=project_name)
         my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
@@ -94,12 +94,12 @@ def test_qir_get_by_id(
 
         assert qir_ref_by_id == my_qir_ref
 
-        test_ref_serialisation(ref_type="qir", ref=qir_ref_by_id)
+        test_ref_serialisation("qir", qir_ref_by_id)
 
 
 def test_qir_get_all(
     test_case_name: str,
-    create_qir_in_project: Callable,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
     qa_qir_bitcode: bytes,
 ) -> None:
     """Test that we can get all qirRefs in a project."""
@@ -108,9 +108,9 @@ def test_qir_get_all(
     qir_name = f"qir for {test_case_name}"
 
     with create_qir_in_project(
-        project_name=project_name,
-        qir_name=qir_name,
-        qir=qa_qir_bitcode,
+        project_name,
+        qir_name,
+        qa_qir_bitcode,
     ):
         my_proj = qnx.projects.get(name_like=project_name)
 
@@ -122,7 +122,7 @@ def test_qir_get_all(
 
 def test_execution(
     test_case_name: str,
-    create_qir_in_project: Callable,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
     qa_qir_bitcode: bytes,
 ) -> None:
     """Test the execution of a QIR program."""
@@ -131,9 +131,9 @@ def test_execution(
     qir_name = f"qir for {test_case_name}"
 
     with create_qir_in_project(
-        project_name=project_name,
-        qir_name=qir_name,
-        qir=qa_qir_bitcode,
+        project_name,
+        qir_name,
+        qa_qir_bitcode,
     ) as qir_program_ref:
         device_name = "H1-1SC"  # Syntax checker - no results
 
@@ -169,7 +169,7 @@ def test_execution(
 
 def test_execution_on_NG_devices(
     test_case_name: str,
-    create_qir_in_project: Callable,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
 ) -> None:
     """Test execution on NG devices, specifically to focus on getting the results"""
 
@@ -177,9 +177,9 @@ def test_execution_on_NG_devices(
     qir_name = f"qir for {test_case_name}"
 
     with create_qir_in_project(
-        project_name=project_name,
-        qir_name=qir_name,
-        qir=make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
+        project_name,
+        qir_name,
+        make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
     ) as qir_ref:
         project_ref = qnx.projects.get(name_like=project_name)
 

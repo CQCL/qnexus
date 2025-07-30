@@ -1,6 +1,6 @@
 """Test basic functionality relating to the circuit module."""
 
-from typing import Callable
+from typing import Callable, ContextManager
 
 import pandas as pd
 import pytest
@@ -9,16 +9,17 @@ from pytket.circuit import Circuit
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import CircuitRef
-
+from qnexus.models.references import CircuitRef, ProjectRef, Ref
 
 test_circuit = Circuit(2, 2).H(0).CX(0, 1).measure_all()
 
 
 def test_circuit_get(
     test_case_name: str,
-    create_circuit_in_project: Callable,
-    test_ref_serialisation: Callable,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can create a circuit, add a property value,
     get a specific unique CircuitRef by name or id,  get an iterator over all circuits,
@@ -26,9 +27,9 @@ def test_circuit_get(
     """
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=f"project for {test_case_name}",
-        circuit_name=f"circuit for {test_case_name}",
+        test_circuit,
+        f"project for {test_case_name}",
+        f"circuit for {test_case_name}",
     ) as my_circ_ref:
         assert isinstance(my_circ_ref, CircuitRef)
         assert isinstance(my_circ_ref.download_circuit(), Circuit)
@@ -46,25 +47,28 @@ def test_circuit_get(
         with pytest.raises(qnx_exc.ZeroMatches):
             qnx.circuits.get(name_like=f"{test_case_name}-wrong")
 
-        test_ref_serialisation(ref_type="circuit", ref=my_circ_2)
+        test_ref_serialisation("circuit", my_circ_2)
 
 
 def test_circuit_get_all(
-    test_case_name: str, create_circuit_in_project: Callable
+    test_case_name: str,
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
 ) -> None:
     """Test that we can get an iterator over all circuits."""
 
     project_name = f"project for {test_case_name}"
 
     with create_circuit_in_project(
-        circuit=test_circuit,
-        project_name=project_name,
-        circuit_name=f"circuit1 for {test_case_name}",
+        test_circuit,
+        project_name,
+        f"circuit1 for {test_case_name}",
     ):
         with create_circuit_in_project(
-            circuit=test_circuit,
-            project_name=project_name,
-            circuit_name=f"circuit2 for {test_case_name}",
+            test_circuit,
+            project_name,
+            f"circuit2 for {test_case_name}",
         ):
             my_circ_db_matches = qnx.circuits.get_all(name_like=test_case_name)
 
@@ -74,7 +78,8 @@ def test_circuit_get_all(
 
 
 def test_circuit_create(
-    test_case_name: str, create_property_in_project: Callable
+    test_case_name: str,
+    create_property_in_project: Callable[..., ContextManager[ProjectRef]],
 ) -> None:
     """Test that we can create a circuit and add a property value."""
 
@@ -109,11 +114,14 @@ def test_circuit_create(
         )
 
 
-def test_circuit_get_cost(test_case_name: str, create_project: Callable) -> None:
+def test_circuit_get_cost(
+    test_case_name: str,
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> None:
     """Test that we can get the cost to run a CircuitRef,
     on a particular Quantinuum Systems device."""
 
-    with create_project(project_name=f"project for {test_case_name}") as my_proj:
+    with create_project(f"project for {test_case_name}") as my_proj:
         my_q_systems_circuit = qnx.circuits.upload(
             circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
             name="qa_q_systems_circuit",

@@ -1,21 +1,23 @@
 """Test basic functionality relating to the wasm_modules module."""
 
-from typing import Callable
+from typing import Callable, ContextManager
 
 import pandas as pd
 from pytket.circuit import Circuit
-from pytket.wasm.wasm import WasmFileHandler
+from pytket.wasm.wasm import WasmFileHandler, WasmModuleHandler
 
 import qnexus as qnx
 from qnexus.models.job_status import JobStatusEnum
-from qnexus.models.references import WasmModuleRef
+from qnexus.models.references import WasmModuleRef, Ref
 
 
 def test_wasm_download(
     test_case_name: str,
-    create_wasm_in_project: Callable,
+    create_wasm_in_project: Callable[
+        [str, str, WasmModuleHandler], ContextManager[WasmModuleRef]
+    ],
     qa_wasm_module: WasmFileHandler,
-    test_ref_serialisation: Callable,
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that valid WASM can be extracted from an uploaded WASM module,
     and the WasmModuleRef serialisation round trip."""
@@ -24,9 +26,9 @@ def test_wasm_download(
     wasm_module_name = f"wasm for {test_case_name}"
 
     with create_wasm_in_project(
-        project_name=project_name,
-        wasm_module_handler=qa_wasm_module,
-        wasm_module_name=wasm_module_name,
+        project_name,
+        wasm_module_name,
+        qa_wasm_module,
     ) as wasm_ref:
         assert isinstance(wasm_ref, WasmModuleRef)
         downloaded_wasm_module_handler = wasm_ref.download_wasm_contents()
@@ -35,12 +37,14 @@ def test_wasm_download(
         assert downloaded_wasm_module_handler.functions == qa_wasm_module.functions
 
         wasm_ref_by_id = qnx.wasm_modules.get(id=wasm_ref.id)
-        test_ref_serialisation(ref_type="wasm", ref=wasm_ref_by_id)
+        test_ref_serialisation("wasm", wasm_ref_by_id)
 
 
 def test_wasm_flow(
     test_case_name: str,
-    create_wasm_in_project: Callable,
+    create_wasm_in_project: Callable[
+        [str, str, WasmModuleHandler], ContextManager[WasmModuleRef]
+    ],
     qa_wasm_module: WasmFileHandler,
 ) -> None:
     """Test the flow for executing a simple WASM circuit on H1-1LE."""
@@ -49,9 +53,9 @@ def test_wasm_flow(
     wasm_module_name = f"wasm for {test_case_name}"
 
     with create_wasm_in_project(
-        project_name=project_name,
-        wasm_module_handler=qa_wasm_module,
-        wasm_module_name=wasm_module_name,
+        project_name,
+        wasm_module_name,
+        qa_wasm_module,
     ) as wasm_ref:
         proj_ref = qnx.projects.get(name_like=project_name)
 

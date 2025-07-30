@@ -1,12 +1,12 @@
 """Test basic functionality relating to the role module."""
 
 import pandas as pd
-from typing import Callable
+from typing import Callable, ContextManager
 
 import qnexus as qnx
 from qnexus.config import CONFIG
 from qnexus.models import Role
-from qnexus.models.references import TeamRef, UserRef
+from qnexus.models.references import TeamRef, UserRef, ProjectRef
 
 
 def test_role_get(authenticated_nexus: None) -> None:
@@ -27,7 +27,9 @@ def test_role_get_all(authenticated_nexus: None) -> None:
 
 
 def test_team_assignment(
-    test_case_name: str, create_project: Callable, create_team: Callable
+    test_case_name: str,
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+    create_team: Callable[[str], ContextManager[TeamRef]],
 ) -> None:
     """Test that we can assign a team to a project."""
 
@@ -51,7 +53,9 @@ def test_team_assignment(
             assert team_assignment.assignee.id == team_ref.id
 
 
-def test_user_assignment(test_case_name: str, create_project: Callable) -> None:
+def test_user_assignment(
+    test_case_name: str, create_project: Callable[[str], ContextManager[ProjectRef]]
+) -> None:
     """Test that we can assign a role to a user."""
     with create_project(f"project for {test_case_name}") as new_project_ref:
         qnx.roles.assign_user(

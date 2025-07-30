@@ -1,17 +1,17 @@
 """Test basic functionality relating to the team module."""
 
-from typing import Callable
+from typing import Callable, ContextManager
 
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.models.references import TeamRef
+from qnexus.models.references import TeamRef, Ref
 
 
 def test_team_get(
     test_case_name: str,
-    create_team: Callable,
-    test_ref_serialisation: Callable,
+    create_team: Callable[[str], ContextManager[TeamRef]],
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that we can get a specific unique TeamRef and its
     serialisation round trip."""
@@ -22,12 +22,12 @@ def test_team_get(
         my_team = qnx.teams.get(name=team_name)
         assert isinstance(my_team, TeamRef)
 
-        test_ref_serialisation(ref_type="team", ref=my_team)
+        test_ref_serialisation("team", my_team)
 
 
 def test_team_get_all(
     test_case_name: str,
-    create_team: Callable,
+    create_team: Callable[[str], ContextManager[TeamRef]],
 ) -> None:
     """Test that we can get all teams (currently not a NexusIterator)."""
 

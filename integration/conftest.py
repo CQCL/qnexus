@@ -2,7 +2,7 @@
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, Generator, Literal, cast
+from typing import Callable, Generator, Literal, cast, ContextManager, Union
 import pandas as pd
 
 import pytest
@@ -10,7 +10,6 @@ from hugr.package import Package
 from pytket.circuit import Circuit
 from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 from pytket.wasm.wasm import WasmFileHandler, WasmModuleHandler
-from quantinuum_schemas.models.backend_config import BackendConfig, BaseBackendConfig
 
 import qnexus as qnx
 from qnexus.client.auth import login_no_interaction
@@ -18,21 +17,57 @@ from qnexus.filesystem import load, save
 from qnexus.config import CONFIG
 from qnexus.exceptions import NoUniqueMatch, ZeroMatches
 from qnexus.models.references import (
-    BaseRef,
+    Ref,
     CircuitRef,
     CompileJobRef,
     ExecuteJobRef,
     HUGRRef,
     ProjectRef,
+    QIRRef,
     TeamRef,
     WasmModuleRef,
+)
+from quantinuum_schemas.models.backend_config import (
+    AerConfig,
+    AerStateConfig,
+    AerUnitaryConfig,
+    BackendConfig,
+    BraketConfig,
+    IBMQConfig,
+    IBMQEmulatorConfig,
+    ProjectQConfig,
+    QuantinuumConfig,
+    QulacsConfig,
+    SeleneClassicalReplayConfig,
+    SeleneCoinflipConfig,
+    SeleneLeanConfig,
+    SeleneQuestConfig,
+    SeleneStimConfig,
 )
 
 
 test_run_identifier = ""
 
+AllBackendConfigs = Union[
+    AerConfig,
+    AerStateConfig,
+    AerUnitaryConfig,
+    BackendConfig,
+    BraketConfig,
+    IBMQConfig,
+    IBMQEmulatorConfig,
+    ProjectQConfig,
+    QuantinuumConfig,
+    QulacsConfig,
+    SeleneClassicalReplayConfig,
+    SeleneCoinflipConfig,
+    SeleneLeanConfig,
+    SeleneQuestConfig,
+    SeleneStimConfig,
+]
 
-def pytest_addoption(parser):
+
+def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addoption(
         "--purge-projects",
         action="store_true",
@@ -72,7 +107,7 @@ def fixture_test_suite_name(request: pytest.FixtureRequest) -> str:
 def authenticated_nexus(
     user_email: str = CONFIG.qa_user_email,
     user_password: str = CONFIG.qa_user_password,
-) -> Generator[None, None, None]:
+) -> Generator[None]:
     """Authenticated nexus instance fixture."""
     try:
         login_no_interaction(user_email, user_password)
@@ -81,29 +116,15 @@ def authenticated_nexus(
         qnx.auth.logout()
 
 
-@contextmanager
-def make_authenticated_nexus(
-    user_email: str = CONFIG.qa_user_email,
-    user_password: str = CONFIG.qa_user_password,
-) -> Generator[None, None, None]:
-    """Authenticate the qnexus client."""
-    try:
-        login_no_interaction(user_email, user_password)
-        # qnx.auth._request_tokens(user_email, user_password)
-        yield
-    finally:
-        qnx.auth.logout()
-
-
 @pytest.fixture(name="create_team")
-def fixture_create_team() -> Callable:
-    """Returns a `contextmanager` that yields a `TeamRef`
+def fixture_create_team() -> Callable[[str], ContextManager[TeamRef]]:
+    """Returns a `ContextManager` that yields a `TeamRef`
     of an existing/created project with the specified name."""
 
     @contextmanager
     def make_team_if_needed(
         team_name: str,
-    ) -> Generator[TeamRef, None, None]:
+    ) -> Generator[TeamRef]:
         team_ref = None
         try:
             team_ref = qnx.teams.get(team_name)
@@ -120,14 +141,16 @@ def fixture_create_team() -> Callable:
 
 
 @pytest.fixture(name="create_project")
-def fixture_create_project(request) -> Callable:
-    """Returns a `contextmanager` that yields a project created
-    with the specified name."""
+def fixture_create_project(
+    request: pytest.FixtureRequest,
+) -> Callable[[str], ContextManager[ProjectRef]]:
+    """Returns a `ContextManager` that yields a `ProjectRef` of the
+    project created with the specified name."""
 
     @contextmanager
     def make_temp_project(
         project_name: str,
-    ) -> Generator[ProjectRef, None, None]:
+    ) -> Generator[ProjectRef]:
         my_proj = qnx.projects.get_or_create(
             name=project_name, description=f"description for {project_name}"
         )
@@ -141,8 +164,10 @@ def fixture_create_project(request) -> Callable:
 
 
 @pytest.fixture(name="create_circuit_in_project")
-def fixture_create_circuit_in_project(authenticated_nexus: None) -> Callable:
-    """Returns a `contextmanager` that yields a `circuit_ref` of the
+def fixture_create_circuit_in_project(
+    authenticated_nexus: None,
+) -> Callable[[Circuit, str, str], ContextManager[CircuitRef]]:
+    """Returns a `ContextManager` that yields a `CircuitRef` of the
     specified `circuit` uploaded to a project with `project_name`."""
 
     @contextmanager
@@ -150,7 +175,7 @@ def fixture_create_circuit_in_project(authenticated_nexus: None) -> Callable:
         circuit: Circuit,
         project_name: str,
         circuit_name: str,
-    ) -> Generator[CircuitRef, None, None]:
+    ) -> Generator[CircuitRef]:
         circuit_ref = _get_or_create_circuit(
             circuit=circuit, project_name=project_name, circuit_name=circuit_name
         )
@@ -162,9 +187,11 @@ def fixture_create_circuit_in_project(authenticated_nexus: None) -> Callable:
 
 @pytest.fixture(name="create_compile_job_in_project")
 def fixture_create_compile_job_in_project(
-    create_circuit_in_project: Callable,
-) -> Callable:
-    """Returns a `contextmanager` that yields a `CompileJobRef` of the
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
+) -> Callable[..., ContextManager[CompileJobRef]]:
+    """Returns a `ContextManager` that yields a `CompileJobRef` of the
     compile job submitted with the specified `CircuitRef` to the project
     with the provided name.
 
@@ -182,9 +209,9 @@ def fixture_create_compile_job_in_project(
         job_name: str,
         circuit: Circuit,
         circuit_name: str,
-        backend_config: BaseBackendConfig | None = None,
+        backend_config: AllBackendConfigs | None = None,
         skip_intermediate_circuits: bool = False,
-    ) -> Generator[CompileJobRef, None, None]:
+    ) -> Generator[CompileJobRef]:
         with create_circuit_in_project(
             circuit,
             project_name,
@@ -209,6 +236,7 @@ def fixture_create_compile_job_in_project(
             except Exception as e:
                 raise e
 
+            assert isinstance(compile_job_ref, CompileJobRef)
             yield compile_job_ref
 
     return make_compile_job
@@ -216,9 +244,11 @@ def fixture_create_compile_job_in_project(
 
 @pytest.fixture(name="create_execute_job_in_project")
 def fixture_create_execute_job_in_project(
-    create_circuit_in_project: Callable,
-) -> Callable:
-    """Returns a `contextmanager` that yields a `ExecuteJobRef` of the
+    create_circuit_in_project: Callable[
+        [Circuit, str, str], ContextManager[CircuitRef]
+    ],
+) -> Callable[..., ContextManager[ExecuteJobRef]]:
+    """Returns a `ContextManager` that yields a `ExecuteJobRef` of the
     execute job submitted with the specified `CircuitRef` to the project
     with the provided name.
 
@@ -237,9 +267,9 @@ def fixture_create_execute_job_in_project(
         job_name: str,
         circuit: Circuit,
         circuit_name: str,
-        backend_config: BaseBackendConfig | None = None,
+        backend_config: AllBackendConfigs | None = None,
         n_shots: int = 10,
-    ) -> Generator[ExecuteJobRef, None, None]:
+    ) -> Generator[ExecuteJobRef]:
         with create_circuit_in_project(
             circuit,
             project_name,
@@ -261,14 +291,17 @@ def fixture_create_execute_job_in_project(
                     n_shots=[n_shots],
                 )
 
+            assert isinstance(execute_job_ref, ExecuteJobRef)
             yield execute_job_ref
 
     return make_execute_job
 
 
 @pytest.fixture(name="create_property_in_project")
-def fixture_create_property_in_project(create_project: Callable) -> Callable:
-    """Returns a `contextmanager` that yields a `ProjectRef` to the project with
+def fixture_create_property_in_project(
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> Callable[..., ContextManager[ProjectRef]]:
+    """Returns a `ContextManager` that yields a `ProjectRef` to the project with
     `project_name` where the specified property was created.
 
     Notes: will create the project if it does not exist."""
@@ -279,7 +312,7 @@ def fixture_create_property_in_project(create_project: Callable) -> Callable:
         property_name: str,
         property_type: Literal["bool", "int", "float", "string"],
         required: bool = False,
-    ) -> Generator[None, None, None]:
+    ) -> Generator[ProjectRef]:
         with create_project(project_name) as proj_ref:
             qnx.projects.add_property(
                 name=property_name,
@@ -294,8 +327,10 @@ def fixture_create_property_in_project(create_project: Callable) -> Callable:
 
 
 @pytest.fixture(name="create_qir_in_project")
-def fixture_create_qir_in_project(create_project: Callable) -> Callable:
-    """Returns a `contextmanager` that yields a `QIRRef` to the `qir_bitcode`
+def fixture_create_qir_in_project(
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> Callable[[str, str, bytes], ContextManager[QIRRef]]:
+    """Returns a `ContextManager` that yields a `QIRRef` to the `qir_bitcode`
     uploaded to a project with `project_name`.
 
     Notes: will create the project if it does not exist."""
@@ -305,7 +340,7 @@ def fixture_create_qir_in_project(create_project: Callable) -> Callable:
         project_name: str,
         qir_name: str,
         qir: bytes,
-    ) -> Generator[HUGRRef, None, None]:
+    ) -> Generator[QIRRef]:
         with create_project(project_name) as proj_ref:
             qir_ref = qnx.qir.upload(qir=qir, name=qir_name, project=proj_ref)
 
@@ -315,8 +350,10 @@ def fixture_create_qir_in_project(create_project: Callable) -> Callable:
 
 
 @pytest.fixture(name="create_hugr_in_project")
-def fixture_create_hugr_in_project(create_project: Callable) -> Callable:
-    """Returns a `contextmanager` that yields a `HUGRRef` to the `hugr_package`
+def fixture_create_hugr_in_project(
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> Callable[[str, str, Package], ContextManager[HUGRRef]]:
+    """Returns a `ContextManager` that yields a `HUGRRef` to the `hugr_package`
     uploaded to a project with `project_name`.
 
     Notes: will create the project if it does not exist."""
@@ -326,7 +363,7 @@ def fixture_create_hugr_in_project(create_project: Callable) -> Callable:
         project_name: str,
         hugr_name: str,
         hugr_package: Package,
-    ) -> Generator[HUGRRef, None, None]:
+    ) -> Generator[HUGRRef]:
         with create_project(project_name) as proj_ref:
             hugr_ref = qnx.hugr.upload(
                 hugr_package=hugr_package,
@@ -340,8 +377,10 @@ def fixture_create_hugr_in_project(create_project: Callable) -> Callable:
 
 
 @pytest.fixture(name="create_wasm_in_project")
-def fixture_create_wasm_in_project(create_project: Callable) -> Callable:
-    """Returns a `contextmanager` that yields a `WasmModuleRef` to the `wasm_module`
+def fixture_create_wasm_in_project(
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> Callable[[str, str, WasmModuleHandler], ContextManager[WasmModuleRef]]:
+    """Returns a `ContextManager` that yields a `WasmModuleRef` to the `wasm_module`
     uploaded to a project with `project_name`.
 
     Notes: will create the project if it does not exist."""
@@ -351,7 +390,7 @@ def fixture_create_wasm_in_project(create_project: Callable) -> Callable:
         project_name: str,
         wasm_module_name: str,
         wasm_module_handler: WasmModuleHandler,
-    ) -> Generator[WasmModuleRef, None, None]:
+    ) -> Generator[WasmModuleRef]:
         with create_project(project_name) as proj_ref:
             wasm_ref = qnx.wasm_modules.upload(
                 wasm_module_handler=wasm_module_handler,
@@ -365,13 +404,15 @@ def fixture_create_wasm_in_project(create_project: Callable) -> Callable:
 
 
 @pytest.fixture(name="test_ref_serialisation")
-def fixture_test_ref_serialisation(tmpdir) -> Callable:
+def fixture_test_ref_serialisation(  # type: ignore[no-untyped-def]
+    tmpdir,
+) -> Callable[[str, Ref], None]:
     """Returns a function that tests the serialisation (save/load) of
     a reference."""
 
     def test_ref_serialisation(
         ref_type: str,
-        ref: BaseRef,
+        ref: Ref,
     ) -> None:
         ref_path = tmpdir / ref_type
         save(ref=ref, path=ref_path)
@@ -474,7 +515,7 @@ def _get_or_create_circuit(
     # which makes `qnx.circuits.get(namelike)` to return multiple circuits
     circuits_df = qnx.circuits.get_all(project=project_ref).df()
 
-    circuits_filtered: pd.DataFrame = []
+    circuits_filtered = pd.DataFrame()
     if len(circuits_df):
         circuits_filtered = circuits_df.loc[circuits_df["name"] == circuit_name]
 
