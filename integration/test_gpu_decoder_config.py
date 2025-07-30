@@ -1,102 +1,103 @@
 """Test basic functionality relating to the gpu_decoder_config."""
 
-from datetime import datetime
-from pathlib import Path
+from typing import Callable, ContextManager
 
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.models.references import GpuDecoderConfigRef
+from qnexus.models.job_status import JobStatusEnum
+from qnexus.models.references import GpuDecoderConfigRef, QIRRef, Ref
 
 
 def test_gpu_decoder_config_download(
-    _authenticated_nexus: None,
-    qa_project_name: str,
+    test_case_name: str,
+    create_gpu_decoder_config_in_project: Callable[
+        [str, str, str], ContextManager[GpuDecoderConfigRef]
+    ],
+    qa_gpu_decoder_config: str,
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
     """Test that valid GPU decoder config can be extracted from an uploaded GPU decoder config."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    project_name = f"project for {test_case_name}"
+    gpu_decoder_config_name = f"gpu decoder config for {test_case_name}"
 
-    gpu_decoder_config_path = Path(
-        "examples/basics/data/gpu_decoder_config.yaml"
-    ).resolve()
-    with open(gpu_decoder_config_path) as fp:
-        gpu_decoder_config = fp.read()
+    with create_gpu_decoder_config_in_project(
+        project_name,
+        gpu_decoder_config_name,
+        qa_gpu_decoder_config,
+    ) as gpu_decoder_config_ref:
+        assert isinstance(gpu_decoder_config_ref, GpuDecoderConfigRef)
+        downloaded_gpu_decoder_config = (
+            gpu_decoder_config_ref.download_gpu_decoder_config_contents()
+        )
 
-    qa_gpu_decoder_config_name_fixture = (
-        f"qnexus_integration_test_gpu_decoder_config_{datetime.now()}"
-    )
+        assert downloaded_gpu_decoder_config == qa_gpu_decoder_config
 
-    qnx.gpu_decoder_configs.upload(
-        gpu_decoder_config=gpu_decoder_config,
-        name=qa_gpu_decoder_config_name_fixture,
-        project=my_proj,
-    )
-
-    gpu_decoder_config_ref = qnx.gpu_decoder_configs.get(
-        name_like=qa_gpu_decoder_config_name_fixture
-    )
-    assert isinstance(gpu_decoder_config_ref, GpuDecoderConfigRef)
-
-    downloaded_gpu_decoder_config = (
-        gpu_decoder_config_ref.download_gpu_decoder_config_contents()
-    )
-
-    assert downloaded_gpu_decoder_config == gpu_decoder_config
+        gpu_decoder_config_ref_by_id = qnx.gpu_decoder_configs.get(
+            id=gpu_decoder_config_ref.id
+        )
+        test_ref_serialisation("gpu_decoder_config", gpu_decoder_config_ref_by_id)
 
 
 def test_gpu_decoder_config_flow(
-    _authenticated_nexus: None,
-    qa_project_name: str,
-    qa_qir_name: str,
+    test_case_name: str,
+    create_gpu_decoder_config_in_project: Callable[
+        [str, str, str], ContextManager[GpuDecoderConfigRef]
+    ],
+    qa_gpu_decoder_config: str,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
+    qa_qir_bitcode: bytes,
 ) -> None:
-    """Test the flow for executing a simple GPU decoder config circuit on H1-1E."""
+    """Test the flow for executing a program on an NG device with a GPU decoder config."""
 
-    device_name = "H1-1E"
+    project_name = f"project for {test_case_name}"
+    gpu_decoder_config_name = f"gpu decoder config for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    with (
+        create_gpu_decoder_config_in_project(
+            project_name,
+            gpu_decoder_config_name,
+            qa_gpu_decoder_config,
+        ) as gpu_decoder_config_ref,
+        create_qir_in_project(
+            project_name,
+            qir_name,
+            qa_qir_bitcode,
+        ),
+    ):
+        proj_ref = qnx.projects.get(name_like=project_name)
 
-    gpu_decoder_config_path = Path(
-        "examples/basics/data/gpu_decoder_config.yaml"
-    ).resolve()
-    with open(gpu_decoder_config_path) as fp:
-        gpu_decoder_config = fp.read()
+        my_gpu_decoder_config_db_matches = qnx.gpu_decoder_configs.get_all()
+        assert isinstance(my_gpu_decoder_config_db_matches.summarize(), pd.DataFrame)
+        assert isinstance(next(my_gpu_decoder_config_db_matches), GpuDecoderConfigRef)
 
-    qa_gpu_decoder_config_name_fixture = (
-        f"qnexus_integration_test_gpu_decoder_config_{datetime.now()}"
-    )
+        gpu_decoder_config_ref = qnx.gpu_decoder_configs.get(
+            name_like=gpu_decoder_config_name
+        )
+        assert isinstance(gpu_decoder_config_ref, GpuDecoderConfigRef)
 
-    qnx.gpu_decoder_configs.upload(
-        gpu_decoder_config=gpu_decoder_config,
-        name=qa_gpu_decoder_config_name_fixture,
-        project=my_proj,
-    )
+        gpu_decoder_config_ref_2 = qnx.gpu_decoder_configs.get(
+            id=gpu_decoder_config_ref.id
+        )
+        assert gpu_decoder_config_ref == gpu_decoder_config_ref_2
 
-    my_gpu_decoder_config_db_matches = qnx.gpu_decoder_configs.get_all()
-    assert isinstance(my_gpu_decoder_config_db_matches.summarize(), pd.DataFrame)
-    assert isinstance(next(my_gpu_decoder_config_db_matches), GpuDecoderConfigRef)
+        qir_program_ref = qnx.qir.get(name_like=qir_name)
 
-    gpu_decoder_config_ref = qnx.gpu_decoder_configs.get(
-        name_like=qa_gpu_decoder_config_name_fixture
-    )
-    assert isinstance(gpu_decoder_config_ref, GpuDecoderConfigRef)
+        execute_job_ref = qnx.start_execute_job(
+            programs=[qir_program_ref],
+            name=f"qir gpu decoder config execute job for {test_case_name}",
+            n_shots=[100],
+            backend_config=qnx.QuantinuumConfig(
+                device_name="Helios-1E",
+                max_cost=10,
+            ),
+            gpu_decoder_config=gpu_decoder_config_ref,
+            project=proj_ref,
+        )
 
-    gpu_decoder_config_ref_2 = qnx.gpu_decoder_configs.get(id=gpu_decoder_config_ref.id)
-    assert gpu_decoder_config_ref == gpu_decoder_config_ref_2
-
-    qir_program_ref = qnx.qir.get(name_like=qa_qir_name)
-
-    job_ref = qnx.start_execute_job(
-        programs=[qir_program_ref],
-        n_shots=[10],
-        backend_config=qnx.QuantinuumConfig(device_name=device_name),
-        gpu_decoder_config=gpu_decoder_config_ref,
-        project=my_proj,
-        name=f"QA Test QIR GPU decoder config job from {datetime.now()}",
-    )
-
-    qnx.jobs.wait_for(job_ref)
-
-    results = qnx.jobs.results(job_ref)
-
-    assert len(results) == 1
+        # Don't fully submit the job (July 2025)
+        qnx.jobs.wait_for(execute_job_ref, wait_for_status=JobStatusEnum.SUBMITTED)
+        qnx.jobs.cancel(execute_job_ref)
+        qnx.jobs.wait_for(execute_job_ref, wait_for_status=JobStatusEnum.CANCELLED)

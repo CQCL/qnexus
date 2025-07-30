@@ -1,12 +1,13 @@
 """Test basic functionality relating to the role module."""
 
-import pandas as pd
 from typing import Callable, ContextManager
+
+import pandas as pd
 
 import qnexus as qnx
 from qnexus.config import CONFIG
 from qnexus.models import Role
-from qnexus.models.references import TeamRef, UserRef, ProjectRef
+from qnexus.models.references import ProjectRef, TeamRef, UserRef
 
 
 def test_role_get(authenticated_nexus: None) -> None:

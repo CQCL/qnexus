@@ -3,7 +3,7 @@
 from collections import Counter
 from datetime import datetime
 from time import sleep
-from typing import Callable, Any, ContextManager
+from typing import Any, Callable, ContextManager
 
 import pandas as pd
 import pytest
@@ -15,17 +15,16 @@ from quantinuum_schemas.models.hypertket_config import HyperTketConfig
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
+from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.references import (
-    Ref,
     CircuitRef,
     CompilationPassRef,
     CompilationResultRef,
     CompileJobRef,
     ExecuteJobRef,
     JobRef,
+    Ref,
 )
-from qnexus.models.job_status import JobStatusEnum
-
 
 # The following global variables and autoused fixture are a
 # bit of a hack to have global identifiers for the resources

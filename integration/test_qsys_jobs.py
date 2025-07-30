@@ -1,6 +1,6 @@
 """Tests related to running jobs against QSys devices."""
 
-from typing import Any, cast, Callable, ContextManager
+from typing import Any, Callable, ContextManager, cast
 
 from guppylang import guppy  # type: ignore
 from guppylang.std.builtins import result
@@ -10,7 +10,7 @@ from pytket.backends.backendinfo import BackendInfo
 from quantinuum_schemas.models.backend_config import SeleneQuestConfig
 
 import qnexus as qnx
-from qnexus.models.references import HUGRRef, ResultVersions, ProjectRef
+from qnexus.models.references import HUGRRef, ProjectRef, ResultVersions
 
 
 def prepare_teleportation() -> Any:

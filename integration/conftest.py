@@ -2,31 +2,14 @@
 
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Callable, Generator, Literal, cast, ContextManager, Union
-import pandas as pd
+from typing import Callable, ContextManager, Generator, Literal, Union, cast
 
+import pandas as pd
 import pytest
 from hugr.package import Package
 from pytket.circuit import Circuit
 from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 from pytket.wasm.wasm import WasmFileHandler, WasmModuleHandler
-
-import qnexus as qnx
-from qnexus.client.auth import login_no_interaction
-from qnexus.filesystem import load, save
-from qnexus.config import CONFIG
-from qnexus.exceptions import NoUniqueMatch, ZeroMatches
-from qnexus.models.references import (
-    Ref,
-    CircuitRef,
-    CompileJobRef,
-    ExecuteJobRef,
-    HUGRRef,
-    ProjectRef,
-    QIRRef,
-    TeamRef,
-    WasmModuleRef,
-)
 from quantinuum_schemas.models.backend_config import (
     AerConfig,
     AerStateConfig,
@@ -45,6 +28,23 @@ from quantinuum_schemas.models.backend_config import (
     SeleneStimConfig,
 )
 
+import qnexus as qnx
+from qnexus.client.auth import login_no_interaction
+from qnexus.config import CONFIG
+from qnexus.exceptions import NoUniqueMatch, ZeroMatches
+from qnexus.filesystem import load, save
+from qnexus.models.references import (
+    CircuitRef,
+    CompileJobRef,
+    ExecuteJobRef,
+    GpuDecoderConfigRef,
+    HUGRRef,
+    ProjectRef,
+    QIRRef,
+    Ref,
+    TeamRef,
+    WasmModuleRef,
+)
 
 test_run_identifier = ""
 
@@ -403,6 +403,33 @@ def fixture_create_wasm_in_project(
     return upload_wasm
 
 
+@pytest.fixture(name="create_gpu_decoder_config_in_project")
+def fixture_create_gpu_decoder_config_in_project(
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> Callable[[str, str, str], ContextManager[GpuDecoderConfigRef]]:
+    """Returns a `ContextManager` that yields a `GpuDecoderConfigRef` to the `gpu_decoder_config`
+    uploaded to a project with `project_name`.
+
+    Notes: will create the project if it does not exist."""
+
+    @contextmanager
+    def upload_gpu_decoder_config(
+        project_name: str,
+        gpu_decoder_config_name: str,
+        gpu_decoder_config: str,
+    ) -> Generator[GpuDecoderConfigRef]:
+        with create_project(project_name) as proj_ref:
+            gpu_decoder_config_ref = qnx.gpu_decoder_configs.upload(
+                gpu_decoder_config=gpu_decoder_config,
+                name=gpu_decoder_config_name,
+                project=proj_ref,
+            )
+
+            yield gpu_decoder_config_ref
+
+    return upload_gpu_decoder_config
+
+
 @pytest.fixture(name="test_ref_serialisation")
 def fixture_test_ref_serialisation(  # type: ignore[no-untyped-def]
     tmpdir,
@@ -439,6 +466,15 @@ def qa_qir_bitcode_fixture(test_circuit: Circuit, test_case_name: str) -> bytes:
     qir_bitcode = pytket_to_qir(test_circuit, name=f"qir for {test_case_name}")
     assert isinstance(qir_bitcode, bytes)
     return qir_bitcode
+
+
+@pytest.fixture(name="qa_gpu_decoder_config")
+def qa_gpu_decoder_config_fixture() -> str:
+    gpu_decoder_config_path = Path(
+        "examples/basics/data/gpu_decoder_config.yaml"
+    ).resolve()
+    with open(gpu_decoder_config_path) as fp:
+        return fp.read()
 
 
 def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:

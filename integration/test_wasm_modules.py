@@ -8,7 +8,7 @@ from pytket.wasm.wasm import WasmFileHandler, WasmModuleHandler
 
 import qnexus as qnx
 from qnexus.models.job_status import JobStatusEnum
-from qnexus.models.references import WasmModuleRef, Ref
+from qnexus.models.references import Ref, WasmModuleRef
 
 
 def test_wasm_download(
