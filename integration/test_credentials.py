@@ -5,7 +5,7 @@ from qnexus.models import Credential, CredentialIssuer
 
 
 def test_credential_get_all(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can get a list of credentials."""
     creds = qnx.credentials.get_all()
