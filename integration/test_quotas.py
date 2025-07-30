@@ -7,7 +7,7 @@ from qnexus.models import Quota
 
 
 def test_quota_get(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can get a specific Quota."""
 
@@ -16,7 +16,7 @@ def test_quota_get(
 
 
 def test_quota_get_all(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can get all quotas (currently not a NexusIterator)."""
 
@@ -28,7 +28,7 @@ def test_quota_get_all(
 
 
 def test_check_quota(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can check a specific quota guard."""
 

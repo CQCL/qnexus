@@ -1,38 +1,53 @@
 """Test basic functionality relating to the team module."""
 
-from datetime import datetime
+from typing import Callable, ContextManager
 
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.models.references import TeamRef
+from qnexus.models.references import TeamRef, Ref
 
 
-def test_team_get(_authenticated_nexus: None, qa_team_name: str) -> None:
-    """Test that we can get a specific unique TeamRef."""
+def test_team_get(
+    test_case_name: str,
+    create_team: Callable[[str], ContextManager[TeamRef]],
+    test_ref_serialisation: Callable[[str, Ref], None],
+) -> None:
+    """Test that we can get a specific unique TeamRef and its
+    serialisation round trip."""
 
-    my_team = qnx.teams.get(name=qa_team_name)
-    assert isinstance(my_team, TeamRef)
+    team_name = f"{test_case_name[-86:]}"  # TODO: use full name once bug is fixed
+
+    with create_team(team_name):
+        my_team = qnx.teams.get(name=team_name)
+        assert isinstance(my_team, TeamRef)
+
+        test_ref_serialisation("team", my_team)
 
 
 def test_team_get_all(
-    _authenticated_nexus: None,
+    test_case_name: str,
+    create_team: Callable[[str], ContextManager[TeamRef]],
 ) -> None:
     """Test that we can get all teams (currently not a NexusIterator)."""
 
-    my_teams = qnx.teams.get_all()
+    team_name = f"{test_case_name[-86:]}"  # TODO: use full name once bug is fixed
 
-    assert len(my_teams) > 1
-    assert isinstance(my_teams.df(), pd.DataFrame)
-    assert isinstance(my_teams[0], TeamRef)
+    with create_team(team_name):
+        my_teams = qnx.teams.get_all()
+
+        assert len(my_teams) >= 1
+        assert isinstance(my_teams.df(), pd.DataFrame)
+        assert isinstance(my_teams[0], TeamRef)
 
 
 def test_team_create(
-    _authenticated_nexus: None,
+    test_case_name: str,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can create a team."""
 
-    team_name = f"qa_test_team_{datetime.now()}"
+    team_name = f"{test_case_name[-86:]}"  # TODO: use full name once bug is fixed
     team_description = "A test team (can be deleted)"
 
     my_new_team = qnx.teams.create(name=team_name, description=team_description)

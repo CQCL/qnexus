@@ -1,95 +1,96 @@
 """Test basic functionality relating to the wasm_modules module."""
 
-from datetime import datetime
-from pathlib import Path
+from typing import Callable, ContextManager
 
 import pandas as pd
 from pytket.circuit import Circuit
-from pytket.wasm.wasm import WasmFileHandler
+from pytket.wasm.wasm import WasmFileHandler, WasmModuleHandler
 
 import qnexus as qnx
 from qnexus.models.job_status import JobStatusEnum
-from qnexus.models.references import WasmModuleRef
+from qnexus.models.references import WasmModuleRef, Ref
 
 
 def test_wasm_download(
-    _authenticated_nexus: None,
-    qa_project_name: str,
+    test_case_name: str,
+    create_wasm_in_project: Callable[
+        [str, str, WasmModuleHandler], ContextManager[WasmModuleRef]
+    ],
+    qa_wasm_module: WasmFileHandler,
+    test_ref_serialisation: Callable[[str, Ref], None],
 ) -> None:
-    """Test that valid WASM can be extracted from an uploaded WASM module."""
+    """Test that valid WASM can be extracted from an uploaded WASM module,
+    and the WasmModuleRef serialisation round trip."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    project_name = f"project for {test_case_name}"
+    wasm_module_name = f"wasm for {test_case_name}"
 
-    wasm_path = Path("examples/basics/data/add_one.wasm").resolve()
-    wfh = WasmFileHandler(filepath=str(wasm_path))
-    qa_wasm_module_name_fixture = f"qnexus_integration_test_wasm_{datetime.now()}"
+    with create_wasm_in_project(
+        project_name,
+        wasm_module_name,
+        qa_wasm_module,
+    ) as wasm_ref:
+        assert isinstance(wasm_ref, WasmModuleRef)
+        downloaded_wasm_module_handler = wasm_ref.download_wasm_contents()
 
-    qnx.wasm_modules.upload(
-        wasm_module_handler=wfh,
-        name=qa_wasm_module_name_fixture,
-        project=my_proj,
-    )
+        downloaded_wasm_module_handler.check()
+        assert downloaded_wasm_module_handler.functions == qa_wasm_module.functions
 
-    wasm_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name_fixture)
-    assert isinstance(wasm_ref, WasmModuleRef)
-    downloaded_wasm_module_handler = wasm_ref.download_wasm_contents()
-
-    downloaded_wasm_module_handler.check()
-    assert downloaded_wasm_module_handler.functions == wfh.functions
+        wasm_ref_by_id = qnx.wasm_modules.get(id=wasm_ref.id)
+        test_ref_serialisation("wasm", wasm_ref_by_id)
 
 
 def test_wasm_flow(
-    _authenticated_nexus: None,
-    qa_project_name: str,
+    test_case_name: str,
+    create_wasm_in_project: Callable[
+        [str, str, WasmModuleHandler], ContextManager[WasmModuleRef]
+    ],
+    qa_wasm_module: WasmFileHandler,
 ) -> None:
     """Test the flow for executing a simple WASM circuit on H1-1LE."""
 
-    my_proj = qnx.projects.get(name_like=qa_project_name)
+    project_name = f"project for {test_case_name}"
+    wasm_module_name = f"wasm for {test_case_name}"
 
-    wasm_path = Path("examples/basics/data/add_one.wasm").resolve()
-    wfh = WasmFileHandler(filepath=str(wasm_path))
-    qa_wasm_module_name_fixture = f"qnexus_integration_test_wasm_{datetime.now()}"
+    with create_wasm_in_project(
+        project_name,
+        wasm_module_name,
+        qa_wasm_module,
+    ) as wasm_ref:
+        proj_ref = qnx.projects.get(name_like=project_name)
 
-    qnx.wasm_modules.upload(
-        wasm_module_handler=wfh,
-        name=qa_wasm_module_name_fixture,
-        project=my_proj,
-    )
+        my_wasm_db_matches = qnx.wasm_modules.get_all()
+        assert isinstance(my_wasm_db_matches.summarize(), pd.DataFrame)
+        assert isinstance(next(my_wasm_db_matches), WasmModuleRef)
 
-    my_wasm_db_matches = qnx.wasm_modules.get_all()
-    assert isinstance(my_wasm_db_matches.summarize(), pd.DataFrame)
-    assert isinstance(next(my_wasm_db_matches), WasmModuleRef)
+        wasm_ref = qnx.wasm_modules.get(name_like=wasm_module_name)
+        assert isinstance(wasm_ref, WasmModuleRef)
 
-    wasm_ref = qnx.wasm_modules.get(name_like=qa_wasm_module_name_fixture)
-    assert isinstance(wasm_ref, WasmModuleRef)
+        wasm_ref_2 = qnx.wasm_modules.get(id=wasm_ref.id)
+        assert wasm_ref == wasm_ref_2
 
-    wasm_ref_2 = qnx.wasm_modules.get(id=wasm_ref.id)
-    assert wasm_ref == wasm_ref_2
+        circuit = Circuit(1)
+        a = circuit.add_c_register("a", 8)
+        circuit.add_wasm_to_reg("add_one", qa_wasm_module, [a], [a])
+        circuit.measure_all()
+        qa_wasm_circuit_name_fixture = f"circuit with wasm for {test_case_name}"
 
-    circuit = Circuit(1)
-    a = circuit.add_c_register("a", 8)
-    circuit.add_wasm_to_reg("add_one", wfh, [a], [a])
-    circuit.measure_all()
-    qa_wasm_circuit_name_fixture = (
-        f"qnexus_integration_test_wasm_circuit_{datetime.now()}"
-    )
+        wasm_circuit_ref = qnx.circuits.upload(
+            name=qa_wasm_circuit_name_fixture,
+            circuit=circuit,
+            project=proj_ref,
+        )
 
-    wasm_circuit_ref = qnx.circuits.upload(
-        name=qa_wasm_circuit_name_fixture,
-        circuit=circuit,
-        project=my_proj,
-    )
+        execute_job_ref = qnx.start_execute_job(
+            programs=[wasm_circuit_ref],
+            name=f"wasm execute job for {test_case_name}",
+            n_shots=[100],
+            backend_config=qnx.QuantinuumConfig(
+                device_name="H1-Emulator",
+            ),
+            wasm_module=wasm_ref,
+            project=proj_ref,
+        )
 
-    execute_job_ref = qnx.start_execute_job(
-        programs=[wasm_circuit_ref],
-        name=f"qnexus_integration_test_wasm_execute_job_{datetime.now()}",
-        n_shots=[100],
-        backend_config=qnx.QuantinuumConfig(
-            device_name="H1-Emulator",
-        ),
-        wasm_module=wasm_ref,
-        project=my_proj,
-    )
-
-    qnx.jobs.wait_for(execute_job_ref)
-    assert qnx.jobs.status(execute_job_ref).status == JobStatusEnum.COMPLETED
+        qnx.jobs.wait_for(execute_job_ref)
+        assert qnx.jobs.status(execute_job_ref).status == JobStatusEnum.COMPLETED

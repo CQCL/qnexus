@@ -5,7 +5,7 @@ from qnexus.models.filters import ScopeFilterEnum
 
 
 def test_user_scope(
-    _authenticated_nexus: None,
+    authenticated_nexus: None,
 ) -> None:
     """Test that we can add a scope filter to our queries,
     but that this is ignored when the user claims to be an
