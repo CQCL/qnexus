@@ -179,7 +179,7 @@ def test_execution_on_NG_devices(
     with create_qir_in_project(
         project_name,
         qir_name,
-        make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
+        make_qir_bitcode_from_file("base.ll"),
     ) as qir_ref:
         project_ref = qnx.projects.get(name_like=project_name)
 
@@ -196,16 +196,17 @@ def test_execution_on_NG_devices(
         results = qnx.jobs.results(job_ref)[0].download_result()
         # Assert this is a QIR compliant result
         assert isinstance(results, QIRResult)
-        assert results.results.startswith("HEADER\tschema_id\tlabeled")
+        escaped_results = results.results.encode("unicode_escape").decode()
+        assert "HEADER\\tschema_id\\tlabeled" in escaped_results
         # Can't assert the value is the same, so just check the output is there
-        assert "OUTPUT\tDOUBLE" in results.results
+        assert "OUTPUT\\tTUPLE\\t2\\tt0" in escaped_results
 
         v4_results = qnx.jobs.results(job_ref)[0].download_result(
             version=ResultVersions.RAW
         )
         # Assert this is in v4 format
         assert isinstance(v4_results, QsysResult)
-        assert v4_results.results[0].entries[0][0] == "USER:FLOAT:d0"
+        assert v4_results.results[0].entries[0][0] == "USER:QIRTUPLE:t0"
 
 
 def make_qir_bitcode_from_file(filename: str) -> bytes:
