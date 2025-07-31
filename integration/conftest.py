@@ -107,7 +107,7 @@ def fixture_test_suite_name(request: pytest.FixtureRequest) -> str:
 def authenticated_nexus(
     user_email: str = CONFIG.qa_user_email,
     user_password: str = CONFIG.qa_user_password,
-) -> Generator[None]:
+) -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
     try:
         login_no_interaction(user_email, user_password)
