@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.26.0 (2025-07-31)
+
+
+### Added
+
+- Add gpu decoder configs (#224).
+
+
 ## v0.25.1 (2025-07-29)
 
 
