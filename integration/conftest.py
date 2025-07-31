@@ -107,7 +107,7 @@ def fixture_test_suite_name(request: pytest.FixtureRequest) -> str:
 def authenticated_nexus(
     user_email: str = CONFIG.qa_user_email,
     user_password: str = CONFIG.qa_user_password,
-) -> Generator[None]:
+) -> Generator[None, None, None]:
     """Authenticated nexus instance fixture."""
     try:
         login_no_interaction(user_email, user_password)
@@ -124,7 +124,7 @@ def fixture_create_team() -> Callable[[str], ContextManager[TeamRef]]:
     @contextmanager
     def make_team_if_needed(
         team_name: str,
-    ) -> Generator[TeamRef]:
+    ) -> Generator[TeamRef, None, None]:
         team_ref = None
         try:
             team_ref = qnx.teams.get(team_name)
@@ -150,7 +150,7 @@ def fixture_create_project(
     @contextmanager
     def make_temp_project(
         project_name: str,
-    ) -> Generator[ProjectRef]:
+    ) -> Generator[ProjectRef, None, None]:
         my_proj = qnx.projects.get_or_create(
             name=project_name, description=f"description for {project_name}"
         )
@@ -175,7 +175,7 @@ def fixture_create_circuit_in_project(
         circuit: Circuit,
         project_name: str,
         circuit_name: str,
-    ) -> Generator[CircuitRef]:
+    ) -> Generator[CircuitRef, None, None]:
         circuit_ref = _get_or_create_circuit(
             circuit=circuit, project_name=project_name, circuit_name=circuit_name
         )
@@ -211,7 +211,7 @@ def fixture_create_compile_job_in_project(
         circuit_name: str,
         backend_config: AllBackendConfigs | None = None,
         skip_intermediate_circuits: bool = False,
-    ) -> Generator[CompileJobRef]:
+    ) -> Generator[CompileJobRef, None, None]:
         with create_circuit_in_project(
             circuit,
             project_name,
@@ -269,7 +269,7 @@ def fixture_create_execute_job_in_project(
         circuit_name: str,
         backend_config: AllBackendConfigs | None = None,
         n_shots: int = 10,
-    ) -> Generator[ExecuteJobRef]:
+    ) -> Generator[ExecuteJobRef, None, None]:
         with create_circuit_in_project(
             circuit,
             project_name,
@@ -312,7 +312,7 @@ def fixture_create_property_in_project(
         property_name: str,
         property_type: Literal["bool", "int", "float", "string"],
         required: bool = False,
-    ) -> Generator[ProjectRef]:
+    ) -> Generator[ProjectRef, None, None]:
         with create_project(project_name) as proj_ref:
             qnx.projects.add_property(
                 name=property_name,
@@ -340,7 +340,7 @@ def fixture_create_qir_in_project(
         project_name: str,
         qir_name: str,
         qir: bytes,
-    ) -> Generator[QIRRef]:
+    ) -> Generator[QIRRef, None, None]:
         with create_project(project_name) as proj_ref:
             qir_ref = qnx.qir.upload(qir=qir, name=qir_name, project=proj_ref)
 
@@ -363,7 +363,7 @@ def fixture_create_hugr_in_project(
         project_name: str,
         hugr_name: str,
         hugr_package: Package,
-    ) -> Generator[HUGRRef]:
+    ) -> Generator[HUGRRef, None, None]:
         with create_project(project_name) as proj_ref:
             hugr_ref = qnx.hugr.upload(
                 hugr_package=hugr_package,
@@ -390,7 +390,7 @@ def fixture_create_wasm_in_project(
         project_name: str,
         wasm_module_name: str,
         wasm_module_handler: WasmModuleHandler,
-    ) -> Generator[WasmModuleRef]:
+    ) -> Generator[WasmModuleRef, None, None]:
         with create_project(project_name) as proj_ref:
             wasm_ref = qnx.wasm_modules.upload(
                 wasm_module_handler=wasm_module_handler,
