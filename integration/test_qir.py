@@ -13,7 +13,7 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import QIRRef, QIRResult, ResultVersions, ProjectRef, Ref
+from qnexus.models.references import ProjectRef, QIRRef, QIRResult, Ref, ResultVersions
 
 
 def test_qir_create_and_update(

@@ -5,7 +5,7 @@ from typing import Callable, ContextManager
 import pandas as pd
 
 import qnexus as qnx
-from qnexus.models.references import TeamRef, Ref
+from qnexus.models.references import Ref, TeamRef
 
 
 def test_team_get(

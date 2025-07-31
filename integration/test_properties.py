@@ -1,6 +1,6 @@
 """Test that we can set properties on a project, and use them when creating/filtering resources."""
 
-from typing import OrderedDict, Callable, ContextManager
+from typing import Callable, ContextManager, OrderedDict
 
 from pytket.circuit import Circuit
 

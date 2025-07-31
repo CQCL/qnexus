@@ -3,7 +3,7 @@
 from typing import Callable
 
 import qnexus as qnx
-from qnexus.models.references import UserRef, Ref
+from qnexus.models.references import Ref, UserRef
 
 
 def test_user_get(authenticated_nexus: None) -> None:

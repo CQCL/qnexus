@@ -5,11 +5,11 @@ from typing import Callable, ContextManager
 
 import pandas as pd
 import pytest
+from pytket.circuit import Circuit
 
 import qnexus as qnx
 import qnexus.exceptions as qnx_exc
-from qnexus.models.references import ProjectRef, CompileJobRef, Ref
-from pytket.circuit import Circuit
+from qnexus.models.references import CompileJobRef, ProjectRef, Ref
 
 
 def test_project_get(
