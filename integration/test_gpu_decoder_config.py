@@ -6,7 +6,7 @@ import pandas as pd
 
 import qnexus as qnx
 from qnexus.models.job_status import JobStatusEnum
-from qnexus.models.references import GpuDecoderConfigRef, QIRRef, Ref
+from qnexus.models.references import GpuDecoderConfigRef, Ref
 
 
 def test_gpu_decoder_config_download(
@@ -46,7 +46,6 @@ def test_gpu_decoder_config_flow(
         [str, str, str], ContextManager[GpuDecoderConfigRef]
     ],
     qa_gpu_decoder_config: str,
-    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
     qa_qir_bitcode: bytes,
 ) -> None:
     """Test the flow for executing a program on an NG device with a GPU decoder config."""
@@ -61,11 +60,6 @@ def test_gpu_decoder_config_flow(
             gpu_decoder_config_name,
             qa_gpu_decoder_config,
         ) as gpu_decoder_config_ref,
-        create_qir_in_project(
-            project_name,
-            qir_name,
-            qa_qir_bitcode,
-        ),
     ):
         proj_ref = qnx.projects.get(name_like=project_name)
 
@@ -83,7 +77,9 @@ def test_gpu_decoder_config_flow(
         )
         assert gpu_decoder_config_ref == gpu_decoder_config_ref_2
 
-        qir_program_ref = qnx.qir.get(name_like=qir_name)
+        qir_program_ref = qnx.qir.upload(
+            qir=qa_qir_bitcode, name=qir_name, project=proj_ref
+        )
 
         execute_job_ref = qnx.start_execute_job(
             programs=[qir_program_ref],
