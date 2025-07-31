@@ -179,7 +179,7 @@ def test_execution_on_NG_devices(
     with create_qir_in_project(
         project_name,
         qir_name,
-        make_qir_bitcode_from_file("RandomWalkPhaseEstimation.ll"),
+        make_qir_bitcode_from_file("base.ll"),
     ) as qir_ref:
         project_ref = qnx.projects.get(name_like=project_name)
 
