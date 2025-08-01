@@ -262,7 +262,7 @@ def _fetch_qsys_execution_result(
             pass  # FIXME
         else:
             res_dict["data"]["results"].extend(partial.json()["data"]["results"])
-        next_key = partial["data"]["attributes"]["next_key"]
+        next_key = partial.json()["data"]["attributes"]["next_key"]
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
