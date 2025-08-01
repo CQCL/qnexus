@@ -203,7 +203,9 @@ def _fetch_pytket_execution_result(
     next_key = res_dict["data"]["attributes"]["next_key"]
     shots = res_dict["data"]["shots"]
     while next_key is not None:
-        next_partial_res = get_nexus_client().get(f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}")
+        next_partial_res = get_nexus_client().get(
+            f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
+        )
         next_shots = next_partial_res.json()["data"]["attributes"]["shots"]
         if shots is not None and next_shots is not None:
             shots["width"] += next_shots["width"]
@@ -253,11 +255,11 @@ def _fetch_qsys_execution_result(
     next_key = res_dict["data"]["attributes"]["next_key"]
     while next_key is not None:
         params["key"] = next_key
-        partial=get_nexus_client().get(
-        f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
-    )
+        partial = get_nexus_client().get(
+            f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+        )
         if params["version"] == 4:
-            pass #FIXME
+            pass  # FIXME
         else:
             res_dict["data"]["results"].extend(partial.json()["data"]["results"])
         next_key = partial["data"]["attributes"]["next_key"]
