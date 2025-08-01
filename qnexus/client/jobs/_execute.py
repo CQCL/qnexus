@@ -253,16 +253,7 @@ def _fetch_qsys_execution_result(
     )
     res_dict = res.json()
     next_key = res_dict["data"]["attributes"]["next_key"]
-    while next_key is not None:
-        params["key"] = next_key
-        partial = get_nexus_client().get(
-            f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
-        )
-        if params["version"] == 4:
-            pass  # FIXME
-        else:
-            res_dict["data"]["results"].extend(partial.json()["data"]["results"])
-        next_key = partial.json()["data"]["attributes"]["next_key"]
+
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
@@ -287,6 +278,16 @@ def _fetch_qsys_execution_result(
             else:
                 result = QsysResult(res_dict["data"]["attributes"]["results"])
 
+    while next_key is not None:
+        params["key"] = next_key
+        partial = get_nexus_client().get(
+            f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+        )
+        if isinstance(result, QIRResult):
+            result.results += partial.json()["data"]["results"]
+        else:
+            result.results.extend(partial.json()["data"]["results"])
+        next_key = partial.json()["data"]["attributes"]["next_key"]
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
