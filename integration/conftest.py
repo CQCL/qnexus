@@ -166,7 +166,6 @@ def fixture_create_project(
         yield my_proj
 
         if request.config.getoption("--purge-projects"):
-
             # If fixtures that use the `create_project`fixture are chained or
             # composed, multiple calls to archive and delete the same project
             # will be executed. In case that happens, we are just logging
