@@ -47,10 +47,7 @@ def start_execute_job(
     properties: PropertiesDict | None = None,
     project: ProjectRef | None = None,
     valid_check: bool = True,
-    postprocess: bool = False,
-    noisy_simulator: bool = True,
     language: Language = Language.AUTO,
-    seed: int | None = None,
     credential_name: str | None = None,
     wasm_module: WasmModuleRef | None = None,
     gpu_decoder_config: GpuDecoderConfigRef | None = None,
@@ -86,12 +83,9 @@ def start_execute_job(
                 "backend_config": backend_config.model_dump(exclude_none=True),
                 "user_group": user_group,
                 "valid_check": valid_check,
-                "postprocess": postprocess,
-                "noisy_simulator": noisy_simulator,
                 "language": (
                     language.value if isinstance(language, Language) else language
                 ),
-                "seed": seed,
                 "wasm_module_id": str(wasm_module.id) if wasm_module else None,
                 "gpu_decoder_config_id": (
                     str(gpu_decoder_config.id) if gpu_decoder_config else None
