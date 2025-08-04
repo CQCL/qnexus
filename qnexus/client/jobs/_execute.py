@@ -200,17 +200,17 @@ def _fetch_pytket_execution_result(
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_dict = res.json()
-    next_key = res_dict["data"]["attributes"]["next_key"]
-    shots = res_dict["data"]["shots"]
+    next_key = res_dict["data"]["attributes"].get("next_key")
+    shots = res_dict["data"]["attributes"].get(["shots"])
     while next_key is not None:
         next_partial_res = get_nexus_client().get(
             f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
         )
-        next_shots = next_partial_res.json()["data"]["attributes"]["shots"]
+        next_shots = next_partial_res.json()["data"]["attributes"].get("shots")
         if shots is not None and next_shots is not None:
             shots["width"] += next_shots["width"]
             shots["array"].extend(next_shots["array"])
-        next_key = next_partial_res.json()["data"]["attributes"]["next_key"]
+        next_key = next_partial_res.json()["data"]["attributes"].get("next_key")
     program_data = res_dict["data"]["relationships"]["program"]["data"]
     program_id = program_data["id"]
     program_type = program_data["type"]
