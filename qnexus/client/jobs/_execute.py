@@ -290,18 +290,18 @@ def _fetch_qsys_execution_result(
             prev_str = result.results.split("END")[
                 0
             ]  # remove the end tag from result.results
-            next_str = [
+            next_str = "\n".join([
                 line
                 for line in QIRResult(
-                    partial.json()["data"]["results"]
-                ).results.splitlines
+                    partial.json()["data"]["attributes"]["results"]
+                ).results.splitlines()
                 if "OUTPUT" in line
-            ]  # just the output lines
+            ])  # just the output lines
             result.results += (
                 prev_str + next_str + "END\t0\n"
             )  # join everything back up
         else:
-            next_res = QsysResult(partial.json()["data"]["results"])
+            next_res = QsysResult(partial.json()["data"]["attributes"]["results"])
             result.results.extend(next_res.results)
         next_key = partial.json()["data"]["attributes"]["next_key"]
     backend_info_data = next(
