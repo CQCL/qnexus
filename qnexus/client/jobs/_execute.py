@@ -136,7 +136,6 @@ def _results(
     """Get the results from an execute job."""
 
     resp = get_nexus_client().get(f"/api/jobs/v1beta3/{execute_job.id}")
-
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
@@ -150,13 +149,14 @@ def _results(
     execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
 
     for item in resp_data["attributes"]["definition"]["items"]:
-        # Check if item is in a "final" state and append to results
+        # Check if item is in a state that returns results
         if item["status"]["status"] in (
             "CANCELLED",
             "ERROR",
             "DEPLETED",
             "TERMINATED",
             "COMPLETED",
+            "RUNNING",
         ):
             result_type: ResultType
 
@@ -188,12 +188,23 @@ def _fetch_pytket_execution_result(
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/results/v1beta3/{result_ref.id}")
+    res = get_nexus_client().get(f"/api/results/v1beta3/partial/{result_ref.id}")
+
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_dict = res.json()
-
+    next_key = res_dict["data"]["attributes"].get("next_key")
+    shots = res_dict["data"]["attributes"].get(["shots"])
+    while next_key is not None:
+        next_partial_res = get_nexus_client().get(
+            f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
+        )
+        next_shots = next_partial_res.json()["data"]["attributes"].get("shots")
+        if shots is not None and next_shots is not None:
+            shots["width"] += next_shots["width"]
+            shots["array"].extend(next_shots["array"])
+        next_key = next_partial_res.json()["data"]["attributes"].get("next_key")
     program_data = res_dict["data"]["relationships"]["program"]["data"]
     program_id = program_data["id"]
     program_type = program_data["type"]
@@ -232,13 +243,13 @@ def _fetch_qsys_execution_result(
 
     params = {"version": version.value}
     res = get_nexus_client().get(
-        f"/api/qsys_results/v1beta/{result_ref.id}", params=params
+        f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
     )
+    res_dict = res.json()
+    next_key = res_dict["data"]["attributes"]["next_key"]
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
-
-    res_dict = res.json()
 
     input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
@@ -261,6 +272,34 @@ def _fetch_qsys_execution_result(
             else:
                 result = QsysResult(res_dict["data"]["attributes"]["results"])
 
+    while next_key is not None:
+        params["key"] = next_key
+        partial = get_nexus_client().get(
+            f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+        )
+        if isinstance(result.results, str):
+            assert (
+                version == ResultVersions.DEFAULT
+            )  # Only QIR outputs are in this mode
+            prev_str = result.results.split("END")[
+                0
+            ]  # remove the end tag from result.results
+            next_str = "\n".join(
+                [
+                    line
+                    for line in QIRResult(
+                        partial.json()["data"]["attributes"]["results"]
+                    ).results.splitlines()
+                    if "OUTPUT" in line
+                ]
+            )  # just the output lines
+            result.results += (
+                prev_str + next_str + "END\t0\n"
+            )  # join everything back up
+        else:
+            next_res = QsysResult(partial.json()["data"]["attributes"]["results"])
+            result.results.extend(next_res.results)
+        next_key = partial.json()["data"]["attributes"]["next_key"]
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
