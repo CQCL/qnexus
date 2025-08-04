@@ -283,10 +283,14 @@ def _fetch_qsys_execution_result(
         partial = get_nexus_client().get(
             f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
         )
-        if isinstance(result, QIRResult):
-            result.results += partial.json()["data"]["results"]
+        if isinstance(result.results, str): 
+            assert version == ResultVersions.DEFAULT # Only QIR outputs are in this mode
+            prev_str = result.results.split("END")[0] # remove the end tag from result.results
+            next_str = [line for line in QIRResult(partial.json()["data"]["results"]).results.splitlines if "OUTPUT" in line] # just the output lines
+            result.results += prev_str + next_str + "END\t0\n" # join everything back up
         else:
-            result.results.extend(partial.json()["data"]["results"])
+            next_res = QsysResult(partial.json()["data"]["results"])
+            result.results.extend(next_res.results)
         next_key = partial.json()["data"]["attributes"]["next_key"]
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
