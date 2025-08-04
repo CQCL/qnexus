@@ -290,13 +290,15 @@ def _fetch_qsys_execution_result(
             prev_str = result.results.split("END")[
                 0
             ]  # remove the end tag from result.results
-            next_str = "\n".join([
-                line
-                for line in QIRResult(
-                    partial.json()["data"]["attributes"]["results"]
-                ).results.splitlines()
-                if "OUTPUT" in line
-            ])  # just the output lines
+            next_str = "\n".join(
+                [
+                    line
+                    for line in QIRResult(
+                        partial.json()["data"]["attributes"]["results"]
+                    ).results.splitlines()
+                    if "OUTPUT" in line
+                ]
+            )  # just the output lines
             result.results += (
                 prev_str + next_str + "END\t0\n"
             )  # join everything back up
