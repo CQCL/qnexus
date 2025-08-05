@@ -1,12 +1,12 @@
 """Pytest fixtures and settings used in the qnexus integration tests."""
 
+import logging
 from contextlib import contextmanager
 from pathlib import Path
 from typing import Callable, ContextManager, Generator, Literal, Union, cast
 
 import pandas as pd
 import pytest
-import logging
 from hugr.package import Package
 from pytket.circuit import Circuit
 from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
@@ -34,9 +34,9 @@ from qnexus.client.auth import login_no_interaction
 from qnexus.config import CONFIG
 from qnexus.exceptions import (
     NoUniqueMatch,
-    ZeroMatches,
-    ResourceUpdateFailed,
     ResourceDeleteFailed,
+    ResourceUpdateFailed,
+    ZeroMatches,
 )
 from qnexus.filesystem import load, save
 from qnexus.models.references import (
