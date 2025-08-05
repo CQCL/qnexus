@@ -22,7 +22,7 @@ def test_hugr_encode_decode() -> None:
     We expect this test to continue passing when client.hugr.ENVELOPE_CONFIG is
     changed.
     """
-    with open(Path(__file__).parent.resolve() / "data" / "hugr.dat", "rb") as fp:
+    with open(Path(__file__).parent.resolve() / "data" / "example.hugr", "rb") as fp:
         data = fp.read()
         package = Package.from_bytes(data)
 

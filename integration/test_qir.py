@@ -211,7 +211,7 @@ def test_execution_on_NG_devices(
 
 def make_qir_bitcode_from_file(filename: str) -> bytes:
     with open(
-        Path(__file__).parent.resolve() / "data" / filename,
+        Path("tests/data").resolve() / filename,
         "r",
     ) as file:
         return pyqir.Module.from_ir(pyqir.Context(), file.read()).bitcode
