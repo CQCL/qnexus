@@ -195,7 +195,8 @@ def _fetch_pytket_execution_result(
 
     res_dict = res.json()
     next_key = res_dict["data"]["attributes"].get("next_key")
-    shots = res_dict["data"]["attributes"].get(["shots"])
+    shots = res_dict["data"]["attributes"].get("shots")
+
     while next_key is not None:
         next_partial_res = get_nexus_client().get(
             f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
