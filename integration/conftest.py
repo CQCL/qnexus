@@ -6,6 +6,7 @@ from typing import Callable, ContextManager, Generator, Literal, Union, cast
 
 import pandas as pd
 import pytest
+import logging
 from hugr.package import Package
 from pytket.circuit import Circuit
 from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
@@ -31,7 +32,12 @@ from quantinuum_schemas.models.backend_config import (
 import qnexus as qnx
 from qnexus.client.auth import login_no_interaction
 from qnexus.config import CONFIG
-from qnexus.exceptions import NoUniqueMatch, ZeroMatches
+from qnexus.exceptions import (
+    NoUniqueMatch,
+    ZeroMatches,
+    ResourceUpdateFailed,
+    ResourceDeleteFailed,
+)
 from qnexus.filesystem import load, save
 from qnexus.models.references import (
     CircuitRef,
@@ -65,6 +71,9 @@ AllBackendConfigs = Union[
     SeleneQuestConfig,
     SeleneStimConfig,
 ]
+
+
+LOGGER = logging.getLogger(__name__)
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -157,8 +166,19 @@ def fixture_create_project(
         yield my_proj
 
         if request.config.getoption("--purge-projects"):
-            qnx.projects.update(my_proj, archive=True)
-            qnx.projects.delete(my_proj)
+            # If fixtures that use the `create_project`fixture are chained or
+            # composed, multiple calls to archive and delete the same project
+            # will be executed. In case that happens, we are just logging
+            # a warning here.
+            try:
+                qnx.projects.update(my_proj, archive=True)
+                qnx.projects.delete(my_proj)
+            except ResourceUpdateFailed:
+                LOGGER.warning(f"Project {project_name} is already archived")
+            except ResourceDeleteFailed:
+                LOGGER.warning(f"Project {project_name} is already deleted")
+            except Exception as e:
+                raise e
 
     return make_temp_project
 
