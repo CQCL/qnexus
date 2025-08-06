@@ -2,6 +2,19 @@
 
 # `qnexus` Release Notes
 
+## v0.27.0 (2025-08-06)
+
+
+### Added
+
+- Update supported HUGR version to >=0.12.5, non-backwards compatible. (#237).
+
+
+### Fixed
+
+- Get pytket results shots (#236).
+
+
 ## v0.26.0 (2025-07-31)
 
 
