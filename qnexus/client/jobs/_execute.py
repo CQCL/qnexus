@@ -247,7 +247,7 @@ def _fetch_qsys_execution_result(
         f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
     )
     res_dict = res.json()
-    next_key = res_dict["data"]["attributes"]["next_key"]
+    next_key = res_dict["data"]["attributes"].get("next_key")
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
@@ -262,16 +262,16 @@ def _fetch_qsys_execution_result(
                 input_program_id,
                 scope=None,
             )
-            result = QsysResult(res_dict["data"]["attributes"]["results"])
+            result = QsysResult(res_dict["data"]["attributes"].get("results"))
         case "qir":
             input_program = qir_api._fetch_by_id(
                 input_program_id,
                 scope=None,
             )
             if version == ResultVersions.DEFAULT:
-                result = QIRResult(res_dict["data"]["attributes"]["results"])
+                result = QIRResult(res_dict["data"]["attributes"].get("results"))
             else:
-                result = QsysResult(res_dict["data"]["attributes"]["results"])
+                result = QsysResult(res_dict["data"]["attributes"].get("results"))
 
     while next_key is not None:
         params["key"] = next_key
@@ -300,7 +300,7 @@ def _fetch_qsys_execution_result(
         else:
             next_res = QsysResult(partial.json()["data"]["attributes"]["results"])
             result.results.extend(next_res.results)
-        next_key = partial.json()["data"]["attributes"]["next_key"]
+        next_key = partial.json()["data"]["attributes"].get("next_key")
     backend_info_data = next(
         data for data in res_dict["included"] if data["type"] == "backend_snapshot"
     )
