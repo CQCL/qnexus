@@ -203,7 +203,7 @@ def _fetch_pytket_execution_result(
         )
         next_shots = next_partial_res.json()["data"]["attributes"].get("shots")
         if shots is not None and next_shots is not None:
-            shots["width"] += next_shots["width"]
+            shots["width"] = max(shots["width"], next_shots["width"])
             shots["array"].extend(next_shots["array"])
         next_key = next_partial_res.json()["data"]["attributes"].get("next_key")
     program_data = res_dict["data"]["relationships"]["program"]["data"]
