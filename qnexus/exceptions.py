@@ -38,11 +38,17 @@ class JobError(Exception):
 class ResourceCreateFailed(Exception):
     """Raised when a resource couldn't be created on the platform."""
 
-    def __init__(self, message: str, status_code: Optional[int] = None) -> None:
+    def __init__(
+        self,
+        message: str,
+        status_code: Optional[int] = None,
+        prefix: Optional[str] = None,
+    ) -> None:
         self.message = message
         self.status_code = status_code
+        self.prefix = "" if not prefix else prefix + "\n"
         self.err = (
-            "Failed to create resource with status code: "
+            f"{self.prefix}Failed to create resource with status code: "
             f"{self.status_code}, message: {self.message}"
         )
         super().__init__(self.err)

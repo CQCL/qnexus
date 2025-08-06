@@ -1,5 +1,6 @@
 """Client API for execution in Nexus."""
 
+from json import JSONDecodeError
 from typing import Union, cast
 
 from hugr.qsystem.result import QsysResult
@@ -114,8 +115,22 @@ def start_execute_job(
         json=req_dict,
     )
     if resp.status_code != 202:
+        # For a couple of specific errors relating to a breaking change in
+        # summer 2025, we prefix the message with explanatory text so as to help
+        # users spot common mistakes.
+        prefix: str | None = None
+        try:
+            msg_data = resp.json()
+            if (
+                msg_data["detail"][0]["type"] == "value_error"
+                and "Selene emulators are temporarily disabled"
+                in msg_data["detail"][0]["msg"]
+            ):
+                prefix = "Selene emulators are temporarily disabled."
+        except (JSONDecodeError, KeyError, IndexError):
+            pass
         raise qnx_exc.ResourceCreateFailed(
-            message=resp.text, status_code=resp.status_code
+            message=resp.text, status_code=resp.status_code, prefix=prefix
         )
 
     return ExecuteJobRef(

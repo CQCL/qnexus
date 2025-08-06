@@ -6,6 +6,7 @@ uploaded to Nexus before stability is achieved might not work in the future.
 
 import base64
 from datetime import datetime
+from json import JSONDecodeError
 from typing import Any, Union, cast
 from uuid import UUID
 
@@ -216,8 +217,24 @@ def upload(
     res = get_nexus_client().post("/api/hugr/v1beta", json=req_dict)
 
     if res.status_code != 201:
+        # For a couple of specific errors relating to a breaking change in
+        # summer 2025, we prefix the message with explanatory text so as to help
+        # users spot common mistakes.
+        prefix: str | None = None
+        try:
+            msg_data = res.json()
+            if (
+                msg_data["detail"][0]["type"] == "value_error"
+                and "Invalid Hugr Program" in msg_data["detail"][0]["msg"]
+            ):
+                prefix = (
+                    "Hugr Program rejected. "
+                    "Make sure you are using an up-to-date version of guppylang."
+                )
+        except (JSONDecodeError, KeyError, IndexError):
+            pass
         raise qnx_exc.ResourceCreateFailed(
-            message=res.text, status_code=res.status_code
+            message=res.text, status_code=res.status_code, prefix=prefix
         )
 
     res_data_dict = res.json()["data"]
