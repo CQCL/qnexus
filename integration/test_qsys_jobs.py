@@ -2,7 +2,7 @@
 
 from typing import Any, Callable, ContextManager, cast
 
-from guppylang import guppy  # type: ignore
+from guppylang import guppy
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
 from hugr.qsystem.result import QsysResult
@@ -37,9 +37,10 @@ def prepare_teleportation() -> Any:
         if measure(src):
             z(bob)
 
-        result("teleported", measure(bob))  # type: ignore
+        result("teleported", measure(bob))
 
-    return main.compile()  # type: ignore
+    main.check()
+    return main.compile()
 
 
 def test_guppy_execution(
