@@ -561,9 +561,9 @@ def execute(
 
     return [result.download_result() for result in execute_results]
 
+
 def cost(job: CompileJobRef | ExecuteJobRef) -> float:
-    """Get the cost of a job from a JobRef, if the job is complete.
-    """
+    """Get the cost of a job from a JobRef, if the job is complete."""
     resp = get_nexus_client().get(f"/api/jobs/v1beta3/{job.id}")
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -572,11 +572,14 @@ def cost(job: CompileJobRef | ExecuteJobRef) -> float:
     resp_data = resp.json()["data"]
     job_status = resp_data["attributes"]["status"]
     if not job_status["status"] in [
-            "CANCELLED",
-            "ERROR",
-            "DEPLETED",
-            "TERMINATED",
-            "COMPLETED"]:
-        raise qnx_exc.ResourceFetchFailed(message=f"Job is not in an end state. Job status: {job_status}")
+        "CANCELLED",
+        "ERROR",
+        "DEPLETED",
+        "TERMINATED",
+        "COMPLETED",
+    ]:
+        raise qnx_exc.ResourceFetchFailed(
+            message=f"Job is not in an end state. Job status: {job_status}"
+        )
     cost = job_status.get("cost")
     return float(cost) if cost is not None else 0.0
