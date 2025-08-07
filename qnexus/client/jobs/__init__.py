@@ -571,15 +571,5 @@ def cost(job: CompileJobRef | ExecuteJobRef) -> float:
         )
     resp_data = resp.json()["data"]
     job_status = resp_data["attributes"]["status"]
-    if job_status["status"] not in [
-        "CANCELLED",
-        "ERROR",
-        "DEPLETED",
-        "TERMINATED",
-        "COMPLETED",
-    ]:
-        raise qnx_exc.ResourceFetchFailed(
-            message=f"Job is not in an end state. Job status: {job_status}"
-        )
     cost = job_status.get("cost")
     return float(cost) if cost is not None else 0.0
