@@ -201,6 +201,8 @@ def _fetch_pytket_execution_result(
         next_partial_res = get_nexus_client().get(
             f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
         )
+        if next_partial_res.status_code != 200:
+            raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=next_partial_res.status_code)
         next_shots = next_partial_res.json()["data"]["attributes"].get("shots")
         if shots is not None and next_shots is not None:
             shots["width"] = max(shots["width"], next_shots["width"])
@@ -278,6 +280,8 @@ def _fetch_qsys_execution_result(
         partial = get_nexus_client().get(
             f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
         )
+        if partial.status_code != 200:
+            raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=partial.status_code)
         if isinstance(result.results, str):
             assert (
                 version == ResultVersions.DEFAULT
