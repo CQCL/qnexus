@@ -571,7 +571,7 @@ def cost(job: CompileJobRef | ExecuteJobRef) -> float:
         )
     resp_data = resp.json()["data"]
     job_status = resp_data["attributes"]["status"]
-    if not job_status["status"] in [
+    if job_status["status"] not in [
         "CANCELLED",
         "ERROR",
         "DEPLETED",
