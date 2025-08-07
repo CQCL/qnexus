@@ -560,3 +560,16 @@ def execute(
     execute_results = results(execute_job_ref)
 
     return [result.download_result() for result in execute_results]
+
+
+def cost(job: CompileJobRef | ExecuteJobRef) -> float:
+    """Get the HQC cost of a job from a JobRef."""
+    resp = get_nexus_client().get(f"/api/jobs/v1beta3/{job.id}")
+    if resp.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(
+            message=resp.text, status_code=resp.status_code
+        )
+    resp_data = resp.json()["data"]
+    job_status = resp_data["attributes"]["status"]
+    cost = job_status.get("cost")
+    return float(cost) if cost is not None else 0.0
