@@ -2,6 +2,7 @@
 
 import typing
 import warnings
+from importlib.metadata import version
 from urllib.parse import urlparse
 
 import httpx
@@ -9,6 +10,20 @@ import httpx
 from qnexus.client.utils import read_token, write_token
 from qnexus.config import CONFIG
 from qnexus.exceptions import AuthenticationError
+
+# Used by the client to identify its own version when refreshing auth token
+# Example value: 0.23.0
+VERSION_HEADER = "X-qnexus-version"
+
+# Used by the server to specify the latest version
+# Example value: 1.0.0
+LATEST_VERSION_HEADER = "X-qnexus-version-latest"
+
+# Used by the server to indicate the status of a version
+# Example value: 0.23.0; deprecated
+VERSION_STATUS_HEADER = "X-qnexus-version-status"
+
+VERSION = version("qnexus")
 
 
 class AuthHandler(httpx.Auth):
@@ -70,6 +85,8 @@ class AuthHandler(httpx.Auth):
             if request.headers.get("cookie"):
                 request.headers.pop("cookie")
             self.cookies.set_cookie_header(request)
+
+            _check_version_headers(auth_response)
             yield request
 
     def build_refresh_request(self) -> httpx.Request:
@@ -79,6 +96,7 @@ class AuthHandler(httpx.Auth):
             method="POST",
             url=f"{CONFIG.url}/auth/tokens/refresh",
             cookies=self.cookies,
+            headers={VERSION_HEADER: VERSION},
         )
 
 
@@ -115,3 +133,18 @@ def _check_sunset_header(request: httpx.Request, response: httpx.Response) -> No
             "After this date your current qnexus version may stop functioning. Please update to a later qnexus version to resolve the issue.",
             category=DeprecationWarning,
         )
+
+
+def _check_version_headers(response: httpx.Response) -> None:
+    latest_version = response.headers.get(LATEST_VERSION_HEADER)
+    version_status = response.headers.get(VERSION_STATUS_HEADER)
+    if latest_version != VERSION and version_status:
+        try:
+            _version, status = [s.strip() for s in version_status.split(";")]
+        except ValueError:
+            return
+        if status.lower() not in ("current", "ok"):
+            warnings.warn(
+                f"Your qnexus client version is {VERSION}, which is {status}. Version {latest_version} is available. Please consider upgrading.",
+                category=DeprecationWarning,
+            )
