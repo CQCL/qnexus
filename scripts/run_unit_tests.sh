@@ -4,7 +4,7 @@ set -e
 
 # Order doesn't matter but auth tests manipulate environment variables
 # and should be run separately
-uv run pytest tests/test_auth.py::test_token_refresh
+uv run pytest --cov-reset tests/test_auth.py::test_token_refresh
 uv run pytest tests/test_auth.py::test_nexus_client_reloads_tokens
 uv run pytest tests/test_auth.py::test_nexus_client_reloads_domain
 uv run pytest tests/test_auth.py::test_token_refresh_expired
