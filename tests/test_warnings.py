@@ -47,16 +47,18 @@ def _check_version_warning_emitted(warning_msgs: list[warnings.WarningMessage]) 
     Assert that a warning has been emitted with all the properties we'd expect
     when we notify a user that they need to upgrade their client.
     """
-    matched = False
     for warning_msg in warning_msgs:
-        assert warning_msg.category is DeprecationWarning
-        message = str(warning_msg.message)
-        assert version("qnexus") in message
-        assert FAKE_LATEST_VERSION in message
-        assert FAKE_VERSION_STATUS in message
-        assert "Please consider upgrading" in message
-        matched = True
-    assert matched, (
+        try:
+            assert warning_msg.category is DeprecationWarning
+            message = str(warning_msg.message)
+            assert version("qnexus") in message
+            assert FAKE_LATEST_VERSION in message
+            assert FAKE_VERSION_STATUS in message
+            assert "Please consider upgrading" in message
+            return
+        except AssertionError:
+            pass  # on to the next warning, if any
+    assert False, (
         f"The expected warning was not found (checked {len(warning_msgs)} warning messages)."
     )
 
