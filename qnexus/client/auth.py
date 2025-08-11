@@ -153,6 +153,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
         resp = _get_auth_client().post(
             "/login",
             json=body,
+            headers={VERSION_HEADER: VERSION},
         )
 
         mfa_redirect_uri = resp.json().get("redirect_uri", "")
@@ -187,6 +188,8 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
         write_token("refresh_token", myqos_oat)
         write_token("access_token", myqos_id)
         get_nexus_client(reload=True)
+
+        _check_version_headers(resp)
 
     finally:
         del user
