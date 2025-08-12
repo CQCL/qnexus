@@ -104,7 +104,6 @@ def login() -> None:
                 "access_token",
                 resp_json["access_token"],
             )
-            get_nexus_client(reload=True)
             # spinner.stop()
             print(
                 f"✅ Successfully logged in as {resp_json['email']} using the browser."
@@ -142,7 +141,6 @@ def logout() -> None:
     """Clear tokens from file system and the client."""
     remove_token("refresh_token")
     remove_token("access_token")
-    get_nexus_client(reload=True)
     print("Successfully logged out.")
 
 
@@ -187,7 +185,6 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
 
         write_token("refresh_token", myqos_oat)
         write_token("access_token", myqos_id)
-        get_nexus_client(reload=True)
 
         _check_version_headers(resp)
 
