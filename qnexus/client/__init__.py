@@ -37,18 +37,20 @@ def get_cookies_from_disk():
         pass
     return cookies;
 
+def set_cookie_header(cookies: httpx.Cookies, request: httpx.Request):
+    """by default cookies.set_cookie_header(...) doesn't overwrite cookies if they already exist in the request header"""
+    if request.headers.get("cookie"):
+        request.headers.pop('cookie')
+    cookies.set_cookie_header(request)
 
 class AuthHandler(httpx.Auth):
     """Custom nexus auth handler"""
 
-
     def auth_flow(
         self, request: httpx.Request
     ) -> typing.Generator[httpx.Request, httpx.Response, None]:
-
         cookies = get_cookies_from_disk()
-        cookies.set_cookie_header(request)
-
+        set_cookie_header(cookies, request)
         response = yield request
 
         _check_sunset_header(request, response)
@@ -67,17 +69,16 @@ class AuthHandler(httpx.Auth):
                 )
 
             auth_response.raise_for_status()
-            cookies.extract_cookies(auth_response)
-            request.headers.pop("cookie")
-            cookies.set_cookie_header(request)
+            auth_response_cookies = httpx.Cookies()
+            auth_response_cookies.extract_cookies(auth_response)
 
             write_token(
                 "access_token",
-                cookies.get("myqos_oat") or "",
+                auth_response_cookies.get("myqos_id") or "",
             )
 
             _check_version_headers(auth_response)
-            cookies.set_cookie_header(request)
+            set_cookie_header(auth_response_cookies, request)
 
             yield request
 
