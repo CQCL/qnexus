@@ -2664,7 +2664,7 @@ requires-dist = [
     { name = "pydantic-settings", specifier = ">=2,<3.0" },
     { name = "pytket", specifier = ">=2.3.1,<3.0" },
     { name = "pytket-qiskit", marker = "extra == 'qiskit'", specifier = ">=0.70" },
-    { name = "quantinuum-schemas", specifier = ">=4.0.0,<5.0" },
+    { name = "quantinuum-schemas", specifier = ">=5.0.0,<6.0" },
     { name = "rich", specifier = ">=13.6,<14.0" },
     { name = "websockets", specifier = ">11,<14" },
 ]
@@ -2694,16 +2694,16 @@ dev = [
 
 [[package]]
 name = "quantinuum-schemas"
-version = "4.0.0"
+version = "5.0.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "orjson" },
     { name = "pydantic" },
     { name = "pydantic-extra-types" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e5/4c/0ac44ff7c69a556da1ef123b31ed2f4e13de303688b1a64b48f946502ed4/quantinuum_schemas-4.0.0.tar.gz", hash = "sha256:cf541e11227a87f80930b0bfa3775bcc11138c13235d067fa32266a322555feb", size = 12810 }
+sdist = { url = "https://files.pythonhosted.org/packages/62/7a/6da758d04f0cb761893fa61491c7312ed4c716f9b09d3d37acfbd8562de2/quantinuum_schemas-5.0.0.tar.gz", hash = "sha256:12a74acf966b1e981ccc67eb6f73e0ca81453730394abd388f82ee1170ea6879", size = 13217 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/88/da/8972775077634028a20d803798f9f117f72187ec79c11a6c8bcf2427f147/quantinuum_schemas-4.0.0-py3-none-any.whl", hash = "sha256:25f18d80d0131537b0499bb15eb7e6b677938318e6f3f86a5963e3b63a5fded3", size = 15096 },
+    { url = "https://files.pythonhosted.org/packages/55/78/e90b21ac0f022e63277840902e9f4f2be51c1e4199e8c6028904b880a5a2/quantinuum_schemas-5.0.0-py3-none-any.whl", hash = "sha256:9c833283b860e99712b40808dbf1df0ccdb36bc41a6b8f955dcba1ffe077cc2d", size = 15755 },
 ]
 
 [[package]]
