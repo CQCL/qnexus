@@ -37,7 +37,6 @@ def clean_token_state() -> Generator[Any, Any, Any]:
     # Teardown - clean up after test
     remove_token("refresh_token")
     remove_token("access_token")
-    get_nexus_client(reload=True)
     CONFIG.token_path = old_token_path
 
 
