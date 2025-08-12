@@ -118,9 +118,6 @@ def test_token_refresh_expired() -> None:
     assert refresh_token_route.called
 
 
-
-
-
 def test_nexus_client_reloads_domain() -> None:
     """Test the reload functionality of the nexus client.
     We should be able to change the domain in the config
