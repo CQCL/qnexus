@@ -25,23 +25,29 @@ VERSION_STATUS_HEADER = "X-qnexus-version-status"
 
 VERSION = version("qnexus")
 
-def get_cookies_from_disk():
+
+def get_cookies_from_disk() -> httpx.Cookies:
     cookies = httpx.Cookies()
     try:
-        cookies.set("myqos_oat", read_token("refresh_token"), domain=CONFIG.domain)
-    except:
+        refresh_token = read_token("refresh_token")
+        cookies.set("myqos_oat", refresh_token, domain=CONFIG.domain)
+    except FileNotFoundError:
         pass
     try:
-        cookies.set("myqos_id", read_token("access_token"), domain=CONFIG.domain)
-    except:
+        access_token = read_token("refresh_token")
+        cookies.set("myqos_id", access_token, domain=CONFIG.domain)
+    except FileNotFoundError:
         pass
-    return cookies;
 
-def set_cookie_header(cookies: httpx.Cookies, request: httpx.Request):
+    return cookies
+
+
+def set_cookie_header(cookies: httpx.Cookies, request: httpx.Request) -> None:
     """by default cookies.set_cookie_header(...) doesn't overwrite cookies if they already exist in the request header"""
     if request.headers.get("cookie"):
-        request.headers.pop('cookie')
+        request.headers.pop("cookie")
     cookies.set_cookie_header(request)
+
 
 class AuthHandler(httpx.Auth):
     """Custom nexus auth handler"""
@@ -81,7 +87,6 @@ class AuthHandler(httpx.Auth):
             set_cookie_header(auth_response_cookies, request)
 
             yield request
-
 
 
 _nexus_client: httpx.Client | None = None

@@ -16,7 +16,6 @@ from qnexus.client import (
     VERSION,
     VERSION_HEADER,
     _check_version_headers,
-    get_nexus_client,
 )
 from qnexus.client.utils import consolidate_error, remove_token, write_token
 from qnexus.config import CONFIG
