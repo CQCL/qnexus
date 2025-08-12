@@ -34,7 +34,7 @@ def get_cookies_from_disk() -> httpx.Cookies:
     except FileNotFoundError:
         pass
     try:
-        access_token = read_token("refresh_token")
+        access_token = read_token("access_token")
         cookies.set("myqos_id", access_token, domain=CONFIG.domain)
     except FileNotFoundError:
         pass
