@@ -12,7 +12,12 @@ from rich.console import Console
 from rich.panel import Panel
 
 import qnexus.exceptions as qnx_exc
-from qnexus.client import get_nexus_client
+from qnexus.client import (
+    VERSION,
+    VERSION_HEADER,
+    _check_version_headers,
+    get_nexus_client,
+)
 from qnexus.client.utils import consolidate_error, remove_token, write_token
 from qnexus.config import CONFIG
 
@@ -79,7 +84,10 @@ def login() -> None:
         polling_for_seconds += poll_interval
         resp = _get_auth_client().post(
             "/device/token",
-            headers={"Content-Type": "application/x-www-form-urlencoded"},
+            headers={
+                "Content-Type": "application/x-www-form-urlencoded",
+                VERSION_HEADER: VERSION,
+            },
             data=token_request_body,
         )
         if (
@@ -101,6 +109,7 @@ def login() -> None:
             print(
                 f"✅ Successfully logged in as {resp_json['email']} using the browser."
             )
+            _check_version_headers(resp)
             return
         # Fail for all other statuses
         consolidate_error(res=resp, description="Browser Login")
@@ -144,6 +153,7 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
         resp = _get_auth_client().post(
             "/login",
             json=body,
+            headers={VERSION_HEADER: VERSION},
         )
 
         mfa_redirect_uri = resp.json().get("redirect_uri", "")
@@ -178,6 +188,8 @@ def _request_tokens(user: EmailStr, pwd: str) -> None:
         write_token("refresh_token", myqos_oat)
         write_token("access_token", myqos_id)
         get_nexus_client(reload=True)
+
+        _check_version_headers(resp)
 
     finally:
         del user

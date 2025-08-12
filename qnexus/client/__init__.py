@@ -145,6 +145,6 @@ def _check_version_headers(response: httpx.Response) -> None:
             return
         if status.lower() not in ("current", "ok"):
             warnings.warn(
-                f"Your qnexus client version is {VERSION}, which is {status}. Version {latest_version} is available. Please consider upgrading.",
+                f"Your qnexus client version is {VERSION}, which is {status}.\nVersion {latest_version} is available. Please consider upgrading.",
                 category=DeprecationWarning,
             )
