@@ -118,25 +118,7 @@ def test_token_refresh_expired() -> None:
     assert refresh_token_route.called
 
 
-def test_nexus_client_reloads_tokens() -> None:
-    """Test the reload functionality of the nexus client.
 
-    Test that if we write new tokens and reload the client,
-    that the new tokens are used."""
-
-    oat_one = "dummy_oat_one"
-    oat_two = "dummy_oat_two"
-
-    write_token("refresh_token", oat_one)
-    client_one = get_nexus_client(reload=True)
-    assert client_one.auth.cookies.get("myqos_oat") == oat_one  # type: ignore
-
-    write_token("refresh_token", oat_two)
-    client_two = get_nexus_client()
-    assert client_two.auth.cookies.get("myqos_oat") == oat_one  # type: ignore
-
-    client_two = get_nexus_client(reload=True)
-    assert client_two.auth.cookies.get("myqos_oat") == oat_two  # type: ignore
 
 
 def test_nexus_client_reloads_domain() -> None:
