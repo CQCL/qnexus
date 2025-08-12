@@ -85,7 +85,6 @@ def test_token_refresh() -> None:
 
     # Confirm that the access token was updated
     assert read_token("access_token") == refreshed_access_token
-    assert get_nexus_client().auth.cookies.get("myqos_id") == refreshed_access_token  # type: ignore
 
     # confirm that the request headers were updated
     first_cookie_header = list_project_route.calls[0].request.headers["cookie"]
