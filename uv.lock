@@ -2694,16 +2694,16 @@ dev = [
 
 [[package]]
 name = "quantinuum-schemas"
-version = "5.0.0"
+version = "5.1.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "orjson" },
     { name = "pydantic" },
     { name = "pydantic-extra-types" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/62/7a/6da758d04f0cb761893fa61491c7312ed4c716f9b09d3d37acfbd8562de2/quantinuum_schemas-5.0.0.tar.gz", hash = "sha256:12a74acf966b1e981ccc67eb6f73e0ca81453730394abd388f82ee1170ea6879", size = 13217 }
+sdist = { url = "https://files.pythonhosted.org/packages/23/01/8719b685b0532dd20e0f92d45727303c2558c68da4664f2c60bdf543be61/quantinuum_schemas-5.1.0.tar.gz", hash = "sha256:b7b998b3da4086a2aa2a7c7c09acc4d34c3026009f35a7074f0580bb089ee3ed", size = 13208 }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/55/78/e90b21ac0f022e63277840902e9f4f2be51c1e4199e8c6028904b880a5a2/quantinuum_schemas-5.0.0-py3-none-any.whl", hash = "sha256:9c833283b860e99712b40808dbf1df0ccdb36bc41a6b8f955dcba1ffe077cc2d", size = 15755 },
+    { url = "https://files.pythonhosted.org/packages/11/7d/bb26b7a520e8fa28765f72d62f9ffe62afea2da6bb535fe0132a6364ae1d/quantinuum_schemas-5.1.0-py3-none-any.whl", hash = "sha256:1d27c1bdc84d57a2c1762e283f97ba6f06c8ae72338bf6ecfd20c37f98c63b88", size = 15757 },
 ]
 
 [[package]]
