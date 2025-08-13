@@ -2,6 +2,16 @@
 
 # `qnexus` Release Notes
 
+## v0.28.0 (2025-08-13)
+
+
+### Added
+
+- BasicEmulatorConfig and StandardEmulatorConfig (#249).
+- Qnexus emits warnings if the nexus server indicates that its version is not current (#245).
+- Get cost of a previously completed job (#242).
+
+
 ## v0.27.0 (2025-08-06)
 
 
