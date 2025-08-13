@@ -2,6 +2,7 @@
 
 from typing import Any, Callable, ContextManager, cast
 
+import pytest
 from guppylang import guppy
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
@@ -43,6 +44,7 @@ def prepare_teleportation() -> Any:
     return main.compile()
 
 
+@pytest.mark.skip(reason="Skipped while Selene is disabled for refactoring work.")
 def test_guppy_execution(
     test_case_name: str,
     create_project: Callable[[str], ContextManager[ProjectRef]],
