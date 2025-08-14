@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.29.0 (2025-08-14)
+
+
+### Added
+
+- Upgrade minimum quantinuum-schemas to v5.1.0 (#251).
+
+
 ## v0.28.0 (2025-08-13)
 
 
