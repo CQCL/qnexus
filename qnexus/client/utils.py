@@ -22,7 +22,6 @@ token_file_from_type = {
 }
 
 
-
 def normalize_included(included: list[Any]) -> dict[str, dict[str, Any]]:
     """Convert a JSON API included array into a mapped dict of the form:
     {
