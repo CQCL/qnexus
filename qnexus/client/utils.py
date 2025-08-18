@@ -5,7 +5,6 @@ import json
 import os
 import warnings
 from functools import wraps
-from pathlib import Path
 from typing import Any, Callable, Literal, ParamSpec, TypeVar
 
 from httpx import Response
