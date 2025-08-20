@@ -18,6 +18,7 @@ class JobStatusEnum(str, Enum):
     ERROR = "ERROR"
     DEPLETED = "DEPLETED"
     TERMINATED = "TERMINATED"
+    RETRYING = "RETRYING"
 
 
 class JobStatus(NamedTuple):
