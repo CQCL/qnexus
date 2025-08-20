@@ -140,6 +140,26 @@ class ProjectRef(BaseRef):
         )
 
 
+class SystemRef(BaseRef):
+    """Proxy object to a System in Nexus."""
+
+    id: UUID
+    name: str
+    provider_name: str
+    type: Literal["SystemRef"] = "SystemRef"
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return pd.DataFrame(
+            {
+                "id": self.id,
+                "name": self.name,
+                "provider_name": self.provider_name,
+            },
+            index=[0],
+        )
+
+
 class CircuitRef(BaseRef):
     """Proxy object to a Circuit in Nexus."""
 
@@ -320,6 +340,7 @@ class JobRef(BaseRef):
     last_status: JobStatusEnum
     last_message: str
     project: ProjectRef
+    system: SystemRef | None = None
     id: UUID
     backend_config_store: BackendConfig | None = None
     type: Literal["JobRef", "CompileJobRef", "ExecuteJobRef"] = "JobRef"
@@ -345,6 +366,7 @@ class JobRef(BaseRef):
                     "last_status": self.last_status,
                     "project": self.project.annotations.name,
                     "backend_config": self.backend_config.__class__.__name__,
+                    "system": self.system.name if self.system else "Unknown",
                     "id": self.id,
                 },
                 index=[0],

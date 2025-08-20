@@ -56,6 +56,7 @@ from qnexus.models.references import (
     JobRef,
     JobType,
     ProjectRef,
+    SystemRef,
     WasmModuleRef,
 )
 from qnexus.models.utils import assert_never
@@ -159,6 +160,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
 
     for entry in data["data"]:
         project_id = entry["relationships"]["project"]["data"]["id"]
+
         project_details = next(
             proj for proj in data["included"] if proj["id"] == project_id
         )
@@ -167,6 +169,27 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
             annotations=Annotations.from_dict(project_details["attributes"]),
             contents_modified=project_details["attributes"]["contents_modified"],
             archived=project_details["attributes"]["archived"],
+        )
+
+        system_id: str | None = (
+            entry["relationships"]["system"]["data"]["id"]
+            if "system" in entry["relationships"]
+            else None
+        )
+        system_details = (
+            next(item for item in data["included"] if item["id"] == system_id)
+            if system_id is not None
+            else None
+        )
+
+        system = (
+            SystemRef(
+                id=UUID(system_id),
+                name=system_details["attributes"]["name"],
+                provider_name=system_details["attributes"]["provider_name"],
+            )
+            if system_id is not None and system_details is not None
+            else None
         )
         job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
         match entry["attributes"]["job_type"]:
@@ -185,6 +208,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
                 last_status=JobStatus.from_dict(entry["attributes"]["status"]).status,
                 last_message=JobStatus.from_dict(entry["attributes"]["status"]).message,
                 project=project,
+                system=system,
             )
         )
     return DataframableList(job_list)
@@ -254,6 +278,30 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         contents_modified=project_details["attributes"]["contents_modified"],
         archived=project_details["attributes"]["archived"],
     )
+
+    system_id: str | None = (
+        job_data["data"]["relationships"]["system"]["data"]["id"]
+        if "system" in job_data["data"]["relationships"]
+        else None
+    )
+
+    system_details = (
+        next(item for item in job_data["included"] if item["id"] == system_id)
+        if system_id is not None
+        else None
+    )
+
+    print(system_details)
+    system = (
+        SystemRef(
+            id=UUID(system_id),
+            name=system_details["attributes"]["name"],
+            provider_name=system_details["attributes"]["provider_name"],
+        )
+        if system_id is not None and system_details is not None
+        else None
+    )
+
     job_type: Type[CompileJobRef] | Type[ExecuteJobRef]
     match job_data["data"]["attributes"]["job_type"]:
         case JobType.COMPILE:
@@ -281,6 +329,7 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         ).message,
         project=project,
         backend_config_store=backend_config,
+        system=system,
     )
 
 
