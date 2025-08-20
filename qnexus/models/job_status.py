@@ -16,8 +16,10 @@ class JobStatusEnum(str, Enum):
     RUNNING = "RUNNING"
     CANCELLED = "CANCELLED"
     ERROR = "ERROR"
-    DEPLETED = "DEPLETED"
+    CANCELLING = "CANCELLING"
+    RETRYING = "RETRYING"
     TERMINATED = "TERMINATED"
+    DEPLETED = "DEPLETED"
 
 
 class JobStatus(NamedTuple):
