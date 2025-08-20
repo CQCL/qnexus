@@ -619,6 +619,7 @@ Ref = Annotated[
         CompilationResultRef,
         ExecutionResultRef,
         CompilationPassRef,
+        SystemRef,
     ],
     Field(discriminator="type"),
 ]
