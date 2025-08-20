@@ -2,6 +2,18 @@
 
 # `qnexus` Release Notes
 
+## v0.30.0 (2025-08-20)
+
+
+### Added
+
+- Add system name column to jobs list dataframe. (#255).
+
+
+### Fixed
+
+- Add retrying and cancelling status to jobstatusenum. (#254).
+
 ## v0.29.0 (2025-08-14)
 
 
