@@ -291,7 +291,6 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         else None
     )
 
-    print(system_details)
     system = (
         SystemRef(
             id=UUID(system_id),
