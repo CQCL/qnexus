@@ -22,8 +22,6 @@ class JobStatusEnum(str, Enum):
     DEPLETED = "DEPLETED"
 
 
-
-
 class JobStatus(NamedTuple):
     """The status of a job along with an optional description.
 
