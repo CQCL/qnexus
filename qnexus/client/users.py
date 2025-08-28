@@ -10,7 +10,7 @@ from qnexus.models.references import UserRef
 def get_self() -> UserRef:
     """Get the logged in user."""
 
-    res = get_nexus_client().get("/api/v6/user/me")
+    res = get_nexus_client().get("/api/users/v1beta2/me")
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
@@ -18,7 +18,7 @@ def get_self() -> UserRef:
     user_dict = res.json()
 
     return UserRef(
-        display_name=user_dict["display_name"],
+        display_name=user_dict["attributes"]["display_name"],
         id=user_dict["id"],
     )
 
@@ -26,7 +26,7 @@ def get_self() -> UserRef:
 def _fetch_by_id(user_id: UUID) -> UserRef:
     """Get a specific user."""
 
-    res = get_nexus_client().get(f"/api/v6/user/{user_id}")
+    res = get_nexus_client().get(f"/api/users/v1beta/{user_id}")
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
@@ -34,6 +34,6 @@ def _fetch_by_id(user_id: UUID) -> UserRef:
     user_dict = res.json()
 
     return UserRef(
-        display_name=user_dict["display_name"],
+        display_name=user_dict["attributes"]["display_name"],
         id=user_dict["id"],
     )
