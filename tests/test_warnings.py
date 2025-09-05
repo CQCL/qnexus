@@ -22,7 +22,7 @@ FAKE_VERSION_STATUS = "really bad"
 @respx.mock
 def test_sunset_header_emits_warning() -> None:
     fake_date = "foo"
-    path = "/api/projects/v1beta"
+    path = "/api/projects/v1beta2"
     list_project_route = respx.get(f"{get_nexus_client().base_url}{path}").mock(
         return_value=httpx.Response(
             status_code=200,
@@ -85,7 +85,7 @@ def test_version_check_emits_warning_refresh_token() -> None:
     write_token("refresh_token", "dummy_oat")
 
     # Mock the list projects endpoint to force a token refresh
-    respx.get(f"{get_nexus_client().base_url}/api/projects/v1beta").mock(
+    respx.get(f"{get_nexus_client().base_url}/api/projects/v1beta2").mock(
         side_effect=[
             httpx.Response(401),
             httpx.Response(200, json={"included": {}, "data": []}),
