@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.31.0 (2025-09-05)
+
+
+### Added
+
+- Add qir+wasm example to qir_examples.
+
+
 ## v0.30.0 (2025-08-20)
 
 
