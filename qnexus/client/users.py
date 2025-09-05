@@ -18,8 +18,8 @@ def get_self() -> UserRef:
     user_dict = res.json()
 
     return UserRef(
-        display_name=user_dict["attributes"]["display_name"],
-        id=user_dict["id"],
+        display_name=user_dict["data"]["attributes"]["display_name"],
+        id=user_dict["data"]["id"],
     )
 
 
@@ -34,6 +34,6 @@ def _fetch_by_id(user_id: UUID) -> UserRef:
     user_dict = res.json()
 
     return UserRef(
-        display_name=user_dict["attributes"]["display_name"],
-        id=user_dict["id"],
+        display_name=user_dict["data"]["attributes"]["display_name"],
+        id=user_dict["data"]["id"],
     )
