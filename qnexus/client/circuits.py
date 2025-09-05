@@ -81,7 +81,7 @@ def get_all(
 
     return NexusIterator(
         resource_type="Circuit",
-        nexus_url="/api/circuits/v1beta",
+        nexus_url="/api/circuits/v1beta2",
         params=params,
         wrapper_method=_to_circuitref,
         nexus_client=get_nexus_client(),
@@ -187,7 +187,7 @@ def upload(
         }
     }
 
-    res = get_nexus_client().post("/api/circuits/v1beta", json=req_dict)
+    res = get_nexus_client().post("/api/circuits/v1beta2", json=req_dict)
 
     # https://cqc.atlassian.net/browse/MUS-3054
     if res.status_code != 201:
@@ -228,7 +228,7 @@ def update(
         }
     }
 
-    res = get_nexus_client().patch(f"/api/circuits/v1beta/{ref.id}", json=req_dict)
+    res = get_nexus_client().patch(f"/api/circuits/v1beta2/{ref.id}", json=req_dict)
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
@@ -250,7 +250,7 @@ def _fetch_by_id(circuit_id: UUID | str, scope: ScopeFilterEnum | None) -> Circu
         scope=scope,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    res = get_nexus_client().get(f"/api/circuits/v1beta/{circuit_id}", params=params)
+    res = get_nexus_client().get(f"/api/circuits/v1beta2/{circuit_id}", params=params)
 
     handle_fetch_errors(res)
 
@@ -276,7 +276,7 @@ def _fetch_by_id(circuit_id: UUID | str, scope: ScopeFilterEnum | None) -> Circu
 
 def _fetch_circuit(handle: CircuitRef) -> Circuit:
     """Utility method for fetching a pytket circuit from a CircuitRef."""
-    res = get_nexus_client().get(f"/api/circuits/v1beta/{handle.id}")
+    res = get_nexus_client().get(f"/api/circuits/v1beta2/{handle.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
@@ -306,7 +306,7 @@ def cost(
         params["syntax_checker"] = syntax_checker
 
     res = get_nexus_client().get(
-        f"/api/circuits/v1beta/cost/{circuit_ref.id}",
+        f"/api/circuits/v1beta2/cost/{circuit_ref.id}",
         params=cast(QueryParams, params),
     )
 
