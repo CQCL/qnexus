@@ -247,7 +247,7 @@ def add_property(
         }
     }
     props_res = get_nexus_client().post(
-        "/api/property_definitions/v1beta", json=props_req_dict
+        "/api/property_definitions/v1beta2", json=props_req_dict
     )
 
     if props_res.status_code != 201:
@@ -266,7 +266,7 @@ def get_properties(project: ProjectRef | None = None) -> DataframableList[Proper
 
     all_project_properties_iterator = NexusIterator(
         resource_type="Property",
-        nexus_url="/api/property_definitions/v1beta",
+        nexus_url="/api/property_definitions/v1beta2",
         params={"filter[project][id]": str(project.id)},
         wrapper_method=_to_property,
         nexus_client=get_nexus_client(),
