@@ -80,7 +80,7 @@ def get_all(
 
     return NexusIterator(
         resource_type="Project",
-        nexus_url="/api/projects/v1beta",
+        nexus_url="/api/projects/v1beta2",
         params=params,
         wrapper_method=_to_projectref,
         nexus_client=get_nexus_client(),
@@ -166,7 +166,7 @@ def _fetch_by_id(project_id: UUID | str, scope: ScopeFilterEnum | None) -> Proje
         by_alias=True, exclude_unset=True, exclude_none=True
     )
 
-    res = get_nexus_client().get(f"/api/projects/v1beta/{project_id}", params=params)
+    res = get_nexus_client().get(f"/api/projects/v1beta2/{project_id}", params=params)
 
     handle_fetch_errors(res)
 
@@ -202,7 +202,7 @@ def create(
         }
     }
 
-    res = get_nexus_client().post("/api/projects/v1beta", json=req_dict)
+    res = get_nexus_client().post("/api/projects/v1beta2", json=req_dict)
 
     if res.status_code != 201:
         raise qnx_exc.ResourceCreateFailed(
@@ -247,7 +247,7 @@ def add_property(
         }
     }
     props_res = get_nexus_client().post(
-        "/api/property_definitions/v1beta", json=props_req_dict
+        "/api/property_definitions/v1beta2", json=props_req_dict
     )
 
     if props_res.status_code != 201:
@@ -266,7 +266,7 @@ def get_properties(project: ProjectRef | None = None) -> DataframableList[Proper
 
     all_project_properties_iterator = NexusIterator(
         resource_type="Property",
-        nexus_url="/api/property_definitions/v1beta",
+        nexus_url="/api/property_definitions/v1beta2",
         params={"filter[project][id]": str(project.id)},
         wrapper_method=_to_property,
         nexus_client=get_nexus_client(),
@@ -320,7 +320,7 @@ def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
     )
 
 
-def update(
+def update(  # this does not update properties, properties should be added using add_property()
     project: ProjectRef,
     name: str | None = None,
     description: str | None = None,
@@ -334,12 +334,12 @@ def update(
                 "description": description,
                 "archived": archive,
             },
-            "type": "project",
             "relationships": {},
+            "type": "project",
         }
     }
 
-    res = get_nexus_client().patch(f"/api/projects/v1beta/{project.id}", json=req_dict)
+    res = get_nexus_client().patch(f"/api/projects/v1beta2/{project.id}", json=req_dict)
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
@@ -362,7 +362,7 @@ def delete(project: ProjectRef) -> None:
     WARNING: this will delete all data associated with the project.
     """
     res = get_nexus_client().delete(
-        url=f"/api/projects/v1beta/{project.id}", params={"scope": "user"}
+        url=f"/api/projects/v1beta2/{project.id}", params={"scope": "user"}
     )
 
     if res.status_code != 204:

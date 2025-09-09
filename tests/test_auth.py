@@ -57,7 +57,7 @@ def test_token_refresh() -> None:
 
     # Mock the list projects endpoint to force a refresh
     list_project_route = respx.get(
-        f"{get_nexus_client().base_url}/api/projects/v1beta"
+        f"{get_nexus_client().base_url}/api/projects/v1beta2"
     ).mock(
         side_effect=[
             httpx.Response(401),
@@ -104,7 +104,7 @@ def test_token_refresh_expired() -> None:
 
     # Mock the list projects endpoint to force a refresh
     list_project_route = respx.get(
-        f"{get_nexus_client().base_url}/api/projects/v1beta"
+        f"{get_nexus_client().base_url}/api/projects/v1beta2"
     ).mock(return_value=httpx.Response(401))
 
     # Mock the expiry of the refresh token
