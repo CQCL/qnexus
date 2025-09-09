@@ -320,7 +320,7 @@ def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
     )
 
 
-def update( # this does not update properties, properties should be added using add_property()
+def update(  # this does not update properties, properties should be added using add_property()
     project: ProjectRef,
     name: str | None = None,
     description: str | None = None,
@@ -334,8 +334,8 @@ def update( # this does not update properties, properties should be added using 
                 "description": description,
                 "archived": archive,
             },
-            "type": "project",
             "relationships": {},
+            "type": "project",
         }
     }
 

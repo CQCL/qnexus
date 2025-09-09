@@ -101,9 +101,9 @@ def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> 
         role = get(role)
 
     req_dict = {
-            "team_id": str(team.id),
-            "role_id": str(role.id),
-            "resource_id": str(resource_ref.id),
+        "team_id": str(team.id),
+        "role_id": str(role.id),
+        "resource_id": str(resource_ref.id),
     }
 
     res = get_nexus_client().post(
@@ -123,20 +123,21 @@ def assign_user(
     """Assign a role-based access control assignment to a user."""
     if isinstance(role, str):
         role = get(role)
-    user_id = get_nexus_client().get(
+    user_id_res = get_nexus_client().get(
         f"/api/users/v1beta/{user_email}",
-    ).json()["data"]["id"]
+    )
 
-    if res.status_code != 201:
-        raise qnx_exc.ResourceUpdateFailed(
-            message=res.text, status_code=res.status_code
+    if user_id_res.status_code != 200:
+        raise qnx_exc.ResourceFetchFailed(
+            message=user_id_res.text, status_code=user_id_res.status_code
         )
+    user_id = user_id_res.json()["data"]["id"]
 
     req_dict = {
-                "role_id": str(role.id),
-                "resource_id": str(resource_ref.id),
-                "for_user": user_id
-            },
+        "for_user_id": str(user_id),
+        "role_id": str(role.id),
+        "resource_id": str(resource_ref.id),
+    }
     res = get_nexus_client().post(
         "/api/assignments/v1beta2/user",
         json=req_dict,
