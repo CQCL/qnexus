@@ -13,6 +13,9 @@ from qnexus.models.annotations import Annotations
 from qnexus.models.references import ExecutionResultRef, ProjectRef, ResultVersions
 
 
+@pytest.mark.skip(
+    reason="HUGR decoding is currently disabled with compression format as of Sept 2025"
+)
 def test_hugr_encode_decode() -> None:
     """
     Given a known-good binary-encoded HUGR in a file, test that it can be loaded
