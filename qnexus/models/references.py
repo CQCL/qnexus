@@ -264,6 +264,7 @@ class HUGRRef(BaseRef):
     project: ProjectRef
     id: UUID
     _contents: Package | None = None
+    _bytes: bytes | None = None
     type: Literal["HUGRRef"] = "HUGRRef"
 
     def download_hugr(self) -> Package:
@@ -276,6 +277,17 @@ class HUGRRef(BaseRef):
 
         self._contents = _fetch_hugr_package(self)
         return self._contents
+
+    def download_hugr_bytes(self) -> bytes:
+        """Get the HUGR bytes of the original uploaded HUGR."""
+
+        if self._bytes:
+            return self._bytes
+
+        from qnexus.client.hugr import _fetch_hugr_bytes
+
+        self._bytes = _fetch_hugr_bytes(self)
+        return self._bytes
 
     def df(self) -> pd.DataFrame:
         """Present in a pandas DataFrame."""
