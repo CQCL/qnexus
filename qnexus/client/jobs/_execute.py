@@ -188,28 +188,11 @@ def _fetch_pytket_execution_result(
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/results/v1beta3/partial/{result_ref.id}")
-
+    res = get_nexus_client().get(f"/api/results/v1beta3/{result_ref.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_dict = res.json()
-    next_key = res_dict["data"]["attributes"].get("next_key")
-    shots = res_dict["data"]["attributes"].get("shots")
-
-    while next_key is not None:
-        next_partial_res = get_nexus_client().get(
-            f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
-        )
-        if next_partial_res.status_code != 200:
-            raise qnx_exc.ResourceFetchFailed(
-                message=res.text, status_code=next_partial_res.status_code
-            )
-        next_shots = next_partial_res.json()["data"]["attributes"].get("shots")
-        if shots is not None and next_shots is not None:
-            shots["width"] = max(shots["width"], next_shots["width"])
-            shots["array"].extend(next_shots["array"])
-        next_key = next_partial_res.json()["data"]["attributes"].get("next_key")
     program_data = res_dict["data"]["relationships"]["program"]["data"]
     program_id = program_data["id"]
     program_type = program_data["type"]
@@ -246,16 +229,19 @@ def _fetch_qsys_execution_result(
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
-    params = {"version": version.value}
+    chunk_number = 0
+    params = {"version": version.value, "chunk": chunk_number}
+
     res = get_nexus_client().get(
-        f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+        f"/api/qsys_results/v1beta2/partial/{result_ref.id}", params=params
     )
-    res_dict = res.json()
-    next_key = res_dict["data"]["attributes"].get("next_key")
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
+    # This is only needed to be set once, as subsequent calls will
+    # return the same information for the relationships.
+    res_dict = res.json()
     input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
     input_program: HUGRRef | QIRRef
@@ -277,11 +263,25 @@ def _fetch_qsys_execution_result(
             else:
                 result = QsysResult(res_dict["data"]["attributes"].get("results"))
 
-    while next_key is not None:
-        params["key"] = next_key
+    backend_info_data = next(
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
+    )
+    backend_info = to_pytket_backend_info(
+        StoredBackendInfo(**backend_info_data["attributes"])
+    )
+
+    # We shouldn't be doing infinite loops, but the API currently doesn't
+    # provide a way to know how many chunks there are, so we loop until we
+    # get all of them.
+    while True:
+        chunk_number += 1
+        params["chunk_number"] = chunk_number
         partial = get_nexus_client().get(
-            f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+            f"/api/qsys_results/v1beta2/partial/{result_ref.id}", params=params
         )
+        if partial.status_code == 404:
+            # No more chunks. Stop here.
+            break
         if partial.status_code != 200:
             raise qnx_exc.ResourceFetchFailed(
                 message=res.text, status_code=partial.status_code
@@ -308,13 +308,6 @@ def _fetch_qsys_execution_result(
         else:
             next_res = QsysResult(partial.json()["data"]["attributes"]["results"])
             result.results.extend(next_res.results)
-        next_key = partial.json()["data"]["attributes"].get("next_key")
-    backend_info_data = next(
-        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
-    )
-    backend_info = to_pytket_backend_info(
-        StoredBackendInfo(**backend_info_data["attributes"])
-    )
 
     return (
         result,
