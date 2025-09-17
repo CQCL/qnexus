@@ -96,7 +96,7 @@ jobs:
 
       - name: "Post scheduled runs summary in Slack: #nexus-tests"
         uses: sanjaykrishnanrs/slack-notify-junitxml-action@0.1.0-beta
-        if: github.event_name == 'schedule'
+        # if: github.event_name == 'schedule'
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
@@ -104,4 +104,4 @@ jobs:
           slackbotid: "U03HPPBH99A"
           slackbottoken: ${{ secrets.NEXUS_TESTS_SLACK_BOT_TOKEN }}
           slackchannel: "C08LQ4ST2JV"
-          junitxml_filepath: integration-results/integration-results.xml
+          junitxml_filepath: integration-results.xml
