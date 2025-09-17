@@ -188,28 +188,11 @@ def _fetch_pytket_execution_result(
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/results/v1beta3/partial/{result_ref.id}")
-
+    res = get_nexus_client().get(f"/api/results/v1beta3/{result_ref.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
     res_dict = res.json()
-    next_key = res_dict["data"]["attributes"].get("next_key")
-    shots = res_dict["data"]["attributes"].get("shots")
-
-    while next_key is not None:
-        next_partial_res = get_nexus_client().get(
-            f"/api/results/v1beta3/partial/{result_ref.id}?{next_key}"
-        )
-        if next_partial_res.status_code != 200:
-            raise qnx_exc.ResourceFetchFailed(
-                message=res.text, status_code=next_partial_res.status_code
-            )
-        next_shots = next_partial_res.json()["data"]["attributes"].get("shots")
-        if shots is not None and next_shots is not None:
-            shots["width"] = max(shots["width"], next_shots["width"])
-            shots["array"].extend(next_shots["array"])
-        next_key = next_partial_res.json()["data"]["attributes"].get("next_key")
     program_data = res_dict["data"]["relationships"]["program"]["data"]
     program_id = program_data["id"]
     program_type = program_data["type"]
