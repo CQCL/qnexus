@@ -229,16 +229,19 @@ def _fetch_qsys_execution_result(
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
-    params = {"version": version.value}
+    chunk_number = 0
+    params = {"version": version.value, "chunk": chunk_number}
+
     res = get_nexus_client().get(
-        f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+        f"/api/qsys_results/v1beta2/partial/{result_ref.id}", params=params
     )
-    res_dict = res.json()
-    next_key = res_dict["data"]["attributes"].get("next_key")
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
+    # This is only needed to be set once, as subsequent calls will
+    # return the same information for the relationships.
+    res_dict = res.json()
     input_program_id = res_dict["data"]["relationships"]["program"]["data"]["id"]
 
     input_program: HUGRRef | QIRRef
@@ -260,11 +263,25 @@ def _fetch_qsys_execution_result(
             else:
                 result = QsysResult(res_dict["data"]["attributes"].get("results"))
 
-    while next_key is not None:
-        params["key"] = next_key
+    backend_info_data = next(
+        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
+    )
+    backend_info = to_pytket_backend_info(
+        StoredBackendInfo(**backend_info_data["attributes"])
+    )
+
+    # We shouldn't be doing infinite loops, but the API currently doesn't
+    # provide a way to know how many chunks there are, so we loop until we
+    # get all of them.
+    while True:
+        chunk_number += 1
+        params["chunk_number"] = chunk_number
         partial = get_nexus_client().get(
-            f"/api/qsys_results/v1beta/partial/{result_ref.id}", params=params
+            f"/api/qsys_results/v1beta2/partial/{result_ref.id}", params=params
         )
+        if partial.status_code == 404:
+            # No more chunks. Stop here.
+            break
         if partial.status_code != 200:
             raise qnx_exc.ResourceFetchFailed(
                 message=res.text, status_code=partial.status_code
@@ -291,13 +308,6 @@ def _fetch_qsys_execution_result(
         else:
             next_res = QsysResult(partial.json()["data"]["attributes"]["results"])
             result.results.extend(next_res.results)
-        next_key = partial.json()["data"]["attributes"].get("next_key")
-    backend_info_data = next(
-        data for data in res_dict["included"] if data["type"] == "backend_snapshot"
-    )
-    backend_info = to_pytket_backend_info(
-        StoredBackendInfo(**backend_info_data["attributes"])
-    )
 
     return (
         result,
