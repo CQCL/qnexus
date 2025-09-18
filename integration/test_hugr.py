@@ -60,8 +60,10 @@ def test_hugr_download(
             # Temporarily disabled due to missing functionality in hugr
             downloaded_hugr_package = hugr_ref.download_hugr()
             assert isinstance(downloaded_hugr_package, Package)
+            assert qa_hugr_package == downloaded_hugr_package
         downloaded_hugr_bytes = hugr_ref.download_hugr_bytes()
         assert isinstance(downloaded_hugr_bytes, bytes)
+        assert qa_hugr_package.to_bytes() == downloaded_hugr_bytes
 
 
 def test_hugr_get_by_id(

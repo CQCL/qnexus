@@ -291,12 +291,14 @@ def _fetch_by_id(hugr_id: UUID | str, scope: ScopeFilterEnum | None) -> HUGRRef:
 
 def _fetch_hugr_package(handle: HUGRRef) -> Package:
     """Utility method for fetching a HUGR Package from a HUGRRef."""
-    res = get_nexus_client().get(f"/api/hugr/v1beta/{handle.id}")
-    if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
-    contents: str = res.json()["data"]["attributes"]["contents"]
-    return _decode_hugr(contents)
+    hugr_bytes = _fetch_hugr_bytes(handle=handle)
+
+    raise qnx_exc.ResourceFetchFailed(
+        message="Converting to HUGR Package is currently unavailable.",
+        status_code=400,
+    )
+    return Package.from_bytes(envelope=hugr_bytes)
 
 
 def _fetch_hugr_bytes(handle: HUGRRef) -> bytes:
@@ -312,14 +314,3 @@ def _fetch_hugr_bytes(handle: HUGRRef) -> bytes:
 def _encode_hugr(hugr_package: Package) -> str:
     """Utility method for encoding a HUGR Package as base64-encoded string"""
     return base64.b64encode(hugr_package.to_bytes()).decode("utf-8")
-
-
-def _decode_hugr(contents: str) -> Package:
-    """Utility method for decoding a base64-encoded string into a HUGR Package"""
-
-    raise qnx_exc.ResourceFetchFailed(
-        message="Converting to HUGR Package is currently unavailable.",
-        status_code=400,
-    )
-    # hugr_envelope = base64.b64decode(contents)
-    # return Package.from_bytes(envelope=hugr_envelope)
