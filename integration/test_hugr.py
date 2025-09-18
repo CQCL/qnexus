@@ -2,9 +2,11 @@
 
 from typing import Callable, ContextManager
 
+import pytest
 from hugr.package import Package
 
 import qnexus as qnx
+import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import HUGRRef, ProjectRef, Ref
 
@@ -54,8 +56,14 @@ def test_hugr_download(
         hugr_name,
         qa_hugr_package,
     ) as hugr_ref:
-        downloaded_hugr_package = hugr_ref.download_hugr()
-        assert isinstance(downloaded_hugr_package, Package)
+        with pytest.raises(qnx_exc.ResourceFetchFailed):
+            # Temporarily disabled due to missing functionality in hugr
+            downloaded_hugr_package = hugr_ref.download_hugr()
+            assert isinstance(downloaded_hugr_package, Package)
+            assert qa_hugr_package == downloaded_hugr_package
+        downloaded_hugr_bytes = hugr_ref.download_hugr_bytes()
+        assert isinstance(downloaded_hugr_bytes, bytes)
+        assert qa_hugr_package.to_bytes() == downloaded_hugr_bytes
 
 
 def test_hugr_get_by_id(

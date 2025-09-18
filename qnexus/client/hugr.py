@@ -9,7 +9,6 @@ from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
 
-from hugr.envelope import EnvelopeConfig, EnvelopeFormat
 from hugr.hugr import Hugr
 from hugr.ops import Module
 from hugr.package import Package, PackagePointer
@@ -50,16 +49,6 @@ class Params(
     ScopeFilter,
 ):
     """Params for filtering HUGRs."""
-
-
-# We can change the format and zstd when HUGR supports more options. Since the
-# header in the envelope encodes the config, Package.from_bytes will work
-# without changes. We expect HUGR team to make other formats available in 2025.
-ENVELOPE_CONFIG = EnvelopeConfig(
-    # As of hugr v0.11.3, the only format available is JSON
-    format=EnvelopeFormat.JSON,
-    zstd=0,
-)
 
 
 @merge_project_from_context
@@ -302,24 +291,26 @@ def _fetch_by_id(hugr_id: UUID | str, scope: ScopeFilterEnum | None) -> HUGRRef:
 
 def _fetch_hugr_package(handle: HUGRRef) -> Package:
     """Utility method for fetching a HUGR Package from a HUGRRef."""
+
+    hugr_bytes = _fetch_hugr_bytes(handle=handle)
+
+    raise qnx_exc.ResourceFetchFailed(
+        message="Converting to HUGR Package is currently unavailable.",
+        status_code=400,
+    )
+    return Package.from_bytes(envelope=hugr_bytes)
+
+
+def _fetch_hugr_bytes(handle: HUGRRef) -> bytes:
+    """Utility method for fetching HUGR bytes from a HUGRRef."""
     res = get_nexus_client().get(f"/api/hugr/v1beta/{handle.id}")
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
-    contents: str = res.json()["data"]["attributes"]["contents"]
-    return _decode_hugr(contents)
+    contents = res.json()["data"]["attributes"]["contents"]
+    return base64.b64decode(contents)
 
 
 def _encode_hugr(hugr_package: Package) -> str:
     """Utility method for encoding a HUGR Package as base64-encoded string"""
-    return base64.b64encode(
-        hugr_package.to_bytes(
-            config=ENVELOPE_CONFIG,
-        )
-    ).decode("utf-8")
-
-
-def _decode_hugr(contents: str) -> Package:
-    """Utility method for decoding a base64-encoded string into a HUGR Package"""
-    hugr_envelope = base64.b64decode(contents)
-    return Package.from_bytes(envelope=hugr_envelope)
+    return base64.b64encode(hugr_package.to_bytes()).decode("utf-8")
