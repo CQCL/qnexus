@@ -2,6 +2,19 @@
 
 # `qnexus` Release Notes
 
+## v0.32.0 (2025-09-18)
+
+
+### Added
+
+- Use default hugr compression (#263).
+
+
+### Fixed
+
+- Multiple broken links in ipynbs for docs (#261).
+
+
 ## v0.31.0 (2025-09-05)
 
 
