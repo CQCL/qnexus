@@ -23,7 +23,8 @@ NO_QUOTA_SET = "No quota set for user"
 def get_all() -> DataframableList[Quota]:
     """Get all quotas, including usage."""
     res = get_nexus_client().get(
-        "/api/quotas/v1beta", params={"entity_type": "user", "include_usage": True} # needs user id
+        "/api/quotas/v1beta",
+        params={"entity_type": "user", "include_usage": True},  # needs user id
     )
 
     if res.status_code != 200:
@@ -55,7 +56,12 @@ def get(name: QuotaName) -> Quota:
 
     res = get_nexus_client().get(
         "/api/quotas/v1beta3",
-        params={"entity_type": "user", "entity_id": user.id, "name": name, "include_usage": True}, # needs user id
+        params={
+            "entity_type": "user",
+            "entity_id": user.id,
+            "name": name,
+            "include_usage": True,
+        },  # needs user id
     )
 
     if res.status_code != 200:
@@ -77,7 +83,9 @@ def get(name: QuotaName) -> Quota:
 def check_quota(name: QuotaName) -> bool:
     """Check that the current user has available quota."""
     user = get_self()
-    res = get_nexus_client().get("/api/quotas/v1beta3/guard", params={"name": name, "entity_id": user.id})
+    res = get_nexus_client().get(
+        "/api/quotas/v1beta3/guard", params={"name": name, "entity_id": user.id}
+    )
 
     if res.status_code != 200:
         return False

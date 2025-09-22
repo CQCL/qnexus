@@ -81,13 +81,13 @@ def create(name: str, description: str | None = None) -> TeamRef:
     resp = get_nexus_client().post(
         "/api/teams/v1beta2",
         json={
-            "data" : {
+            "data": {
                 "name": name,
                 "description": description,
                 "display_name": name,
             },
             "relationships": {},
-            "type": "team"
+            "type": "team",
         },
     )
 
