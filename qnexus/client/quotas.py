@@ -3,6 +3,7 @@
 from typing import Literal
 
 from qnexus.client import get_nexus_client
+from qnexus.client.users import get_self
 from qnexus.exceptions import ResourceFetchFailed
 from qnexus.models import Quota
 from qnexus.models.references import DataframableList
@@ -22,7 +23,7 @@ NO_QUOTA_SET = "No quota set for user"
 def get_all() -> DataframableList[Quota]:
     """Get all quotas, including usage."""
     res = get_nexus_client().get(
-        "/api/quotas/v1beta", params={"entity_type": "user", "include_usage": True}
+        "/api/quotas/v1beta", params={"entity_type": "user", "include_usage": True} # needs user id
     )
 
     if res.status_code != 200:
@@ -50,9 +51,11 @@ def get_all() -> DataframableList[Quota]:
 
 def get(name: QuotaName) -> Quota:
     """Get specific quota details by name."""
+    user = get_self()
+
     res = get_nexus_client().get(
-        "/api/quotas/v1beta",
-        params={"entity_type": "user", "name": name, "include_usage": True},
+        "/api/quotas/v1beta3",
+        params={"entity_type": "user", "entity_id": user.id, "name": name, "include_usage": True}, # needs user id
     )
 
     if res.status_code != 200:
@@ -73,7 +76,8 @@ def get(name: QuotaName) -> Quota:
 
 def check_quota(name: QuotaName) -> bool:
     """Check that the current user has available quota."""
-    res = get_nexus_client().get("/api/quotas/v1beta/guard", params={"name": name})
+    user = get_self()
+    res = get_nexus_client().get("/api/quotas/v1beta3/guard", params={"name": name, "entity_id": user.id})
 
     if res.status_code != 200:
         return False
