@@ -31,7 +31,9 @@ def get(name: str) -> TeamRef:
     Get a single team using filters. Throws an exception if the filters do not
     match exactly one object.
     """
-    res = get_nexus_client().get("/api/teams/v1beta2", params={"filter[team][name]": name})
+    res = get_nexus_client().get(
+        "/api/teams/v1beta2", params={"filter[team][name]": name}
+    )
 
     if res.status_code == 404 or res.json()["data"] == []:
         raise qnx_exc.ZeroMatches
@@ -89,9 +91,9 @@ def create(name: str, description: str | None = None) -> TeamRef:
                     "display_name": name,
                 },
                 "relationships": {},
-             "type": "team",
+                "type": "team",
             },
-        }
+        },
     )
 
     if resp.status_code != 201:
