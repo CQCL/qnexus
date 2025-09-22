@@ -58,7 +58,7 @@ def get(name: QuotaName) -> Quota:
         "/api/quotas/v1beta3",
         params={
             "entity_type": "user",
-            "entity_id": user.id,
+            "entity_id": str(user.id),
             "name": name,
             "include_usage": True,
         },  # needs user id
@@ -84,7 +84,7 @@ def check_quota(name: QuotaName) -> bool:
     """Check that the current user has available quota."""
     user = get_self()
     res = get_nexus_client().get(
-        "/api/quotas/v1beta3/guard", params={"name": name, "entity_id": user.id}
+        "/api/quotas/v1beta3/guard", params={"name": name, "user_id": str(user.id)}
     )
 
     if res.status_code != 200:
