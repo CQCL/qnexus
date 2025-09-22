@@ -96,7 +96,7 @@ jobs:
 
       - name: "Post scheduled runs summary in Slack: #nexus-tests"
         uses: sanjaykrishnanrs/slack-notify-junitxml-action@0.1.0-beta
-        # if: github.event_name == 'schedule'
+        if: github.event_name == 'schedule'
         env:
           RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
         with:
