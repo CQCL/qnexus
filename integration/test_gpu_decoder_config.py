@@ -86,7 +86,7 @@ def test_gpu_decoder_config_flow(
             name=f"qir gpu decoder config execute job for {test_case_name}",
             n_shots=[100],
             backend_config=qnx.QuantinuumConfig(
-                device_name="Helios-1E",
+                device_name="H1-1E",
                 max_cost=10,
             ),
             gpu_decoder_config=gpu_decoder_config_ref,
