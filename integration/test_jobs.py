@@ -96,6 +96,7 @@ def test_job_get_by_id(
             exclude={
                 "last_message": True,
                 "last_status": True,
+                "system": True,
                 "__all__": {"contents_modified": True, "modified": True},
             }
         )
