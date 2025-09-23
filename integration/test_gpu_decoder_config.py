@@ -48,7 +48,7 @@ def test_gpu_decoder_config_flow(
     qa_gpu_decoder_config: str,
     qa_qir_bitcode: bytes,
 ) -> None:
-    """Test the flow for executing a program on an NG device with a GPU decoder config."""
+    """Test the flow for executing a program on an OG device with a GPU decoder config."""
 
     project_name = f"project for {test_case_name}"
     gpu_decoder_config_name = f"gpu decoder config for {test_case_name}"
@@ -86,7 +86,7 @@ def test_gpu_decoder_config_flow(
             name=f"qir gpu decoder config execute job for {test_case_name}",
             n_shots=[100],
             backend_config=qnx.QuantinuumConfig(
-                device_name="Helios-1E",
+                device_name="H1-1E",
                 max_cost=10,
             ),
             gpu_decoder_config=gpu_decoder_config_ref,
