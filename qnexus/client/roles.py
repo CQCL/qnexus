@@ -52,7 +52,7 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     """Check the assignments on a particular resource."""
 
     res = get_nexus_client().get(
-        f"/api/resources/v1beta/{resource_ref.id}/assignments",
+        f"/api/resources/v1beta2/{resource_ref.id}/assignments",
     )
 
     if res.status_code != 200:
