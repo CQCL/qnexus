@@ -22,9 +22,15 @@ NO_QUOTA_SET = "No quota set for user"
 
 def get_all() -> DataframableList[Quota]:
     """Get all quotas, including usage."""
+    user = get_self()
+
     res = get_nexus_client().get(
         "/api/quotas/v1beta",
-        params={"entity_type": "user", "include_usage": True},  # needs user id
+        params={
+            "entity_type": "user",
+            "entity_id": str(user.id),
+            "include_usage": True,
+        },
     )
 
     if res.status_code != 200:
