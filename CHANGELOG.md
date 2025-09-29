@@ -2,6 +2,18 @@
 
 # `qnexus` Release Notes
 
+## v0.33.0 (2025-09-29)
+
+### Removed
+
+- projectq support (#270).
+
+
+### Fixed
+
+- **test**: Integration slack notify; device name for gpu decoder config (#268).
+
+
 ## v0.32.0 (2025-09-18)
 
 
