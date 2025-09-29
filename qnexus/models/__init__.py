@@ -22,7 +22,6 @@ from quantinuum_schemas.models.backend_config import (
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
-    ProjectQConfig,
     QuantinuumConfig,
     QulacsConfig,
     StandardEmulatorConfig,
@@ -59,7 +58,6 @@ __all__ = [
     "IBMQConfig",
     "IBMQEmulatorConfig",
     "MatrixProductStateSimulator",
-    "ProjectQConfig",
     "QuantinuumConfig",
     "QulacsConfig",
     "StandardEmulatorConfig",
@@ -238,7 +236,6 @@ class IssuerEnum(str, Enum):
     IBMQ = "IBMQ"
     QISKIT = "QISKIT"
     BRAKET = "BRAKET"
-    PROJECTQ = "PROJECTQ"
     QULACS = "QULACS"
 
 
@@ -257,8 +254,6 @@ def issuer_enum_to_config_str(issuer: IssuerEnum) -> list[str]:
                 "AerStateConfig",
                 "AerUnitaryConfig",
             ]
-        case IssuerEnum.PROJECTQ:
-            return ["ProjectQConfig"]
         case IssuerEnum.QULACS:
             return ["QulacsConfig"]
         case IssuerEnum.BRAKET:
