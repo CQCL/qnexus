@@ -20,7 +20,6 @@ from quantinuum_schemas.models.backend_config import (
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
-    ProjectQConfig,
     QuantinuumConfig,
     QulacsConfig,
     StandardEmulatorConfig,
@@ -60,7 +59,6 @@ AllBackendConfigs = Union[
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
-    ProjectQConfig,
     QuantinuumConfig,
     QulacsConfig,
     StandardEmulatorConfig,
@@ -510,7 +508,6 @@ def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
         qnx.AerUnitaryConfig(),
         qnx.BraketConfig(local=True),
         qnx.QuantinuumConfig(device_name="H1-1LE"),
-        qnx.ProjectQConfig(),
         qnx.QulacsConfig(),
         # Non Nexus-hosted
         qnx.IBMQConfig(
