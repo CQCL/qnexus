@@ -128,7 +128,7 @@ def _results(
 
     job_status = resp_data["attributes"]["status"]["status"]
 
-    if job_status != "COMPLETED" and not allow_incomplete:
+    if job_status != "COMPLETED" and allow_incomplete is not True:
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     compilation_refs: DataframableList[CompilationResultRef | IncompleteJobItemRef] = (
@@ -168,7 +168,7 @@ def _results(
                     project=project,
                 )
             )
-        elif allow_incomplete:
+        elif allow_incomplete is True:
             # Job item is not complete, return an IncompleteJobItemRef
             incomplete_ref = IncompleteJobItemRef(
                 job_item_integer_id=item["item_id"],

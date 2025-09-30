@@ -146,7 +146,7 @@ def _results(
     resp_data = resp.json()["data"]
     job_status = resp_data["attributes"]["status"]["status"]
 
-    if job_status != "COMPLETED" and not allow_incomplete:
+    if job_status != "COMPLETED" and allow_incomplete is not True:
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
     execute_results: DataframableList[ExecutionResultRef | IncompleteJobItemRef] = (
@@ -189,7 +189,7 @@ def _results(
 
             execute_results.append(result_ref)
 
-        elif allow_incomplete:
+        elif allow_incomplete is True:
             # Job item is not complete, return an IncompleteJobItemRef
             incomplete_ref = IncompleteJobItemRef(
                 job_item_id=item.get("external_handle", None),
