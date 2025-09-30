@@ -164,6 +164,7 @@ def _results(
             compilation_refs.append(
                 CompilationResultRef(
                     id=comp_json["data"]["id"],
+                    job_item_integer_id=item.get("item_id"),
                     annotations=Annotations.from_dict(comp_json["data"]["attributes"]),
                     project=project,
                 )
@@ -171,7 +172,7 @@ def _results(
         elif allow_incomplete is True:
             # Job item is not complete, return an IncompleteJobItemRef
             incomplete_ref = IncompleteJobItemRef(
-                job_item_integer_id=item["item_id"],
+                job_item_integer_id=item.get("item_id"),
                 annotations=compile_job.annotations,
                 project=compile_job.project,
                 job_type=JobType.COMPILE,
