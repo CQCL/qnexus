@@ -53,6 +53,7 @@ from qnexus.models.references import (
     ExecutionResult,
     ExecutionResultRef,
     GpuDecoderConfigRef,
+    IncompleteJobItemRef,
     JobRef,
     JobType,
     ProjectRef,
@@ -443,19 +444,22 @@ async def listen_job_status(
 @overload
 def results(
     job: CompileJobRef, allow_incomplete: bool = False
-) -> DataframableList[CompilationResultRef]: ...
+) -> DataframableList[CompilationResultRef | IncompleteJobItemRef]: ...
 
 
 @overload
 def results(
     job: ExecuteJobRef, allow_incomplete: bool = False
-) -> DataframableList[ExecutionResultRef]: ...
+) -> DataframableList[ExecutionResultRef | IncompleteJobItemRef]: ...
 
 
 def results(
     job: CompileJobRef | ExecuteJobRef,
     allow_incomplete: bool = False,
-) -> DataframableList[CompilationResultRef] | DataframableList[ExecutionResultRef]:
+) -> (
+    DataframableList[CompilationResultRef | IncompleteJobItemRef]
+    | DataframableList[ExecutionResultRef | IncompleteJobItemRef]
+):
     """Get the ResultRefs from a JobRef, if the job is complete.
     To enable fetching results from Jobs with incomplete items, set allow_incomplete=True.
     """
@@ -557,9 +561,18 @@ def compile(
 
     compile_results = results(compile_job_ref)
 
-    return DataframableList(
-        [compile_result.get_output() for compile_result in compile_results]
-    )
+    compiled_circuits: list[CircuitRef] = []
+    for compile_result in compile_results:
+        if isinstance(compile_result, CompilationResultRef):
+            compiled_circuits.append(compile_result.get_output())
+        elif isinstance(compile_result, IncompleteJobItemRef):
+            raise qnx_exc.ResourceFetchFailed(
+                f"Compile job item {compile_result.job_item_integer_id} is in status {compile_result.last_status}"
+            )
+        else:
+            assert_never(compile_result)
+
+    return DataframableList(compiled_circuits)
 
 
 @accept_circuits_for_programs
@@ -607,7 +620,18 @@ def execute(
 
     execute_results = results(execute_job_ref)
 
-    return [result.download_result() for result in execute_results]
+    ex_results: list[ExecutionResult] = []
+    for result in execute_results:
+        if isinstance(result, ExecutionResultRef):
+            ex_results.append(result.download_result())
+        elif isinstance(result, IncompleteJobItemRef):
+            raise qnx_exc.ResourceFetchFailed(
+                f"Compile job item {result.job_item_integer_id} is in status {result.last_status}"
+            )
+        else:
+            assert_never(result)
+
+    return ex_results
 
 
 def cost(job: CompileJobRef | ExecuteJobRef) -> float:

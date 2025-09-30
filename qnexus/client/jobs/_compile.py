@@ -17,6 +17,7 @@ from qnexus.models.references import (
     CompilationResultRef,
     CompileJobRef,
     DataframableList,
+    IncompleteJobItemRef,
     JobType,
     ProjectRef,
 )
@@ -114,7 +115,7 @@ def start_compile_job(
 def _results(
     compile_job: CompileJobRef,
     allow_incomplete: bool = False,
-) -> DataframableList[CompilationResultRef]:
+) -> DataframableList[CompilationResultRef | IncompleteJobItemRef]:
     """Get the results from a compile job."""
 
     resp = get_nexus_client().get(f"/api/jobs/v1beta3/{compile_job.id}")
@@ -127,47 +128,58 @@ def _results(
 
     job_status = resp_data["attributes"]["status"]["status"]
 
-    if job_status != "COMPLETED" and not allow_incomplete:
+    if job_status != "COMPLETED" and allow_incomplete is not True:
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
-    compilation_ids = [
-        item["compilation_id"]
-        for item in resp_data["attributes"]["definition"]["items"]
-        if item["status"]["status"] == "COMPLETED"
-    ]
+    compilation_refs: DataframableList[CompilationResultRef | IncompleteJobItemRef] = (
+        DataframableList([])
+    )
 
-    compilation_refs: DataframableList[CompilationResultRef] = DataframableList([])
-
-    for compilation_id in compilation_ids:
-        comp_record_resp = get_nexus_client().get(
-            f"/api/compilations/v1beta2/{compilation_id}",
-        )
-
-        if comp_record_resp.status_code != 200:
-            raise qnx_exc.ResourceFetchFailed(
-                message=comp_record_resp.text, status_code=comp_record_resp.status_code
+    for item in resp_data["attributes"]["definition"]["items"]:
+        if item["status"]["status"] == "COMPLETED":
+            compilation_id = item["compilation_id"]
+            comp_record_resp = get_nexus_client().get(
+                f"/api/compilations/v1beta2/{compilation_id}",
             )
 
-        comp_json = comp_record_resp.json()
+            if comp_record_resp.status_code != 200:
+                raise qnx_exc.ResourceFetchFailed(
+                    message=comp_record_resp.text,
+                    status_code=comp_record_resp.status_code,
+                )
 
-        project_id = comp_json["data"]["relationships"]["project"]["data"]["id"]
-        project_details = next(
-            proj for proj in comp_json["included"] if proj["id"] == project_id
-        )
-        project = ProjectRef(
-            id=project_id,
-            annotations=Annotations.from_dict(project_details["attributes"]),
-            contents_modified=project_details["attributes"]["contents_modified"],
-            archived=project_details["attributes"]["archived"],
-        )
+            comp_json = comp_record_resp.json()
 
-        compilation_refs.append(
-            CompilationResultRef(
-                id=comp_json["data"]["id"],
-                annotations=Annotations.from_dict(comp_json["data"]["attributes"]),
-                project=project,
+            project_id = comp_json["data"]["relationships"]["project"]["data"]["id"]
+            project_details = next(
+                proj for proj in comp_json["included"] if proj["id"] == project_id
             )
-        )
+            project = ProjectRef(
+                id=project_id,
+                annotations=Annotations.from_dict(project_details["attributes"]),
+                contents_modified=project_details["attributes"]["contents_modified"],
+                archived=project_details["attributes"]["archived"],
+            )
+
+            compilation_refs.append(
+                CompilationResultRef(
+                    id=comp_json["data"]["id"],
+                    job_item_integer_id=item.get("item_id"),
+                    annotations=Annotations.from_dict(comp_json["data"]["attributes"]),
+                    project=project,
+                )
+            )
+        elif allow_incomplete is True:
+            # Job item is not complete, return an IncompleteJobItemRef
+            incomplete_ref = IncompleteJobItemRef(
+                job_item_integer_id=item.get("item_id"),
+                annotations=compile_job.annotations,
+                project=compile_job.project,
+                job_type=JobType.COMPILE,
+                last_status=JobStatusEnum(item["status"]["status"]),
+                last_message=item["status"].get("message", ""),
+            )
+            compilation_refs.append(incomplete_ref)
 
     return compilation_refs
 

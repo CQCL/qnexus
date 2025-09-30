@@ -7,7 +7,11 @@ from pytket.circuit import Circuit
 
 import qnexus as qnx
 from qnexus.models.job_status import JobStatusEnum
-from qnexus.models.references import ProjectRef
+from qnexus.models.references import (
+    CompilationResultRef,
+    ExecutionResultRef,
+    ProjectRef,
+)
 
 CONFIGS_REQUIRE_NO_MEASURE = [qnx.AerUnitaryConfig]
 CONFIGS_NOT_TO_EXECUTE = [
@@ -53,7 +57,11 @@ def test_basic_backend_config_usage(
         ).backend_config.model_dump(exclude={"noisy_simulation"})
 
         execute_job_ref = qnx.start_execute_job(
-            programs=[item.get_output() for item in qnx.jobs.results(compile_job_ref)],
+            programs=[
+                item.get_output()
+                for item in qnx.jobs.results(compile_job_ref)
+                if isinstance(item, CompilationResultRef)
+            ],
             name=f"execute job for {test_case_name}",
             n_shots=[100],
             backend_config=backend_config,
@@ -71,4 +79,5 @@ def test_basic_backend_config_usage(
         execute_job_result_refs = qnx.jobs.results(execute_job_ref)
 
         for result_ref in execute_job_result_refs:
+            assert isinstance(result_ref, ExecutionResultRef)
             assert isinstance(result_ref.download_result(), BackendResult)

@@ -11,7 +11,12 @@ from pytket.backends.backendinfo import BackendInfo
 from quantinuum_schemas.models.backend_config import BasicEmulatorConfig
 
 import qnexus as qnx
-from qnexus.models.references import HUGRRef, ProjectRef, ResultVersions
+from qnexus.models.references import (
+    ExecutionResultRef,
+    HUGRRef,
+    ProjectRef,
+    ResultVersions,
+)
 
 
 def prepare_teleportation() -> Any:
@@ -77,6 +82,7 @@ def test_guppy_execution(
         assert len(results) == 1
         result_ref = results[0]
 
+        assert isinstance(result_ref, ExecutionResultRef)
         assert isinstance(result_ref.download_backend_info(), BackendInfo)
         assert isinstance(result_ref.get_input(), HUGRRef)
 
