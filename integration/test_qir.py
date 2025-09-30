@@ -13,7 +13,14 @@ from pytket.qir import pytket_to_qir  # type: ignore[attr-defined]
 
 import qnexus as qnx
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.references import ProjectRef, QIRRef, QIRResult, Ref, ResultVersions
+from qnexus.models.references import (
+    ExecutionResultRef,
+    ProjectRef,
+    QIRRef,
+    QIRResult,
+    Ref,
+    ResultVersions,
+)
 
 
 def test_qir_create_and_update(
@@ -156,12 +163,16 @@ def test_execution(
         assert len(results) == 1
         result_ref = results[0]
 
+        assert isinstance(result_ref, ExecutionResultRef)
         assert isinstance(result_ref.download_backend_info(), BackendInfo)
         assert isinstance(result_ref.get_input(), QIRRef)
 
         assert result_ref.get_input().id == qir_program_ref.id
 
-        qir_result = qnx.jobs.results(job_ref)[0].download_result()
+        qir_result_ref = qnx.jobs.results(job_ref)[0]
+
+        assert isinstance(qir_result_ref, ExecutionResultRef)
+        qir_result = qir_result_ref.download_result()
         assert isinstance(qir_result, BackendResult)
         assert qir_result.get_counts() == Counter({(0, 0, 0): 10})
         assert qir_result.get_bitlist() == [Bit("c", 2), Bit("c", 1), Bit("c", 0)]
@@ -193,7 +204,9 @@ def test_execution_on_NG_devices(
 
         qnx.jobs.wait_for(job_ref)
 
-        results = qnx.jobs.results(job_ref)[0].download_result()
+        result_ref = qnx.jobs.results(job_ref)[0]
+        assert isinstance(result_ref, ExecutionResultRef)
+        results = result_ref.download_result()
         # Assert this is a QIR compliant result
         assert isinstance(results, QIRResult)
         escaped_results = results.results.encode("unicode_escape").decode()
@@ -201,9 +214,7 @@ def test_execution_on_NG_devices(
         # Can't assert the value is the same, so just check the output is there
         assert "OUTPUT\\tTUPLE\\t2\\tt0" in escaped_results
 
-        v4_results = qnx.jobs.results(job_ref)[0].download_result(
-            version=ResultVersions.RAW
-        )
+        v4_results = result_ref.download_result(version=ResultVersions.RAW)
         # Assert this is in v4 format
         assert isinstance(v4_results, QsysResult)
         assert v4_results.results[0].entries[0][0] == "USER:QIRTUPLE:t0"

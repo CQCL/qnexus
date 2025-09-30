@@ -413,6 +413,8 @@ class CompilationResultRef(BaseRef):
     _output_circuit: CircuitRef | None = None
     _compilation_passes: DataframableList[CompilationPassRef] | None = None
     id: UUID  # compilation id
+    job_item_id: UUID | None = None
+    job_item_integer_id: int | None = None
     type: Literal["CompilationResultRef"] = "CompilationResultRef"
 
     def get_input(self) -> CircuitRef:
@@ -459,6 +461,8 @@ class CompilationResultRef(BaseRef):
                 {
                     "project": self.project.annotations.name,
                     "id": self.id,
+                    "job_item_id": self.job_item_id,
+                    "job_item_integer_id": self.job_item_integer_id,
                 },
                 index=[0],
             )
@@ -501,6 +505,8 @@ class ExecutionResultRef(BaseRef):
     _result_version: ResultVersions | None = None
     _backend_info: BackendInfo | None = None
     id: UUID
+    job_item_id: UUID | None = None
+    job_item_integer_id: int | None = None
     type: Literal["ExecutionResultRef"] = "ExecutionResultRef"
 
     def get_input(self) -> ExecutionProgram:
@@ -579,6 +585,37 @@ class ExecutionResultRef(BaseRef):
                     "project": self.project.annotations.name,
                     "id": self.id,
                     "result_type": self.result_type,
+                    "job_item_id": self.job_item_id,
+                    "job_item_integer_id": self.job_item_integer_id,
+                },
+                index=[0],
+            )
+        )
+
+
+class IncompleteJobItemRef(BaseRef):
+    """Proxy object to a Job Item in Nexus that is not complete."""
+
+    annotations: Annotations
+    id: UUID = UUID(int=0)  # Incomplete items have no result ID
+    job_item_id: UUID | None = None
+    job_item_integer_id: int | None = None
+    project: ProjectRef
+    job_type: JobType
+    last_status: JobStatusEnum
+    last_message: str
+    type: Literal["IncompleteJobItemRef"] = "IncompleteJobItemRef"
+
+    def df(self) -> pd.DataFrame:
+        """Present in a pandas DataFrame."""
+        return self.annotations.df().join(
+            pd.DataFrame(
+                {
+                    "project": self.project.annotations.name,
+                    "id": self.id,
+                    "last_status": self.last_status,
+                    "job_item_id": self.job_item_id,
+                    "job_item_integer_id": self.job_item_integer_id,
                 },
                 index=[0],
             )
@@ -632,6 +669,7 @@ Ref = Annotated[
         ExecutionResultRef,
         CompilationPassRef,
         SystemRef,
+        IncompleteJobItemRef,
     ],
     Field(discriminator="type"),
 ]

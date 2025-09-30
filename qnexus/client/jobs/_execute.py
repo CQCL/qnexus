@@ -25,6 +25,7 @@ from qnexus.models.references import (
     ExecutionResultRef,
     GpuDecoderConfigRef,
     HUGRRef,
+    IncompleteJobItemRef,
     JobType,
     ProjectRef,
     QIRRef,
@@ -132,10 +133,12 @@ def start_execute_job(
 def _results(
     execute_job: ExecuteJobRef,
     allow_incomplete: bool = False,
-) -> DataframableList[ExecutionResultRef]:
+) -> DataframableList[ExecutionResultRef | IncompleteJobItemRef]:
     """Get the results from an execute job."""
 
-    resp = get_nexus_client().get(f"/api/jobs/v1beta3/{execute_job.id}")
+    resp = get_nexus_client().get(
+        f"/api/jobs/v1beta3/{execute_job.id}", params={"scope": "highest"}
+    )
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
@@ -146,30 +149,37 @@ def _results(
     if job_status != "COMPLETED" and not allow_incomplete:
         raise qnx_exc.ResourceFetchFailed(message=f"Job status: {job_status}")
 
-    execute_results: DataframableList[ExecutionResultRef] = DataframableList([])
+    execute_results: DataframableList[ExecutionResultRef | IncompleteJobItemRef] = (
+        DataframableList([])
+    )
 
     for item in resp_data["attributes"]["definition"]["items"]:
+        result_type: ResultType | None = None
+
+        match item.get("result_type", None):
+            case ResultType.QSYS:
+                result_type = ResultType.QSYS
+            case ResultType.PYTKET:
+                result_type = ResultType.PYTKET
+            case None:
+                result_type = None
+            case _:
+                assert_never(item["result_type"])
+
         # Check if item is in a state that returns results
-        if item["status"]["status"] in (
-            "CANCELLED",
-            "ERROR",
-            "DEPLETED",
-            "TERMINATED",
-            "COMPLETED",
-            "RUNNING",
+        # and has results
+        if (
+            item["status"]["status"]
+            in (
+                "CANCELLED",
+                "ERROR",
+                "DEPLETED",
+                "TERMINATED",
+                "COMPLETED",
+                "RUNNING",
+            )
+            and result_type
         ):
-            result_type: ResultType
-
-            match item.get("result_type", None):
-                case ResultType.QSYS:
-                    result_type = ResultType.QSYS
-                case ResultType.PYTKET:
-                    result_type = ResultType.PYTKET
-                case None:
-                    continue
-                case _:
-                    assert_never(item["result_type"])
-
             result_ref = ExecutionResultRef(
                 id=item["result_id"],
                 annotations=execute_job.annotations,
@@ -178,6 +188,19 @@ def _results(
             )
 
             execute_results.append(result_ref)
+
+        elif allow_incomplete:
+            # Job item is not complete, return an IncompleteJobItemRef
+            incomplete_ref = IncompleteJobItemRef(
+                job_item_id=item.get("external_handle", None),
+                job_item_integer_id=item["item_id"],
+                annotations=execute_job.annotations,
+                project=execute_job.project,
+                job_type=JobType.EXECUTE,
+                last_status=JobStatusEnum[item["status"]["status"]],
+                last_message=item["status"].get("message", ""),
+            )
+            execute_results.append(incomplete_ref)
 
     return execute_results
 

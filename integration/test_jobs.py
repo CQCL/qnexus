@@ -4,6 +4,7 @@ from collections import Counter
 from datetime import datetime
 from time import sleep
 from typing import Any, Callable, ContextManager
+from uuid import UUID
 
 import pandas as pd
 import pytest
@@ -22,6 +23,8 @@ from qnexus.models.references import (
     CompilationResultRef,
     CompileJobRef,
     ExecuteJobRef,
+    ExecutionResultRef,
+    IncompleteJobItemRef,
     JobRef,
     Ref,
 )
@@ -205,13 +208,14 @@ def test_submit_compile(
         compile_results = qnx.jobs.results(compile_job_ref)
 
         assert len(compile_results) == 1
-        assert isinstance(compile_results[0], CompilationResultRef)
-        test_ref_serialisation("compile_result", compile_results[0])
+        compilation_result = compile_results[0]
+        assert isinstance(compilation_result, CompilationResultRef)
+        test_ref_serialisation("compile_result", compilation_result)
 
-        assert isinstance(compile_results[0].get_input(), CircuitRef)
-        assert isinstance(compile_results[0].get_output(), CircuitRef)
+        assert isinstance(compilation_result.get_input(), CircuitRef)
+        assert isinstance(compilation_result.get_output(), CircuitRef)
 
-        first_pass_data = compile_results[0].get_passes()[0]
+        first_pass_data = compilation_result.get_passes()[0]
 
         assert isinstance(first_pass_data, CompilationPassRef)
         assert isinstance(first_pass_data.get_input(), CircuitRef)
@@ -348,6 +352,7 @@ def test_submit_execute(
         assert len(execute_results) == 1
 
         first_result = execute_results[0]
+        assert isinstance(first_result, ExecutionResultRef)
         assert isinstance(first_result.get_input(), CircuitRef)
         assert isinstance(first_result.download_result(), BackendResult)
         assert isinstance(first_result.download_backend_info(), BackendInfo)
@@ -444,11 +449,17 @@ def test_get_results_for_incomplete_execute(
             sleep(10)
 
         # we expect the CX circuit to fail on H1-1LE, but the ZZPhase circuit should succeed
-        assert len(incomplete_results) == 1
+        assert len(incomplete_results) == 2
+        first_item, second_item = incomplete_results[0], incomplete_results[1]
+        assert isinstance(first_item, IncompleteJobItemRef)
+        assert first_item.id == UUID(int=0)
+        assert isinstance(first_item.job_item_integer_id, int)
+        assert first_item.last_status == JobStatusEnum.ERROR
 
-        assert isinstance(incomplete_results[0].get_input(), CircuitRef)
-        assert isinstance(incomplete_results[0].download_result(), BackendResult)
-        assert isinstance(incomplete_results[0].download_backend_info(), BackendInfo)
+        assert isinstance(second_item, ExecutionResultRef)
+        assert isinstance(second_item.get_input(), CircuitRef)
+        assert isinstance(second_item.download_result(), BackendResult)
+        assert isinstance(second_item.download_backend_info(), BackendInfo)
 
 
 def test_wait_for_raises_on_job_error(
@@ -523,12 +534,13 @@ def test_results_not_available_error(
         execute_results = qnx.jobs.results(execute_job_ref)
 
         assert len(execute_results) == 1
+        execution_result = execute_results[0]
+        assert isinstance(execution_result, ExecutionResultRef)
+        assert isinstance(execution_result.get_input(), CircuitRef)
 
-        assert isinstance(execute_results[0].get_input(), CircuitRef)
+        assert isinstance(execution_result.download_result(), BackendResult)
 
-        assert isinstance(execute_results[0].download_result(), BackendResult)
-
-        assert isinstance(execute_results[0].download_backend_info(), BackendInfo)
+        assert isinstance(execution_result.download_backend_info(), BackendInfo)
 
 
 def test_submit_under_user_group(
