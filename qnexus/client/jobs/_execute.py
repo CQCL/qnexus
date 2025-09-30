@@ -136,9 +136,7 @@ def _results(
 ) -> DataframableList[ExecutionResultRef | IncompleteJobItemRef]:
     """Get the results from an execute job."""
 
-    resp = get_nexus_client().get(
-        f"/api/jobs/v1beta3/{execute_job.id}", params={"scope": "highest"}
-    )
+    resp = get_nexus_client().get(f"/api/jobs/v1beta3/{execute_job.id}")
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
             message=resp.text, status_code=resp.status_code
