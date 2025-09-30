@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.34.0 (2025-09-30)
+
+
+### Added
+
+- Return `IncompleteJobItemRef` for job items that haven't completed when fetching job results.
+
+
 ## v0.33.0 (2025-09-29)
 
 ### Removed
