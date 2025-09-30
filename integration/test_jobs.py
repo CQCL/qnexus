@@ -461,7 +461,7 @@ def test_get_results_for_incomplete_execute(
             incomplete_results = qnx.jobs.results(
                 execute_job_ref, allow_incomplete=True
             )
-            if len(incomplete_results) > 0:
+            if any(isinstance(r, ExecutionResultRef) for r in incomplete_results):
                 break
             sleep(10)
 
