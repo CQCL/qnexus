@@ -291,11 +291,25 @@ def test_get_results_for_incomplete_compile(
                 project=proj_ref,
                 backend_config=qnx.AerConfig(),
             )
-
+        # check the job while not complete
         assert isinstance(compile_job_ref, CompileJobRef)
         assert qnx.jobs.status(compile_job_ref).status != JobStatusEnum.COMPLETED
+
+        with pytest.raises(qnx_exc.ResourceFetchFailed):
+            qnx.jobs.results(compile_job_ref)
+
         compile_results = qnx.jobs.results(compile_job_ref, allow_incomplete=True)
-        assert len(compile_results) == 0
+        assert len(compile_results) == 1
+        compile_item = compile_results[0]
+        assert isinstance(compile_item, IncompleteJobItemRef)
+        assert isinstance(compile_item.job_item_integer_id, int)
+        assert compile_item.last_status != JobStatusEnum.COMPLETED
+
+        # check the job after completion
+        qnx.jobs.wait_for(compile_job_ref)
+        complete_results = qnx.jobs.results(compile_job_ref, allow_incomplete=True)
+        assert len(complete_results) == 1
+        assert isinstance(complete_results[0], CompilationResultRef)
 
 
 def test_compile_hypertket(
@@ -436,6 +450,9 @@ def test_get_results_for_incomplete_execute(
 
         with pytest.raises(qnx_exc.JobError):
             qnx.jobs.wait_for(execute_job_ref)
+
+        with pytest.raises(qnx_exc.ResourceFetchFailed):
+            qnx.jobs.results(execute_job_ref)
 
         incomplete_results = qnx.jobs.results(execute_job_ref, allow_incomplete=True)
 
