@@ -16,13 +16,13 @@ from quantinuum_schemas.models.backend_config import (
     AerStateConfig,
     AerUnitaryConfig,
     BackendConfig,
-    BasicEmulatorConfig,
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     QuantinuumConfig,
     QulacsConfig,
-    StandardEmulatorConfig,
+    SeleneConfig,
+    SelenePlusConfig,
 )
 
 import qnexus as qnx
@@ -55,13 +55,13 @@ AllBackendConfigs = Union[
     AerStateConfig,
     AerUnitaryConfig,
     BackendConfig,
-    BasicEmulatorConfig,
+    SeleneConfig,
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     QuantinuumConfig,
     QulacsConfig,
-    StandardEmulatorConfig,
+    SelenePlusConfig,
 ]
 
 

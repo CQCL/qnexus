@@ -8,13 +8,13 @@ from quantinuum_schemas.models.backend_config import (
     AerStateConfig,
     AerUnitaryConfig,
     BackendConfig,
-    BasicEmulatorConfig,
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     QuantinuumConfig,
     QulacsConfig,
-    StandardEmulatorConfig,
+    SeleneConfig,
+    SelenePlusConfig,
 )
 
 import qnexus.models as models
@@ -77,12 +77,12 @@ __all__ = [
     "AerStateConfig",
     "AerUnitaryConfig",
     "BackendConfig",
-    "BasicEmulatorConfig",
+    "SeleneConfig",
     "BraketConfig",
     "IBMQConfig",
     "IBMQEmulatorConfig",
     "QuantinuumConfig",
     "QulacsConfig",
-    "StandardEmulatorConfig",
+    "SelenePlusConfig",
     "models",
 ]
