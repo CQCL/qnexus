@@ -18,13 +18,13 @@ from quantinuum_schemas.models.backend_config import (
     AerStateConfig,
     AerUnitaryConfig,
     BackendConfig,
-    BasicEmulatorConfig,
+    SeleneConfig,
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     QuantinuumConfig,
     QulacsConfig,
-    StandardEmulatorConfig,
+    SelenePlusConfig,
 )
 from quantinuum_schemas.models.backend_info import Register, StoredBackendInfo
 from quantinuum_schemas.models.emulator_config import (
@@ -51,7 +51,7 @@ __all__ = [
     "AerStateConfig",
     "AerUnitaryConfig",
     "BackendConfig",
-    "BasicEmulatorConfig",
+    "SeleneConfig",
     "BraketConfig",
     "ClassicalReplaySimulator",
     "CoinflipSimulator",
@@ -60,7 +60,7 @@ __all__ = [
     "MatrixProductStateSimulator",
     "QuantinuumConfig",
     "QulacsConfig",
-    "StandardEmulatorConfig",
+    "SelenePlusConfig",
     "StabilizerSimulator",
     "StatevectorSimulator",
     "StoredBackendInfo",

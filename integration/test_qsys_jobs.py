@@ -8,7 +8,7 @@ from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
 from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
-from quantinuum_schemas.models.backend_config import BasicEmulatorConfig
+from quantinuum_schemas.models.backend_config import SeleneConfig
 
 import qnexus as qnx
 from qnexus.models.references import (
@@ -70,9 +70,9 @@ def test_guppy_execution(
         job_ref = qnx.start_execute_job(
             programs=[hugr_ref],
             n_shots=[n_shots],
-            backend_config=BasicEmulatorConfig(n_qubits=n_qubits),
+            backend_config=SeleneConfig(n_qubits=n_qubits),
             project=project_ref,
-            name=f"basicemulator selene job for {test_case_name}",
+            name=f"selene job for {test_case_name}",
         )
 
         qnx.jobs.wait_for(job_ref)
