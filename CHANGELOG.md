@@ -2,6 +2,13 @@
 
 # `qnexus` Release Notes
 
+## v0.34.1 (2025-10-06)
+
+
+### Fixed
+
+- Update imports to use new configs.
+
 ## v0.34.0 (2025-09-30)
 
 
