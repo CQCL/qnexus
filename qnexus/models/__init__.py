@@ -31,8 +31,6 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
-    HeliosErrorModel,
-    HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
     QSystemErrorModel,
@@ -41,7 +39,6 @@ from quantinuum_schemas.models.emulator_config import (
     StatevectorSimulator,
 )
 from quantinuum_schemas.models.quantinuum_systems_noise import (
-    HeliosErrorParams,
     UserErrorParams,
 )
 
@@ -70,15 +67,12 @@ __all__ = [
     "StabilizerSimulator",
     "StatevectorSimulator",
     "StoredBackendInfo",
-    "HeliosRuntime",
     "SimpleRuntime",
     "NoErrorModel",
     "DepolarizingErrorModel",
     "JobStatusEnum",
     "WAITING_STATUS",
     "QSystemErrorModel",
-    "HeliosErrorModel",
-    "HeliosErrorParams",
     "UserErrorParams",
 ]
 
