@@ -15,7 +15,7 @@ from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.job_status import JobStatusEnum
+from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
@@ -34,7 +34,7 @@ from qnexus.models.references import (
     ResultVersions,
     WasmModuleRef,
 )
-from qnexus.models.utils import assert_never
+from qnexus.models.utils import assert_never, truncate_to_2dp
 
 
 @accept_circuits_for_programs
@@ -187,6 +187,8 @@ def _results(
                 annotations=execute_job.annotations,
                 project=execute_job.project,
                 result_type=result_type,
+                cost=truncate_to_2dp(item["status"].get("cost", None)),
+                last_status_detail=JobStatus.from_dict(item["status"]),
             )
 
             execute_results.append(result_ref)
@@ -201,6 +203,7 @@ def _results(
                 job_type=JobType.EXECUTE,
                 last_status=JobStatusEnum[item["status"]["status"]],
                 last_message=item["status"].get("message", ""),
+                last_status_detail=JobStatus.from_dict(item["status"]),
             )
             execute_results.append(incomplete_ref)
 

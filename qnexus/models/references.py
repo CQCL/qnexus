@@ -32,7 +32,7 @@ from quantinuum_schemas.models.backend_config import BackendConfig
 
 from qnexus.exceptions import IncompatibleResultVersion
 from qnexus.models.annotations import Annotations
-from qnexus.models.job_status import JobStatusEnum
+from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.utils import assert_never
 
 
@@ -351,6 +351,7 @@ class JobRef(BaseRef):
     job_type: JobType
     last_status: JobStatusEnum
     last_message: str
+    last_status_detail: JobStatus | None = None
     project: ProjectRef
     system: SystemRef | None = None
     id: UUID
@@ -379,6 +380,9 @@ class JobRef(BaseRef):
                     "project": self.project.annotations.name,
                     "backend_config": self.backend_config.__class__.__name__,
                     "system": self.system.name if self.system else "Unknown",
+                    "cost": self.last_status_detail.cost
+                    if self.last_status_detail
+                    else "Unknown",
                     "id": self.id,
                 },
                 index=[0],
@@ -409,6 +413,7 @@ class CompilationResultRef(BaseRef):
 
     annotations: Annotations
     project: ProjectRef
+    last_status_detail: JobStatus | None = None
     _input_circuit: CircuitRef | None = None
     _output_circuit: CircuitRef | None = None
     _compilation_passes: DataframableList[CompilationPassRef] | None = None
@@ -500,6 +505,8 @@ class ExecutionResultRef(BaseRef):
     annotations: Annotations
     project: ProjectRef
     result_type: ResultType = ResultType.PYTKET
+    cost: float | None = None
+    last_status_detail: JobStatus | None = None
     _input_program: ExecutionProgram | None = None
     _result: ExecutionResult | None = None
     _result_version: ResultVersions | None = None
@@ -585,6 +592,7 @@ class ExecutionResultRef(BaseRef):
                     "project": self.project.annotations.name,
                     "id": self.id,
                     "result_type": self.result_type,
+                    "cost": self.cost,
                     "job_item_id": self.job_item_id,
                     "job_item_integer_id": self.job_item_integer_id,
                 },
@@ -604,6 +612,7 @@ class IncompleteJobItemRef(BaseRef):
     job_type: JobType
     last_status: JobStatusEnum
     last_message: str
+    last_status_detail: JobStatus | None = None
     type: Literal["IncompleteJobItemRef"] = "IncompleteJobItemRef"
 
     def df(self) -> pd.DataFrame:

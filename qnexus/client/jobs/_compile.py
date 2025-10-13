@@ -9,8 +9,9 @@ from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
 from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
-from qnexus.models import BackendConfig, JobStatusEnum
+from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.references import (
     CircuitRef,
     CompilationPassRef,
@@ -167,6 +168,7 @@ def _results(
                     job_item_integer_id=item.get("item_id"),
                     annotations=Annotations.from_dict(comp_json["data"]["attributes"]),
                     project=project,
+                    last_status_detail=JobStatus.from_dict(item["status"]),
                 )
             )
         elif allow_incomplete is True:
@@ -178,6 +180,7 @@ def _results(
                 job_type=JobType.COMPILE,
                 last_status=JobStatusEnum(item["status"]["status"]),
                 last_message=item["status"].get("message", ""),
+                last_status_detail=JobStatus.from_dict(item["status"]),
             )
             compilation_refs.append(incomplete_ref)
 
