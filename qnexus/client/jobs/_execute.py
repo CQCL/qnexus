@@ -255,7 +255,7 @@ def _fetch_qsys_execution_result(
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
     chunk_number = 0
-    params = {"version": version.value, "chunk": chunk_number}
+    params = {"version": version.value, "chunk_number": chunk_number}
 
     res = get_nexus_client().get(
         f"/api/qsys_results/v1beta2/partial/{result_ref.id}", params=params
