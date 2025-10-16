@@ -15,7 +15,7 @@ from qnexus.client.utils import accept_circuits_for_programs
 from qnexus.context import get_active_project, merge_properties_from_context
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.job_status import JobStatusEnum
+from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
     CircuitRef,
@@ -34,14 +34,14 @@ from qnexus.models.references import (
     ResultVersions,
     WasmModuleRef,
 )
-from qnexus.models.utils import assert_never
+from qnexus.models.utils import assert_never, truncate_to_2dp
 
 
 @accept_circuits_for_programs
 @merge_properties_from_context
 def start_execute_job(
-    programs: Union[ExecutionProgram, list[ExecutionProgram]],
-    n_shots: list[int] | list[None],
+    programs: ExecutionProgram | list[ExecutionProgram],
+    n_shots: int | list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
     description: str = "",
@@ -67,6 +67,9 @@ def start_execute_job(
         if isinstance(programs, list)
         else [str(programs.id)]
     )
+
+    if isinstance(n_shots, int):
+        n_shots = [n_shots] * len(program_ids)
 
     if len(n_shots) != len(program_ids):
         raise ValueError("Number of programs must equal number of n_shots.")
@@ -187,6 +190,8 @@ def _results(
                 annotations=execute_job.annotations,
                 project=execute_job.project,
                 result_type=result_type,
+                cost=truncate_to_2dp(item["status"].get("cost", None)),
+                last_status_detail=JobStatus.from_dict(item["status"]),
             )
 
             execute_results.append(result_ref)
@@ -201,6 +206,7 @@ def _results(
                 job_type=JobType.EXECUTE,
                 last_status=JobStatusEnum[item["status"]["status"]],
                 last_message=item["status"].get("message", ""),
+                last_status_detail=JobStatus.from_dict(item["status"]),
             )
             execute_results.append(incomplete_ref)
 
@@ -222,7 +228,7 @@ def _fetch_pytket_execution_result(
     program_id = program_data["id"]
     program_type = program_data["type"]
 
-    input_program: Union[CircuitRef | QIRRef]
+    input_program: CircuitRef | QIRRef
     match program_type:
         case "circuit":
             input_program = circuit_api._fetch_by_id(program_id, scope=None)

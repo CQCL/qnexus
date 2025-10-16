@@ -21,3 +21,11 @@ def assert_never(never: NoReturn) -> NoReturn:
 
     https://github.com/microsoft/pyright/issues/2569"""
     assert False, f"Unhandled type: f{never}"
+
+
+def truncate_to_2dp(value: float | None) -> float | None:
+    """Truncate a float to 2 decimal places without rounding.
+    Returns None if input is None."""
+    if value is None:
+        return None
+    return int(value * 100) / 100.0

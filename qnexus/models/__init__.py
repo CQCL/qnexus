@@ -18,12 +18,12 @@ from quantinuum_schemas.models.backend_config import (
     AerStateConfig,
     AerUnitaryConfig,
     BackendConfig,
-    SeleneConfig,
     BraketConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     QuantinuumConfig,
     QulacsConfig,
+    SeleneConfig,
     SelenePlusConfig,
 )
 from quantinuum_schemas.models.backend_info import Register, StoredBackendInfo
@@ -31,12 +31,15 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
-    HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
+    QSystemErrorModel,
     SimpleRuntime,
     StabilizerSimulator,
     StatevectorSimulator,
+)
+from quantinuum_schemas.models.quantinuum_systems_noise import (
+    UserErrorParams,
 )
 
 from qnexus.models.annotations import Annotations
@@ -64,12 +67,13 @@ __all__ = [
     "StabilizerSimulator",
     "StatevectorSimulator",
     "StoredBackendInfo",
-    "HeliosRuntime",
     "SimpleRuntime",
     "NoErrorModel",
     "DepolarizingErrorModel",
     "JobStatusEnum",
     "WAITING_STATUS",
+    "QSystemErrorModel",
+    "UserErrorParams",
 ]
 
 

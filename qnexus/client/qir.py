@@ -2,7 +2,7 @@
 
 import base64
 from datetime import datetime
-from typing import Any, Union, cast
+from typing import Any, Literal, Union, cast
 from uuid import UUID
 
 import qnexus.exceptions as qnx_exc
@@ -14,6 +14,7 @@ from qnexus.context import (
     merge_project_from_context,
     merge_properties_from_context,
 )
+from qnexus.models import QuantinuumConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
@@ -27,7 +28,12 @@ from qnexus.models.filters import (
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.references import DataframableList, ProjectRef, QIRRef
+from qnexus.models.references import (
+    DataframableList,
+    ExecutionProgram,
+    ProjectRef,
+    QIRRef,
+)
 
 
 class Params(
@@ -235,6 +241,36 @@ def update(
         annotations=Annotations.from_dict(res_dict["attributes"]),
         project=ref.project,
     )
+
+
+def cost(
+    programs: QIRRef | list[QIRRef],
+    n_shots: int | list[int],
+    project: ProjectRef | None = None,
+    system_name: Literal["Helios-1"] = "Helios-1",
+) -> float:
+    """Estimate the cost (in HQC) of running QIR programs for n_shots
+    number of shots on a Quantinuum Helios system.
+
+    NB: This will execute a costing job on a dedicated cost estimation device.
+        Once run, the cost will be visible also in the Nexus web portal
+        as part of the job.
+    """
+    import qnexus as qnx
+
+    if isinstance(programs, QIRRef):
+        programs = [programs]
+
+    job_ref = qnx.start_execute_job(
+        programs=cast(list[ExecutionProgram], programs),
+        n_shots=n_shots,
+        backend_config=QuantinuumConfig(device_name=f"{system_name}SC"),
+        project=project,
+        name="QIR cost estimation job",
+    )
+    status = qnx.jobs.wait_for(job_ref)
+
+    return cast(float, status.cost)
 
 
 def _fetch_by_id(qir_id: UUID | str, scope: ScopeFilterEnum | None) -> QIRRef:

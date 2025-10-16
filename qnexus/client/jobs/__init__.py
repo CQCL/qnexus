@@ -208,6 +208,7 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
                 job_type=entry["attributes"]["job_type"],
                 last_status=JobStatus.from_dict(entry["attributes"]["status"]).status,
                 last_message=JobStatus.from_dict(entry["attributes"]["status"]).message,
+                last_status_detail=JobStatus.from_dict(entry["attributes"]["status"]),
                 project=project,
                 system=system,
             )
@@ -327,6 +328,9 @@ def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None) -> JobRef:
         last_message=JobStatus.from_dict(
             job_data["data"]["attributes"]["status"]
         ).message,
+        last_status_detail=JobStatus.from_dict(
+            job_data["data"]["attributes"]["status"]
+        ),
         project=project,
         backend_config_store=backend_config,
         system=system,

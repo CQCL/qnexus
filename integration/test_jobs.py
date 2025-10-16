@@ -156,6 +156,7 @@ def test_compile_job_get(
         circuit_name=circuit_name,
     ) as compile_job_ref:
         assert isinstance(compile_job_ref, CompileJobRef)
+        assert compile_job_ref.last_status_detail is not None
 
         with pytest.raises(qnx_exc.NoUniqueMatch):
             qnx.jobs.get()
@@ -177,6 +178,7 @@ def test_execute_job_get(
         circuit_name=circuit_name,
     ) as execute_job_ref:
         assert isinstance(execute_job_ref, ExecuteJobRef)
+        assert execute_job_ref.last_status_detail is not None
 
         with pytest.raises(qnx_exc.NoUniqueMatch):
             qnx.jobs.get()
@@ -373,6 +375,7 @@ def test_submit_execute(
 
         pj_ref = qnx.jobs.get(id=execute_job_ref.id)
         assert pj_ref.backend_config == config
+        assert pj_ref.last_status_detail is not None
 
         # TODO: check why the serialisation round trip fails even when the
         # objects are the same
@@ -631,3 +634,43 @@ def test_submit_under_user_group(
             n_shots=[10],
             user_group=correct_group,
         )
+
+
+def test_job_cost(
+    test_case_name: str,
+) -> None:
+    """Test that we can run an execute job on a device that reports cost,
+    and that the cost is available in the JobRef and the ExecutionResultRef."""
+
+    local_project_name = f"project for {test_case_name}"
+    job_name = f"execute job for {test_case_name}"
+
+    proj_ref = qnx.projects.get_or_create(local_project_name)
+
+    my_q_systems_circuit = qnx.circuits.upload(
+        circuit=Circuit(2, 2).ZZPhase(0.5, 0, 1).measure_all(),
+        name="qa_q_systems_circuit",
+        project=proj_ref,
+    )
+
+    execute_job_ref = qnx.start_execute_job(
+        programs=[my_q_systems_circuit],
+        name=job_name,
+        project=proj_ref,
+        backend_config=qnx.QuantinuumConfig(device_name="H2-1SC"),
+        n_shots=[10],
+    )
+
+    assert isinstance(execute_job_ref, ExecuteJobRef)
+
+    qnx.jobs.wait_for(execute_job_ref)
+
+    job_ref = qnx.jobs.get(id=execute_job_ref.id)
+    assert job_ref.last_status_detail is not None
+    assert job_ref.last_status_detail.cost is not None
+
+    results = qnx.jobs.results(execute_job_ref)
+    assert len(results) == 1
+    result_ref = results[0]
+    assert isinstance(result_ref, ExecutionResultRef)
+    assert result_ref.cost is not None

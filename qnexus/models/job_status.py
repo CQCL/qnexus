@@ -2,9 +2,11 @@
 
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, NamedTuple, Optional
+from typing import Any, Dict, NamedTuple
 
 import pandas as pd
+
+from qnexus.models.utils import truncate_to_2dp
 
 
 class JobStatusEnum(str, Enum):
@@ -29,21 +31,23 @@ class JobStatus(NamedTuple):
     * Detailed error information.
     * Timestamps for changes in status.
     * Queue position.
+    * Cost.
     """
 
     status: JobStatusEnum
     message: str = ""
-    error_detail: Optional[str] = None
+    error_detail: str | None = None
 
     # Timestamp for when a status was last entered.
-    completed_time: Optional[datetime] = None
-    queued_time: Optional[datetime] = None
-    submitted_time: Optional[datetime] = None
-    running_time: Optional[datetime] = None
-    cancelled_time: Optional[datetime] = None
-    error_time: Optional[datetime] = None
+    completed_time: datetime | None = None
+    queued_time: datetime | None = None
+    submitted_time: datetime | None = None
+    running_time: datetime | None = None
+    cancelled_time: datetime | None = None
+    error_time: datetime | None = None
 
-    queue_position: Optional[int] = None
+    queue_position: int | None = None
+    cost: float | None = None
 
     @classmethod
     def from_dict(cls, dic: Dict[str, Any]) -> "JobStatus":
@@ -71,6 +75,7 @@ class JobStatus(NamedTuple):
         error_time = read_optional_datetime("error_time")
 
         queue_position = dic.get("queue_position", None)
+        cost: float | None = truncate_to_2dp(dic.get("cost", None))
 
         return cls(
             status,
@@ -83,6 +88,7 @@ class JobStatus(NamedTuple):
             cancelled_time,
             error_time,
             queue_position,
+            cost,
         )
 
     def df(self) -> pd.DataFrame:
