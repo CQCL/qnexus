@@ -2,12 +2,18 @@
 
 from typing import Any, Callable, ContextManager, cast
 
+import pytest
 from guppylang import guppy
 from guppylang.std.builtins import result
 from guppylang.std.quantum import cx, h, measure, qubit, x, z
 from hugr.qsystem.result import QsysResult
 from pytket.backends.backendinfo import BackendInfo
-from quantinuum_schemas.models.backend_config import SeleneConfig
+from quantinuum_schemas.models.backend_config import (
+    BackendConfig,
+    HeliosConfig,
+    HeliosEmulatorConfig,
+    SeleneConfig,
+)
 
 import qnexus as qnx
 from qnexus.models.references import (
@@ -48,15 +54,27 @@ def prepare_teleportation() -> Any:
     return main.compile()
 
 
+@pytest.mark.parameterize(
+    "backend_config",
+    [
+        SeleneConfig(
+            n_qubits=5,
+        ),
+        HeliosConfig(
+            system_name="Helios-1E-lite",
+            emulator_config=HeliosEmulatorConfig(n_qubits=5),
+        ),
+    ],
+)
 def test_guppy_execution(
     test_case_name: str,
     create_project: Callable[[str], ContextManager[ProjectRef]],
+    backend_config: BackendConfig,
 ) -> None:
     """Test the execution of a guppy program
     on a next-generation QSys device."""
 
     with create_project(f"project for {test_case_name}") as project_ref:
-        n_qubits = 3
         n_shots = 10
 
         hugr_ref = qnx.hugr.upload(
@@ -68,7 +86,7 @@ def test_guppy_execution(
         job_ref = qnx.start_execute_job(
             programs=[hugr_ref],
             n_shots=[n_shots],
-            backend_config=SeleneConfig(n_qubits=n_qubits),
+            backend_config=backend_config,
             project=project_ref,
             name=f"selene job for {test_case_name}",
         )

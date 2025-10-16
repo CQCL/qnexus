@@ -19,6 +19,8 @@ from quantinuum_schemas.models.backend_config import (
     AerUnitaryConfig,
     BackendConfig,
     BraketConfig,
+    HeliosConfig,
+    HeliosEmulatorConfig,
     IBMQConfig,
     IBMQEmulatorConfig,
     QuantinuumConfig,
@@ -31,6 +33,7 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
+    HeliosErrorModel,
     MatrixProductStateSimulator,
     NoErrorModel,
     QSystemErrorModel,
@@ -39,6 +42,7 @@ from quantinuum_schemas.models.emulator_config import (
     StatevectorSimulator,
 )
 from quantinuum_schemas.models.quantinuum_systems_noise import (
+    HeliosErrorParams,
     UserErrorParams,
 )
 
@@ -74,6 +78,10 @@ __all__ = [
     "WAITING_STATUS",
     "QSystemErrorModel",
     "UserErrorParams",
+    "HeliosConfig",
+    "HeliosEmulatorConfig",
+    "HeliosErrorModel",
+    "HeliosErrorParams",
 ]
 
 
