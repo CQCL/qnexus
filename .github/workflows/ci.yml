@@ -46,6 +46,15 @@ jobs:
         run: uv run ruff check
         if: ${{ matrix.action == 'lint' }}
 
+      - name: Generate dependency report
+        run: uv run python scripts/write_dependencies.py
+      - name: Check for changes
+        run: |
+          if ! git diff --exit-code DEPENDENCIES.md; then
+            echo "::error file=DEPENDENCIES.md::DEPENDENCIES.md is out of date. Please run 'uv run python scripts/write_dependencies.py' and commit the changes."
+            exit 1
+          fi
+
   test:
     name: Test
     runs-on: ubuntu-24.04

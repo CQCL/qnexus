@@ -161,5 +161,7 @@ is generated via:
 uv run scripts/write_dependencies.sh
 ```
 
+This file will be checked for differences in the github CI.
+
 
 Copyright 2025 Quantinuum Ltd.
