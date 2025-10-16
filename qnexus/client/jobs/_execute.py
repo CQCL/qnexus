@@ -40,8 +40,8 @@ from qnexus.models.utils import assert_never, truncate_to_2dp
 @accept_circuits_for_programs
 @merge_properties_from_context
 def start_execute_job(
-    programs: Union[ExecutionProgram, list[ExecutionProgram]],
-    n_shots: list[int] | list[None],
+    programs: ExecutionProgram | list[ExecutionProgram],
+    n_shots: int | list[int] | list[None],
     backend_config: BackendConfig,
     name: str,
     description: str = "",
@@ -67,6 +67,9 @@ def start_execute_job(
         if isinstance(programs, list)
         else [str(programs.id)]
     )
+
+    if isinstance(n_shots, int):
+        n_shots = [n_shots] * len(program_ids)
 
     if len(n_shots) != len(program_ids):
         raise ValueError("Number of programs must equal number of n_shots.")
@@ -225,7 +228,7 @@ def _fetch_pytket_execution_result(
     program_id = program_data["id"]
     program_type = program_data["type"]
 
-    input_program: Union[CircuitRef | QIRRef]
+    input_program: CircuitRef | QIRRef
     match program_type:
         case "circuit":
             input_program = circuit_api._fetch_by_id(program_id, scope=None)

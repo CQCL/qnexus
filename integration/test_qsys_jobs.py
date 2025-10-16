@@ -104,3 +104,25 @@ def test_guppy_execution(
 
         # This doesn't seem to work with v4 results, thinks everything is going to be a bit.
         # assert len(qsys_result.collated_counts().items()) > 0
+
+
+def test_hugr_costing(
+    test_case_name: str,
+    create_project: Callable[[str], ContextManager[ProjectRef]],
+) -> None:
+    """Test the costing of a Hugr program on a cost checking device."""
+
+    with create_project(f"project for {test_case_name}") as project_ref:
+        hugr_ref = qnx.hugr.upload(
+            hugr_package=prepare_teleportation(),
+            name=f"hugr for {test_case_name}",
+            project=project_ref,
+        )
+
+        # Check that we can get a cost estimate (using Helios-1SC)
+        cost = qnx.hugr.cost(
+            programs=[hugr_ref],
+            n_shots=[10],
+            project=project_ref,
+        )
+        assert isinstance(cost, float)
