@@ -152,5 +152,16 @@ This project is licensed under Apache License, Version 2.0 ([LICENSE][] or http:
 
   [LICENSE]: ./LICENSE
 
+## Dependency Reporting
+
+This project reports its open-source dependencies in a human-readable markdown format in [DEPENDENCIES.md](./DEPENDENCIES.md). This file
+is generated via:
+
+```sh
+uv run scripts/write_dependencies.sh
+```
+
+This file will be checked for differences in the github CI.
+
 
 Copyright 2025 Quantinuum Ltd.
