@@ -2,6 +2,20 @@
 
 # `qnexus` Release Notes
 
+## v0.35.0 (2025-10-21)
+
+
+### Added
+
+- Show cost on `JobRef`, `ExecutionResultRef` and `IncompleteJobItemRef` (#277).
+
+
+### Fixed
+
+- Remove trailing 'from' words in examples. (#276).
+- Improve circuit name in example notebook. (#274).
+
+
 ## v0.34.1 (2025-10-06)
 
 
