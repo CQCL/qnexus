@@ -220,6 +220,31 @@ def test_execution_on_NG_devices(
         assert v4_results.results[0].entries[0][0] == "USER:QIRTUPLE:t0"
 
 
+def test_costing_qir_on_NG_devices(
+    test_case_name: str,
+    create_qir_in_project: Callable[[str, str, bytes], ContextManager[QIRRef]],
+) -> None:
+    """Test the costing of a QIR program on a cost checking device."""
+
+    project_name = f"project for {test_case_name}"
+    qir_name = f"qir for {test_case_name}"
+
+    with create_qir_in_project(
+        project_name,
+        qir_name,
+        make_qir_bitcode_from_file("base.ll"),
+    ) as qir_ref:
+        project_ref = qnx.projects.get(name_like=project_name)
+
+        # Check that we can get a cost estimate
+        cost = qnx.qir.cost(
+            programs=[qir_ref],
+            n_shots=[10],
+            project=project_ref,
+        )
+        assert isinstance(cost, float)
+
+
 def make_qir_bitcode_from_file(filename: str) -> bytes:
     with open(
         Path("tests/data").resolve() / filename,
