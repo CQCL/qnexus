@@ -33,7 +33,7 @@ from quantinuum_schemas.models.emulator_config import (
     ClassicalReplaySimulator,
     CoinflipSimulator,
     DepolarizingErrorModel,
-    HeliosErrorModel,
+    HeliosCustomErrorModel,
     MatrixProductStateSimulator,
     NoErrorModel,
     QSystemErrorModel,
@@ -80,7 +80,7 @@ __all__ = [
     "UserErrorParams",
     "HeliosConfig",
     "HeliosEmulatorConfig",
-    "HeliosErrorModel",
+    "HeliosCustomErrorModel",
     "HeliosErrorParams",
 ]
 
