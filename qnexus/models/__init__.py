@@ -38,6 +38,7 @@ from quantinuum_schemas.models.emulator_config import (
     NoErrorModel,
     QSystemErrorModel,
     SimpleRuntime,
+    HeliosRuntime,
     StabilizerSimulator,
     StatevectorSimulator,
 )
@@ -79,6 +80,7 @@ __all__ = [
     "QSystemErrorModel",
     "UserErrorParams",
     "HeliosConfig",
+    "HeliosRuntime",
     "HeliosEmulatorConfig",
     "HeliosCustomErrorModel",
     "HeliosErrorParams",
