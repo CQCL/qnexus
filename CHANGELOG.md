@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.36.0 (2025-11-04)
+
+
+### Added
+
+- Add new `HeliosConfig`, an alternative to `QuantinuumConfig` for helios-generation systems. (#281).
+
+
 ## v0.35.0 (2025-10-21)
 
 
