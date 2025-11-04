@@ -54,7 +54,7 @@ def prepare_teleportation() -> Any:
     return main.compile()
 
 
-@pytest.mark.parameterize(
+@pytest.mark.parametrize(
     "backend_config",
     [
         SeleneConfig(
