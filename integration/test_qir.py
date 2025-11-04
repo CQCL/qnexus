@@ -197,7 +197,9 @@ def test_execution_on_NG_devices(
         job_ref = qnx.start_execute_job(
             programs=[qir_ref],
             n_shots=[10],
-            backend_config=qnx.QuantinuumConfig(device_name="Helios-1E", max_cost=10),
+            backend_config=qnx.QuantinuumConfig(
+                device_name="Helios-1E", max_cost=10, compiler_options={"max-qubits": 5}
+            ),
             project=project_ref,
             name=f"qir job for {test_case_name}",
         )
