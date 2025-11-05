@@ -8,7 +8,9 @@ import qnexus.client.teams as team_client
 import qnexus.client.users as user_client
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
+from qnexus.context import merge_scope_from_context
 from qnexus.models import Role, RoleInfo
+from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.references import BaseRef, DataframableList, TeamRef
 
 Permission = Literal["ASSIGN", "DELETE", "WRITE", "READ"]
@@ -48,11 +50,15 @@ def get(name: RoleName) -> Role:
     raise qnx_exc.NoUniqueMatch()
 
 
-def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
+@merge_scope_from_context
+def assignments(
+    resource_ref: BaseRef, scope: ScopeFilterEnum | None = None
+) -> DataframableList[RoleInfo]:
     """Check the assignments on a particular resource."""
 
     res = get_nexus_client().get(
         f"/api/resources/v1beta2/{resource_ref.id}/assignments",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
     )
 
     if res.status_code != 200:
@@ -95,7 +101,13 @@ def assignments(resource_ref: BaseRef) -> DataframableList[RoleInfo]:
     return role_infos
 
 
-def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> None:
+@merge_scope_from_context
+def assign_team(
+    resource_ref: BaseRef,
+    team: TeamRef,
+    role: RoleName | Role,
+    scope: ScopeFilterEnum | None = None,
+) -> None:
     """Assign a role-based access control assignment to a team."""
     if isinstance(role, str):
         role = get(role)
@@ -109,6 +121,7 @@ def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> 
     res = get_nexus_client().post(
         "/api/assignments/v1beta2/team",
         json=req_dict,
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
     )
 
     if res.status_code != 201:
@@ -117,14 +130,19 @@ def assign_team(resource_ref: BaseRef, team: TeamRef, role: RoleName | Role) -> 
         )
 
 
+@merge_scope_from_context
 def assign_user(
-    resource_ref: BaseRef, user_email: EmailStr, role: RoleName | Role
+    resource_ref: BaseRef,
+    user_email: EmailStr,
+    role: RoleName | Role,
+    scope: ScopeFilterEnum | None = None,
 ) -> None:
     """Assign a role-based access control assignment to a user."""
     if isinstance(role, str):
         role = get(role)
     user_id_res = get_nexus_client().get(
         f"/api/users/v1beta/{user_email}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
     )
 
     if user_id_res.status_code != 200:

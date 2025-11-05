@@ -8,15 +8,21 @@ import pytest
 
 from qnexus.context import (
     deactivate_project,
+    deactivate_scope,
     get_active_project,
     get_active_properties,
+    get_active_scope,
     merge_project_from_context,
     merge_properties_from_context,
+    merge_scope_from_context,
     set_active_project_token,
+    set_active_scope_token,
     using_project,
     using_properties,
+    using_scope,
 )
 from qnexus.models.annotations import Annotations, PropertiesDict
+from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.references import ProjectRef
 
 
@@ -180,3 +186,63 @@ def test_merge_only_properties_from_context() -> None:
     with using_properties(**test_props):
         returned_props = func_wants_properties(properties=None)
         assert returned_props == test_props
+
+
+def test_attach_scope() -> None:
+    """Test that we can set a ScopeFilterEnum in the global context."""
+
+    chosen_scope = ScopeFilterEnum.HIGHEST
+    token = set_active_scope_token(chosen_scope)
+
+    ctx_scope = get_active_scope()
+
+    assert chosen_scope == ctx_scope
+
+    deactivate_scope(token)
+
+    assert get_active_scope() == ScopeFilterEnum.USER
+
+
+def test_attach_scope_context_manager() -> None:
+    """Test that we can set a ScopeFilterEnum via a context manager."""
+
+    chosen_scope = ScopeFilterEnum.HIGHEST
+
+    with using_scope(scope=chosen_scope):
+        ctx_scope = get_active_scope()
+
+        assert chosen_scope == ctx_scope
+
+    ctx_scope = get_active_scope()
+
+    assert get_active_scope() == ScopeFilterEnum.USER
+
+
+def test_merge_scope_from_context() -> None:
+    """Test the decorator for merging a ScopeFilterEnum from context or function arguments."""
+
+    chosen_scope = ScopeFilterEnum.ORG_ADMIN
+
+    @merge_scope_from_context
+    def func_wants_scope(scope: ScopeFilterEnum | None = None) -> ScopeFilterEnum:
+        """Dummy function for testing the merge_scope decorator"""
+        assert scope is not None
+        assert isinstance(scope, ScopeFilterEnum)
+        return scope
+
+    default_scope = func_wants_scope()
+    assert default_scope == ScopeFilterEnum.USER
+
+    returned_scope = func_wants_scope(scope=chosen_scope)
+    assert returned_scope == chosen_scope
+
+    with using_scope(scope=chosen_scope):
+        returned_scope = func_wants_scope()
+        assert returned_scope == chosen_scope
+
+    other_scope = ScopeFilterEnum.HIGHEST
+
+    with using_scope(scope=other_scope):
+        # kwarg takes precedence
+        returned_scope = func_wants_scope(scope=other_scope)
+        assert returned_scope == other_scope

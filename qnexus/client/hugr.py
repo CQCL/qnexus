@@ -21,6 +21,7 @@ from qnexus.context import (
     get_active_project,
     merge_project_from_context,
     merge_properties_from_context,
+    merge_scope_from_context,
 )
 from qnexus.models import QuantinuumConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -57,6 +58,7 @@ class Params(
     """Params for filtering HUGRs."""
 
 
+@merge_scope_from_context
 @merge_project_from_context
 def get_all(
     name_like: str | None = None,
@@ -125,6 +127,7 @@ def _to_hugr_ref(page_json: dict[str, Any]) -> DataframableList[HUGRRef]:
     return hugr_refs
 
 
+@merge_scope_from_context
 def get(
     *,
     id: Union[UUID, str, None] = None,
@@ -294,6 +297,7 @@ def cost(
     return cast(float, status.cost)
 
 
+@merge_scope_from_context
 def _fetch_by_id(hugr_id: UUID | str, scope: ScopeFilterEnum | None) -> HUGRRef:
     """Utility method for fetching directly by a unique identifier."""
 
@@ -325,10 +329,13 @@ def _fetch_by_id(hugr_id: UUID | str, scope: ScopeFilterEnum | None) -> HUGRRef:
     )
 
 
-def _fetch_hugr_package(handle: HUGRRef) -> Package:
+@merge_scope_from_context
+def _fetch_hugr_package(
+    handle: HUGRRef, scope: ScopeFilterEnum | None = None
+) -> Package:
     """Utility method for fetching a HUGR Package from a HUGRRef."""
 
-    hugr_bytes = _fetch_hugr_bytes(handle=handle)
+    hugr_bytes = _fetch_hugr_bytes(handle=handle, scope=scope)
 
     raise qnx_exc.ResourceFetchFailed(
         message="Converting to HUGR Package is currently unavailable.",
@@ -337,9 +344,13 @@ def _fetch_hugr_package(handle: HUGRRef) -> Package:
     return Package.from_bytes(envelope=hugr_bytes)
 
 
-def _fetch_hugr_bytes(handle: HUGRRef) -> bytes:
+@merge_scope_from_context
+def _fetch_hugr_bytes(handle: HUGRRef, scope: ScopeFilterEnum | None = None) -> bytes:
     """Utility method for fetching HUGR bytes from a HUGRRef."""
-    res = get_nexus_client().get(f"/api/hugr/v1beta/{handle.id}")
+    res = get_nexus_client().get(
+        f"/api/hugr/v1beta/{handle.id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+    )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 

@@ -366,7 +366,7 @@ class JobRef(BaseRef):
         if self.backend_config_store:
             return self.backend_config_store
         self.backend_config_store = cast(
-            BackendConfig, _fetch_by_id(self.id, None).backend_config_store
+            BackendConfig, _fetch_by_id(self.id).backend_config_store
         )
         return self.backend_config_store
 

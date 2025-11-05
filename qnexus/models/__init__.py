@@ -34,11 +34,11 @@ from quantinuum_schemas.models.emulator_config import (
     CoinflipSimulator,
     DepolarizingErrorModel,
     HeliosCustomErrorModel,
+    HeliosRuntime,
     MatrixProductStateSimulator,
     NoErrorModel,
     QSystemErrorModel,
     SimpleRuntime,
-    HeliosRuntime,
     StabilizerSimulator,
     StatevectorSimulator,
 )

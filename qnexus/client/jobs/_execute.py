@@ -12,9 +12,14 @@ from qnexus.client import get_nexus_client
 from qnexus.client import hugr as hugr_api
 from qnexus.client import qir as qir_api
 from qnexus.client.utils import accept_circuits_for_programs
-from qnexus.context import get_active_project, merge_properties_from_context
+from qnexus.context import (
+    get_active_project,
+    merge_properties_from_context,
+    merge_scope_from_context,
+)
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
@@ -133,14 +138,17 @@ def start_execute_job(
     )
 
 
+@merge_scope_from_context
 def _results(
     execute_job: ExecuteJobRef,
     allow_incomplete: bool = False,
+    scope: ScopeFilterEnum | None = None,
 ) -> DataframableList[ExecutionResultRef | IncompleteJobItemRef]:
     """Get the results from an execute job."""
 
     resp = get_nexus_client().get(
-        f"/api/jobs/v1beta3/{execute_job.id}", params={"scope": "highest"}
+        f"/api/jobs/v1beta3/{execute_job.id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
     )
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -213,13 +221,18 @@ def _results(
     return execute_results
 
 
+@merge_scope_from_context
 def _fetch_pytket_execution_result(
     result_ref: ExecutionResultRef,
+    scope: ScopeFilterEnum | None = None,
 ) -> tuple[BackendResult, BackendInfo, Union[CircuitRef, QIRRef]]:
     """Get the results for an execute job item."""
     assert result_ref.result_type == ResultType.PYTKET, "Incorrect result type"
 
-    res = get_nexus_client().get(f"/api/results/v1beta3/{result_ref.id}")
+    res = get_nexus_client().get(
+        f"/api/results/v1beta3/{result_ref.id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+    )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
@@ -253,15 +266,21 @@ def _fetch_pytket_execution_result(
     return (backend_result, backend_info, input_program)
 
 
+@merge_scope_from_context
 def _fetch_qsys_execution_result(
     result_ref: ExecutionResultRef,
     version: ResultVersions,
+    scope: ScopeFilterEnum | None = None,
 ) -> tuple[QsysResult | QIRResult, BackendInfo, HUGRRef | QIRRef]:
     """Get the results of a next-gen Qsys execute job."""
     assert result_ref.result_type == ResultType.QSYS, "Incorrect result type"
 
     chunk_number = 0
-    params = {"version": version.value, "chunk_number": chunk_number}
+    params = {
+        "version": version.value,
+        "chunk_number": chunk_number,
+        "scope": scope.value if scope else ScopeFilterEnum.USER.value,
+    }
 
     res = get_nexus_client().get(
         f"/api/qsys_results/v1beta2/partial/{result_ref.id}", params=params

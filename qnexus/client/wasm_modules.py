@@ -15,6 +15,7 @@ from qnexus.context import (
     get_active_project,
     merge_project_from_context,
     merge_properties_from_context,
+    merge_scope_from_context,
 )
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (
@@ -45,6 +46,7 @@ class Params(
     """Params for filtering wasm_modules."""
 
 
+@merge_scope_from_context
 @merge_project_from_context
 def get_all(
     name_like: str | None = None,
@@ -113,6 +115,7 @@ def _to_wasm_module_ref(page_json: dict[str, Any]) -> DataframableList[WasmModul
     return wasm_module_refs
 
 
+@merge_scope_from_context
 def get(
     *,
     id: Union[UUID, str, None] = None,
@@ -241,6 +244,7 @@ def update(
     )
 
 
+@merge_scope_from_context
 def _fetch_by_id(
     wasm_module_id: UUID | str, scope: ScopeFilterEnum | None
 ) -> WasmModuleRef:
@@ -273,9 +277,15 @@ def _fetch_by_id(
     )
 
 
-def _fetch_wasm_module(handle: WasmModuleRef) -> WasmModuleHandler:
+@merge_scope_from_context
+def _fetch_wasm_module(
+    handle: WasmModuleRef, scope: ScopeFilterEnum | None = None
+) -> WasmModuleHandler:
     """Utility method for fetching a pytket WasmModuleHandler from a WasmModuleRef."""
-    res = get_nexus_client().get(f"/api/wasm/v1beta/{handle.id}")
+    res = get_nexus_client().get(
+        f"/api/wasm/v1beta/{handle.id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+    )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 

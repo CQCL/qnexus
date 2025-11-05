@@ -11,7 +11,7 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.context import get_active_project
+from qnexus.context import get_active_project, merge_scope_from_context
 from qnexus.models import Property
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (  # PropertiesFilter, # Not yet implemented
@@ -45,6 +45,7 @@ class Params(
     """Params for filtering projects"""
 
 
+@merge_scope_from_context
 def get_all(
     name_like: str | None = None,
     creator_email: list[str] | None = None,
@@ -101,6 +102,7 @@ def _to_projectref(data: dict[str, Any]) -> DataframableList[ProjectRef]:
     )
 
 
+@merge_scope_from_context
 def get(
     *,
     id: Union[str, UUID, None] = None,
@@ -160,6 +162,7 @@ def get_or_create(
         )
 
 
+@merge_scope_from_context
 def _fetch_by_id(project_id: UUID | str, scope: ScopeFilterEnum | None) -> ProjectRef:
     """Utility method for fetching directly by a unique identifier."""
     params = Params(scope=scope).model_dump(
@@ -320,11 +323,13 @@ def summarize(project: ProjectRef | None = None) -> pd.DataFrame:
     )
 
 
+@merge_scope_from_context
 def update(  # this does not update properties, properties should be added using add_property()
     project: ProjectRef,
     name: str | None = None,
     description: str | None = None,
     archive: bool = False,
+    scope: ScopeFilterEnum | None = None,
 ) -> ProjectRef:
     """Update the details of a project."""
     req_dict = {
@@ -339,7 +344,11 @@ def update(  # this does not update properties, properties should be added using
         }
     }
 
-    res = get_nexus_client().patch(f"/api/projects/v1beta2/{project.id}", json=req_dict)
+    res = get_nexus_client().patch(
+        f"/api/projects/v1beta2/{project.id}",
+        json=req_dict,
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+    )
 
     if res.status_code != 200:
         raise qnx_exc.ResourceUpdateFailed(
@@ -356,13 +365,15 @@ def update(  # this does not update properties, properties should be added using
     )
 
 
-def delete(project: ProjectRef) -> None:
+@merge_scope_from_context
+def delete(project: ProjectRef, scope: ScopeFilterEnum | None = None) -> None:
     """Delete a project and all associated data in Nexus.
     Project must be archived first.
     WARNING: this will delete all data associated with the project.
     """
     res = get_nexus_client().delete(
-        url=f"/api/projects/v1beta2/{project.id}", params={"scope": "user"}
+        url=f"/api/projects/v1beta2/{project.id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
     )
 
     if res.status_code != 204:

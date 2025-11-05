@@ -4,6 +4,8 @@ from uuid import UUID
 
 import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
+from qnexus.context import merge_scope_from_context
+from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.references import UserRef
 
 
@@ -23,10 +25,14 @@ def get_self() -> UserRef:
     )
 
 
-def _fetch_by_id(user_id: UUID) -> UserRef:
+@merge_scope_from_context
+def _fetch_by_id(user_id: UUID, scope: ScopeFilterEnum | None = None) -> UserRef:
     """Get a specific user."""
 
-    res = get_nexus_client().get(f"/api/users/v1beta/{user_id}")
+    res = get_nexus_client().get(
+        f"/api/users/v1beta/{user_id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+    )
 
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)

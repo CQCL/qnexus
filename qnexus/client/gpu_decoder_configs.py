@@ -13,6 +13,7 @@ from qnexus.context import (
     get_active_project,
     merge_project_from_context,
     merge_properties_from_context,
+    merge_scope_from_context,
 )
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (
@@ -43,6 +44,7 @@ class Params(
     """Params for filtering gpu decoder configs."""
 
 
+@merge_scope_from_context
 @merge_project_from_context
 def get_all(
     name_like: str | None = None,
@@ -117,6 +119,7 @@ def _to_gpu_decoder_config_ref(
     return gpu_decoder_config_refs
 
 
+@merge_scope_from_context
 def get(
     *,
     id: Union[UUID, str, None] = None,
@@ -247,6 +250,7 @@ def update(
     )
 
 
+@merge_scope_from_context
 def _fetch_by_id(
     gpu_decoder_config_id: UUID | str, scope: ScopeFilterEnum | None
 ) -> GpuDecoderConfigRef:
@@ -281,9 +285,15 @@ def _fetch_by_id(
     )
 
 
-def _fetch_gpu_decoder_config(handle: GpuDecoderConfigRef) -> str:
+@merge_scope_from_context
+def _fetch_gpu_decoder_config(
+    handle: GpuDecoderConfigRef, scope: ScopeFilterEnum | None = None
+) -> str:
     """Utility method for fetching a gpu decoder config from a GpuDecoderConfigRef."""
-    res = get_nexus_client().get(f"/api/gpu_decoder_configs/v1beta/{handle.id}")
+    res = get_nexus_client().get(
+        f"/api/gpu_decoder_configs/v1beta/{handle.id}",
+        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+    )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 
