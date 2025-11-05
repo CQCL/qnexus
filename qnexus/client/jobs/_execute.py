@@ -180,6 +180,7 @@ def _results(
                 "TERMINATED",
                 "COMPLETED",
                 "RUNNING",
+                "QUEUED",
             )
             and result_type
         ):
