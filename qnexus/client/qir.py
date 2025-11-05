@@ -206,14 +206,12 @@ def upload(
     )
 
 
-@merge_scope_from_context
 @merge_properties_from_context
 def update(
     ref: QIRRef,
     name: str | None = None,
     description: str | None = None,
     properties: PropertiesDict | None = None,
-    scope: ScopeFilterEnum | None = None,
 ) -> QIRRef:
     """Update the annotations on a QIRRef."""
     ref_annotations = ref.annotations.model_dump()
