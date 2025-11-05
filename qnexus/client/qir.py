@@ -13,6 +13,7 @@ from qnexus.context import (
     get_active_project,
     merge_project_from_context,
     merge_properties_from_context,
+    merge_scope_from_context,
 )
 from qnexus.models import QuantinuumConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
@@ -49,6 +50,7 @@ class Params(
     """Params for filtering QIRs."""
 
 
+@merge_scope_from_context
 @merge_project_from_context
 def get_all(
     name_like: str | None = None,
@@ -62,7 +64,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> NexusIterator[QIRRef]:
     """Get a NexusIterator over QIRs with optional filters."""
 
@@ -117,6 +119,7 @@ def _to_qir_ref(page_json: dict[str, Any]) -> DataframableList[QIRRef]:
     return qir_refs
 
 
+@merge_scope_from_context
 def get(
     *,
     id: Union[UUID, str, None] = None,
@@ -131,7 +134,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> QIRRef:
     """
     Get a single QIR using filters. Throws an exception if the filters do
@@ -273,7 +276,10 @@ def cost(
     return cast(float, status.cost)
 
 
-def _fetch_by_id(qir_id: UUID | str, scope: ScopeFilterEnum | None) -> QIRRef:
+@merge_scope_from_context
+def _fetch_by_id(
+    qir_id: UUID | str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> QIRRef:
     """Utility method for fetching directly by a unique identifier."""
 
     params = Params(
@@ -304,9 +310,13 @@ def _fetch_by_id(qir_id: UUID | str, scope: ScopeFilterEnum | None) -> QIRRef:
     )
 
 
-def _fetch_qir(handle: QIRRef) -> bytes:
+@merge_scope_from_context
+def _fetch_qir(handle: QIRRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER) -> bytes:
     """Utility method for fetching QIR bytes from a QIRRef."""
-    res = get_nexus_client().get(f"/api/qir/v1beta/{handle.id}")
+    res = get_nexus_client().get(
+        f"/api/qir/v1beta/{handle.id}",
+        params={"scope": scope.value},
+    )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
 

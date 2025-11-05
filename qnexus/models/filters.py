@@ -279,6 +279,6 @@ class ScopeFilterEnum(str, Enum):
 class ScopeFilter(BaseModel):
     """Filter by scope."""
 
-    scope: ScopeFilterEnum | None
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER
 
     model_config = ConfigDict(use_enum_values=True)

@@ -8,9 +8,14 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import circuits as circuit_api
 from qnexus.client import get_nexus_client
 from qnexus.client.utils import accept_circuits_for_programs
-from qnexus.context import get_active_project, merge_properties_from_context
+from qnexus.context import (
+    get_active_project,
+    merge_properties_from_context,
+    merge_scope_from_context,
+)
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
+from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.references import (
     CircuitRef,
@@ -113,13 +118,18 @@ def start_compile_job(
     )
 
 
+@merge_scope_from_context
 def _results(
     compile_job: CompileJobRef,
     allow_incomplete: bool = False,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> DataframableList[CompilationResultRef | IncompleteJobItemRef]:
     """Get the results from a compile job."""
 
-    resp = get_nexus_client().get(f"/api/jobs/v1beta3/{compile_job.id}")
+    resp = get_nexus_client().get(
+        f"/api/jobs/v1beta3/{compile_job.id}",
+        params={"scope": scope.value},
+    )
 
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -141,6 +151,7 @@ def _results(
             compilation_id = item["compilation_id"]
             comp_record_resp = get_nexus_client().get(
                 f"/api/compilations/v1beta2/{compilation_id}",
+                params={"scope": scope.value},
             )
 
             if comp_record_resp.status_code != 200:
@@ -187,13 +198,16 @@ def _results(
     return compilation_refs
 
 
+@merge_scope_from_context
 def _fetch_compilation_output(
     compilation_result_ref: CompilationResultRef,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> tuple[CircuitRef, CircuitRef]:
     """Get the input/output compiled circuit from a compilation job."""
 
     resp = get_nexus_client().get(
-        f"/api/compilations/v1beta2/{compilation_result_ref.id}"
+        f"/api/compilations/v1beta2/{compilation_result_ref.id}",
+        params={"scope": scope.value},
     )
 
     if resp.status_code != 200:
@@ -243,12 +257,17 @@ def _fetch_compilation_output(
     return input_circuit_ref, compiled_circuit_ref
 
 
+@merge_scope_from_context
 def _fetch_compilation_passes(
     compilation_result_ref: CompilationResultRef,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> DataframableList[CompilationPassRef]:
     """Get summary information on the passes from a compile job."""
 
-    params = {"filter[compilation][id]": str(compilation_result_ref.id)}
+    params = {
+        "filter[compilation][id]": str(compilation_result_ref.id),
+        "scope": scope.value,
+    }
 
     resp = get_nexus_client().get("/api/compilation_passes/v1beta2", params=params)
 
@@ -268,14 +287,12 @@ def _fetch_compilation_passes(
         ]
         pass_input_circuit = circuit_api._fetch_by_id(
             pass_input_circuit_id,
-            scope=None,
         )
         pass_output_circuit_id = pass_info["relationships"]["compiled_circuit"]["data"][
             "id"
         ]
         pass_output_circuit = circuit_api._fetch_by_id(
             pass_output_circuit_id,
-            scope=None,
         )
 
         pass_list.append(

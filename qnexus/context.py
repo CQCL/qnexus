@@ -1,5 +1,6 @@
 """Functions for managing context in the client."""
 
+import inspect
 import logging
 from contextlib import contextmanager
 from contextvars import ContextVar, Token
@@ -7,6 +8,7 @@ from functools import wraps
 from typing import Any, Callable, Generator, ParamSpec, TypeVar
 
 from qnexus.models.annotations import PropertiesDict
+from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.references import ProjectRef
 
 logger = logging.getLogger(__name__)
@@ -16,6 +18,9 @@ _QNEXUS_PROJECT: ContextVar[ProjectRef | None] = ContextVar(
 )
 _QNEXUS_PROPERTIES: ContextVar[PropertiesDict | None] = ContextVar(
     "qnexus_properties", default=None
+)
+_QNEXUS_SCOPE: ContextVar[ScopeFilterEnum] = ContextVar(
+    "qnexus_scope", default=ScopeFilterEnum.USER
 )
 
 
@@ -27,6 +32,11 @@ def deactivate_project(token: Token[ProjectRef | None]) -> None:
 def deactivate_properties(token: Token[PropertiesDict | None]) -> None:
     """Deactivate the current properties."""
     _QNEXUS_PROPERTIES.reset(token)
+
+
+def deactivate_scope(token: Token[ScopeFilterEnum]) -> None:
+    """Deactivate the current API Scope filter."""
+    _QNEXUS_SCOPE.reset(token)
 
 
 def get_active_project(project_required: bool = False) -> ProjectRef | None:
@@ -72,6 +82,23 @@ def get_active_properties() -> PropertiesDict:
     return properties
 
 
+def get_active_scope() -> ScopeFilterEnum:
+    """Get the currently active API Scope filter.
+
+    >>> get_active_scope()
+
+    >>> token = _QNEXUS_SCOPE.set(ScopeFilterEnum.ORG_ADMIN)
+    >>> get_active_scope()
+    <ScopeFilterEnum.ORG_ADMIN: 'org_admin'>
+
+    >>> deactivate_scope(token)
+    >>> get_active_scope()
+    <ScopeFilterEnum.USER: 'user'>
+
+    """
+    return _QNEXUS_SCOPE.get()
+
+
 def set_active_project_token(project: ProjectRef) -> Token[ProjectRef | None]:
     """Globally set a project as active,
     returning a Token to the ProjectRef in the context."""
@@ -81,6 +108,21 @@ def set_active_project_token(project: ProjectRef) -> Token[ProjectRef | None]:
 def set_active_project(project: ProjectRef) -> None:
     """Globally set a project as active."""
     set_active_project_token(project)
+
+
+def set_active_scope_token(
+    scope: ScopeFilterEnum,
+) -> Token[ScopeFilterEnum]:
+    """Globally set an API Scope filter as active,
+    returning a Token to the ScopeFilterEnum in the context."""
+    return _QNEXUS_SCOPE.set(scope)
+
+
+def set_active_scope(
+    scope: ScopeFilterEnum,
+) -> None:
+    """Globally set an API Scope filter as active."""
+    set_active_scope_token(scope)
 
 
 def update_active_properties_token(
@@ -144,6 +186,18 @@ def using_properties(
         _QNEXUS_PROPERTIES.reset(token)
 
 
+@contextmanager
+def using_scope(
+    scope: ScopeFilterEnum,
+) -> Generator[None, None, None]:
+    """Attach an API Scope filter to the current context."""
+    token = _QNEXUS_SCOPE.set(scope)
+    try:
+        yield
+    finally:
+        _QNEXUS_SCOPE.reset(token)
+
+
 P = ParamSpec("P")
 T = TypeVar("T")
 
@@ -174,3 +228,22 @@ def merge_properties_from_context(func: Callable[P, T]) -> Callable[P, T]:
         return func(*args, **kwargs)
 
     return _merge_properties_from_context
+
+
+def merge_scope_from_context(func: Callable[P, T]) -> Callable[P, T]:
+    """Decorator to merge an API Scope filter from the context.
+    Scope in kwargs takes precedence (will be selected)."""
+
+    sig = inspect.signature(func)
+
+    @wraps(func)
+    def get_scope_from_context(*args: Any, **kwargs: Any) -> T:
+        # Check if 'scope' is already provided as a positional or keyword argument
+        bound_args = sig.bind_partial(*args, **kwargs)
+        if "scope" not in bound_args.arguments or bound_args.arguments["scope"] is None:
+            kwargs["scope"] = kwargs.get("scope", None)
+            if kwargs["scope"] is None:
+                kwargs["scope"] = get_active_scope()
+        return func(*args, **kwargs)
+
+    return get_scope_from_context
