@@ -58,7 +58,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> NexusIterator[GpuDecoderConfigRef]:
     """Get a NexusIterator over gpu decoder configs with optional filters."""
 
@@ -134,7 +134,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> GpuDecoderConfigRef:
     """
     Get a single gpu_decoder_config using filters. Throws an exception if the filters do
@@ -252,7 +252,7 @@ def update(
 
 @merge_scope_from_context
 def _fetch_by_id(
-    gpu_decoder_config_id: UUID | str, scope: ScopeFilterEnum | None
+    gpu_decoder_config_id: UUID | str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> GpuDecoderConfigRef:
     """Utility method for fetching directly by a unique identifier."""
     params = Params(
@@ -287,12 +287,12 @@ def _fetch_by_id(
 
 @merge_scope_from_context
 def _fetch_gpu_decoder_config(
-    handle: GpuDecoderConfigRef, scope: ScopeFilterEnum | None = None
+    handle: GpuDecoderConfigRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> str:
     """Utility method for fetching a gpu decoder config from a GpuDecoderConfigRef."""
     res = get_nexus_client().get(
         f"/api/gpu_decoder_configs/v1beta/{handle.id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)

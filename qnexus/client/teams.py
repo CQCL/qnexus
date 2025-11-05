@@ -8,11 +8,11 @@ from qnexus.models.references import DataframableList, TeamRef
 
 
 @merge_scope_from_context
-def get_all(scope: ScopeFilterEnum | None = None) -> DataframableList[TeamRef]:
+def get_all(scope: ScopeFilterEnum = ScopeFilterEnum.USER) -> DataframableList[TeamRef]:
     """No fuzzy name matching."""
     res = get_nexus_client().get(
         "/api/teams/v1beta2",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code != 200:
@@ -31,7 +31,7 @@ def get_all(scope: ScopeFilterEnum | None = None) -> DataframableList[TeamRef]:
 
 
 @merge_scope_from_context
-def get(name: str, scope: ScopeFilterEnum | None = None) -> TeamRef:
+def get(name: str, scope: ScopeFilterEnum = ScopeFilterEnum.USER) -> TeamRef:
     """
     Get a single team using filters. Throws an exception if the filters do not
     match exactly one object.
@@ -40,7 +40,7 @@ def get(name: str, scope: ScopeFilterEnum | None = None) -> TeamRef:
         "/api/teams/v1beta2",
         params={
             "filter[team][name]": name,
-            "scope": scope.value if scope else ScopeFilterEnum.USER.value,
+            "scope": scope.value,
         },
     )
 
@@ -67,13 +67,15 @@ def get(name: str, scope: ScopeFilterEnum | None = None) -> TeamRef:
 
 
 @merge_scope_from_context
-def _fetch_by_id(team_id: str, scope: ScopeFilterEnum | None = None) -> TeamRef:
+def _fetch_by_id(
+    team_id: str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> TeamRef:
     """
     Get a single team by id.
     """
     res = get_nexus_client().get(
         f"/api/teams/v1beta2/{team_id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code == 404:

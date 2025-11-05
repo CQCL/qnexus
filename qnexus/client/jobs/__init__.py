@@ -122,7 +122,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> NexusIterator[CompileJobRef | ExecuteJobRef]:
     """Get a NexusIterator over jobs with optional filters."""
     project = project or get_active_project(project_required=False)
@@ -234,7 +234,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> JobRef:
     """
     Get a single job using filters. Throws an exception if the filters do
@@ -262,7 +262,9 @@ def get(
 
 
 @merge_scope_from_context
-def _fetch_by_id(job_id: UUID | str, scope: ScopeFilterEnum | None = None) -> JobRef:
+def _fetch_by_id(
+    job_id: UUID | str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> JobRef:
     """Utility method for fetching directly by a unique identifier."""
     params = Params(
         scope=scope,
@@ -379,11 +381,11 @@ def wait_for(
 
 
 @merge_scope_from_context
-def status(job: JobRef, scope: ScopeFilterEnum | None = None) -> JobStatus:
+def status(job: JobRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER) -> JobStatus:
     """Get the status of a job."""
     resp = get_nexus_client().get(
         f"api/jobs/v1beta3/{job.id}/attributes/status",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(
@@ -458,7 +460,7 @@ async def listen_job_status(
 def results(
     job: CompileJobRef,
     allow_incomplete: bool = False,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> DataframableList[CompilationResultRef | IncompleteJobItemRef]: ...
 
 
@@ -467,7 +469,7 @@ def results(
 def results(
     job: ExecuteJobRef,
     allow_incomplete: bool = False,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> DataframableList[ExecutionResultRef | IncompleteJobItemRef]: ...
 
 
@@ -475,7 +477,7 @@ def results(
 def results(
     job: CompileJobRef | ExecuteJobRef,
     allow_incomplete: bool = False,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> (
     DataframableList[CompilationResultRef | IncompleteJobItemRef]
     | DataframableList[ExecutionResultRef | IncompleteJobItemRef]
@@ -519,7 +521,7 @@ def retry_submission(
 
 
 @merge_scope_from_context
-def cancel(job: JobRef, scope: ScopeFilterEnum | None = None) -> None:
+def cancel(job: JobRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER) -> None:
     """Attempt cancellation of a job in Nexus.
 
     If the job has been submitted to a backend, Nexus will request cancellation of the job.
@@ -527,7 +529,7 @@ def cancel(job: JobRef, scope: ScopeFilterEnum | None = None) -> None:
     res = get_nexus_client().post(
         f"/api/jobs/v1beta3/{job.id}/rpc/cancel",
         json={},
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code != 202:
@@ -535,11 +537,11 @@ def cancel(job: JobRef, scope: ScopeFilterEnum | None = None) -> None:
 
 
 @merge_scope_from_context
-def delete(job: JobRef, scope: ScopeFilterEnum | None = None) -> None:
+def delete(job: JobRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER) -> None:
     """Delete a job in Nexus."""
     res = get_nexus_client().delete(
         f"/api/jobs/v1beta3/{job.id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code != 204:
@@ -660,12 +662,12 @@ def execute(
 
 @merge_scope_from_context
 def cost(
-    job: CompileJobRef | ExecuteJobRef, scope: ScopeFilterEnum | None = None
+    job: CompileJobRef | ExecuteJobRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> float:
     """Get the HQC cost of a job from a JobRef."""
     resp = get_nexus_client().get(
         f"/api/jobs/v1beta3/{job.id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
     if resp.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(

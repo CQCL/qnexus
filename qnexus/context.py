@@ -82,7 +82,7 @@ def get_active_properties() -> PropertiesDict:
     return properties
 
 
-def get_active_scope() -> ScopeFilterEnum | None:
+def get_active_scope() -> ScopeFilterEnum:
     """Get the currently active API Scope filter.
 
     >>> get_active_scope()
@@ -92,6 +92,8 @@ def get_active_scope() -> ScopeFilterEnum | None:
     <ScopeFilterEnum.ORG_ADMIN: 'org_admin'>
 
     >>> deactivate_scope(token)
+    >>> get_active_scope()
+    <ScopeFilterEnum.USER: 'user'>
 
     """
     return _QNEXUS_SCOPE.get()
@@ -114,6 +116,13 @@ def set_active_scope_token(
     """Globally set an API Scope filter as active,
     returning a Token to the ScopeFilterEnum in the context."""
     return _QNEXUS_SCOPE.set(scope)
+
+
+def set_active_scope(
+    scope: ScopeFilterEnum,
+) -> None:
+    """Globally set an API Scope filter as active."""
+    set_active_scope_token(scope)
 
 
 def update_active_properties_token(

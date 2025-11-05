@@ -60,7 +60,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> NexusIterator[WasmModuleRef]:
     """Get a NexusIterator over wasm_modules with optional filters."""
 
@@ -130,7 +130,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> WasmModuleRef:
     """
     Get a single wasm_module using filters. Throws an exception if the filters do
@@ -246,7 +246,7 @@ def update(
 
 @merge_scope_from_context
 def _fetch_by_id(
-    wasm_module_id: UUID | str, scope: ScopeFilterEnum | None
+    wasm_module_id: UUID | str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> WasmModuleRef:
     """Utility method for fetching directly by a unique identifier."""
     params = Params(
@@ -279,12 +279,12 @@ def _fetch_by_id(
 
 @merge_scope_from_context
 def _fetch_wasm_module(
-    handle: WasmModuleRef, scope: ScopeFilterEnum | None = None
+    handle: WasmModuleRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> WasmModuleHandler:
     """Utility method for fetching a pytket WasmModuleHandler from a WasmModuleRef."""
     res = get_nexus_client().get(
         f"/api/wasm/v1beta/{handle.id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)

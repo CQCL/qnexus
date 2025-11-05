@@ -62,7 +62,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> NexusIterator[CircuitRef]:
     """Get a NexusIterator over circuits with optional filters."""
 
@@ -132,7 +132,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> CircuitRef:
     """
     Get a single circuit using filters. Throws an exception if the filters do
@@ -248,7 +248,9 @@ def update(
 
 
 @merge_scope_from_context
-def _fetch_by_id(circuit_id: UUID | str, scope: ScopeFilterEnum | None) -> CircuitRef:
+def _fetch_by_id(
+    circuit_id: UUID | str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> CircuitRef:
     """Utility method for fetching directly by a unique identifier."""
     params = Params(
         scope=scope,
@@ -279,11 +281,13 @@ def _fetch_by_id(circuit_id: UUID | str, scope: ScopeFilterEnum | None) -> Circu
 
 
 @merge_scope_from_context
-def _fetch_circuit(handle: CircuitRef, scope: ScopeFilterEnum | None = None) -> Circuit:
+def _fetch_circuit(
+    handle: CircuitRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> Circuit:
     """Utility method for fetching a pytket circuit from a CircuitRef."""
     res = get_nexus_client().get(
         f"/api/circuits/v1beta2/{handle.id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)

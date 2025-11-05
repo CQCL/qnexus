@@ -72,7 +72,7 @@ def get_all(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> NexusIterator[HUGRRef]:
     """Get a NexusIterator over HUGRs with optional filters."""
 
@@ -142,7 +142,7 @@ def get(
     sort_filters: list[SortFilterEnum] | None = None,
     page_number: int | None = None,
     page_size: int | None = None,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> HUGRRef:
     """
     Get a single HUGR using filters. Throws an exception if the filters do
@@ -298,7 +298,9 @@ def cost(
 
 
 @merge_scope_from_context
-def _fetch_by_id(hugr_id: UUID | str, scope: ScopeFilterEnum | None) -> HUGRRef:
+def _fetch_by_id(
+    hugr_id: UUID | str, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> HUGRRef:
     """Utility method for fetching directly by a unique identifier."""
 
     params = Params(
@@ -331,7 +333,7 @@ def _fetch_by_id(hugr_id: UUID | str, scope: ScopeFilterEnum | None) -> HUGRRef:
 
 @merge_scope_from_context
 def _fetch_hugr_package(
-    handle: HUGRRef, scope: ScopeFilterEnum | None = None
+    handle: HUGRRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> Package:
     """Utility method for fetching a HUGR Package from a HUGRRef."""
 
@@ -345,11 +347,13 @@ def _fetch_hugr_package(
 
 
 @merge_scope_from_context
-def _fetch_hugr_bytes(handle: HUGRRef, scope: ScopeFilterEnum | None = None) -> bytes:
+def _fetch_hugr_bytes(
+    handle: HUGRRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> bytes:
     """Utility method for fetching HUGR bytes from a HUGRRef."""
     res = get_nexus_client().get(
         f"/api/hugr/v1beta/{handle.id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
     if res.status_code != 200:
         raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)

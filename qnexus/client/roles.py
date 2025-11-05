@@ -52,13 +52,13 @@ def get(name: RoleName) -> Role:
 
 @merge_scope_from_context
 def assignments(
-    resource_ref: BaseRef, scope: ScopeFilterEnum | None = None
+    resource_ref: BaseRef, scope: ScopeFilterEnum = ScopeFilterEnum.USER
 ) -> DataframableList[RoleInfo]:
     """Check the assignments on a particular resource."""
 
     res = get_nexus_client().get(
         f"/api/resources/v1beta2/{resource_ref.id}/assignments",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code != 200:
@@ -106,7 +106,7 @@ def assign_team(
     resource_ref: BaseRef,
     team: TeamRef,
     role: RoleName | Role,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> None:
     """Assign a role-based access control assignment to a team."""
     if isinstance(role, str):
@@ -121,7 +121,7 @@ def assign_team(
     res = get_nexus_client().post(
         "/api/assignments/v1beta2/team",
         json=req_dict,
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code != 201:
@@ -135,14 +135,14 @@ def assign_user(
     resource_ref: BaseRef,
     user_email: EmailStr,
     role: RoleName | Role,
-    scope: ScopeFilterEnum | None = None,
+    scope: ScopeFilterEnum = ScopeFilterEnum.USER,
 ) -> None:
     """Assign a role-based access control assignment to a user."""
     if isinstance(role, str):
         role = get(role)
     user_id_res = get_nexus_client().get(
         f"/api/users/v1beta/{user_email}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if user_id_res.status_code != 200:

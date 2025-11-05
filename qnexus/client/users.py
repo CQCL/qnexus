@@ -26,12 +26,14 @@ def get_self() -> UserRef:
 
 
 @merge_scope_from_context
-def _fetch_by_id(user_id: UUID, scope: ScopeFilterEnum | None = None) -> UserRef:
+def _fetch_by_id(
+    user_id: UUID, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+) -> UserRef:
     """Get a specific user."""
 
     res = get_nexus_client().get(
         f"/api/users/v1beta/{user_id}",
-        params={"scope": scope.value if scope else ScopeFilterEnum.USER.value},
+        params={"scope": scope.value},
     )
 
     if res.status_code != 200:
