@@ -2,6 +2,14 @@
 
 # `qnexus` Release Notes
 
+## v0.37.0 (2025-11-06)
+
+
+### Added
+
+- Allow scope setting via context management (#285).
+- Collect partial results for queued job items (#284).
+
 ## v0.36.0 (2025-11-04)
 
 
