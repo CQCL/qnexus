@@ -22,7 +22,7 @@ dependencies = [
     "websockets >11, <16",
     "pydantic-settings >=2, <3.0",
     "quantinuum-schemas>=7.3, <8.0",
-    "hugr >=0.12.5, <1.0.0",
+    "hugr >=0.14.0, <1.0.0",
 ]
 
 [project.optional-dependencies]

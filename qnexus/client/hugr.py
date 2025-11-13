@@ -338,11 +338,6 @@ def _fetch_hugr_package(
     """Utility method for fetching a HUGR Package from a HUGRRef."""
 
     hugr_bytes = _fetch_hugr_bytes(handle=handle, scope=scope)
-
-    raise qnx_exc.ResourceFetchFailed(
-        message="Converting to HUGR Package is currently unavailable.",
-        status_code=400,
-    )
     return Package.from_bytes(envelope=hugr_bytes)
 
 

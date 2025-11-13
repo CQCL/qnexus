@@ -13,4 +13,4 @@
 | `websockets` | `>11, <16` | An implementation of the WebSocket Protocol (RFC 6455 & 7692) | [https://pypi.org/project/websockets/](https://pypi.org/project/websockets/) |
 | `pydantic-settings` | `>=2, <3.0` | Settings management using Pydantic | [https://pypi.org/project/pydantic-settings/](https://pypi.org/project/pydantic-settings/) |
 | `quantinuum-schemas` | `>=7.3, <8.0` | Shared data models for Quantinuum. | [https://github.com/CQCL/quantinuum-schemas](https://github.com/CQCL/quantinuum-schemas) |
-| `hugr` | `>=0.12.5, <1.0.0` | Quantinuum's common representation for quantum programs | [https://github.com/CQCL/hugr/tree/main/hugr-py](https://github.com/CQCL/hugr/tree/main/hugr-py) |
+| `hugr` | `>=0.14.0, <1.0.0` | Quantinuum's common representation for quantum programs | [https://github.com/CQCL/hugr/tree/main/hugr-py](https://github.com/CQCL/hugr/tree/main/hugr-py) |
