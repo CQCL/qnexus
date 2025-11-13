@@ -1,6 +1,7 @@
 """Custom exceptions thrown in qnexus usage."""
 
 from typing import Optional
+import json
 
 
 class AuthenticationError(Exception):
@@ -16,10 +17,15 @@ class ResourceFetchFailed(Exception):
     def __init__(self, message: str, status_code: Optional[int] = None) -> None:
         self.message = message
         self.status_code = status_code
-        self.err = (
-            "Failed to fetch resource with status code: "
-            f"{self.status_code}, message: {self.message}"
-        )
+        self.err = f"Failed to fetch resource with status code: {self.status_code}\n"
+        try:
+            msg_data = json.loads(message)
+            self.err += f"Message: {msg_data['message']}"
+            for fld, val in msg_data.items():
+                if fld != "message":
+                    self.err += f"\n{fld}: {val}"
+        except json.JSONDecodeError:
+            self.err += f"Message: {message}"
         super().__init__(self.err)
 
 
