@@ -2,8 +2,16 @@
 
 # `qnexus` Release Notes
 
-## v0.37.0 (2025-11-06)
+## v0.37.1 (2025-11-18)
 
+
+### Added
+
+- Updated use of compilations api to v1beta3 (#292)
+- Update HUGR version and re-enable downloading the HUGR Package (#290)
+
+
+## v0.37.0 (2025-11-06)
 
 ### Added
 
