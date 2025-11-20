@@ -9,6 +9,7 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
+from qnexus.constants import AUTOCREATED_COSTING_PROJECT
 from qnexus.context import (
     get_active_project,
     merge_project_from_context,
@@ -258,8 +259,16 @@ def cost(
     NB: This will execute a costing job on a dedicated cost estimation device.
         Once run, the cost will be visible also in the Nexus web portal
         as part of the job.
+
+        If a project is not provided, a new one will automatically be created
+        for cost estimation. This project can be safely deleted.
     """
     import qnexus as qnx
+
+    if project is None:
+        project = qnx.projects.get_or_create(
+            name=AUTOCREATED_COSTING_PROJECT,
+        )
 
     if isinstance(programs, QIRRef):
         programs = [programs]

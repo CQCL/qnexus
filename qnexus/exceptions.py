@@ -1,7 +1,7 @@
 """Custom exceptions thrown in qnexus usage."""
 
-from typing import Optional
 import json
+from typing import Optional
 
 
 class AuthenticationError(Exception):
