@@ -12,7 +12,7 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.constants import AUTOCREATED_COSTING_PROJECT
+from qnexus.constants import AUTOCREATED_COSTING_PROJECT_NAME
 from qnexus.context import (
     get_active_project,
     merge_project_from_context,
@@ -325,7 +325,7 @@ def cost(
 
     if project is None:
         project = qnx.projects.get_or_create(
-            name=AUTOCREATED_COSTING_PROJECT,
+            name=AUTOCREATED_COSTING_PROJECT_NAME,
         )
 
     if not isinstance(backend_config, QuantinuumConfig):
