@@ -72,22 +72,10 @@ class RemoteRetryStrategy(str, Enum):
     Each strategy defines how the system should approach resolving
     potential conflicts with remote state.
 
-    DEFAULT will only attempt to re-sync status and collect results
-    from the third party. Duplicate results will not be saved.
-
-    ALLOW_RESUBMIT will submit the job to the third party again if
-    # the system has no record of a third party handle.
-
-    FORCE_RESUBMIT will submit the job to the third party again if
-    the system has a job handle already but no result.
-
     FULL_RESTART will act as though the job is entirely fresh and
     re-perform every action.
     """
 
-    DEFAULT = "DEFAULT"
-    ALLOW_RESUBMIT = "ALLOW_RESUBMIT"
-    FORCE_RESUBMIT = "FORCE_RESUBMIT"
     FULL_RESTART = "FULL_RESTART"
 
 
@@ -497,7 +485,7 @@ def results(
 def retry_submission(
     job: JobRef,
     retry_status: list[JobStatusEnum] | None = None,
-    remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.DEFAULT,
+    remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.FULL_RESTART,
     user_group: str | None = None,
 ) -> None:
     """Retry a job in Nexus according to status(es) or retry strategy.
