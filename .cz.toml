@@ -2,8 +2,11 @@
 name = "cz_customize"
 tag_format = "v$version"
 version_scheme = "semver"
-version = "0.37.1"
-version_files = ["pyproject.toml"]
+version = "0.37.2"
+version_files = [
+    "pyproject.toml:version",
+    "uv.lock:version"
+]
 update_changelog_on_bump = true
 major_version_zero = true
 template = "templates/CHANGELOG.md.j2"
