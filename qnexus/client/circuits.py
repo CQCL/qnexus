@@ -3,6 +3,7 @@
 from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
+from warnings import warn
 
 from pytket.circuit import Circuit
 from pytket.utils.serialization.migration import circuit_dict_from_pytket1_dict
@@ -12,7 +13,6 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.client.nexus_iterator import NexusIterator
 from qnexus.client.utils import handle_fetch_errors
-from qnexus.constants import AUTOCREATED_COSTING_PROJECT_NAME
 from qnexus.context import (
     get_active_project,
     merge_project_from_context,
@@ -317,42 +317,49 @@ def cost(
         Once run, the cost will be visible also in the Nexus web portal
         as part of the job.
 
-        If a project is not provided, a new one will automatically be created
-        for cost estimation. This project can be safely deleted.
+        If a project is not provided, it will be taken from either the active context
+        or the ProjectRef listed on the first CircuitRef.
+
+        Future versions of this function will require a ProjectRef to be provided.
     """
 
     import qnexus as qnx
-
-    if project is None:
-        project = qnx.projects.get_or_create(
-            name=AUTOCREATED_COSTING_PROJECT_NAME,
-        )
 
     if not isinstance(backend_config, QuantinuumConfig):
         raise ValueError(
             "QuantinuumConfig is the only supported backend config for circuit cost estimation."
         )
 
-    device_name = backend_config.device_name
-
-    if syntax_checker is not None:
-        device_name = syntax_checker
-
-    if not device_name.startswith("H2-"):
-        raise ValueError("Cicuit cost estimation is only supported for H2-x systems.")
-
-    if not device_name.endswith("SC"):
-        device_name += "SC"
-
     programs = circuit_ref
-
     if isinstance(programs, CircuitRef):
         programs = [programs]
+
+    project = project or qnx.context.get_active_project(project_required=False)
+    if project is None:
+        warn(
+            "No ProjectRef was provided in function arguments. "
+            "Taking ProjectRef from the first CircuitRef. "
+            "In future qnexus versions, a ProjectRef will be required.",
+            DeprecationWarning,
+        )
+        project = programs[0].project
+
+    syntax_checker_device_name = backend_config.device_name
+
+    if syntax_checker is not None:
+        syntax_checker_device_name = syntax_checker
+
+    if not syntax_checker_device_name.startswith("H2-"):
+        raise ValueError("Cicuit cost estimation is only supported for H2-x systems.")
+
+    if not syntax_checker_device_name.endswith("SC"):
+        syntax_checker_device_name += "SC"
 
     job_ref = qnx.start_execute_job(
         programs=cast(list[ExecutionProgram], programs),
         n_shots=n_shots,
-        backend_config=QuantinuumConfig(device_name=device_name),
+        # No other parameters matter for cost estimation, so construct a minimal costing config
+        backend_config=QuantinuumConfig(device_name=syntax_checker_device_name),
         project=project,
         name="Circuit cost estimation job",
     )
