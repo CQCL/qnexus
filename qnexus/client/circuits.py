@@ -27,7 +27,6 @@ from qnexus.models.filters import (
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -38,6 +37,7 @@ from qnexus.models.references import (
     ExecutionProgram,
     ProjectRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 
 
 class Params(

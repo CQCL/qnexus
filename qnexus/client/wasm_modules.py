@@ -25,12 +25,12 @@ from qnexus.models.filters import (
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
 )
 from qnexus.models.references import DataframableList, ProjectRef, WasmModuleRef
+from qnexus.models.scope import ScopeFilterEnum
 
 
 class Params(

@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from qnexus.models import CredentialIssuer, JobStatusEnum
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import JobType, ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 from qnexus.models.utils import AllowNone
 
 
@@ -265,15 +266,6 @@ class CredentialsFilter(BaseModel):
     """Filter for credentials."""
 
     issuer: CredentialIssuer | str | None = None
-
-
-class ScopeFilterEnum(str, Enum):
-    """ScopeFilterEnum model."""
-
-    USER = "user"
-    ORG_ADMIN = "org_admin"
-    GLOBAL_ADMIN = "global_admin"
-    HIGHEST = "highest"
 
 
 class ScopeFilter(BaseModel):

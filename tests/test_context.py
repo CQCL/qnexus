@@ -22,8 +22,8 @@ from qnexus.context import (
     using_scope,
 )
 from qnexus.models.annotations import Annotations, PropertiesDict
-from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.references import ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 
 
 def test_attach_project() -> None:

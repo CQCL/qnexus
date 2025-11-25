@@ -37,7 +37,6 @@ from qnexus.models.filters import (
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -61,6 +60,7 @@ from qnexus.models.references import (
     SystemRef,
     WasmModuleRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 from qnexus.models.utils import assert_never
 
 EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)

@@ -20,13 +20,13 @@ from qnexus.models.filters import (  # PropertiesFilter, # Not yet implemented
     FuzzyNameFilter,
     PaginationFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
 )
 from qnexus.models.job_status import WAITING_STATUS, JobStatusEnum
 from qnexus.models.references import DataframableList, ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 
 # Colour-blind friendly colours from https://www.nature.com/articles/nmeth.1618
 _COLOURS = ["#e69f00", "#56b4e9", "#009e73", "#f0e442", "#0072b2", "#d55e00", "#cc79a7"]
