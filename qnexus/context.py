@@ -8,8 +8,8 @@ from functools import wraps
 from typing import Any, Callable, Generator, ParamSpec, TypeVar
 
 from qnexus.models.annotations import PropertiesDict
-from qnexus.models.filters import ScopeFilterEnum
-from qnexus.models.references import ProjectRef
+from qnexus.models.references.projects import ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 
 logger = logging.getLogger(__name__)
 

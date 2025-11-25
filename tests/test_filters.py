@@ -16,13 +16,13 @@ from qnexus.models.filters import (
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
 )
 from qnexus.models.job_status import JobStatusEnum
 from qnexus.models.references import JobType, ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 
 
 def test_all_filter_serialisation() -> None:

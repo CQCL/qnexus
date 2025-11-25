@@ -15,7 +15,6 @@ from qnexus.context import (
 )
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.references import (
     CircuitRef,
@@ -27,6 +26,7 @@ from qnexus.models.references import (
     JobType,
     ProjectRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 
 
 @accept_circuits_for_programs

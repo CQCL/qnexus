@@ -1,7 +1,7 @@
 """Test basic functionality relating to setting 'scope' for API requests."""
 
 import qnexus as qnx
-from qnexus.models.filters import ScopeFilterEnum
+from qnexus.models.scope import ScopeFilterEnum
 
 
 def test_user_scope(
