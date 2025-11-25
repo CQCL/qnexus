@@ -114,9 +114,23 @@ def test_circuit_create(
         )
 
 
+@pytest.mark.parametrize(
+    "device_name, syntax_checker, expected_exception",
+    [
+        ["H2-1", "H2-1SC", False],
+        ["H2-1", None, False],
+        ["H2-1SC", None, False],
+        ["H1-1", "H1-1SC", True],
+        ["H1-1", None, True],
+        ["Foo", "Bar", True],
+    ],
+)
 def test_circuit_get_cost(
     test_case_name: str,
     create_project: Callable[[str], ContextManager[ProjectRef]],
+    device_name: str,
+    syntax_checker: str | None,
+    expect_exception: bool,
 ) -> None:
     """Test that we can get the cost to run a CircuitRef,
     on a particular Quantinuum Systems device."""
@@ -127,13 +141,23 @@ def test_circuit_get_cost(
             name="qa_q_systems_circuit",
             project=my_proj,
         )
+        if expect_exception:
+            with pytest.raises(ValueError):
+                qnx.circuits.cost(
+                    circuit_ref=my_q_systems_circuit,
+                    n_shots=10,
+                    backend_config=qnx.QuantinuumConfig(device_name=device_name),
+                    syntax_checker=syntax_checker,
+                    project=my_proj,
+                )
+        else:
+            cost = qnx.circuits.cost(
+                circuit_ref=my_q_systems_circuit,
+                n_shots=10,
+                backend_config=qnx.QuantinuumConfig(device_name=device_name),
+                syntax_checker=syntax_checker,
+                project=my_proj,
+            )
 
-        cost = qnx.circuits.cost(
-            circuit_ref=my_q_systems_circuit,
-            n_shots=10,
-            backend_config=qnx.QuantinuumConfig(device_name="H1-1E"),
-            syntax_checker="H1-1SC",
-        )
-
-        assert isinstance(cost, float)
-        assert cost > 0.0
+            assert isinstance(cost, float)
+            assert cost > 0.0
