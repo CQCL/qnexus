@@ -20,7 +20,7 @@ from qnexus.context import (
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
-    FuzzyNameFilter,
+    NameFilter,
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
@@ -37,7 +37,7 @@ class Params(
     ScopeFilter,
     SortFilter,
     PaginationFilter,
-    FuzzyNameFilter,
+    NameFilter,
     CreatorFilter,
     ProjectRefFilter,
     PropertiesFilter,
@@ -49,7 +49,9 @@ class Params(
 @merge_scope_from_context
 @merge_project_from_context
 def get_all(
-    name_like: str | None = None,
+    *,
+    name_fuzzy: str | None = None,
+    name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -65,7 +67,8 @@ def get_all(
     """Get a NexusIterator over wasm_modules with optional filters."""
 
     params = Params(
-        name_like=name_like,
+        name_fuzzy=name_fuzzy,
+        name_exact=name_exact,
         creator_email=creator_email,
         properties=properties,
         project=project,
@@ -119,7 +122,8 @@ def _to_wasm_module_ref(page_json: dict[str, Any]) -> DataframableList[WasmModul
 def get(
     *,
     id: Union[UUID, str, None] = None,
-    name_like: str | None = None,
+    name: str | None = None,
+    name_fuzzy: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -140,7 +144,8 @@ def get(
         return _fetch_by_id(wasm_module_id=id, scope=scope)
 
     return get_all(
-        name_like=name_like,
+        name_fuzzy=name_fuzzy,
+        name_exact=[name] if name else None,
         creator_email=creator_email,
         properties=properties,
         project=project,

@@ -72,7 +72,7 @@ def test_job_get_all(
             circuit=test_circuit,
             circuit_name=circuit_name,
         ):
-            proj_ref = qnx.projects.get(name_like=project_name)
+            proj_ref = qnx.projects.get(name=project_name)
             my_job_db_matches = qnx.jobs.get_all(project=proj_ref)
 
             assert isinstance(my_job_db_matches.count(), int)
@@ -162,7 +162,7 @@ def test_compile_job_get(
             qnx.jobs.get()
 
         with pytest.raises(qnx_exc.ZeroMatches):
-            qnx.jobs.get(name_like=f"{datetime.now()}_{datetime.now()}")
+            qnx.jobs.get(name=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_execute_job_get(
@@ -184,7 +184,7 @@ def test_execute_job_get(
             qnx.jobs.get()
 
         with pytest.raises(qnx_exc.ZeroMatches):
-            qnx.jobs.get(name_like=f"{datetime.now()}_{datetime.now()}")
+            qnx.jobs.get(name=f"{datetime.now()}_{datetime.now()}")
 
 
 def test_submit_compile(
@@ -247,7 +247,7 @@ def test_compile(
         local_project_name,
         local_circuit_name,
     ) as circ_ref:
-        my_proj = qnx.projects.get(name_like=local_project_name)
+        my_proj = qnx.projects.get(name=local_project_name)
 
         compiled_circuits = qnx.compile(
             programs=[circ_ref],
@@ -332,7 +332,7 @@ def test_compile_hypertket(
         local_project_name,
         local_circuit_name,
     ) as circ_ref:
-        my_proj = qnx.projects.get(name_like=local_project_name)
+        my_proj = qnx.projects.get(name=local_project_name)
 
         compiled_circuits = qnx.compile(
             programs=[circ_ref],

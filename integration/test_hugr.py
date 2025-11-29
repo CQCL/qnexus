@@ -81,8 +81,8 @@ def test_hugr_get_by_id(
         hugr_name,
         qa_hugr_package,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
-        my_hugr_ref = qnx.hugr.get(name_like=hugr_name, project=my_proj)
+        my_proj = qnx.projects.get(name=project_name)
+        my_hugr_ref = qnx.hugr.get(name=hugr_name, project=my_proj)
 
         hugr_ref_by_id = qnx.hugr.get(id=my_hugr_ref.id)
 
@@ -105,7 +105,7 @@ def test_hugr_get_all(
         hugr_name,
         qa_hugr_package,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
+        my_proj = qnx.projects.get(name=project_name)
 
         hugrs = qnx.hugr.get_all(project=my_proj)
 

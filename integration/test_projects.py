@@ -30,7 +30,7 @@ def test_project_get(
             qnx.projects.get()
 
         with pytest.raises(qnx_exc.ZeroMatches):
-            qnx.projects.get(name_like=f"{datetime.now()}_{datetime.now()}")
+            qnx.projects.get(name=f"{datetime.now()}_{datetime.now()}")
 
         test_ref_serialisation("project", my_proj_2)
 
@@ -80,7 +80,7 @@ def test_project_create(
     qnx.projects.delete(my_new_project)
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.projects.get(name_like=project_name)
+        qnx.projects.get(name=project_name)
 
 
 def test_project_get_or_create(
@@ -92,7 +92,7 @@ def test_project_get_or_create(
     project_name = f"project for {test_case_name}"
 
     with pytest.raises(qnx_exc.ZeroMatches):
-        qnx.projects.get(name_like=project_name)
+        qnx.projects.get(name=project_name)
 
     my_new_project = qnx.projects.get_or_create(name=project_name)
 
@@ -121,7 +121,7 @@ def test_project_summarize(
         circuit=Circuit(2, 2).H(0).CX(0, 1).measure_all(),
         circuit_name=circuit_name,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
+        my_proj = qnx.projects.get(name=project_name)
         assert isinstance(my_proj, ProjectRef)
 
         project_summary = qnx.projects.summarize(my_proj)
