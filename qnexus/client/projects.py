@@ -158,7 +158,7 @@ def get_or_create(
         properties=properties,
     )
     try:
-        return get(name_like=annotations.name)
+        return get(name=annotations.name)
     except qnx_exc.ZeroMatches:
         return create(
             name=annotations.name,
