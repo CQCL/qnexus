@@ -57,13 +57,13 @@ def test_wasm_flow(
         wasm_module_name,
         qa_wasm_module,
     ) as wasm_ref:
-        proj_ref = qnx.projects.get(name_like=project_name)
+        proj_ref = qnx.projects.get(name=project_name)
 
         my_wasm_db_matches = qnx.wasm_modules.get_all()
         assert isinstance(my_wasm_db_matches.summarize(), pd.DataFrame)
         assert isinstance(next(my_wasm_db_matches), WasmModuleRef)
 
-        wasm_ref = qnx.wasm_modules.get(name_like=wasm_module_name)
+        wasm_ref = qnx.wasm_modules.get(name=wasm_module_name)
         assert isinstance(wasm_ref, WasmModuleRef)
 
         wasm_ref_2 = qnx.wasm_modules.get(id=wasm_ref.id)

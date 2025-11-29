@@ -94,8 +94,8 @@ def test_qir_get_by_id(
         qir_name,
         qa_qir_bitcode,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
-        my_qir_ref = qnx.qir.get(name_like=qir_name, project=my_proj)
+        my_proj = qnx.projects.get(name=project_name)
+        my_qir_ref = qnx.qir.get(name=qir_name, project=my_proj)
 
         qir_ref_by_id = qnx.qir.get(id=my_qir_ref.id)
 
@@ -119,7 +119,7 @@ def test_qir_get_all(
         qir_name,
         qa_qir_bitcode,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
+        my_proj = qnx.projects.get(name=project_name)
 
         qirs = qnx.qir.get_all(project=my_proj)
 
@@ -146,7 +146,7 @@ def test_execution(
 
         project_ref = qnx.projects.get_or_create(name=project_name)
 
-        qir_program_ref = qnx.qir.get(name_like=qir_name)
+        qir_program_ref = qnx.qir.get(name=qir_name)
 
         job_ref = qnx.start_execute_job(
             programs=[qir_program_ref],
@@ -192,7 +192,7 @@ def test_execution_on_NG_devices(
         qir_name,
         make_qir_bitcode_from_file("base.ll"),
     ) as qir_ref:
-        project_ref = qnx.projects.get(name_like=project_name)
+        project_ref = qnx.projects.get(name=project_name)
 
         job_ref = qnx.start_execute_job(
             programs=[qir_ref],
@@ -236,7 +236,7 @@ def test_costing_qir_on_NG_devices(
         qir_name,
         make_qir_bitcode_from_file("base.ll"),
     ) as qir_ref:
-        project_ref = qnx.projects.get(name_like=project_name)
+        project_ref = qnx.projects.get(name=project_name)
 
         # Check that we can get a cost estimate
         cost = qnx.qir.cost(

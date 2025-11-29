@@ -45,7 +45,7 @@ def test_circuit_get(
             qnx.circuits.get()
 
         with pytest.raises(qnx_exc.ZeroMatches):
-            qnx.circuits.get(name_like=f"{test_case_name}-wrong")
+            qnx.circuits.get(name=f"{test_case_name}-wrong")
 
         test_ref_serialisation("circuit", my_circ_2)
 
@@ -70,7 +70,7 @@ def test_circuit_get_all(
             project_name,
             f"circuit2 for {test_case_name}",
         ):
-            my_circ_db_matches = qnx.circuits.get_all(name_like=test_case_name)
+            my_circ_db_matches = qnx.circuits.get_all(name_fuzzy=test_case_name)
 
             assert my_circ_db_matches.count() == 2
             assert isinstance(my_circ_db_matches.summarize(), pd.DataFrame)
@@ -92,7 +92,7 @@ def test_circuit_create(
         property_type="string",
         required=False,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
+        my_proj = qnx.projects.get(name=project_name)
 
         circuit_name = f"circuit for {test_case_name}"
         my_circ = Circuit(2, 2).H(0).CX(0, 1).measure_all()
