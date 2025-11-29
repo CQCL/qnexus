@@ -89,13 +89,18 @@ class CreatorFilter(BaseModel):
     )
 
 
-class FuzzyNameFilter(BaseModel):
+class NameFilter(BaseModel):
     """Name model."""
 
-    name_like: str | None = Field(
+    name_fuzzy: str | None = Field(
         default="",
-        serialization_alias="filter[name]",
+        serialization_alias="filter[name_fuzzy]",
         description="Filter by name, fuzzy search.",
+    )
+    name_exact: list[str] | None = Field(
+        default=None,
+        serialization_alias="filter[name_exact]",
+        description="Filter by name(s), exact match.",
     )
 
 

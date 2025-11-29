@@ -17,7 +17,7 @@ from qnexus.models.annotations import Annotations, CreateAnnotations, Properties
 from qnexus.models.filters import (  # PropertiesFilter, # Not yet implemented
     ArchivedFilter,
     CreatorFilter,
-    FuzzyNameFilter,
+    NameFilter,
     PaginationFilter,
     ScopeFilter,
     SortFilter,
@@ -36,7 +36,7 @@ class Params(
     ScopeFilter,
     SortFilter,
     PaginationFilter,
-    FuzzyNameFilter,
+    NameFilter,
     CreatorFilter,
     # PropertiesFilter, # Not yet implemented
     TimeFilter,
@@ -47,7 +47,9 @@ class Params(
 
 @merge_scope_from_context
 def get_all(
-    name_like: str | None = None,
+    *,
+    name_fuzzy: str | None = None,
+    name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
     created_after: datetime | None = datetime(day=1, month=1, year=2023),
@@ -62,7 +64,8 @@ def get_all(
     """Get a NexusIterator over projects with optional filters."""
 
     params = Params(
-        name_like=name_like,
+        name_fuzzy=name_fuzzy,
+        name_exact=name_exact,
         creator_email=creator_email,
         created_before=created_before,
         created_after=created_after,
@@ -106,7 +109,8 @@ def _to_projectref(data: dict[str, Any]) -> DataframableList[ProjectRef]:
 def get(
     *,
     id: Union[str, UUID, None] = None,
-    name_like: str | None = None,
+    name: str | None = None,
+    name_fuzzy: str | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
     created_after: datetime | None = datetime(day=1, month=1, year=2023),
@@ -126,7 +130,8 @@ def get(
         return _fetch_by_id(id, scope=scope)
 
     return get_all(
-        name_like=name_like,
+        name_fuzzy=name_fuzzy,
+        name_exact=[name] if name else None,
         creator_email=creator_email,
         created_before=created_before,
         created_after=created_after,
