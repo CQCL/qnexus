@@ -130,7 +130,7 @@ def test_circuit_get_cost(
     create_project: Callable[[str], ContextManager[ProjectRef]],
     device_name: str,
     syntax_checker: str | None,
-    expect_exception: bool,
+    expected_exception: bool,
 ) -> None:
     """Test that we can get the cost to run a CircuitRef,
     on a particular Quantinuum Systems device."""
@@ -141,7 +141,7 @@ def test_circuit_get_cost(
             name="qa_q_systems_circuit",
             project=my_proj,
         )
-        if expect_exception:
+        if expected_exception:
             with pytest.raises(ValueError):
                 qnx.circuits.cost(
                     circuit_ref=my_q_systems_circuit,
