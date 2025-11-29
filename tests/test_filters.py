@@ -9,9 +9,9 @@ from qnexus.models.filters import (
     CreatorFilter,
     CredentialsFilter,
     DevicesFilter,
-    FuzzyNameFilter,
     JobStatusFilter,
     JobTypeFilter,
+    NameFilter,
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
@@ -33,7 +33,7 @@ def test_all_filter_serialisation() -> None:
         CreatorFilter,
         CredentialsFilter,
         DevicesFilter,
-        FuzzyNameFilter,
+        NameFilter,
         JobStatusFilter,
         JobTypeFilter,
         PaginationFilter,
@@ -56,7 +56,8 @@ def test_all_filter_serialisation() -> None:
     test_datetime = datetime.now()
 
     params = Params(
-        name_like="test_name",
+        name_fuzzy="test_name",
+        name_exact=["test_name"],
         creator_email=["test@email.com"],
         project=dummy_project_ref,
         status=(
@@ -76,7 +77,8 @@ def test_all_filter_serialisation() -> None:
         scope=ScopeFilterEnum.ORG_ADMIN,
     ).model_dump(by_alias=True, exclude_unset=True, exclude_none=True)
 
-    assert params["filter[name]"] == "test_name"
+    assert params["filter[name_fuzzy]"] == "test_name"
+    assert params["filter[name_exact]"] == ["test_name"]
     assert params["filter[creator][email]"] == ["test@email.com"]
     assert params["filter[project][id]"] == str(dummy_project_ref.id)
     assert sorted(params["filter[properties]"]) == sorted(
