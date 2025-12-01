@@ -2,6 +2,23 @@
 
 # `qnexus` Release Notes
 
+## v0.38.0 (2025-12-01)
+
+
+### Added
+
+- Enhance search functionality with exact and fuzzy name filters (#300).
+
+
+### Fixed
+
+- Circuitref.download_circuit() now supports scope (#298).
+- Circuits.cost now uses a nexus execute job (#294).
+
+
+## v0.38.0 (2025-11-20)
+
+
 ## v0.37.1 (2025-11-18)
 
 
