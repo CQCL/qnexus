@@ -30,9 +30,9 @@ from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
-    FuzzyNameFilter,
     JobStatusFilter,
     JobTypeFilter,
+    NameFilter,
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
@@ -83,7 +83,7 @@ class Params(
     CreatorFilter,
     PropertiesFilter,
     PaginationFilter,
-    FuzzyNameFilter,
+    NameFilter,
     JobStatusFilter,
     ProjectRefFilter,
     JobTypeFilter,
@@ -97,7 +97,9 @@ class Params(
 @merge_scope_from_context
 @merge_project_from_context
 def get_all(
+    *,
     name_like: str | None = None,
+    name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -118,6 +120,7 @@ def get_all(
 
     params = Params(
         name_like=name_like,
+        name_exact=name_exact,
         creator_email=creator_email,
         project=project,
         status=(
@@ -208,7 +211,9 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
 
 @merge_scope_from_context
 def get(
+    *,
     id: Union[str, UUID, None] = None,
+    name: str | None = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -233,6 +238,7 @@ def get(
 
     return get_all(
         name_like=name_like,
+        name_exact=[name] if name else None,
         creator_email=creator_email,
         project=project,
         properties=properties,
