@@ -50,7 +50,7 @@ class Params(
 @merge_project_from_context
 def get_all(
     *,
-    name_fuzzy: str | None = None,
+    name_like: str | None = None,
     name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -67,7 +67,7 @@ def get_all(
     """Get a NexusIterator over wasm_modules with optional filters."""
 
     params = Params(
-        name_fuzzy=name_fuzzy,
+        name_like=name_like,
         name_exact=name_exact,
         creator_email=creator_email,
         properties=properties,
@@ -123,7 +123,7 @@ def get(
     *,
     id: Union[UUID, str, None] = None,
     name: str | None = None,
-    name_fuzzy: str | None = None,
+    name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -144,7 +144,7 @@ def get(
         return _fetch_by_id(wasm_module_id=id, scope=scope)
 
     return get_all(
-        name_fuzzy=name_fuzzy,
+        name_like=name_like,
         name_exact=[name] if name else None,
         creator_email=creator_email,
         properties=properties,

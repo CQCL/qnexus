@@ -70,7 +70,7 @@ def test_circuit_get_all(
             project_name,
             f"circuit2 for {test_case_name}",
         ):
-            my_circ_db_matches = qnx.circuits.get_all(name_fuzzy=test_case_name)
+            my_circ_db_matches = qnx.circuits.get_all(name_like=test_case_name)
 
             assert my_circ_db_matches.count() == 2
             assert isinstance(my_circ_db_matches.summarize(), pd.DataFrame)

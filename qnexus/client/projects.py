@@ -48,7 +48,7 @@ class Params(
 @merge_scope_from_context
 def get_all(
     *,
-    name_fuzzy: str | None = None,
+    name_like: str | None = None,
     name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
@@ -64,7 +64,7 @@ def get_all(
     """Get a NexusIterator over projects with optional filters."""
 
     params = Params(
-        name_fuzzy=name_fuzzy,
+        name_like=name_like,
         name_exact=name_exact,
         creator_email=creator_email,
         created_before=created_before,
@@ -110,7 +110,7 @@ def get(
     *,
     id: Union[str, UUID, None] = None,
     name: str | None = None,
-    name_fuzzy: str | None = None,
+    name_like: str | None = None,
     creator_email: list[str] | None = None,
     created_before: datetime | None = None,
     created_after: datetime | None = datetime(day=1, month=1, year=2023),
@@ -130,7 +130,7 @@ def get(
         return _fetch_by_id(id, scope=scope)
 
     return get_all(
-        name_fuzzy=name_fuzzy,
+        name_like=name_like,
         name_exact=[name] if name else None,
         creator_email=creator_email,
         created_before=created_before,
