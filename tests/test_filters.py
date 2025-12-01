@@ -56,7 +56,7 @@ def test_all_filter_serialisation() -> None:
     test_datetime = datetime.now()
 
     params = Params(
-        name_fuzzy="test_name",
+        name_like="test_name",
         name_exact=["test_name"],
         creator_email=["test@email.com"],
         project=dummy_project_ref,
