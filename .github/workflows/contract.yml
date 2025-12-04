@@ -60,6 +60,7 @@ jobs:
 
       - name: Run contract tests
         run: |
+          ls tests/contract/
           uv run pytest tests/contract/ --junit-xml=contract-results.xml
 
       - name: Upload contract test results
@@ -68,7 +69,6 @@ jobs:
         with:
           path: |
             ./contract-results.*
-            ./assets/*.css
           name: contract-results
 
       - uses: actions/upload-artifact@v4
