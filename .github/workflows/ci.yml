@@ -90,5 +90,5 @@ jobs:
 
   test-contracts:
     name: Verify Consumer Contracts
-    uses: .github/workflows/contract.yml
+    uses: ./.github/workflows/contract.yml
 
