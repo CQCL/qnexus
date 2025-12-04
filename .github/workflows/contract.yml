@@ -22,7 +22,6 @@ jobs:
   test-qnexus-consumer:
     name: Consumer Contract Tests
     runs-on: ubuntu-24.04
-    
     strategy:
       fail-fast: false
       matrix:
@@ -61,7 +60,7 @@ jobs:
 
       - name: Run contract tests
         run: |
-          ls tests/contract/
+          ls 
           uv run pytest tests/contract/ --junit-xml=contract-results.xml
 
       - name: Upload contract test results
