@@ -24,10 +24,7 @@ PROJECT_DATA = {
     },
 }
 
-PROJECT_DATA_MATCHERS = {
-    "id": match.uuid(str(PROJECT_DATA["id"])),
-    "attributes": {}
-}
+PROJECT_DATA_MATCHERS = {"id": match.uuid(str(PROJECT_DATA["id"])), "attributes": {}}
 
 
 def _get_matcher_value(v: Any) -> match.AbstractMatcher[Any]:
@@ -35,7 +32,7 @@ def _get_matcher_value(v: Any) -> match.AbstractMatcher[Any]:
         return match.datetime(DT_STRING, PY_DT_FORMAT)
     else:
         return match.type(v)
-    
+
 
 assert isinstance(PROJECT_DATA["attributes"], dict)
 assert isinstance(PROJECT_DATA_MATCHERS["attributes"], dict)
@@ -98,6 +95,7 @@ def test_list_projects(pact: Pact) -> None:
                 #     v = response_data[0][attributes][k]
                 for k2, v2 in PROJECT_DATA["attributes"][k].items():
                     _datetime_safe_assert(v[k2], v2)
+
 
 def _datetime_safe_assert(v1: str | datetime, v2: str | datetime) -> None:
     """
