@@ -99,5 +99,6 @@ jobs:
   test-contracts:
     name: Verify Consumer Contracts
     uses: ./.github/workflows/contract.yml
+    working-directory: .
     secrets: inherit
 

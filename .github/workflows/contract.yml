@@ -22,6 +22,7 @@ jobs:
   test-qnexus-consumer:
     name: Consumer Contract Tests
     runs-on: ubuntu-24.04
+    
     strategy:
       fail-fast: false
       matrix:
