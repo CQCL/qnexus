@@ -14,3 +14,5 @@
 | `pydantic-settings` | `>=2, <3.0` | Settings management using Pydantic | [https://pypi.org/project/pydantic-settings/](https://pypi.org/project/pydantic-settings/) |
 | `quantinuum-schemas` | `>=7.3, <8.0` | Shared data models for Quantinuum. | [https://github.com/CQCL/quantinuum-schemas](https://github.com/CQCL/quantinuum-schemas) |
 | `hugr` | `>=0.14.0, <1.0.0` | Quantinuum's common representation for quantum programs | [https://github.com/CQCL/hugr/tree/main/hugr-py](https://github.com/CQCL/hugr/tree/main/hugr-py) |
+| `numpy` | `>= 2.2.4` | Fundamental package for array computing in Python | [https://numpy.org](https://numpy.org) |
+| `pact-python` | `>= 3.1.0` | Tool for creating and verifying consumer-driven contracts using the Pact framework. | [https://pact.io](https://pact.io) |
