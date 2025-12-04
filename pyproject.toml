@@ -1,6 +1,6 @@
 [project]
 name = "qnexus"
-version = "0.37.0"
+version = "0.38.0"
 description = "Quantinuum Nexus python client."
 authors = [
     {name = "Vanya Eccles", email = "vanya.eccles@quantinuum.com"},
@@ -8,7 +8,7 @@ authors = [
     {name = "John Children", email = "john.children@quantinuum.com"},
 ]
 license = { file = "LICENSE" }
-requires-python = ">=3.10, <4"
+requires-python = ">=3.10,<4"
 readme = "quickstart.md"
 dependencies = [
     "pydantic >=2.4, <3.0",
@@ -22,7 +22,7 @@ dependencies = [
     "websockets >11, <16",
     "pydantic-settings >=2, <3.0",
     "quantinuum-schemas>=7.3, <8.0",
-    "hugr >=0.12.5, <1.0.0",
+    "hugr >=0.14.0, <1.0.0",
     "numpy >= 2.2.4",
     "pact-python >= 3.1.0",
 ]

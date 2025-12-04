@@ -11,6 +11,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_serializer
 from qnexus.models import CredentialIssuer, JobStatusEnum
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import JobType, ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 from qnexus.models.utils import AllowNone
 
 
@@ -88,13 +89,18 @@ class CreatorFilter(BaseModel):
     )
 
 
-class FuzzyNameFilter(BaseModel):
+class NameFilter(BaseModel):
     """Name model."""
 
     name_like: str | None = Field(
         default="",
-        serialization_alias="filter[name]",
+        serialization_alias="filter[name_fuzzy]",
         description="Filter by name, fuzzy search.",
+    )
+    name_exact: list[str] | None = Field(
+        default=None,
+        serialization_alias="filter[name_exact]",
+        description="Filter by name(s), exact match.",
     )
 
 
@@ -265,15 +271,6 @@ class CredentialsFilter(BaseModel):
     """Filter for credentials."""
 
     issuer: CredentialIssuer | str | None = None
-
-
-class ScopeFilterEnum(str, Enum):
-    """ScopeFilterEnum model."""
-
-    USER = "user"
-    ORG_ADMIN = "org_admin"
-    GLOBAL_ADMIN = "global_admin"
-    HIGHEST = "highest"
 
 
 class ScopeFilter(BaseModel):

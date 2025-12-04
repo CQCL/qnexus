@@ -232,9 +232,9 @@ def fixture_create_compile_job_in_project(
             config = backend_config if backend_config is not None else qnx.AerConfig()
 
             try:
-                compile_job_ref = qnx.jobs.get(name_like=job_name)
+                compile_job_ref = qnx.jobs.get(name=job_name)
             except ZeroMatches:
-                proj_ref = qnx.projects.get(name_like=project_name)
+                proj_ref = qnx.projects.get(name=project_name)
 
                 compile_job_ref = qnx.start_compile_job(
                     programs=[circuit_ref],
@@ -290,9 +290,9 @@ def fixture_create_execute_job_in_project(
             config = backend_config if backend_config is not None else qnx.AerConfig()
 
             try:
-                execute_job_ref = qnx.jobs.get(name_like=job_name)
+                execute_job_ref = qnx.jobs.get(name=job_name)
             except (ZeroMatches, NoUniqueMatch):
-                proj_ref = qnx.projects.get(name_like=project_name)
+                proj_ref = qnx.projects.get(name=project_name)
 
                 execute_job_ref = qnx.start_execute_job(
                     programs=[circuit_ref],
@@ -511,7 +511,7 @@ def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
         qnx.QulacsConfig(),
         # Non Nexus-hosted
         qnx.IBMQConfig(
-            backend_name="ibm_brisbane",
+            backend_name="ibm_torino",
             instance=(
                 "crn:v1:bluemix:public:quantum-computing:us-east:"
                 "a/18f63f4565ef4a40851959792418cbf2:"
@@ -519,7 +519,7 @@ def get_backend_config_name(backend_config: qnx.BackendConfig) -> str:
             ),
         ),
         qnx.IBMQEmulatorConfig(
-            backend_name="ibm_brisbane",
+            backend_name="ibm_torino",
             instance=(
                 "crn:v1:bluemix:public:quantum-computing:us-east:"
                 "a/18f63f4565ef4a40851959792418cbf2:"

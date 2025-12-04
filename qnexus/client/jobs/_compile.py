@@ -15,7 +15,6 @@ from qnexus.context import (
 )
 from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.references import (
     CircuitRef,
@@ -27,6 +26,7 @@ from qnexus.models.references import (
     JobType,
     ProjectRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 
 
 @accept_circuits_for_programs
@@ -150,7 +150,7 @@ def _results(
         if item["status"]["status"] == "COMPLETED":
             compilation_id = item["compilation_id"]
             comp_record_resp = get_nexus_client().get(
-                f"/api/compilations/v1beta2/{compilation_id}",
+                f"/api/compilations/v1beta3/{compilation_id}",
                 params={"scope": scope.value},
             )
 
@@ -206,7 +206,7 @@ def _fetch_compilation_output(
     """Get the input/output compiled circuit from a compilation job."""
 
     resp = get_nexus_client().get(
-        f"/api/compilations/v1beta2/{compilation_result_ref.id}",
+        f"/api/compilations/v1beta3/{compilation_result_ref.id}",
         params={"scope": scope.value},
     )
 
@@ -216,43 +216,13 @@ def _fetch_compilation_output(
         )
 
     res_dict = resp.json()
+    relationships = res_dict["data"]["relationships"]
 
-    project_id = res_dict["data"]["relationships"]["project"]["data"]["id"]
-    project_details = next(
-        proj for proj in res_dict["included"] if proj["id"] == project_id
-    )
-    project = ProjectRef(
-        id=project_id,
-        annotations=Annotations.from_dict(project_details["attributes"]),
-        contents_modified=project_details["attributes"]["contents_modified"],
-        archived=project_details["attributes"]["archived"],
-    )
+    compiled_circuit_id = relationships["compiled_circuit"]["data"]["id"]
+    compiled_circuit_ref = circuit_api.get(id=compiled_circuit_id)
 
-    compiled_circuit_id = res_dict["data"]["relationships"]["compiled_circuit"]["data"][
-        "id"
-    ]
-    compiled_circuit_details = next(
-        item for item in res_dict["included"] if item["id"] == compiled_circuit_id
-    )
-
-    compiled_circuit_ref = CircuitRef(
-        id=compiled_circuit_id,
-        annotations=Annotations.from_dict(compiled_circuit_details["attributes"]),
-        project=project,
-    )
-
-    input_circuit_id = res_dict["data"]["relationships"]["original_circuit"]["data"][
-        "id"
-    ]
-    input_circuit_details = next(
-        item for item in res_dict["included"] if item["id"] == input_circuit_id
-    )
-
-    input_circuit_ref = CircuitRef(
-        id=input_circuit_id,
-        annotations=Annotations.from_dict(input_circuit_details["attributes"]),
-        project=project,
-    )
+    input_circuit_id = relationships["original_circuit"]["data"]["id"]
+    input_circuit_ref = circuit_api.get(id=input_circuit_id)
 
     return input_circuit_ref, compiled_circuit_ref
 

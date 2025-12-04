@@ -61,14 +61,14 @@ def test_gpu_decoder_config_flow(
             qa_gpu_decoder_config,
         ) as gpu_decoder_config_ref,
     ):
-        proj_ref = qnx.projects.get(name_like=project_name)
+        proj_ref = qnx.projects.get(name=project_name)
 
         my_gpu_decoder_config_db_matches = qnx.gpu_decoder_configs.get_all()
         assert isinstance(my_gpu_decoder_config_db_matches.summarize(), pd.DataFrame)
         assert isinstance(next(my_gpu_decoder_config_db_matches), GpuDecoderConfigRef)
 
         gpu_decoder_config_ref = qnx.gpu_decoder_configs.get(
-            name_like=gpu_decoder_config_name
+            name=gpu_decoder_config_name
         )
         assert isinstance(gpu_decoder_config_ref, GpuDecoderConfigRef)
 

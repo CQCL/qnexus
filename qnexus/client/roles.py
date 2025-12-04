@@ -10,8 +10,8 @@ import qnexus.exceptions as qnx_exc
 from qnexus.client import get_nexus_client
 from qnexus.context import merge_scope_from_context
 from qnexus.models import Role, RoleInfo
-from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.references import BaseRef, DataframableList, TeamRef
+from qnexus.models.scope import ScopeFilterEnum
 
 Permission = Literal["ASSIGN", "DELETE", "WRITE", "READ"]
 RoleName = Literal["Administrator", "Contributor", "Reader", "Maintainer"]

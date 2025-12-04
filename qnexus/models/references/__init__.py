@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from abc import abstractmethod
 from copy import copy
-from datetime import datetime
 from enum import Enum
 from typing import (
     Annotated,
@@ -23,17 +22,53 @@ from uuid import UUID
 import pandas as pd
 from hugr.package import Package
 from hugr.qsystem.result import QsysResult
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import ConfigDict, Field
 from pytket.backends.backendinfo import BackendInfo
 from pytket.backends.backendresult import BackendResult
 from pytket.circuit import Circuit
 from pytket.wasm.wasm import WasmModuleHandler
 from quantinuum_schemas.models.backend_config import BackendConfig
 
+from qnexus.context import merge_scope_from_context
 from qnexus.exceptions import IncompatibleResultVersion
 from qnexus.models.annotations import Annotations
 from qnexus.models.job_status import JobStatus, JobStatusEnum
+from qnexus.models.references.base import BaseRef
+from qnexus.models.references.projects import ProjectRef
+from qnexus.models.scope import ScopeFilterEnum
 from qnexus.models.utils import assert_never
+
+__all__ = [
+    "BaseRef",  # re-export
+    "CircuitRef",
+    "CompilationPassRef",
+    "CompilationResultRef",
+    "CompileJobRef",
+    "Dataframable",
+    "DataframableList",
+    "deserialize_nexus_ref",
+    "ExecuteJobRef",
+    "ExecutionProgram",
+    "ExecutionResult",
+    "ExecutionResultRef",
+    "GpuDecoderConfigRef",
+    "HUGRRef",
+    "IncompleteJobItemRef",
+    "JobRef",
+    "JobType",
+    "JobType",
+    "ProjectRef",  # re-export
+    "QIRRef",
+    "QIRResult",
+    "ref_name_to_class",
+    "Ref",
+    "ResultType",
+    "ResultVersions",
+    "SystemRef",
+    "TeamRef",
+    "UserRef",
+    "WasmModuleRef",
+]
 
 
 class Dataframable(Protocol):
@@ -60,14 +95,6 @@ class DataframableList(list[T]):
         if len(self) == 0:
             return pd.DataFrame()
         return pd.concat([item.df() for item in self], ignore_index=True)
-
-
-class BaseRef(BaseModel):
-    """Base pydantic model."""
-
-    model_config = ConfigDict(frozen=True)
-
-    id: UUID
 
 
 class TeamRef(BaseRef):
@@ -108,38 +135,6 @@ class UserRef(BaseRef):
         )
 
 
-class ProjectRef(BaseRef):
-    """Proxy object to a Project in Nexus."""
-
-    annotations: Annotations
-    contents_modified: datetime
-    archived: bool = Field(default=False)
-    id: UUID
-    type: Literal["ProjectRef"] = "ProjectRef"
-
-    @field_serializer("contents_modified")
-    def serialize_modified(self, contents_modified: datetime | None) -> str | None:
-        """Custom serializer for datetimes."""
-        if contents_modified:
-            return str(contents_modified)
-        return None
-
-    def df(self) -> pd.DataFrame:
-        """Present in a pandas DataFrame."""
-        return pd.DataFrame(
-            {
-                "name": self.annotations.name,
-                "description": self.annotations.description,
-                "created": self.annotations.created,
-                "modified": self.annotations.modified,
-                "contents_modified": self.contents_modified,
-                "archived": self.archived,
-                "id": self.id,
-            },
-            index=[0],
-        )
-
-
 class SystemRef(BaseRef):
     """Proxy object to a System in Nexus."""
 
@@ -169,13 +164,16 @@ class CircuitRef(BaseRef):
     _circuit: Circuit | None = None
     type: Literal["CircuitRef"] = "CircuitRef"
 
-    def download_circuit(self) -> Circuit:
+    @merge_scope_from_context
+    def download_circuit(
+        self, scope: ScopeFilterEnum = ScopeFilterEnum.USER
+    ) -> Circuit:
         """Get a copy of the circuit as a pytket ``Circuit`` object."""
         if self._circuit:
             return self._circuit.copy()
         from qnexus.client.circuits import _fetch_circuit
 
-        self._circuit = _fetch_circuit(self)
+        self._circuit = _fetch_circuit(self, scope=scope)
         return self._circuit.copy()
 
     def df(self) -> pd.DataFrame:
@@ -380,9 +378,11 @@ class JobRef(BaseRef):
                     "project": self.project.annotations.name,
                     "backend_config": self.backend_config.__class__.__name__,
                     "system": self.system.name if self.system else "Unknown",
-                    "cost": self.last_status_detail.cost
-                    if self.last_status_detail
-                    else "Unknown",
+                    "cost": (
+                        self.last_status_detail.cost
+                        if self.last_status_detail
+                        else "Unknown"
+                    ),
                     "id": self.id,
                 },
                 index=[0],

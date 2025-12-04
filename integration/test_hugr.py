@@ -2,11 +2,9 @@
 
 from typing import Callable, ContextManager
 
-import pytest
 from hugr.package import Package
 
 import qnexus as qnx
-import qnexus.exceptions as qnx_exc
 from qnexus.models.annotations import PropertiesDict
 from qnexus.models.references import HUGRRef, ProjectRef, Ref
 
@@ -56,11 +54,12 @@ def test_hugr_download(
         hugr_name,
         qa_hugr_package,
     ) as hugr_ref:
-        with pytest.raises(qnx_exc.ResourceFetchFailed):
-            # Temporarily disabled due to missing functionality in hugr
-            downloaded_hugr_package = hugr_ref.download_hugr()
-            assert isinstance(downloaded_hugr_package, Package)
-            assert qa_hugr_package == downloaded_hugr_package
+        # Temporarily disabled due to missing functionality in hugr
+        downloaded_hugr_package = hugr_ref.download_hugr()
+        assert isinstance(downloaded_hugr_package, Package)
+        # Direct equality comparison not supported
+        assert qa_hugr_package.to_bytes() == downloaded_hugr_package.to_bytes()
+
         downloaded_hugr_bytes = hugr_ref.download_hugr_bytes()
         assert isinstance(downloaded_hugr_bytes, bytes)
         assert qa_hugr_package.to_bytes() == downloaded_hugr_bytes
@@ -82,8 +81,8 @@ def test_hugr_get_by_id(
         hugr_name,
         qa_hugr_package,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
-        my_hugr_ref = qnx.hugr.get(name_like=hugr_name, project=my_proj)
+        my_proj = qnx.projects.get(name=project_name)
+        my_hugr_ref = qnx.hugr.get(name=hugr_name, project=my_proj)
 
         hugr_ref_by_id = qnx.hugr.get(id=my_hugr_ref.id)
 
@@ -106,7 +105,7 @@ def test_hugr_get_all(
         hugr_name,
         qa_hugr_package,
     ):
-        my_proj = qnx.projects.get(name_like=project_name)
+        my_proj = qnx.projects.get(name=project_name)
 
         hugrs = qnx.hugr.get_all(project=my_proj)
 

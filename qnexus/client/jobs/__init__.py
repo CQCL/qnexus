@@ -30,14 +30,13 @@ from qnexus.models import BackendConfig
 from qnexus.models.annotations import Annotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
-    FuzzyNameFilter,
     JobStatusFilter,
     JobTypeFilter,
+    NameFilter,
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -61,6 +60,7 @@ from qnexus.models.references import (
     SystemRef,
     WasmModuleRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 from qnexus.models.utils import assert_never
 
 EPOCH_START = datetime(1970, 1, 1, tzinfo=timezone.utc)
@@ -72,22 +72,10 @@ class RemoteRetryStrategy(str, Enum):
     Each strategy defines how the system should approach resolving
     potential conflicts with remote state.
 
-    DEFAULT will only attempt to re-sync status and collect results
-    from the third party. Duplicate results will not be saved.
-
-    ALLOW_RESUBMIT will submit the job to the third party again if
-    # the system has no record of a third party handle.
-
-    FORCE_RESUBMIT will submit the job to the third party again if
-    the system has a job handle already but no result.
-
     FULL_RESTART will act as though the job is entirely fresh and
     re-perform every action.
     """
 
-    DEFAULT = "DEFAULT"
-    ALLOW_RESUBMIT = "ALLOW_RESUBMIT"
-    FORCE_RESUBMIT = "FORCE_RESUBMIT"
     FULL_RESTART = "FULL_RESTART"
 
 
@@ -95,7 +83,7 @@ class Params(
     CreatorFilter,
     PropertiesFilter,
     PaginationFilter,
-    FuzzyNameFilter,
+    NameFilter,
     JobStatusFilter,
     ProjectRefFilter,
     JobTypeFilter,
@@ -109,7 +97,9 @@ class Params(
 @merge_scope_from_context
 @merge_project_from_context
 def get_all(
+    *,
     name_like: str | None = None,
+    name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -130,6 +120,7 @@ def get_all(
 
     params = Params(
         name_like=name_like,
+        name_exact=name_exact,
         creator_email=creator_email,
         project=project,
         status=(
@@ -220,7 +211,9 @@ def _to_jobref(data: dict[str, Any]) -> DataframableList[CompileJobRef | Execute
 
 @merge_scope_from_context
 def get(
+    *,
     id: Union[str, UUID, None] = None,
+    name: str | None = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -245,6 +238,7 @@ def get(
 
     return get_all(
         name_like=name_like,
+        name_exact=[name] if name else None,
         creator_email=creator_email,
         project=project,
         properties=properties,
@@ -497,7 +491,7 @@ def results(
 def retry_submission(
     job: JobRef,
     retry_status: list[JobStatusEnum] | None = None,
-    remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.DEFAULT,
+    remote_retry_strategy: RemoteRetryStrategy = RemoteRetryStrategy.FULL_RESTART,
     user_group: str | None = None,
 ) -> None:
     """Retry a job in Nexus according to status(es) or retry strategy.

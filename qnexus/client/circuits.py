@@ -3,8 +3,8 @@
 from datetime import datetime
 from typing import Any, Union, cast
 from uuid import UUID
+from warnings import warn
 
-from httpx import QueryParams
 from pytket.circuit import Circuit
 from pytket.utils.serialization.migration import circuit_dict_from_pytket1_dict
 from quantinuum_schemas.models.backend_config import BackendConfig, QuantinuumConfig
@@ -22,23 +22,28 @@ from qnexus.context import (
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
-    FuzzyNameFilter,
+    NameFilter,
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
 )
-from qnexus.models.references import CircuitRef, DataframableList, ProjectRef
+from qnexus.models.references import (
+    CircuitRef,
+    DataframableList,
+    ExecutionProgram,
+    ProjectRef,
+)
+from qnexus.models.scope import ScopeFilterEnum
 
 
 class Params(
     SortFilter,
     PaginationFilter,
-    FuzzyNameFilter,
+    NameFilter,
     CreatorFilter,
     ProjectRefFilter,
     PropertiesFilter,
@@ -51,7 +56,9 @@ class Params(
 @merge_scope_from_context
 @merge_project_from_context
 def get_all(
+    *,
     name_like: str | None = None,
+    name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -68,6 +75,7 @@ def get_all(
 
     params = Params(
         name_like=name_like,
+        name_exact=name_exact,
         creator_email=creator_email,
         properties=properties,
         project=project,
@@ -121,6 +129,7 @@ def _to_circuitref(page_json: dict[str, Any]) -> DataframableList[CircuitRef]:
 def get(
     *,
     id: Union[UUID, str, None] = None,
+    name: str | None = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -143,6 +152,7 @@ def get(
 
     return get_all(
         name_like=name_like,
+        name_exact=[name] if name else None,
         creator_email=creator_email,
         properties=properties,
         project=project,
@@ -299,31 +309,65 @@ def _fetch_circuit(
 
 
 def cost(
-    circuit_ref: CircuitRef,
-    n_shots: int,
+    circuit_ref: CircuitRef | list[CircuitRef],
+    n_shots: int | list[int],
     backend_config: BackendConfig,
     syntax_checker: str | None = None,
+    project: ProjectRef | None = None,
 ) -> float | None:
-    """Calculate the cost (in HQC) of running a circuit for n_shots
-    number of shots on a specific Quantinuum device."""
+    """Estimate the cost (in HQC) of running Circuit programs for n_shots
+    number of shots on a Quantinuum H2 system.
+
+    NB: This will execute a costing job on a dedicated cost estimation device.
+        Once run, the cost will be visible also in the Nexus web portal
+        as part of the job.
+
+        If a project is not provided, it will be taken from either the active context
+        or the ProjectRef listed on the first CircuitRef.
+
+        Future versions of this function will require a ProjectRef to be provided.
+    """
+
+    import qnexus as qnx
 
     if not isinstance(backend_config, QuantinuumConfig):
-        raise ValueError("QuantinuumConfig is the only supported backend config")
+        raise ValueError(
+            "QuantinuumConfig is the only supported backend config for circuit cost estimation."
+        )
 
-    params = {
-        "n_shots": n_shots,
-        "device_name": backend_config.device_name,
-    }
-    if syntax_checker:
-        params["syntax_checker"] = syntax_checker
+    programs = circuit_ref
+    if isinstance(programs, CircuitRef):
+        programs = [programs]
 
-    res = get_nexus_client().get(
-        f"/api/circuits/v1beta2/cost/{circuit_ref.id}",
-        params=cast(QueryParams, params),
+    project = project or qnx.context.get_active_project(project_required=False)
+    if project is None:
+        warn(
+            "No ProjectRef was provided in function arguments. "
+            "Taking ProjectRef from the first CircuitRef. "
+            "In future qnexus versions, a ProjectRef will be required.",
+            DeprecationWarning,
+        )
+        project = programs[0].project
+
+    syntax_checker_device_name = backend_config.device_name
+
+    if syntax_checker is not None:
+        syntax_checker_device_name = syntax_checker
+
+    if not syntax_checker_device_name.startswith("H2-"):
+        raise ValueError("Cicuit cost estimation is only supported for H2-x systems.")
+
+    if not syntax_checker_device_name.endswith("SC"):
+        syntax_checker_device_name += "SC"
+
+    job_ref = qnx.start_execute_job(
+        programs=cast(list[ExecutionProgram], programs),
+        n_shots=n_shots,
+        # No other parameters matter for cost estimation, so construct a minimal costing config
+        backend_config=QuantinuumConfig(device_name=syntax_checker_device_name),
+        project=project,
+        name="Circuit cost estimation job",
     )
+    status = qnx.jobs.wait_for(job_ref)
 
-    if res.status_code != 200:
-        raise qnx_exc.ResourceFetchFailed(message=res.text, status_code=res.status_code)
-
-    circuit_cost: float | None = res.json()
-    return circuit_cost
+    return cast(float, status.cost)

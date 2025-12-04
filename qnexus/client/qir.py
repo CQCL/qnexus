@@ -19,12 +19,11 @@ from qnexus.models import QuantinuumConfig
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
 from qnexus.models.filters import (
     CreatorFilter,
-    FuzzyNameFilter,
+    NameFilter,
     PaginationFilter,
     ProjectRefFilter,
     PropertiesFilter,
     ScopeFilter,
-    ScopeFilterEnum,
     SortFilter,
     SortFilterEnum,
     TimeFilter,
@@ -35,12 +34,13 @@ from qnexus.models.references import (
     ProjectRef,
     QIRRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 
 
 class Params(
     SortFilter,
     PaginationFilter,
-    FuzzyNameFilter,
+    NameFilter,
     CreatorFilter,
     ProjectRefFilter,
     PropertiesFilter,
@@ -53,7 +53,9 @@ class Params(
 @merge_scope_from_context
 @merge_project_from_context
 def get_all(
+    *,
     name_like: str | None = None,
+    name_exact: list[str] | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
     properties: PropertiesDict | None = None,
@@ -70,6 +72,7 @@ def get_all(
 
     params = Params(
         name_like=name_like,
+        name_exact=name_exact,
         creator_email=creator_email,
         properties=properties,
         project=project,
@@ -123,6 +126,7 @@ def _to_qir_ref(page_json: dict[str, Any]) -> DataframableList[QIRRef]:
 def get(
     *,
     id: Union[UUID, str, None] = None,
+    name: str | None = None,
     name_like: str | None = None,
     creator_email: list[str] | None = None,
     project: ProjectRef | None = None,
@@ -145,6 +149,7 @@ def get(
         return _fetch_by_id(qir_id=id, scope=scope)
 
     return get_all(
+        name_exact=[name] if name else None,
         name_like=name_like,
         creator_email=creator_email,
         properties=properties,

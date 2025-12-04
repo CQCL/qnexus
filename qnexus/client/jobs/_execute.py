@@ -19,7 +19,6 @@ from qnexus.context import (
 )
 from qnexus.models import BackendConfig, StoredBackendInfo, to_pytket_backend_info
 from qnexus.models.annotations import Annotations, CreateAnnotations, PropertiesDict
-from qnexus.models.filters import ScopeFilterEnum
 from qnexus.models.job_status import JobStatus, JobStatusEnum
 from qnexus.models.language import Language
 from qnexus.models.references import (
@@ -39,6 +38,7 @@ from qnexus.models.references import (
     ResultVersions,
     WasmModuleRef,
 )
+from qnexus.models.scope import ScopeFilterEnum
 from qnexus.models.utils import assert_never, truncate_to_2dp
 
 
