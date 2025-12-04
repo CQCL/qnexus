@@ -60,7 +60,7 @@ jobs:
 
       - name: Run contract tests
         run: |
-          uv run pytest contract/ --junit-xml=contract-results.xml
+          uv run pytest tests/contract/ --junit-xml=contract-results.xml
 
       - name: Upload contract test results
         if: "!cancelled()"
