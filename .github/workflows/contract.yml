@@ -45,10 +45,6 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: "0"
-          # Use the pull request merge commit ref if one is provided
-          ref: ${{ github.event.inputs.pr_number && format('refs/pull/{0}/merge', github.event.inputs.pr_number) || 'main' }}
 
       - name: Set up uv & venv
         uses: astral-sh/setup-uv@v5
@@ -61,15 +57,7 @@ jobs:
       - name: Run contract tests
         run: |
           ls tests/
-          uv run pytest tests/contract/ --junit-xml=contract-results.xml
-
-      - name: Upload contract test results
-        if: "!cancelled()"
-        uses: actions/upload-artifact@master
-        with:
-          path: |
-            ./contract-results.*
-          name: contract-results
+          uv run pytest tests/contract/
 
       - uses: actions/upload-artifact@v4
         with:
