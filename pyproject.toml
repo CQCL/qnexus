@@ -23,6 +23,8 @@ dependencies = [
     "pydantic-settings >=2, <3.0",
     "quantinuum-schemas>=7.3, <8.0",
     "hugr >=0.12.5, <1.0.0",
+    "numpy >= 2.2.4",
+    "pact-python >= 3.1.0",
 ]
 
 [project.optional-dependencies]

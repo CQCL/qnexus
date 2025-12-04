@@ -88,3 +88,6 @@ jobs:
           name: pytest-results-${{ matrix.python-version }}
           path: htmlcov/
 
+      - name: Verify Consumer Contracts
+        uses: ./.github/workflows/contract.yml
+
