@@ -7,6 +7,6 @@ import pytest
 
 @pytest.fixture
 def pact() -> Generator[Pact, None, None]:
-    pact = Pact("QNexus", "Stipe").with_specification("V3")
+    pact = Pact("QNexus", "Nexus-API").with_specification("V3")
     yield pact
     pact.write_file(Path(__file__).parent.parent / "pacts")
