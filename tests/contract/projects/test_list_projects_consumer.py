@@ -60,8 +60,7 @@ PROJECT_RESPONSE = {
 def test_list_projects(pact: Pact) -> None:
     (
         pact.upon_receiving("a request to list projects")
-        .with_request("GET", "/api/projects/v1beta2")
-        .with_query_parameter("scope", "user")
+        .with_request("GET", "/api/projects/v1beta2?scope=user")
         .will_respond_with(200)
         .with_body(PROJECT_RESPONSE)
     )
