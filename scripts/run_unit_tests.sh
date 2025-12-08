@@ -11,6 +11,6 @@ uv run pytest tests/test_auth.py::test_token_refresh_expired
 
 
 echo "Running non-auth tests"
-uv run pytest tests/ -v --ignore=tests/test_auth.py
+uv run pytest tests/ -v --ignore=tests/test_auth.py --ignore=tests/contract/
 
 echo -e "\n🎉 All tests passed successfully!"

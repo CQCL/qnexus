@@ -7,6 +7,14 @@ on:
   push:
     branches:
       - main
+  workflow_call:
+    secrets:
+      PACT_BROKER_BASE_URL:
+        required: true
+      PACT_BROKER_USERNAME:
+        required: true
+      PACT_BROKER_PASSWORD:
+        required: true
 env:
   UV_VERSION: "0.6.6"
 
@@ -87,4 +95,9 @@ jobs:
         with:
           name: pytest-results-${{ matrix.python-version }}
           path: htmlcov/
+
+  test-contracts:
+    name: Verify Consumer Contracts
+    uses: ./.github/workflows/contract.yml
+    secrets: inherit
 
