@@ -1,11 +1,14 @@
 """Client API for authentication in Nexus."""
 
+import datetime
 import getpass
 import time
+import warnings
 import webbrowser
 from http import HTTPStatus
 
 import httpx
+import jwt
 from colorama import Fore
 from pydantic import EmailStr
 from rich.console import Console
@@ -18,10 +21,50 @@ from qnexus.client import (
     _check_version_headers,
     get_nexus_client,
 )
-from qnexus.client.utils import consolidate_error, remove_token, write_token
+from qnexus.client.utils import consolidate_error, read_token, remove_token, write_token
 from qnexus.config import CONFIG
 
 console = Console()
+
+
+def is_logged_in() -> bool:
+    """Check if the user is already logged in by verifying tokens and
+    attempting a lightweight authenticated request."""
+
+    try:
+        refresh_token = read_token("refresh_token")
+        access_token = read_token("access_token")
+
+        # Check that tokens are present
+        if not refresh_token or not access_token:
+            return False
+    except FileNotFoundError:
+        return False
+    # Check expiry of refresh token (assume JWT)
+    try:
+        payload = jwt.decode(refresh_token, options={"verify_signature": False})
+        exp = payload.get("exp")
+        if exp:
+            expiry_dt = datetime.datetime.fromtimestamp(exp)
+            now = datetime.datetime.now()
+            hours_left = (expiry_dt - now).total_seconds() / 3600
+            if hours_left < 24:
+                msg = (
+                    f"Your refresh token expires in less than 24 hours (expires at {expiry_dt}). "
+                    "You will need to login again after this time or use force=True to refresh now."
+                )
+                warnings.warn(msg, category=UserWarning)
+    except jwt.PyJWTError:
+        pass
+    # Try a lightweight authenticated request to check validity
+    try:
+        client = get_nexus_client()
+        resp = client.get("/api/users/v1beta2/me")
+        if resp.status_code == HTTPStatus.OK:
+            return True
+    except (httpx.HTTPError, qnx_exc.AuthenticationError):
+        pass
+    return False
 
 
 def _get_auth_client() -> httpx.Client:
@@ -33,12 +76,15 @@ def _get_auth_client() -> httpx.Client:
     )
 
 
-def login() -> None:
+def login(force: bool = False) -> None:
     """
     Log in to Quantinuum Nexus using the web browser.
 
     (if web browser can't be launched, displays the link)
     """
+    if not force and is_logged_in():
+        print("Already logged in. Tokens are valid.")
+        return
 
     res = _get_auth_client().post(
         "/device/device_authorization",
@@ -119,8 +165,11 @@ def login() -> None:
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
 
-def login_with_credentials() -> None:
+def login_with_credentials(force: bool = False) -> None:
     """Log in to Nexus using a username and password."""
+    if not force and is_logged_in():
+        print("Already logged in. Tokens are valid.")
+        return
     user_name = input("Enter your Nexus email: ")
     pwd = getpass.getpass(prompt="Enter your Nexus password: ")
 
@@ -129,12 +178,14 @@ def login_with_credentials() -> None:
     print(f"✅ Successfully logged in as {user_name}.")
 
 
-def login_no_interaction(user: EmailStr, pwd: str) -> None:
+def login_no_interaction(user: EmailStr, pwd: str, force: bool = False) -> None:
     """Log in to Nexus using a username and password.
     Please be careful with storing credentials in plain text or source code.
     """
+    if not force and is_logged_in():
+        print("Already logged in. Tokens are valid.")
+        return
     _request_tokens(user=user, pwd=pwd)
-
     print(f"✅ Successfully logged in as {user}.")
 
 

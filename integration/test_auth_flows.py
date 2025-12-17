@@ -1,5 +1,6 @@
 """Test basic functionality relating to the auth module."""
 
+from contextlib import redirect_stdout
 from io import StringIO
 from typing import Any
 
@@ -89,3 +90,24 @@ def test_domain_switch() -> None:
     assert original_domain in str(get_nexus_client().base_url)
 
     qnx.users.get_self()
+
+
+def test_login_when_already_logged_in(monkeypatch: Any) -> None:
+    """Test that logging in when already logged in notifies the user appropriately."""
+    username = CONFIG.qa_user_email
+    pwd = CONFIG.qa_user_password
+
+    # Ensure logged out first
+    qnx.logout()
+    # First login
+    monkeypatch.setattr("sys.stdin", StringIO(username + "\n"))
+    monkeypatch.setattr("getpass.getpass", lambda prompt: pwd)
+    qnx.login_with_credentials()
+
+    # Try to login again, should indicate already logged in
+    # Capture output if function prints, or check for raised exception/message
+    output = StringIO()
+    with redirect_stdout(output):
+        qnx.login_with_credentials()
+    out_str = output.getvalue()
+    assert "already logged in" in out_str.lower()
