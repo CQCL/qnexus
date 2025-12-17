@@ -1,3 +1,6 @@
+import base64
+import json
+import time
 import typing
 import warnings
 from importlib.metadata import version
@@ -13,6 +16,7 @@ from qnexus.client import (
     VERSION_STATUS_HEADER,
     get_nexus_client,
 )
+from qnexus.client.auth import is_logged_in
 from qnexus.client.utils import write_token
 
 FAKE_LATEST_VERSION = "999.99.999-never-gonna-happen"
@@ -156,3 +160,39 @@ def test_version_check_emits_warning_login(m: mock.Mock) -> None:
 
     _check_request_includes_version_data(token_request_route)
     _check_version_warning_emitted(captured)
+
+
+def _base64url_encode(data: bytes) -> str:
+    return base64.urlsafe_b64encode(data).rstrip(b"=").decode("ascii")
+
+
+@respx.mock
+def test_refresh_token_expiry_warning_emitted() -> None:
+    """Emits a warning when the refresh token expires in less than 24 hours."""
+    # Create an unsigned JWT with exp in the next hour
+    header = {"alg": "none", "typ": "JWT"}
+    payload = {"exp": int(time.time()) + 3600}
+
+    jwt_token = (
+        _base64url_encode(json.dumps(header).encode())
+        + "."
+        + _base64url_encode(json.dumps(payload).encode())
+        + "."
+    )
+
+    write_token("refresh_token", jwt_token)
+    write_token("access_token", "dummy_id")
+
+    # Mock the lightweight authenticated request
+    me_route = respx.get(f"{get_nexus_client().base_url}/api/users/v1beta2/me").mock(
+        return_value=httpx.Response(200, json={"ok": True})
+    )
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter("always")
+        assert is_logged_in() is True
+
+        messages = [str(item.message) for item in w]
+        assert any("expires in less than 24 hours" in msg for msg in messages)
+
+    assert me_route.called
