@@ -76,13 +76,13 @@ def _get_auth_client() -> httpx.Client:
     )
 
 
-def login() -> None:
+def login(force: bool = False) -> None:
     """
     Log in to Quantinuum Nexus using the web browser.
 
     (if web browser can't be launched, displays the link)
     """
-    if is_logged_in():
+    if not force and is_logged_in():
         print("Already logged in. Tokens are valid.")
         return
 
@@ -165,9 +165,9 @@ def login() -> None:
     raise qnx_exc.AuthenticationError("Browser login Failed, code has expired.")
 
 
-def login_with_credentials() -> None:
+def login_with_credentials(force: bool = False) -> None:
     """Log in to Nexus using a username and password."""
-    if is_logged_in():
+    if not force and is_logged_in():
         print("Already logged in. Tokens are valid.")
         return
     user_name = input("Enter your Nexus email: ")
@@ -178,11 +178,11 @@ def login_with_credentials() -> None:
     print(f"✅ Successfully logged in as {user_name}.")
 
 
-def login_no_interaction(user: EmailStr, pwd: str) -> None:
+def login_no_interaction(user: EmailStr, pwd: str, force: bool = False) -> None:
     """Log in to Nexus using a username and password.
     Please be careful with storing credentials in plain text or source code.
     """
-    if is_logged_in():
+    if not force and is_logged_in():
         print("Already logged in. Tokens are valid.")
         return
     _request_tokens(user=user, pwd=pwd)
