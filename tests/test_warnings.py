@@ -127,6 +127,11 @@ def test_version_check_emits_warning_login(m: mock.Mock) -> None:
     """
     base_url = get_nexus_client().base_url
 
+    # Mock the is_logged_in check (returns 401 to indicate not logged in)
+    respx.get(f"{base_url}/api/users/v1beta2/me").mock(
+        return_value=httpx.Response(401)
+    )
+
     # Mock the login endpoints
     respx.post(f"{base_url}/auth/device/device_authorization").mock(
         return_value=httpx.Response(
